@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>تسجيل الدخول - مدرسك</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800;900&family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+  <style>
+    body { display: flex; min-height: 100vh; flex-direction: column; background: var(--bg-light); }
+    .login-page { flex: 1; display: flex; align-items: center; justify-content: center; padding: 40px 20px; }
+    .login-wrapper { width: 100%; max-width: 480px; }
+    .login-logo {
+      text-align: center;
+      margin-bottom: 32px;
+    }
+    .login-logo .brand-icon-lg {
+      width: 64px;
+      height: 64px;
+      border-radius: 18px;
+      background: linear-gradient(135deg, var(--primary), var(--sky));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.8rem;
+      margin: 0 auto 12px;
+      box-shadow: 0 8px 24px rgba(37,99,235,0.3);
+    }
+    .login-logo h1 { font-family: 'Cairo', sans-serif; font-size: 1.8rem; font-weight: 800; color: var(--primary); margin-bottom: 4px; }
+    .login-logo p { font-size: 0.92rem; color: var(--text-secondary); }
+    .login-card {
+      background: white;
+      border-radius: var(--radius-xl);
+      padding: 36px;
+      box-shadow: var(--shadow-lg);
+      border: 1px solid var(--border);
+    }
+    .role-tabs {
+      display: flex;
+      background: var(--bg-soft);
+      border-radius: var(--radius-md);
+      padding: 4px;
+      margin-bottom: 28px;
+      gap: 4px;
+    }
+    .role-tab {
+      flex: 1;
+      padding: 10px;
+      border: none;
+      border-radius: var(--radius-sm);
+      font-family: 'Tajawal', sans-serif;
+      font-size: 0.95rem;
+      font-weight: 500;
+      color: var(--text-secondary);
+      background: transparent;
+      cursor: pointer;
+      transition: var(--transition);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+    }
+    .role-tab.active { background: white; color: var(--primary); font-weight: 700; box-shadow: var(--shadow-sm); }
+    .login-title { font-family: 'Cairo', sans-serif; font-size: 1.2rem; font-weight: 700; margin-bottom: 6px; }
+    .login-sub { font-size: 0.88rem; color: var(--text-secondary); margin-bottom: 24px; }
+    .input-icon-wrapper { position: relative; }
+    .input-icon-wrapper .icon { position: absolute; right: 14px; top: 50%; transform: translateY(-50%); font-size: 1rem; pointer-events: none; }
+    .input-icon-wrapper input { padding-right: 42px; }
+    .password-toggle {
+      position: absolute;
+      left: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      background: none;
+      border: none;
+      color: var(--text-muted);
+      cursor: pointer;
+      padding: 4px;
+      font-size: 0.9rem;
+      transition: color 0.2s;
+    }
+    .password-toggle:hover { color: var(--primary); }
+    .admin-note {
+      background: var(--warning-bg);
+      border: 1px solid #FCD34D;
+      border-radius: var(--radius-sm);
+      padding: 12px 14px;
+      font-size: 0.85rem;
+      color: #92400E;
+      margin-bottom: 20px;
+      display: flex;
+      gap: 8px;
+      align-items: flex-start;
+    }
+    .back-home { display: flex; justify-content: center; margin-top: 20px; }
+    .back-home a { font-size: 0.88rem; color: var(--text-muted); transition: color 0.2s; display: flex; align-items: center; gap: 4px; }
+    .back-home a:hover { color: var(--primary); }
+  </style>
+</head>
+<body>
+
+<!-- Minimal Navbar -->
+<nav class="navbar">
+  <div class="nav-container" style="max-width:1200px;margin:0 auto">
+    <a href="index.html" class="nav-brand">
+      <div class="brand-icon">🎓</div>
+      مدرسك
+    </a>
+    <a href="index.html" class="btn btn-ghost btn-sm">← الرئيسية</a>
+  </div>
+</nav>
+
+<div class="login-page">
+  <div class="login-wrapper">
+    <!-- Logo -->
+    <div class="login-logo">
+      <div class="brand-icon-lg">🎓</div>
+      <h1>مدرسك</h1>
+      <p>منصة الدروس الخصوصية</p>
+    </div>
+
+    <!-- Login Card -->
+    <div class="login-card">
+      <!-- Role Tabs -->
+      <div class="role-tabs">
+        <button class="role-tab" id="tab-teacher" onclick="setRole('teacher')">👨‍🏫 دخول المدرس</button>
+        <button class="role-tab" id="tab-admin" onclick="setRole('admin')">🔧 لوحة الإدارة</button>
+      </div>
+
+      <!-- Title -->
+      <div id="login-title" class="login-title">تسجيل الدخول</div>
+      <div id="login-sub" class="login-sub">أدخل بياناتك للوصول إلى حسابك</div>
+
+      <!-- Admin Note -->
+      <div id="admin-note" class="admin-note" style="display:none">
+        ⚠️ لوحة الإدارة مخصصة للمشرفين فقط. إذا كنت مدرسًا، استخدم تبويب "دخول المدرس"
+      </div>
+
+      <!-- Error Alert -->
+      <div id="error-alert" class="alert alert-danger" style="display:none">
+        <span>❌</span>
+        <span id="error-msg"></span>
+      </div>
+
+      <!-- Login Form -->
+      <form id="login-form" onsubmit="handleLogin(event)">
+        <div class="form-group">
+          <label class="form-label">اسم المستخدم <span class="required">*</span></label>
+          <div class="input-icon-wrapper">
+            <span class="icon">👤</span>
+            <input type="text" id="username" class="form-control" placeholder="أدخل اسم المستخدم" required autocomplete="username">
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">كلمة المرور <span class="required">*</span></label>
+          <div class="input-icon-wrapper">
+            <span class="icon">🔒</span>
+            <input type="password" id="password" class="form-control" placeholder="أدخل كلمة المرور" required autocomplete="current-password">
+            <button type="button" class="password-toggle" onclick="togglePassword()">👁</button>
+          </div>
+        </div>
+
+        <button type="submit" class="btn btn-primary btn-block btn-lg" id="login-btn">
+          تسجيل الدخول
+        </button>
+      </form>
+    </div>
+
+    <div class="back-home">
+      <a href="index.html">← العودة للصفحة الرئيسية</a>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="config.js"></script>
+<script>
+  let currentRole = 'teacher';
+
+  document.addEventListener('DOMContentLoaded', () => {
+    // Check URL param
+    const params = new URLSearchParams(window.location.search);
+    const role = params.get('role');
+    setRole(role === 'admin' ? 'admin' : 'teacher');
+
+    // If already logged in, redirect
+    if (Auth.isAdmin()) { window.location.href = 'admin.html'; return; }
+    if (Auth.isTeacher()) { window.location.href = 'dashboard.html'; return; }
+  });
+
+  function setRole(role) {
+    currentRole = role;
+    document.getElementById('tab-teacher').classList.toggle('active', role === 'teacher');
+    document.getElementById('tab-admin').classList.toggle('active', role === 'admin');
+    document.getElementById('admin-note').style.display = role === 'admin' ? '' : 'none';
+    document.getElementById('error-alert').style.display = 'none';
+
+    if (role === 'admin') {
+      document.getElementById('login-title').textContent = '🔧 دخول الإدارة';
+      document.getElementById('login-sub').textContent = 'للمشرفين فقط — أدخل بيانات الإدارة';
+    } else {
+      document.getElementById('login-title').textContent = '👨‍🏫 دخول المدرس';
+      document.getElementById('login-sub').textContent = 'أدخل بياناتك للوصول إلى لوحة التحكم';
+    }
+  }
+
+  async function handleLogin(e) {
+    e.preventDefault();
+    const username = document.getElementById('username').value.trim();
+    const password = document.getElementById('password').value;
+    const btn = document.getElementById('login-btn');
+
+    if (!username || !password) return;
+
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spinner"></span> جارٍ التحقق...';
+    hideError();
+
+    try {
+      if (currentRole === 'admin') {
+        await loginAdmin(username, password);
+      } else {
+        await loginTeacher(username, password);
+      }
+    } catch (err) {
+      showError(err.message || 'حدث خطأ أثناء تسجيل الدخول');
+    } finally {
+      btn.disabled = false;
+      btn.innerHTML = 'تسجيل الدخول';
+    }
+  }
+
+  async function loginAdmin(username, password) {
+    if (username !== CONFIG.ADMIN_USERNAME || password !== CONFIG.ADMIN_PASSWORD) {
+      throw new Error('اسم المستخدم أو كلمة المرور غير صحيحة');
+    }
+    Auth.setAdminSession();
+    showToast('مرحباً بك يا مدير! ✅', 'success');
+    setTimeout(() => window.location.href = 'admin.html', 800);
+  }
+
+  async function loginTeacher(username, password) {
+    const passwordHash = await sha256(password);
+
+    const { data, error } = await supabase
+      .from('teachers')
+      .select('id, username, name, ads_limit, is_active')
+      .eq('username', username)
+      .eq('password_hash', passwordHash)
+      .eq('is_active', true)
+      .single();
+
+    if (error || !data) {
+      throw new Error('اسم المستخدم أو كلمة المرور غير صحيحة');
+    }
+
+    Auth.setTeacherSession(data);
+    showToast(`أهلاً ${data.name}! ✅`, 'success');
+    setTimeout(() => window.location.href = 'dashboard.html', 800);
+  }
+
+  function showError(msg) {
+    const alert = document.getElementById('error-alert');
+    document.getElementById('error-msg').textContent = msg;
+    alert.style.display = 'flex';
+  }
+
+  function hideError() {
+    document.getElementById('error-alert').style.display = 'none';
+  }
+
+  function togglePassword() {
+    const input = document.getElementById('password');
+    input.type = input.type === 'password' ? 'text' : 'password';
+  }
+</script>
+</body>
+</html>

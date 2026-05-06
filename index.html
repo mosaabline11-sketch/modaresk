@@ -1,0 +1,606 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>مدرسك - ابحث عن مدرسك المثالي</title>
+  <meta name="description" content="منصة مدرسك لربط الطلاب بأفضل المدرسين الخصوصيين">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800;900&family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+  <style>
+    /* ── Hero Section ── */
+    .hero {
+      background: linear-gradient(135deg, #0F172A 0%, #1E3A5F 50%, #1D4ED8 100%);
+      color: white;
+      padding: 80px 0 100px;
+      position: relative;
+      overflow: hidden;
+    }
+    .hero::before {
+      content: '';
+      position: absolute;
+      top: -50%;
+      left: -20%;
+      width: 600px;
+      height: 600px;
+      background: radial-gradient(circle, rgba(59,130,246,0.2) 0%, transparent 70%);
+      pointer-events: none;
+    }
+    .hero::after {
+      content: '';
+      position: absolute;
+      bottom: -30%;
+      right: -10%;
+      width: 500px;
+      height: 500px;
+      background: radial-gradient(circle, rgba(14,165,233,0.15) 0%, transparent 70%);
+      pointer-events: none;
+    }
+    .hero-content { position: relative; z-index: 1; text-align: center; }
+    .hero-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(255,255,255,0.12);
+      border: 1px solid rgba(255,255,255,0.2);
+      color: #BAE6FD;
+      padding: 6px 16px;
+      border-radius: 50px;
+      font-size: 0.88rem;
+      font-weight: 500;
+      margin-bottom: 24px;
+      backdrop-filter: blur(10px);
+    }
+    .hero h1 {
+      font-size: clamp(2rem, 5vw, 3.2rem);
+      font-weight: 900;
+      line-height: 1.2;
+      margin-bottom: 16px;
+    }
+    .hero h1 .highlight { color: #60A5FA; }
+    .hero p {
+      font-size: 1.1rem;
+      color: #CBD5E1;
+      max-width: 520px;
+      margin: 0 auto 36px;
+    }
+    .hero-stats {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 32px;
+      margin-top: 36px;
+      flex-wrap: wrap;
+    }
+    .hero-stat { text-align: center; }
+    .hero-stat .num { font-family: 'Cairo', sans-serif; font-size: 1.8rem; font-weight: 800; color: #60A5FA; }
+    .hero-stat .lbl { font-size: 0.82rem; color: #94A3B8; }
+
+    /* ── Search Box ── */
+    .search-card {
+      background: white;
+      border-radius: 20px;
+      padding: 24px 28px;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.25);
+      max-width: 860px;
+      margin: 0 auto;
+      position: relative;
+      z-index: 2;
+    }
+    .search-card h3 {
+      font-family: 'Cairo', sans-serif;
+      font-size: 1rem;
+      color: var(--text-secondary);
+      margin-bottom: 16px;
+      font-weight: 600;
+    }
+    .search-row {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+    .search-row .form-control { flex: 2; min-width: 200px; }
+    .search-row select { flex: 1; min-width: 150px; }
+    .search-row .btn { white-space: nowrap; }
+    .search-row .search-main { position: relative; flex: 2; }
+    .search-row .search-main input { padding-right: 44px; width: 100%; }
+    .search-row .search-main .sicon {
+      position: absolute;
+      right: 14px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--text-muted);
+      font-size: 1rem;
+      pointer-events: none;
+    }
+
+    /* ── Filters Bar ── */
+    .filters-bar {
+      background: var(--bg-white);
+      border-bottom: 1px solid var(--border);
+      padding: 0;
+      position: sticky;
+      top: 68px;
+      z-index: 80;
+    }
+    .filters-inner {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 14px 24px;
+      overflow-x: auto;
+      scrollbar-width: none;
+    }
+    .filters-inner::-webkit-scrollbar { display: none; }
+    .filter-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 7px 14px;
+      border-radius: 50px;
+      border: 1.5px solid var(--border);
+      background: var(--bg-white);
+      font-size: 0.88rem;
+      font-weight: 500;
+      color: var(--text-secondary);
+      cursor: pointer;
+      white-space: nowrap;
+      transition: var(--transition);
+      font-family: 'Tajawal', sans-serif;
+    }
+    .filter-chip:hover { border-color: var(--primary); color: var(--primary); background: var(--primary-bg); }
+    .filter-chip.active { border-color: var(--primary); color: var(--primary); background: var(--primary-bg); font-weight: 600; }
+    .filter-label { font-size: 0.82rem; color: var(--text-muted); font-weight: 600; white-space: nowrap; }
+    .filter-select {
+      padding: 7px 36px 7px 12px;
+      border: 1.5px solid var(--border);
+      border-radius: 50px;
+      font-size: 0.88rem;
+      font-family: 'Tajawal', sans-serif;
+      color: var(--text-secondary);
+      background: var(--bg-white);
+      appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%2364748B'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: left 10px center;
+      background-size: 16px;
+      cursor: pointer;
+      outline: none;
+      transition: var(--transition);
+    }
+    .filter-select:focus, .filter-select:hover { border-color: var(--primary); color: var(--primary); }
+    .filters-count { font-size: 0.85rem; color: var(--text-muted); white-space: nowrap; margin-right: auto; }
+
+    /* ── Results Section ── */
+    .results-section { padding: 40px 0 60px; }
+    .results-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 24px; flex-wrap: wrap; gap: 12px; }
+    .results-title { font-family: 'Cairo', sans-serif; font-size: 1.2rem; font-weight: 700; }
+    .sort-select {
+      padding: 8px 36px 8px 14px;
+      border: 1.5px solid var(--border);
+      border-radius: var(--radius-sm);
+      font-size: 0.88rem;
+      font-family: 'Tajawal', sans-serif;
+      color: var(--text-secondary);
+      background: var(--bg-white);
+      appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%2364748B'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: left 10px center;
+      background-size: 16px;
+      outline: none;
+      cursor: pointer;
+    }
+
+    /* ── CTA Section ── */
+    .cta-section {
+      background: linear-gradient(135deg, var(--primary) 0%, var(--sky) 100%);
+      color: white;
+      padding: 60px 0;
+      text-align: center;
+    }
+    .cta-section h2 { font-size: 1.8rem; font-weight: 800; margin-bottom: 12px; }
+    .cta-section p { font-size: 1rem; opacity: 0.9; margin-bottom: 28px; max-width: 480px; margin-left: auto; margin-right: auto; }
+    .btn-white { background: white; color: var(--primary); font-weight: 700; }
+    .btn-white:hover { background: #F0F9FF; transform: translateY(-2px); box-shadow: 0 8px 24px rgba(0,0,0,0.2); }
+    .btn-outline-white { background: transparent; color: white; border: 2px solid rgba(255,255,255,0.5); }
+    .btn-outline-white:hover { background: rgba(255,255,255,0.15); border-color: white; }
+
+    /* ── Features ── */
+    .features { padding: 70px 0; background: var(--bg-white); }
+    .feature-card {
+      text-align: center;
+      padding: 32px 24px;
+    }
+    .feature-icon {
+      width: 68px;
+      height: 68px;
+      border-radius: 18px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.8rem;
+      margin: 0 auto 20px;
+    }
+    .feature-title { font-family: 'Cairo', sans-serif; font-weight: 700; font-size: 1.1rem; margin-bottom: 10px; }
+    .feature-desc { font-size: 0.9rem; color: var(--text-secondary); line-height: 1.7; }
+
+    @media (max-width: 768px) {
+      .hero { padding: 60px 0 70px; }
+      .search-card { padding: 20px; border-radius: 16px; }
+      .search-row { flex-direction: column; }
+      .filters-inner { padding: 12px 16px; }
+      .hero-stats { gap: 24px; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ── Navbar ── -->
+<nav class="navbar">
+  <div class="nav-container" style="max-width:1200px;margin:0 auto">
+    <a href="index.html" class="nav-brand">
+      <div class="brand-icon">🎓</div>
+      مدرسك
+    </a>
+    <ul class="nav-links" id="nav-links">
+      <li><a href="index.html" class="active">الرئيسية</a></li>
+      <li><a href="index.html#features">كيف يعمل؟</a></li>
+      <li id="nav-teacher-link" style="display:none"><a href="dashboard.html">لوحتي</a></li>
+    </ul>
+    <div class="nav-actions">
+      <div id="nav-auth">
+        <a href="login.html" class="btn btn-outline btn-sm">تسجيل الدخول</a>
+      </div>
+    </div>
+    <button class="nav-menu-btn" onclick="toggleMenu()">☰</button>
+  </div>
+</nav>
+
+<!-- ── Hero ── -->
+<section class="hero">
+  <div class="container">
+    <div class="hero-content">
+      <div class="hero-badge">✨ أكثر من <span id="hero-count">0</span> مدرس متاح الآن</div>
+      <h1>
+        ابحث عن <span class="highlight">مدرسك</span><br>المثالي بسهولة
+      </h1>
+      <p>منصة تربط الطلاب بأفضل المدرسين الخصوصيين في مختلف المواد والمراحل الدراسية</p>
+
+      <!-- Search Card -->
+      <div class="search-card">
+        <h3>🔍 ابحث عن مدرس</h3>
+        <div class="search-row">
+          <div class="search-main">
+            <span class="sicon">🔍</span>
+            <input type="text" id="hero-search" class="form-control" placeholder="اسم المدرس أو المادة...">
+          </div>
+          <select id="hero-grade" class="form-control form-select">
+            <option value="">جميع الصفوف</option>
+            <optgroup label="المرحلة الابتدائية">
+              <option>الصف الأول</option><option>الصف الثاني</option><option>الصف الثالث</option>
+              <option>الصف الرابع</option><option>الصف الخامس</option><option>الصف السادس</option>
+            </optgroup>
+            <optgroup label="المرحلة المتوسطة">
+              <option>الصف السابع</option><option>الصف الثامن</option><option>الصف التاسع</option>
+            </optgroup>
+            <optgroup label="المرحلة الثانوية">
+              <option>الصف العاشر</option><option>الصف الحادي عشر</option><option>الصف الثاني عشر</option>
+            </optgroup>
+            <option>جامعي</option>
+          </select>
+          <button class="btn btn-primary" onclick="applySearch()">
+            🔍 بحث
+          </button>
+        </div>
+      </div>
+
+      <!-- Stats -->
+      <div class="hero-stats">
+        <div class="hero-stat"><div class="num" id="stat-ads">0</div><div class="lbl">إعلان نشط</div></div>
+        <div class="hero-stat"><div class="num" id="stat-teachers">0</div><div class="lbl">مدرس متاح</div></div>
+        <div class="hero-stat"><div class="num">10+</div><div class="lbl">مادة دراسية</div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── Filters Bar ── -->
+<div class="filters-bar" id="filters-bar">
+  <div class="container">
+    <div class="filters-inner">
+      <span class="filter-label">نوع الدرس:</span>
+      <button class="filter-chip active" data-type="">الكل</button>
+      <button class="filter-chip" data-type="online">🌐 أونلاين</button>
+      <button class="filter-chip" data-type="inperson">🏠 حضوري</button>
+      <button class="filter-chip" data-type="both">🌐🏠 كلاهما</button>
+
+      <span class="filter-label" style="margin-right:16px">المادة:</span>
+      <select class="filter-select" id="filter-subject">
+        <option value="">جميع المواد</option>
+        <option>رياضيات</option><option>فيزياء</option><option>كيمياء</option>
+        <option>أحياء</option><option>عربي</option><option>إنجليزي</option>
+        <option>تاريخ</option><option>جغرافيا</option><option>علوم</option>
+        <option>فرنسي</option><option>حاسب آلي</option><option>أخرى</option>
+      </select>
+
+      <span class="filters-count" id="results-count"></span>
+    </div>
+  </div>
+</div>
+
+<!-- ── Results ── -->
+<section class="results-section">
+  <div class="container">
+    <div class="results-header">
+      <h2 class="results-title" id="results-title">🎓 جميع الإعلانات</h2>
+      <select class="sort-select" id="sort-select" onchange="sortAds()">
+        <option value="latest">الأحدث أولاً</option>
+        <option value="price-asc">السعر: من الأقل</option>
+        <option value="price-desc">السعر: من الأعلى</option>
+      </select>
+    </div>
+
+    <div id="cards-loading" class="loading-spinner">
+      <div class="spinner-lg"></div>
+    </div>
+
+    <div id="ads-grid" class="grid cards-grid" style="display:none"></div>
+
+    <div id="empty-state" class="empty-state" style="display:none">
+      <div class="empty-icon">🔍</div>
+      <div class="empty-title">لا توجد نتائج</div>
+      <div class="empty-text">جرّب تغيير معايير البحث أو الفلترة</div>
+    </div>
+  </div>
+</section>
+
+<!-- ── Features ── -->
+<section class="features" id="features">
+  <div class="container">
+    <div class="text-center mb-32">
+      <h2 class="section-title">كيف تعمل المنصة؟</h2>
+      <p class="section-sub" style="margin-bottom:0">ثلاث خطوات بسيطة للعثور على مدرسك</p>
+    </div>
+    <div class="grid grid-3">
+      <div class="feature-card">
+        <div class="feature-icon" style="background:#EFF6FF">🔍</div>
+        <div class="feature-title">ابحث عن مدرس</div>
+        <div class="feature-desc">استخدم خاصية البحث والفلترة للعثور على المدرس المناسب لمادتك وصفك الدراسي</div>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon" style="background:#F0FDF4">📋</div>
+        <div class="feature-title">اطلع على التفاصيل</div>
+        <div class="feature-desc">اقرأ وصف المدرس والمادة والسعر وأسلوب التدريس قبل اتخاذ قرارك</div>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon" style="background:#F0F9FF">💬</div>
+        <div class="feature-title">تواصل مباشرة</div>
+        <div class="feature-desc">تواصل مع المدرس مباشرة عبر واتساب أو فيسبوك بدون وسيط</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── CTA ── -->
+<section class="cta-section">
+  <div class="container">
+    <h2>هل أنت مدرس؟</h2>
+    <p>سجّل معنا وابدأ في استقطاب الطلاب من خلال إعلاناتك المميزة</p>
+    <div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap">
+      <a href="login.html?role=teacher" class="btn btn-white btn-lg">تسجيل الدخول</a>
+      <a href="#features" class="btn btn-outline-white btn-lg">اعرف المزيد</a>
+    </div>
+  </div>
+</section>
+
+<!-- ── Footer ── -->
+<footer class="footer">
+  <div class="container">
+    <div class="grid grid-3" style="gap:40px;margin-bottom:0">
+      <div>
+        <div class="footer-brand">🎓 مدرسك</div>
+        <div class="footer-desc">منصة تربط الطلاب بأفضل المدرسين الخصوصيين في مختلف المواد والمراحل الدراسية</div>
+      </div>
+      <div>
+        <div class="footer-title">روابط سريعة</div>
+        <ul class="footer-links">
+          <li><a href="index.html">الرئيسية</a></li>
+          <li><a href="login.html?role=teacher">دخول المدرسين</a></li>
+          <li><a href="login.html?role=admin">لوحة الإدارة</a></li>
+        </ul>
+      </div>
+      <div>
+        <div class="footer-title">تواصل معنا</div>
+        <ul class="footer-links">
+          <li><a href="#">📧 البريد الإلكتروني</a></li>
+          <li><a href="#">💬 واتساب</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      © 2024 مدرسك — جميع الحقوق محفوظة
+    </div>
+  </div>
+</footer>
+
+<!-- Scripts -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="config.js"></script>
+<script>
+  let allAds = [];
+  let filteredAds = [];
+  let activeType = '';
+  let searchQuery = '';
+  let filterSubject = '';
+
+  // ── On Load ──
+  document.addEventListener('DOMContentLoaded', async () => {
+    updateNavAuth();
+    await loadAds();
+    setupFilters();
+    animateStats();
+  });
+
+  function updateNavAuth() {
+    const teacher = Auth.getTeacherSession();
+    const admin = Auth.getAdminSession();
+    const authEl = document.getElementById('nav-auth');
+    const teacherLink = document.getElementById('nav-teacher-link');
+
+    if (teacher) {
+      authEl.innerHTML = `
+        <div style="display:flex;align-items:center;gap:12px">
+          <span style="font-size:0.9rem;color:var(--text-secondary)">${teacher.name}</span>
+          <a href="dashboard.html" class="btn btn-primary btn-sm">لوحتي</a>
+        </div>`;
+      teacherLink.style.display = '';
+    } else if (admin) {
+      authEl.innerHTML = `<a href="admin.html" class="btn btn-primary btn-sm">🔧 الإدارة</a>`;
+    }
+  }
+
+  async function loadAds() {
+    try {
+      const { data, error } = await supabase
+        .from('ads')
+        .select('*, teachers(id, name, avatar_url, bio, whatsapp, facebook)')
+        .eq('status', 'active')
+        .order('created_at', { ascending: false });
+
+      if (error) throw error;
+      allAds = data || [];
+      filteredAds = [...allAds];
+
+      // Update stats
+      const teacherIds = new Set(allAds.map(a => a.teacher_id));
+      document.getElementById('stat-ads').textContent = allAds.length;
+      document.getElementById('stat-teachers').textContent = teacherIds.size;
+      document.getElementById('hero-count').textContent = teacherIds.size;
+
+    } catch (e) {
+      console.error(e);
+      showToast('تعذّر تحميل البيانات. تأكد من إعدادات Supabase', 'danger');
+    }
+    renderAds();
+  }
+
+  function renderAds() {
+    const grid = document.getElementById('ads-grid');
+    const loading = document.getElementById('cards-loading');
+    const empty = document.getElementById('empty-state');
+    const count = document.getElementById('results-count');
+    const title = document.getElementById('results-title');
+
+    loading.style.display = 'none';
+    count.textContent = `${filteredAds.length} نتيجة`;
+
+    if (filteredAds.length === 0) {
+      grid.style.display = 'none';
+      empty.style.display = '';
+      return;
+    }
+
+    grid.style.display = '';
+    empty.style.display = 'none';
+    grid.innerHTML = filteredAds.map(ad => buildTeacherCard(ad, ad.teachers)).join('');
+
+    if (searchQuery) title.textContent = `🔍 نتائج: "${searchQuery}"`;
+    else if (activeType) title.textContent = `🎓 إعلانات ${activeType}`;
+    else title.textContent = '🎓 جميع الإعلانات';
+  }
+
+  function applyFilters() {
+    let result = [...allAds];
+
+    if (searchQuery) {
+      const q = searchQuery.toLowerCase();
+      result = result.filter(ad =>
+        (ad.subject || '').toLowerCase().includes(q) ||
+        (ad.grade || '').toLowerCase().includes(q) ||
+        (ad.description || '').toLowerCase().includes(q) ||
+        (ad.teachers?.name || '').toLowerCase().includes(q)
+      );
+    }
+
+    if (activeType) result = result.filter(ad => ad.lesson_type === activeType);
+    if (filterSubject) result = result.filter(ad => ad.subject === filterSubject);
+
+    filteredAds = result;
+    sortAds(false);
+    renderAds();
+  }
+
+  function sortAds(render = true) {
+    const sort = document.getElementById('sort-select').value;
+    if (sort === 'price-asc') filteredAds.sort((a,b) => a.price - b.price);
+    else if (sort === 'price-desc') filteredAds.sort((a,b) => b.price - a.price);
+    else filteredAds.sort((a,b) => new Date(b.created_at) - new Date(a.created_at));
+    if (render) renderAds();
+  }
+
+  function applySearch() {
+    searchQuery = document.getElementById('hero-search').value.trim();
+    const grade = document.getElementById('hero-grade').value;
+    if (grade) {
+      // Scroll to results and filter
+      document.getElementById('filters-bar').scrollIntoView({ behavior: 'smooth' });
+    }
+    applyFilters();
+    if (searchQuery || grade) {
+      document.getElementById('results-section')?.scrollIntoView({ behavior: 'smooth' });
+      document.querySelector('.results-section').scrollIntoView({ behavior: 'smooth' });
+    }
+  }
+
+  function setupFilters() {
+    // Lesson type chips
+    document.querySelectorAll('.filter-chip[data-type]').forEach(chip => {
+      chip.addEventListener('click', () => {
+        document.querySelectorAll('.filter-chip[data-type]').forEach(c => c.classList.remove('active'));
+        chip.classList.add('active');
+        activeType = chip.dataset.type;
+        applyFilters();
+      });
+    });
+
+    // Subject filter
+    document.getElementById('filter-subject').addEventListener('change', (e) => {
+      filterSubject = e.target.value;
+      applyFilters();
+    });
+
+    // Search on Enter
+    document.getElementById('hero-search').addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') applySearch();
+    });
+  }
+
+  function animateStats() {
+    const animateNum = (el, target) => {
+      let current = 0;
+      const step = Math.max(1, Math.ceil(target / 40));
+      const timer = setInterval(() => {
+        current = Math.min(current + step, target);
+        el.textContent = current;
+        if (current >= target) clearInterval(timer);
+      }, 40);
+    };
+    setTimeout(() => {
+      const adsEl = document.getElementById('stat-ads');
+      const teachersEl = document.getElementById('stat-teachers');
+      const heroCount = document.getElementById('hero-count');
+      animateNum(adsEl, allAds.length);
+      animateNum(teachersEl, new Set(allAds.map(a => a.teacher_id)).size);
+      animateNum(heroCount, new Set(allAds.map(a => a.teacher_id)).size);
+    }, 500);
+  }
+
+  function toggleMenu() {
+    document.getElementById('nav-links').classList.toggle('open');
+  }
+</script>
+</body>
+</html>

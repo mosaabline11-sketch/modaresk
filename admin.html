@@ -1,0 +1,816 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>لوحة الإدارة - مدرسك</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800;900&family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+  <style>
+    .admin-navbar { background: #0F172A; border-bottom: 1px solid rgba(255,255,255,0.08); position: sticky; top: 0; z-index: 100; }
+    .admin-navbar .nav-container { max-width: 1300px; margin: 0 auto; }
+    .admin-navbar .nav-brand { color: white; }
+    .admin-navbar .nav-brand .brand-icon { background: rgba(255,255,255,0.15); }
+    .admin-badge { background: rgba(239,68,68,0.2); color: #FCA5A5; padding: 3px 10px; border-radius: 50px; font-size: 0.78rem; font-weight: 600; border: 1px solid rgba(239,68,68,0.3); }
+    .admin-layout { display: flex; min-height: calc(100vh - 68px); }
+    .admin-sidebar { width: 240px; background: #0F172A; flex-shrink: 0; padding: 24px 12px; position: sticky; top: 68px; height: calc(100vh - 68px); overflow-y: auto; }
+    .admin-sidebar .sidebar-nav a { color: #94A3B8; }
+    .admin-sidebar .sidebar-nav a:hover { background: rgba(255,255,255,0.07); color: white; }
+    .admin-sidebar .sidebar-nav a.active { background: rgba(37,99,235,0.3); color: #60A5FA; }
+    .admin-sidebar .sidebar-section-title { color: #475569; }
+    .admin-content { flex: 1; padding: 28px 32px; background: var(--bg-light); overflow: hidden; min-width: 0; }
+    .admin-header { margin-bottom: 28px; }
+    .admin-header h1 { font-family: 'Cairo', sans-serif; font-size: 1.5rem; font-weight: 800; margin-bottom: 4px; }
+    .admin-header p { font-size: 0.9rem; color: var(--text-secondary); }
+    .stats-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 28px; }
+    .astat { background: white; border-radius: var(--radius-md); padding: 20px; border: 1px solid var(--border); display: flex; align-items: center; gap: 14px; }
+    .astat-icon { width: 46px; height: 46px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 1.3rem; flex-shrink: 0; }
+    .astat-num { font-family: 'Cairo', sans-serif; font-size: 1.6rem; font-weight: 800; line-height: 1; }
+    .astat-label { font-size: 0.8rem; color: var(--text-muted); margin-top: 3px; }
+    .panel { background: white; border-radius: var(--radius-lg); border: 1px solid var(--border); box-shadow: var(--shadow-sm); overflow: hidden; }
+    .panel-header { padding: 18px 24px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px; }
+    .panel-title { font-family: 'Cairo', sans-serif; font-weight: 700; font-size: 1.05rem; }
+    .admin-pane { display: none; }
+    .admin-pane.active { display: block; animation: fadeIn 0.3s ease; }
+    .table-actions { display: flex; gap: 6px; flex-wrap: wrap; }
+    .inline-badge { display: inline-flex; align-items: center; gap: 4px; padding: 3px 10px; border-radius: 50px; font-size: 0.78rem; font-weight: 600; }
+    .search-admin { max-width: 280px; position: relative; }
+    .search-admin input { padding-right: 36px; }
+    .search-admin .sicon { position: absolute; right: 11px; top: 50%; transform: translateY(-50%); font-size: 0.9rem; color: var(--text-muted); pointer-events: none; }
+    .error-banner { background: #FEF2F2; border: 1px solid #FCA5A5; color: #9B1C1C; padding: 14px 18px; border-radius: var(--radius-md); margin-bottom: 20px; font-size: 0.9rem; display: flex; align-items: center; gap: 10px; }
+    @media (max-width: 1024px) { .stats-row { grid-template-columns: repeat(2, 1fr); } }
+    @media (max-width: 768px) {
+      .admin-layout { flex-direction: column; }
+      .admin-sidebar { width: 100%; height: auto; position: static; padding: 12px; }
+      .admin-sidebar .sidebar-nav { display: flex; gap: 4px; overflow-x: auto; }
+      .admin-sidebar .sidebar-nav li + li { margin-top: 0; }
+      .admin-sidebar .sidebar-nav a { white-space: nowrap; padding: 8px 14px; }
+      .admin-sidebar .sidebar-section-title, .admin-sidebar .sidebar-divider { display: none; }
+      .admin-content { padding: 20px 16px; }
+      .stats-row { grid-template-columns: 1fr 1fr; }
+    }
+    @media (max-width: 480px) { .stats-row { grid-template-columns: 1fr; } }
+  </style>
+</head>
+<body>
+
+<!-- Admin Navbar -->
+<nav class="navbar admin-navbar">
+  <div class="nav-container" style="max-width:1300px;margin:0 auto">
+    <div class="nav-brand">
+      <div class="brand-icon">🎓</div>
+      مدرسك
+      <span class="admin-badge">ADMIN</span>
+    </div>
+    <div class="nav-actions" style="gap:12px">
+      <a href="index.html" target="_blank" class="btn btn-sm" style="color:#94A3B8;border:1px solid rgba(255,255,255,0.15);background:transparent">↗ الموقع</a>
+      <button onclick="logoutAdmin()" class="btn btn-danger btn-sm">تسجيل الخروج</button>
+    </div>
+  </div>
+</nav>
+
+<div class="admin-layout">
+  <!-- Sidebar -->
+  <aside class="admin-sidebar">
+    <div class="sidebar-section-title">القائمة الرئيسية</div>
+    <ul class="sidebar-nav">
+      <li><a href="#" class="active" onclick="return showPane('pane-overview', this)"><span class="icon">📊</span> نظرة عامة</a></li>
+      <li><a href="#" onclick="return showPane('pane-teachers', this)"><span class="icon">👨‍🏫</span> المدرسون</a></li>
+      <li><a href="#" onclick="return showPane('pane-ads', this)"><span class="icon">📋</span> الإعلانات</a></li>
+    </ul>
+    <div class="sidebar-divider"></div>
+    <div class="sidebar-section-title">إدارة</div>
+    <ul class="sidebar-nav">
+      <li><a href="#" onclick="openAddTeacherModal(); return false;"><span class="icon">➕</span> إضافة مدرس</a></li>
+    </ul>
+  </aside>
+
+  <!-- Content -->
+  <main class="admin-content">
+
+    <!-- Connection Error Banner -->
+    <div id="conn-error" class="error-banner" style="display:none">
+      ❌ <span id="conn-error-msg">تعذّر الاتصال بقاعدة البيانات. تأكد من إعدادات Supabase وسياسات RLS.</span>
+    </div>
+
+    <!-- ── Overview Pane ── -->
+    <div class="admin-pane active" id="pane-overview">
+      <div class="admin-header">
+        <h1>📊 نظرة عامة</h1>
+        <p>إحصائيات المنصة</p>
+      </div>
+      <div class="stats-row">
+        <div class="astat"><div class="astat-icon" style="background:#EFF6FF">👨‍🏫</div><div><div class="astat-num text-primary-color" id="os-teachers">—</div><div class="astat-label">مدرس مسجل</div></div></div>
+        <div class="astat"><div class="astat-icon" style="background:#F0FDF4">✅</div><div><div class="astat-num text-success" id="os-active">—</div><div class="astat-label">إعلان نشط</div></div></div>
+        <div class="astat"><div class="astat-icon" style="background:#F5F3FF">⏳</div><div><div class="astat-num" style="color:var(--pending-color)" id="os-pending">—</div><div class="astat-label">قيد المراجعة</div></div></div>
+        <div class="astat"><div class="astat-icon" style="background:#FEF2F2">❌</div><div><div class="astat-num text-danger" id="os-rejected">—</div><div class="astat-label">إعلان مرفوض</div></div></div>
+      </div>
+      <div class="panel">
+        <div class="panel-header">
+          <span class="panel-title">⏳ الإعلانات قيد المراجعة</span>
+          <a href="#" onclick="showPane('pane-ads',null); filterAdsByStatus('pending'); return false;" style="font-size:0.85rem;color:var(--primary)">عرض الكل</a>
+        </div>
+        <div id="pending-preview"><div class="loading-spinner" style="padding:30px"><div class="spinner-lg"></div></div></div>
+      </div>
+    </div>
+
+    <!-- ── Teachers Pane ── -->
+    <div class="admin-pane" id="pane-teachers">
+      <div class="admin-header">
+        <h1>👨‍🏫 المدرسون</h1>
+        <p>إدارة حسابات جميع المدرسين</p>
+      </div>
+      <div class="panel">
+        <div class="panel-header">
+          <span class="panel-title">قائمة المدرسين (<span id="teachers-count">0</span>)</span>
+          <div style="display:flex;gap:10px;flex-wrap:wrap">
+            <div class="search-admin">
+              <span class="sicon">🔍</span>
+              <input type="text" id="teacher-search" class="form-control" placeholder="بحث..." oninput="filterTeachers()" style="padding-right:36px">
+            </div>
+            <button class="btn btn-primary btn-sm" onclick="openAddTeacherModal()">+ إضافة مدرس</button>
+          </div>
+        </div>
+        <div id="teachers-loading" class="loading-spinner" style="padding:30px"><div class="spinner-lg"></div></div>
+        <div class="table-wrapper" id="teachers-table" style="display:none">
+          <table class="table">
+            <thead>
+              <tr>
+                <th>المدرس</th><th>اسم المستخدم</th><th>الحد الأقصى</th>
+                <th>الإعلانات</th><th>الحالة</th><th>الإجراءات</th>
+              </tr>
+            </thead>
+            <tbody id="teachers-tbody"></tbody>
+          </table>
+        </div>
+        <div id="teachers-empty" class="empty-state" style="display:none;padding:40px">
+          <div class="empty-icon">👥</div>
+          <div class="empty-title">لا يوجد مدرسون بعد</div>
+          <button class="btn btn-primary mt-16" onclick="openAddTeacherModal()">+ إضافة مدرس</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── Ads Pane ── -->
+    <div class="admin-pane" id="pane-ads">
+      <div class="admin-header">
+        <h1>📋 الإعلانات</h1>
+        <p>مراجعة وإدارة جميع الإعلانات</p>
+      </div>
+      <div class="panel">
+        <div class="panel-header">
+          <span class="panel-title">جميع الإعلانات (<span id="ads-count-label">0</span>)</span>
+          <select class="form-control form-select" id="ads-status-filter" onchange="loadAds()" style="width:auto;padding:8px 32px 8px 12px">
+            <option value="">جميع الحالات</option>
+            <option value="pending">قيد المراجعة</option>
+            <option value="active">مقبول</option>
+            <option value="rejected">مرفوض</option>
+          </select>
+        </div>
+        <div id="ads-loading" class="loading-spinner" style="padding:30px"><div class="spinner-lg"></div></div>
+        <div class="table-wrapper" id="ads-table" style="display:none">
+          <table class="table">
+            <thead>
+              <tr><th>العنوان</th><th>المدرس</th><th>المادة/الصف</th><th>السعر</th><th>النوع</th><th>الحالة</th><th>التاريخ</th><th>الإجراءات</th></tr>
+            </thead>
+            <tbody id="ads-tbody"></tbody>
+          </table>
+        </div>
+        <div id="ads-empty" class="empty-state" style="display:none;padding:40px">
+          <div class="empty-icon">📭</div>
+          <div class="empty-title">لا توجد إعلانات</div>
+        </div>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<!-- ── Add/Edit Teacher Modal ── -->
+<div class="modal-overlay" id="teacher-modal">
+  <div class="modal">
+    <div class="modal-header">
+      <h3 class="modal-title" id="teacher-modal-title">إضافة مدرس جديد</h3>
+      <button class="modal-close" onclick="closeModal('teacher-modal')">✕</button>
+    </div>
+    <div class="modal-body">
+      <form id="teacher-form" onsubmit="submitTeacher(event)">
+        <input type="hidden" id="t-id">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+          <div class="form-group">
+            <label class="form-label">الاسم الكامل <span class="required">*</span></label>
+            <input type="text" id="t-name" class="form-control" required placeholder="اسم المدرس">
+          </div>
+          <div class="form-group">
+            <label class="form-label">اسم المستخدم <span class="required">*</span></label>
+            <input type="text" id="t-username" class="form-control" required placeholder="teacher_name" dir="ltr">
+          </div>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+          <div class="form-group">
+            <label class="form-label">كلمة المرور <span class="required" id="pass-required">*</span></label>
+            <input type="password" id="t-password" class="form-control" placeholder="كلمة المرور">
+            <div class="form-hint" id="pass-hint">6 أحرف على الأقل</div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">الحد الأقصى للإعلانات</label>
+            <input type="number" id="t-ads-limit" class="form-control" value="3" min="1" max="50">
+          </div>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+          <div class="form-group">
+            <label class="form-label">واتساب</label>
+            <input type="text" id="t-whatsapp" class="form-control" placeholder="966501234567" dir="ltr">
+          </div>
+          <div class="form-group">
+            <label class="form-label">فيسبوك</label>
+            <input type="url" id="t-facebook" class="form-control" placeholder="https://facebook.com/..." dir="ltr">
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">نبذة</label>
+          <textarea id="t-bio" class="form-control" rows="2" placeholder="نبذة مختصرة عن المدرس"></textarea>
+        </div>
+        <div class="form-group">
+          <label class="form-label" style="display:flex;align-items:center;gap:8px;cursor:pointer">
+            <input type="checkbox" id="t-active" checked style="width:16px;height:16px">
+            الحساب مفعّل
+          </label>
+        </div>
+        <div id="teacher-modal-error" class="alert alert-danger" style="display:none"></div>
+        <div style="display:flex;gap:10px;justify-content:flex-end">
+          <button type="button" class="btn btn-ghost" onclick="closeModal('teacher-modal')">إلغاء</button>
+          <button type="submit" class="btn btn-primary" id="teacher-submit-btn">إضافة المدرس</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- ── Edit Ad Modal ── -->
+<div class="modal-overlay" id="edit-ad-modal">
+  <div class="modal">
+    <div class="modal-header">
+      <h3 class="modal-title">✏️ تعديل الإعلان</h3>
+      <button class="modal-close" onclick="closeModal('edit-ad-modal')">✕</button>
+    </div>
+    <div class="modal-body">
+      <form id="edit-ad-form" onsubmit="submitEditAd(event)">
+        <input type="hidden" id="ea-id">
+        <div class="form-group">
+          <label class="form-label">عنوان الإعلان</label>
+          <input type="text" id="ea-title" class="form-control">
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+          <div class="form-group">
+            <label class="form-label">المادة</label>
+            <select id="ea-subject" class="form-control form-select">
+              <option>رياضيات</option><option>فيزياء</option><option>كيمياء</option>
+              <option>أحياء</option><option>عربي</option><option>إنجليزي</option>
+              <option>تاريخ</option><option>جغرافيا</option><option>علوم</option>
+              <option>فرنسي</option><option>حاسب آلي</option><option>أخرى</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">الصف</label>
+            <select id="ea-grade" class="form-control form-select">
+              <option>الصف الأول</option><option>الصف الثاني</option><option>الصف الثالث</option>
+              <option>الصف الرابع</option><option>الصف الخامس</option><option>الصف السادس</option>
+              <option>الصف السابع</option><option>الصف الثامن</option><option>الصف التاسع</option>
+              <option>الصف العاشر</option><option>الصف الحادي عشر</option><option>الصف الثاني عشر</option>
+              <option>جامعي</option>
+            </select>
+          </div>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+          <div class="form-group">
+            <label class="form-label">السعر (ريال/ساعة)</label>
+            <input type="number" id="ea-price" class="form-control" min="1">
+          </div>
+          <div class="form-group">
+            <label class="form-label">نوع الدرس</label>
+            <select id="ea-lesson-type" class="form-control form-select">
+              <option value="online">أونلاين</option>
+              <option value="inperson">حضوري</option>
+              <option value="both">كلاهما</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">الوصف</label>
+          <textarea id="ea-description" class="form-control" rows="3"></textarea>
+        </div>
+        <div class="form-group">
+          <label class="form-label">الحالة</label>
+          <select id="ea-status" class="form-control form-select">
+            <option value="pending">قيد المراجعة</option>
+            <option value="active">مقبول ✅</option>
+            <option value="rejected">مرفوض ❌</option>
+          </select>
+        </div>
+        <div style="display:flex;gap:10px;justify-content:flex-end">
+          <button type="button" class="btn btn-ghost" onclick="closeModal('edit-ad-modal')">إلغاء</button>
+          <button type="submit" class="btn btn-primary">حفظ التعديلات</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="config.js"></script>
+<script>
+  let allTeachers = [];
+  let allAds = [];
+
+  // ── Guard: require admin login ──
+  document.addEventListener('DOMContentLoaded', async () => {
+    if (!Auth.requireAdmin()) return;
+    await initAdmin();
+  });
+
+  async function initAdmin() {
+    // Run all loads in parallel, each handles its own errors
+    await Promise.all([
+      loadOverview(),
+      loadTeachers(),
+      loadAds()
+    ]);
+  }
+
+  // ── Show connection error ──
+  function showConnError(msg) {
+    const el = document.getElementById('conn-error');
+    document.getElementById('conn-error-msg').textContent = msg;
+    el.style.display = 'flex';
+  }
+
+  // ── Hide all spinners (safety fallback) ──
+  function hideAllSpinners() {
+    document.querySelectorAll('.loading-spinner').forEach(el => el.style.display = 'none');
+  }
+
+  // ── Overview ──
+  async function loadOverview() {
+    try {
+      const [r1, r2, r3, r4] = await Promise.all([
+        supabase.from('teachers').select('*', { count: 'exact', head: true }),
+        supabase.from('ads').select('*', { count: 'exact', head: true }).eq('status', 'active'),
+        supabase.from('ads').select('*', { count: 'exact', head: true }).eq('status', 'pending'),
+        supabase.from('ads').select('*', { count: 'exact', head: true }).eq('status', 'rejected'),
+      ]);
+
+      // Check for errors
+      if (r1.error) throw r1.error;
+
+      document.getElementById('os-teachers').textContent = r1.count ?? 0;
+      document.getElementById('os-active').textContent   = r2.count ?? 0;
+      document.getElementById('os-pending').textContent  = r3.count ?? 0;
+      document.getElementById('os-rejected').textContent = r4.count ?? 0;
+
+      // Pending preview
+      const { data: pending, error: pErr } = await supabase
+        .from('ads')
+        .select('id, title, subject, created_at, teachers(name)')
+        .eq('status', 'pending')
+        .order('created_at', { ascending: false })
+        .limit(5);
+
+      const pp = document.getElementById('pending-preview');
+
+      if (pErr) {
+        pp.innerHTML = `<div class="error-banner" style="margin:16px">❌ ${pErr.message}</div>`;
+        return;
+      }
+
+      if (!pending || pending.length === 0) {
+        pp.innerHTML = '<div class="empty-state" style="padding:30px"><div class="empty-icon">✅</div><div class="empty-title">لا توجد إعلانات بانتظار المراجعة</div></div>';
+        return;
+      }
+
+      pp.innerHTML = `<div class="table-wrapper"><table class="table">
+        <thead><tr><th>الإعلان</th><th>المدرس</th><th>المادة</th><th>التاريخ</th><th>إجراء</th></tr></thead>
+        <tbody>${pending.map(ad => `
+          <tr>
+            <td><strong>${ad.title || ad.subject}</strong></td>
+            <td>${ad.teachers?.name || '—'}</td>
+            <td>${ad.subject}</td>
+            <td style="font-size:0.82rem;color:var(--text-muted)">${timeAgo(ad.created_at)}</td>
+            <td>
+              <div class="table-actions">
+                <button class="btn btn-success btn-sm" onclick="changeAdStatus('${ad.id}','active')">✅ قبول</button>
+                <button class="btn btn-danger btn-sm" onclick="changeAdStatus('${ad.id}','rejected')">❌ رفض</button>
+              </div>
+            </td>
+          </tr>`).join('')}
+        </tbody></table></div>`;
+
+    } catch (e) {
+      console.error('Overview error:', e);
+      showConnError(`خطأ في تحميل الإحصائيات: ${e.message}`);
+      document.getElementById('pending-preview').innerHTML =
+        `<div class="error-banner" style="margin:16px">❌ ${e.message}</div>`;
+    }
+  }
+
+  // ── Teachers ──
+  async function loadTeachers() {
+    const loadEl  = document.getElementById('teachers-loading');
+    const tableEl = document.getElementById('teachers-table');
+    const emptyEl = document.getElementById('teachers-empty');
+
+    loadEl.style.display = 'flex';
+    tableEl.style.display = 'none';
+    emptyEl.style.display = 'none';
+
+    try {
+      const { data, error } = await supabase
+        .from('teachers')
+        .select('id, name, username, ads_limit, is_active, created_at')
+        .order('created_at', { ascending: false });
+
+      if (error) throw error;
+
+      allTeachers = data || [];
+      renderTeachers(allTeachers);
+
+    } catch (e) {
+      console.error('Teachers load error:', e);
+      showConnError(`خطأ في تحميل المدرسين: ${e.message} — تأكد من تشغيل fix_rls.sql`);
+      emptyEl.style.display = '';
+      emptyEl.innerHTML = `<div class="empty-icon">❌</div><div class="empty-title">خطأ في تحميل البيانات</div><div class="empty-text">${e.message}</div>`;
+    } finally {
+      loadEl.style.display = 'none';
+    }
+  }
+
+  function renderTeachers(list) {
+    const tableEl = document.getElementById('teachers-table');
+    const emptyEl = document.getElementById('teachers-empty');
+    const countEl = document.getElementById('teachers-count');
+    const tbody   = document.getElementById('teachers-tbody');
+
+    countEl.textContent = list.length;
+
+    if (!list.length) {
+      tableEl.style.display = 'none';
+      emptyEl.style.display = '';
+      emptyEl.innerHTML = `<div class="empty-icon">👥</div><div class="empty-title">لا يوجد مدرسون بعد</div><button class="btn btn-primary mt-16" onclick="openAddTeacherModal()">+ إضافة مدرس</button>`;
+      return;
+    }
+
+    tableEl.style.display = '';
+    emptyEl.style.display = 'none';
+
+    tbody.innerHTML = list.map(t => `
+      <tr>
+        <td>
+          <div style="display:flex;align-items:center;gap:10px">
+            <div class="avatar avatar-sm">${getInitials(t.name)}</div>
+            <strong>${t.name}</strong>
+          </div>
+        </td>
+        <td><code style="background:var(--bg-soft);padding:2px 8px;border-radius:4px;font-size:0.85rem">${t.username}</code></td>
+        <td>
+          <div style="display:flex;align-items:center;gap:6px">
+            <span style="font-weight:700">${t.ads_limit}</span>
+            <button class="btn btn-ghost btn-sm" onclick="editAdLimit('${t.id}', ${t.ads_limit})" title="تعديل الحد">✏️</button>
+          </div>
+        </td>
+        <td id="tc-${t.id}" style="color:var(--text-muted);font-size:0.85rem">جارٍ...</td>
+        <td><span class="inline-badge ${t.is_active ? 'badge-active' : 'badge-rejected'}">${t.is_active ? '✅ مفعّل' : '⛔ موقوف'}</span></td>
+        <td>
+          <div class="table-actions">
+            <button class="btn btn-outline btn-sm" onclick="openEditTeacherModal('${t.id}')">✏️</button>
+            <button class="btn btn-${t.is_active ? 'warning' : 'success'} btn-sm" onclick="toggleTeacherStatus('${t.id}', ${t.is_active})">
+              ${t.is_active ? '⛔' : '✅'}
+            </button>
+            <button class="btn btn-danger btn-sm" onclick="deleteTeacher('${t.id}', '${t.name.replace(/'/g,"\\'")}')">🗑</button>
+          </div>
+        </td>
+      </tr>
+    `).join('');
+
+    // Load ads count per teacher async
+    list.forEach(async t => {
+      try {
+        const { count } = await supabase.from('ads').select('*', { count: 'exact', head: true }).eq('teacher_id', t.id);
+        const el = document.getElementById(`tc-${t.id}`);
+        if (el) el.innerHTML = `<strong>${count ?? 0}</strong> إعلان`;
+      } catch (_) {}
+    });
+  }
+
+  function filterTeachers() {
+    const q = document.getElementById('teacher-search').value.toLowerCase();
+    renderTeachers(allTeachers.filter(t =>
+      t.name.toLowerCase().includes(q) || t.username.toLowerCase().includes(q)
+    ));
+  }
+
+  // ── Ads ──
+  async function loadAds() {
+    const loadEl  = document.getElementById('ads-loading');
+    const tableEl = document.getElementById('ads-table');
+    const emptyEl = document.getElementById('ads-empty');
+
+    loadEl.style.display = 'flex';
+    tableEl.style.display = 'none';
+    emptyEl.style.display = 'none';
+
+    try {
+      const statusFilter = document.getElementById('ads-status-filter').value;
+      let query = supabase
+        .from('ads')
+        .select('*, teachers(id, name)')
+        .order('created_at', { ascending: false });
+
+      if (statusFilter) query = query.eq('status', statusFilter);
+
+      const { data, error } = await query;
+      if (error) throw error;
+
+      allAds = data || [];
+      document.getElementById('ads-count-label').textContent = allAds.length;
+      renderAds(allAds);
+
+    } catch (e) {
+      console.error('Ads load error:', e);
+      showConnError(`خطأ في تحميل الإعلانات: ${e.message}`);
+      emptyEl.style.display = '';
+      emptyEl.innerHTML = `<div class="empty-icon">❌</div><div class="empty-title">خطأ في تحميل البيانات</div><div class="empty-text">${e.message}</div>`;
+    } finally {
+      loadEl.style.display = 'none';
+    }
+  }
+
+  function renderAds(list) {
+    const tableEl = document.getElementById('ads-table');
+    const emptyEl = document.getElementById('ads-empty');
+
+    if (!list.length) {
+      tableEl.style.display = 'none';
+      emptyEl.style.display = '';
+      emptyEl.innerHTML = `<div class="empty-icon">📭</div><div class="empty-title">لا توجد إعلانات</div>`;
+      return;
+    }
+
+    tableEl.style.display = '';
+    emptyEl.style.display = 'none';
+
+    document.getElementById('ads-tbody').innerHTML = list.map(ad => `
+      <tr>
+        <td><strong style="font-size:0.92rem">${ad.title || '—'}</strong></td>
+        <td><a href="teacher.html?id=${ad.teachers?.id}" target="_blank" style="color:var(--primary);font-weight:500">${ad.teachers?.name || '—'}</a></td>
+        <td><div>${ad.subject}</div><div style="font-size:0.78rem;color:var(--text-muted)">${ad.grade}</div></td>
+        <td style="font-weight:700;color:var(--primary)">${formatPrice(ad.price)}</td>
+        <td><span class="tc-badge ${lessonTypeBadgeClass(ad.lesson_type)}">${lessonTypeLabel(ad.lesson_type)}</span></td>
+        <td><span class="inline-badge ${statusBadgeClass(ad.status)}">${statusLabel(ad.status)}</span></td>
+        <td style="font-size:0.8rem;color:var(--text-muted)">${timeAgo(ad.created_at)}</td>
+        <td>
+          <div class="table-actions">
+            ${ad.status !== 'active'   ? `<button class="btn btn-success btn-sm" onclick="changeAdStatus('${ad.id}','active')">✅</button>` : ''}
+            ${ad.status !== 'rejected' ? `<button class="btn btn-danger btn-sm" onclick="changeAdStatus('${ad.id}','rejected')">❌</button>` : ''}
+            ${ad.status !== 'pending'  ? `<button class="btn btn-warning btn-sm" onclick="changeAdStatus('${ad.id}','pending')">⏳</button>` : ''}
+            <button class="btn btn-outline btn-sm" onclick="openEditAdModal('${ad.id}')">✏️</button>
+            <button class="btn btn-danger btn-sm" onclick="deleteAd('${ad.id}')">🗑</button>
+          </div>
+        </td>
+      </tr>
+    `).join('');
+  }
+
+  function filterAdsByStatus(status) {
+    document.getElementById('ads-status-filter').value = status;
+    loadAds();
+  }
+
+  // ── Change Ad Status ──
+  async function changeAdStatus(adId, status) {
+    try {
+      const { error } = await supabase.from('ads')
+        .update({ status, updated_at: new Date().toISOString() })
+        .eq('id', adId);
+      if (error) throw error;
+      const labels = { active: '✅ تم القبول', rejected: '❌ تم الرفض', pending: '⏳ إعادة للمراجعة' };
+      showToast(labels[status] || 'تم التحديث', 'success');
+      await Promise.all([loadAds(), loadOverview()]);
+    } catch (e) {
+      showToast(`خطأ: ${e.message}`, 'danger');
+    }
+  }
+
+  // ── Delete Ad ──
+  async function deleteAd(adId) {
+    confirmDialog('هل أنت متأكد من حذف هذا الإعلان نهائياً؟', async () => {
+      try {
+        const { error } = await supabase.from('ads').delete().eq('id', adId);
+        if (error) throw error;
+        showToast('تم حذف الإعلان', 'success');
+        await Promise.all([loadAds(), loadOverview()]);
+      } catch (e) {
+        showToast(`خطأ: ${e.message}`, 'danger');
+      }
+    });
+  }
+
+  // ── Edit Ad Limit ──
+  async function editAdLimit(teacherId, currentLimit) {
+    const newLimit = prompt(`الحد الحالي: ${currentLimit}\nأدخل الحد الجديد للإعلانات:`, currentLimit);
+    if (!newLimit || isNaN(newLimit) || Number(newLimit) < 1) return;
+    try {
+      const { error } = await supabase.from('teachers').update({ ads_limit: parseInt(newLimit) }).eq('id', teacherId);
+      if (error) throw error;
+      showToast(`تم تحديث الحد إلى ${newLimit} إعلانات ✅`, 'success');
+      await loadTeachers();
+    } catch (e) {
+      showToast(`خطأ: ${e.message}`, 'danger');
+    }
+  }
+
+  // ── Toggle Teacher Status ──
+  async function toggleTeacherStatus(teacherId, isActive) {
+    confirmDialog(isActive ? 'هل تريد إيقاف هذا الحساب؟' : 'هل تريد تفعيل هذا الحساب؟', async () => {
+      try {
+        const { error } = await supabase.from('teachers').update({ is_active: !isActive }).eq('id', teacherId);
+        if (error) throw error;
+        showToast(isActive ? '⛔ تم إيقاف الحساب' : '✅ تم تفعيل الحساب', 'success');
+        await Promise.all([loadTeachers(), loadOverview()]);
+      } catch (e) {
+        showToast(`خطأ: ${e.message}`, 'danger');
+      }
+    });
+  }
+
+  // ── Delete Teacher ──
+  async function deleteTeacher(teacherId, name) {
+    confirmDialog(`حذف المدرس "${name}" وجميع إعلاناته؟ لا يمكن التراجع!`, async () => {
+      try {
+        await supabase.from('ads').delete().eq('teacher_id', teacherId);
+        const { error } = await supabase.from('teachers').delete().eq('id', teacherId);
+        if (error) throw error;
+        showToast('تم حذف المدرس وجميع إعلاناته ✅', 'success');
+        await Promise.all([loadTeachers(), loadOverview()]);
+      } catch (e) {
+        showToast(`خطأ: ${e.message}`, 'danger');
+      }
+    });
+  }
+
+  // ── Add Teacher Modal ──
+  function openAddTeacherModal() {
+    document.getElementById('teacher-modal-title').textContent = '➕ إضافة مدرس جديد';
+    document.getElementById('teacher-submit-btn').textContent = 'إضافة المدرس';
+    document.getElementById('t-id').value = '';
+    document.getElementById('teacher-form').reset();
+    document.getElementById('t-ads-limit').value = CONFIG.DEFAULT_ADS_LIMIT;
+    document.getElementById('t-active').checked = true;
+    document.getElementById('pass-required').style.display = '';
+    document.getElementById('pass-hint').textContent = '6 أحرف على الأقل — مطلوبة';
+    document.getElementById('teacher-modal-error').style.display = 'none';
+    openModal('teacher-modal');
+  }
+
+  async function openEditTeacherModal(teacherId) {
+    try {
+      const { data, error } = await supabase.from('teachers').select('*').eq('id', teacherId).single();
+      if (error) throw error;
+
+      document.getElementById('teacher-modal-title').textContent = '✏️ تعديل بيانات المدرس';
+      document.getElementById('teacher-submit-btn').textContent = 'حفظ التعديلات';
+      document.getElementById('t-id').value = teacherId;
+      document.getElementById('t-name').value = data.name || '';
+      document.getElementById('t-username').value = data.username || '';
+      document.getElementById('t-ads-limit').value = data.ads_limit || CONFIG.DEFAULT_ADS_LIMIT;
+      document.getElementById('t-whatsapp').value = data.whatsapp || '';
+      document.getElementById('t-facebook').value = data.facebook || '';
+      document.getElementById('t-bio').value = data.bio || '';
+      document.getElementById('t-active').checked = data.is_active ?? true;
+      document.getElementById('t-password').value = '';
+      document.getElementById('pass-required').style.display = 'none';
+      document.getElementById('pass-hint').textContent = 'اتركه فارغاً للإبقاء على كلمة المرور الحالية';
+      document.getElementById('teacher-modal-error').style.display = 'none';
+      openModal('teacher-modal');
+    } catch (e) {
+      showToast(`خطأ في تحميل بيانات المدرس: ${e.message}`, 'danger');
+    }
+  }
+
+  async function submitTeacher(e) {
+    e.preventDefault();
+    const btn = document.getElementById('teacher-submit-btn');
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spinner"></span> جارٍ الحفظ...';
+
+    const errEl = document.getElementById('teacher-modal-error');
+    errEl.style.display = 'none';
+
+    const isEdit = !!document.getElementById('t-id').value;
+    const teacherId = document.getElementById('t-id').value;
+    const password = document.getElementById('t-password').value;
+
+    try {
+      const payload = {
+        name:      document.getElementById('t-name').value.trim(),
+        username:  document.getElementById('t-username').value.trim(),
+        ads_limit: parseInt(document.getElementById('t-ads-limit').value) || CONFIG.DEFAULT_ADS_LIMIT,
+        whatsapp:  document.getElementById('t-whatsapp').value.trim(),
+        facebook:  document.getElementById('t-facebook').value.trim(),
+        bio:       document.getElementById('t-bio').value.trim(),
+        is_active: document.getElementById('t-active').checked,
+      };
+
+      if (!payload.name) throw new Error('الاسم مطلوب');
+      if (!payload.username) throw new Error('اسم المستخدم مطلوب');
+
+      if (!isEdit && !password) throw new Error('كلمة المرور مطلوبة للحسابات الجديدة');
+      if (password) {
+        if (password.length < 6) throw new Error('كلمة المرور يجب أن تكون 6 أحرف على الأقل');
+        payload.password_hash = await sha256(password);
+      }
+
+      let result;
+      if (isEdit) {
+        result = await supabase.from('teachers').update(payload).eq('id', teacherId);
+      } else {
+        result = await supabase.from('teachers').insert(payload);
+      }
+
+      if (result.error) {
+        if (result.error.code === '23505') throw new Error('اسم المستخدم مستخدم بالفعل، اختر اسماً مختلفاً');
+        throw result.error;
+      }
+
+      closeModal('teacher-modal');
+      showToast(isEdit ? 'تم تحديث بيانات المدرس ✅' : 'تم إضافة المدرس بنجاح ✅', 'success');
+      await Promise.all([loadTeachers(), loadOverview()]);
+
+    } catch (err) {
+      errEl.textContent = err.message;
+      errEl.style.display = 'block';
+    } finally {
+      btn.disabled = false;
+      btn.textContent = isEdit ? 'حفظ التعديلات' : 'إضافة المدرس';
+    }
+  }
+
+  // ── Edit Ad Modal ──
+  function openEditAdModal(adId) {
+    const ad = allAds.find(a => a.id === adId);
+    if (!ad) return;
+    document.getElementById('ea-id').value = adId;
+    document.getElementById('ea-title').value = ad.title || '';
+    document.getElementById('ea-subject').value = ad.subject || '';
+    document.getElementById('ea-grade').value = ad.grade || '';
+    document.getElementById('ea-price').value = ad.price || '';
+    document.getElementById('ea-lesson-type').value = ad.lesson_type || 'online';
+    document.getElementById('ea-description').value = ad.description || '';
+    document.getElementById('ea-status').value = ad.status || 'pending';
+    openModal('edit-ad-modal');
+  }
+
+  async function submitEditAd(e) {
+    e.preventDefault();
+    try {
+      const adId = document.getElementById('ea-id').value;
+      const { error } = await supabase.from('ads').update({
+        title:       document.getElementById('ea-title').value.trim(),
+        subject:     document.getElementById('ea-subject').value,
+        grade:       document.getElementById('ea-grade').value,
+        price:       parseFloat(document.getElementById('ea-price').value),
+        lesson_type: document.getElementById('ea-lesson-type').value,
+        description: document.getElementById('ea-description').value.trim(),
+        status:      document.getElementById('ea-status').value,
+        updated_at:  new Date().toISOString(),
+      }).eq('id', adId);
+      if (error) throw error;
+      closeModal('edit-ad-modal');
+      showToast('تم تحديث الإعلان ✅', 'success');
+      await Promise.all([loadAds(), loadOverview()]);
+    } catch (e) {
+      showToast(`خطأ: ${e.message}`, 'danger');
+    }
+  }
+
+  // ── Navigation ──
+  function showPane(paneId, linkEl) {
+    document.querySelectorAll('.admin-pane').forEach(p => p.classList.remove('active'));
+    document.getElementById(paneId).classList.add('active');
+    document.querySelectorAll('.admin-sidebar .sidebar-nav a').forEach(a => a.classList.remove('active'));
+    if (linkEl) linkEl.classList.add('active');
+    return false;
+  }
+
+  function openModal(id)  { document.getElementById(id).classList.add('open');    document.body.style.overflow = 'hidden'; }
+  function closeModal(id) { document.getElementById(id).classList.remove('open'); document.body.style.overflow = '';       }
+
+  function logoutAdmin() { Auth.clearAdmin(); window.location.href = 'index.html'; }
+
+  // Close modals on overlay click
+  ['teacher-modal','edit-ad-modal'].forEach(id => {
+    document.getElementById(id).addEventListener('click', e => { if (e.target === e.currentTarget) closeModal(id); });
+  });
+</script>
+</body>
+</html>

@@ -1,0 +1,528 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>لوحة المدرس - مدرسك</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800;900&family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+  <style>
+    .dash-navbar { background: var(--bg-white); border-bottom: 1px solid var(--border); position: sticky; top: 0; z-index: 100; box-shadow: var(--shadow-sm); }
+    .teacher-welcome {
+      background: linear-gradient(135deg, var(--primary) 0%, var(--sky) 100%);
+      color: white;
+      padding: 28px 32px;
+      border-radius: var(--radius-lg);
+      margin-bottom: 28px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+    .welcome-name { font-family: 'Cairo', sans-serif; font-size: 1.4rem; font-weight: 800; margin-bottom: 4px; }
+    .welcome-sub { font-size: 0.9rem; opacity: 0.85; }
+    .limit-bar-wrapper { background: rgba(255,255,255,0.2); border-radius: 50px; overflow: hidden; height: 8px; margin-top: 10px; }
+    .limit-bar { height: 100%; background: white; border-radius: 50px; transition: width 0.5s ease; }
+    .limit-text { font-size: 0.8rem; opacity: 0.85; margin-top: 6px; }
+    .section-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; flex-wrap: wrap; gap: 12px; }
+    .section-header h2 { font-family: 'Cairo', sans-serif; font-size: 1.2rem; font-weight: 700; }
+    .ad-manage-card {
+      background: white;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      overflow: hidden;
+      margin-bottom: 14px;
+      transition: var(--transition);
+    }
+    .ad-manage-card:hover { box-shadow: var(--shadow-md); }
+    .amc-header {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      padding: 16px 20px;
+      gap: 12px;
+    }
+    .amc-title { font-weight: 700; font-size: 1rem; margin-bottom: 6px; font-family: 'Cairo', sans-serif; }
+    .amc-meta { display: flex; flex-wrap: wrap; gap: 6px; }
+    .amc-actions { display: flex; gap: 8px; flex-shrink: 0; }
+    .amc-body { padding: 0 20px 14px; }
+    .amc-desc { font-size: 0.88rem; color: var(--text-secondary); }
+    .amc-price { font-weight: 700; color: var(--primary); font-family: 'Cairo', sans-serif; font-size: 1.05rem; }
+    .profile-form-card { background: white; border-radius: var(--radius-lg); border: 1px solid var(--border); padding: 28px; box-shadow: var(--shadow-sm); }
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+    @media (max-width: 600px) { .form-row { grid-template-columns: 1fr; } .amc-header { flex-direction: column; } .amc-actions { flex-direction: row; } }
+
+    /* Tabs */
+    .dash-tabs { display: flex; border-bottom: 2px solid var(--border); margin-bottom: 24px; overflow-x: auto; }
+    .dash-tab { padding: 12px 20px; background: none; border: none; border-bottom: 2px solid transparent; margin-bottom: -2px; font-family: 'Tajawal', sans-serif; font-size: 0.95rem; font-weight: 500; color: var(--text-secondary); cursor: pointer; white-space: nowrap; transition: var(--transition); display: flex; align-items: center; gap: 6px; }
+    .dash-tab.active { color: var(--primary); border-bottom-color: var(--primary); font-weight: 600; }
+    .dash-tab:hover:not(.active) { color: var(--text-primary); }
+    .dash-pane { display: none; }
+    .dash-pane.active { display: block; animation: fadeIn 0.3s ease; }
+
+    /* Stats mini */
+    .mini-stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin-bottom: 24px; }
+    .mini-stat { background: white; border: 1px solid var(--border); border-radius: var(--radius-md); padding: 16px; text-align: center; }
+    .mini-stat-num { font-family: 'Cairo', sans-serif; font-size: 1.6rem; font-weight: 800; }
+    .mini-stat-label { font-size: 0.8rem; color: var(--text-muted); margin-top: 2px; }
+    @media (max-width: 480px) { .mini-stats { grid-template-columns: 1fr; } }
+  </style>
+</head>
+<body>
+
+<!-- Navbar -->
+<nav class="navbar">
+  <div class="nav-container" style="max-width:1200px;margin:0 auto">
+    <a href="index.html" class="nav-brand">
+      <div class="brand-icon">🎓</div>
+      مدرسك
+    </a>
+    <div class="nav-actions" style="display:flex;align-items:center;gap:12px">
+      <span id="nav-teacher-name" style="font-size:0.9rem;color:var(--text-secondary)"></span>
+      <a href="index.html" class="btn btn-ghost btn-sm">الرئيسية</a>
+      <button onclick="logout()" class="btn btn-outline btn-sm">تسجيل الخروج</button>
+    </div>
+  </div>
+</nav>
+
+<div class="container" style="padding-top:32px;padding-bottom:60px;max-width:900px">
+
+  <!-- Welcome Banner -->
+  <div class="teacher-welcome" id="welcome-banner">
+    <div>
+      <div class="welcome-name">مرحباً، <span id="teacher-name-display">...</span> 👋</div>
+      <div class="welcome-sub">هذه لوحة تحكم حسابك في منصة مدرسك</div>
+      <div class="limit-text" id="limit-text"></div>
+      <div class="limit-bar-wrapper" style="max-width:200px"><div class="limit-bar" id="limit-bar" style="width:0%"></div></div>
+    </div>
+    <a href="teacher.html?id=" id="view-profile-btn" class="btn btn-white" style="color:var(--primary)">
+      👁 عرض ملفي
+    </a>
+  </div>
+
+  <!-- Tabs -->
+  <div class="dash-tabs">
+    <button class="dash-tab active" onclick="switchTab('ads')">📋 إعلاناتي</button>
+    <button class="dash-tab" onclick="switchTab('profile')">👤 الملف الشخصي</button>
+  </div>
+
+  <!-- ── Ads Tab ── -->
+  <div class="dash-pane active" id="tab-ads">
+    <!-- Mini Stats -->
+    <div class="mini-stats">
+      <div class="mini-stat"><div class="mini-stat-num text-primary-color" id="stat-active">0</div><div class="mini-stat-label">مقبول</div></div>
+      <div class="mini-stat"><div class="mini-stat-num" style="color:var(--pending-color)" id="stat-pending">0</div><div class="mini-stat-label">قيد المراجعة</div></div>
+      <div class="mini-stat"><div class="mini-stat-num text-danger" id="stat-rejected">0</div><div class="mini-stat-label">مرفوض</div></div>
+    </div>
+
+    <div class="section-header">
+      <h2>📋 إعلاناتي</h2>
+      <button class="btn btn-primary" id="add-ad-btn" onclick="openAddAdModal()">+ إعلان جديد</button>
+    </div>
+
+    <div id="ads-loading" class="loading-spinner"><div class="spinner-lg"></div></div>
+    <div id="ads-list" style="display:none"></div>
+    <div id="ads-empty" class="empty-state" style="display:none">
+      <div class="empty-icon">📭</div>
+      <div class="empty-title">لا توجد إعلانات بعد</div>
+      <div class="empty-text">أضف أول إعلان لك ليظهر للطلاب</div>
+      <button class="btn btn-primary mt-16" onclick="openAddAdModal()">+ إضافة إعلان</button>
+    </div>
+  </div>
+
+  <!-- ── Profile Tab ── -->
+  <div class="dash-pane" id="tab-profile">
+    <div class="profile-form-card">
+      <h3 style="font-family:'Cairo',sans-serif;font-weight:700;margin-bottom:24px">👤 تعديل الملف الشخصي</h3>
+      <form id="profile-form" onsubmit="saveProfile(event)">
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">الاسم الكامل <span class="required">*</span></label>
+            <input type="text" id="p-name" class="form-control" placeholder="اسمك الكامل" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label">رقم الجوال</label>
+            <input type="tel" id="p-phone" class="form-control" placeholder="05xxxxxxxx">
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">واتساب</label>
+            <input type="text" id="p-whatsapp" class="form-control" placeholder="رقم الواتساب (مع كود الدولة)">
+            <div class="form-hint">مثال: 966501234567</div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">رابط فيسبوك</label>
+            <input type="url" id="p-facebook" class="form-control" placeholder="https://facebook.com/...">
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">رابط صورة الملف الشخصي</label>
+          <input type="url" id="p-avatar" class="form-control" placeholder="https://...">
+        </div>
+        <div class="form-group">
+          <label class="form-label">نبذة عنك</label>
+          <textarea id="p-bio" class="form-control" rows="4" placeholder="اكتب نبذة مختصرة عن خبرتك وأسلوب تدريسك..."></textarea>
+        </div>
+        <div class="form-group">
+          <label class="form-label">تغيير كلمة المرور</label>
+          <input type="password" id="p-new-password" class="form-control" placeholder="اتركه فارغاً إذا لا تريد التغيير">
+          <div class="form-hint">6 أحرف على الأقل</div>
+        </div>
+        <button type="submit" class="btn btn-primary btn-lg" id="profile-save-btn">💾 حفظ التغييرات</button>
+      </form>
+    </div>
+  </div>
+
+</div>
+
+<!-- ── Add/Edit Ad Modal ── -->
+<div class="modal-overlay" id="ad-modal">
+  <div class="modal">
+    <div class="modal-header">
+      <h3 class="modal-title" id="modal-title">إضافة إعلان جديد</h3>
+      <button class="modal-close" onclick="closeAdModal()">✕</button>
+    </div>
+    <div class="modal-body">
+      <form id="ad-form" onsubmit="submitAd(event)">
+        <input type="hidden" id="ad-id">
+        <div class="form-group">
+          <label class="form-label">عنوان الإعلان <span class="required">*</span></label>
+          <input type="text" id="ad-title" class="form-control" placeholder="مثال: دروس رياضيات للصف الثالث متوسط" required>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">المادة <span class="required">*</span></label>
+            <select id="ad-subject" class="form-control form-select" required>
+              <option value="">اختر المادة</option>
+              <option>رياضيات</option><option>فيزياء</option><option>كيمياء</option>
+              <option>أحياء</option><option>عربي</option><option>إنجليزي</option>
+              <option>تاريخ</option><option>جغرافيا</option><option>علوم</option>
+              <option>فرنسي</option><option>حاسب آلي</option><option>أخرى</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">الصف الدراسي <span class="required">*</span></label>
+            <select id="ad-grade" class="form-control form-select" required>
+              <option value="">اختر الصف</option>
+              <optgroup label="ابتدائي">
+                <option>الصف الأول</option><option>الصف الثاني</option><option>الصف الثالث</option>
+                <option>الصف الرابع</option><option>الصف الخامس</option><option>الصف السادس</option>
+              </optgroup>
+              <optgroup label="متوسط">
+                <option>الصف السابع</option><option>الصف الثامن</option><option>الصف التاسع</option>
+              </optgroup>
+              <optgroup label="ثانوي">
+                <option>الصف العاشر</option><option>الصف الحادي عشر</option><option>الصف الثاني عشر</option>
+              </optgroup>
+              <option>جامعي</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">السعر (ريال/ساعة) <span class="required">*</span></label>
+            <input type="number" id="ad-price" class="form-control" placeholder="100" min="1" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label">نوع الدرس <span class="required">*</span></label>
+            <select id="ad-lesson-type" class="form-control form-select" required>
+              <option value="">اختر</option>
+              <option value="online">🌐 أونلاين</option>
+              <option value="inperson">🏠 حضوري</option>
+              <option value="both">🌐🏠 كلاهما</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">وصف الإعلان</label>
+          <textarea id="ad-description" class="form-control" rows="3" placeholder="اكتب تفاصيل إضافية عن أسلوب التدريس والخبرة..."></textarea>
+        </div>
+        <div class="form-group">
+          <label class="form-label">معلومات تواصل إضافية</label>
+          <input type="text" id="ad-extra-contact" class="form-control" placeholder="مثال: تيليجرام: @username أو أي رابط تواصل آخر">
+          <div class="form-hint">سيُعرض بجانب بيانات واتساب وفيسبوك من ملفك</div>
+        </div>
+        <div id="modal-error" class="alert alert-danger" style="display:none"></div>
+        <div style="display:flex;gap:10px;justify-content:flex-end;margin-top:4px">
+          <button type="button" class="btn btn-ghost" onclick="closeAdModal()">إلغاء</button>
+          <button type="submit" class="btn btn-primary" id="ad-submit-btn">نشر الإعلان</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="config.js"></script>
+<script>
+  let teacher = null;
+  let teacherAds = [];
+
+  document.addEventListener('DOMContentLoaded', async () => {
+    if (!Auth.requireTeacher()) return;
+    teacher = Auth.getTeacherSession();
+
+    document.getElementById('teacher-name-display').textContent = teacher.name;
+    document.getElementById('nav-teacher-name').textContent = teacher.name;
+    document.getElementById('view-profile-btn').href = `teacher.html?id=${teacher.id}`;
+
+    await loadTeacherData();
+    await loadAds();
+  });
+
+  async function loadTeacherData() {
+    const { data } = await supabase
+      .from('teachers')
+      .select('name, bio, avatar_url, whatsapp, facebook, phone, ads_limit')
+      .eq('id', teacher.id)
+      .single();
+
+    if (data) {
+      document.getElementById('p-name').value = data.name || '';
+      document.getElementById('p-bio').value = data.bio || '';
+      document.getElementById('p-whatsapp').value = data.whatsapp || '';
+      document.getElementById('p-facebook').value = data.facebook || '';
+      document.getElementById('p-phone').value = data.phone || '';
+      document.getElementById('p-avatar').value = data.avatar_url || '';
+
+      // Update limit in auth session
+      teacher.ads_limit = data.ads_limit || CONFIG.DEFAULT_ADS_LIMIT;
+    }
+  }
+
+  async function loadAds() {
+    document.getElementById('ads-loading').style.display = 'flex';
+    document.getElementById('ads-list').style.display = 'none';
+
+    const { data } = await supabase
+      .from('ads')
+      .select('*')
+      .eq('teacher_id', teacher.id)
+      .order('created_at', { ascending: false });
+
+    teacherAds = data || [];
+    renderAds();
+    updateStats();
+    updateLimitDisplay();
+
+    document.getElementById('ads-loading').style.display = 'none';
+  }
+
+  function updateStats() {
+    document.getElementById('stat-active').textContent = teacherAds.filter(a => a.status === 'active').length;
+    document.getElementById('stat-pending').textContent = teacherAds.filter(a => a.status === 'pending').length;
+    document.getElementById('stat-rejected').textContent = teacherAds.filter(a => a.status === 'rejected').length;
+  }
+
+  function updateLimitDisplay() {
+    const limit = teacher.ads_limit || CONFIG.DEFAULT_ADS_LIMIT;
+    const used = teacherAds.length;
+    const pct = Math.min(100, (used / limit) * 100);
+    document.getElementById('limit-text').textContent = `الإعلانات: ${used} من ${limit}`;
+    document.getElementById('limit-bar').style.width = `${pct}%`;
+
+    const addBtn = document.getElementById('add-ad-btn');
+    if (used >= limit) {
+      addBtn.disabled = true;
+      addBtn.textContent = `🚫 وصلت للحد الأقصى (${limit})`;
+    } else {
+      addBtn.disabled = false;
+      addBtn.textContent = `+ إعلان جديد`;
+    }
+  }
+
+  function renderAds() {
+    const list = document.getElementById('ads-list');
+    const empty = document.getElementById('ads-empty');
+
+    if (teacherAds.length === 0) {
+      list.style.display = 'none';
+      empty.style.display = '';
+      return;
+    }
+
+    list.style.display = '';
+    empty.style.display = 'none';
+
+    list.innerHTML = teacherAds.map(ad => `
+      <div class="ad-manage-card animate-in">
+        <div class="amc-header">
+          <div style="flex:1;min-width:0">
+            <div class="amc-title">${ad.title || ad.subject}</div>
+            <div class="amc-meta">
+              <span class="tc-badge badge-grade">📗 ${ad.grade}</span>
+              <span class="tc-badge ${lessonTypeBadgeClass(ad.lesson_type)}">${lessonTypeLabel(ad.lesson_type)}</span>
+              <span class="tc-badge ${statusBadgeClass(ad.status)}">${statusLabel(ad.status)}</span>
+            </div>
+          </div>
+          <div class="amc-actions">
+            <button class="btn btn-ghost btn-sm" onclick="openEditAdModal('${ad.id}')">✏️ تعديل</button>
+            <button class="btn btn-danger btn-sm" onclick="deleteAd('${ad.id}')">🗑</button>
+          </div>
+        </div>
+        <div class="amc-body">
+          <div class="amc-price">💰 ${formatPrice(ad.price)} / الساعة</div>
+          ${ad.description ? `<div class="amc-desc mt-8">${ad.description}</div>` : ''}
+          ${ad.status === 'pending' ? '<div class="alert alert-info mt-8" style="padding:8px 12px;font-size:0.82rem">⏳ هذا الإعلان في انتظار مراجعة الإدارة</div>' : ''}
+          ${ad.status === 'rejected' ? '<div class="alert alert-danger mt-8" style="padding:8px 12px;font-size:0.82rem">❌ تم رفض هذا الإعلان من قبل الإدارة</div>' : ''}
+        </div>
+      </div>
+    `).join('');
+  }
+
+  function openAddAdModal() {
+    const limit = teacher.ads_limit || CONFIG.DEFAULT_ADS_LIMIT;
+    if (teacherAds.length >= limit) {
+      showToast(`لا يمكنك إضافة أكثر من ${limit} إعلانات`, 'warning');
+      return;
+    }
+    document.getElementById('modal-title').textContent = '+ إعلان جديد';
+    document.getElementById('ad-submit-btn').textContent = 'نشر الإعلان';
+    document.getElementById('ad-id').value = '';
+    document.getElementById('ad-form').reset();
+    document.getElementById('modal-error').style.display = 'none';
+    openModal('ad-modal');
+  }
+
+  async function openEditAdModal(adId) {
+    const ad = teacherAds.find(a => a.id === adId);
+    if (!ad) return;
+
+    document.getElementById('modal-title').textContent = '✏️ تعديل الإعلان';
+    document.getElementById('ad-submit-btn').textContent = 'حفظ التعديلات';
+    document.getElementById('ad-id').value = adId;
+    document.getElementById('ad-title').value = ad.title || '';
+    document.getElementById('ad-subject').value = ad.subject || '';
+    document.getElementById('ad-grade').value = ad.grade || '';
+    document.getElementById('ad-price').value = ad.price || '';
+    document.getElementById('ad-lesson-type').value = ad.lesson_type || '';
+    document.getElementById('ad-description').value = ad.description || '';
+    document.getElementById('ad-extra-contact').value = ad.extra_contact || '';
+    document.getElementById('modal-error').style.display = 'none';
+    openModal('ad-modal');
+  }
+
+  async function submitAd(e) {
+    e.preventDefault();
+    const btn = document.getElementById('ad-submit-btn');
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spinner"></span>';
+
+    const adId = document.getElementById('ad-id').value;
+    const isEdit = !!adId;
+
+    const payload = {
+      teacher_id: teacher.id,
+      title: document.getElementById('ad-title').value.trim(),
+      subject: document.getElementById('ad-subject').value,
+      grade: document.getElementById('ad-grade').value,
+      price: parseFloat(document.getElementById('ad-price').value),
+      lesson_type: document.getElementById('ad-lesson-type').value,
+      description: document.getElementById('ad-description').value.trim(),
+      extra_contact: document.getElementById('ad-extra-contact').value.trim(),
+      status: isEdit ? undefined : 'pending',
+    };
+
+    if (isEdit) delete payload.status;
+    if (isEdit) delete payload.teacher_id;
+
+    try {
+      let error;
+      if (isEdit) {
+        const res = await supabase.from('ads').update({ ...payload, updated_at: new Date().toISOString() }).eq('id', adId).eq('teacher_id', teacher.id);
+        error = res.error;
+      } else {
+        const res = await supabase.from('ads').insert(payload);
+        error = res.error;
+      }
+
+      if (error) throw error;
+
+      closeModal('ad-modal');
+      showToast(isEdit ? 'تم تعديل الإعلان ✅' : 'تم إضافة الإعلان وهو في انتظار المراجعة ⏳', 'success');
+      await loadAds();
+    } catch (err) {
+      document.getElementById('modal-error').textContent = err.message;
+      document.getElementById('modal-error').style.display = 'block';
+    } finally {
+      btn.disabled = false;
+      btn.textContent = isEdit ? 'حفظ التعديلات' : 'نشر الإعلان';
+    }
+  }
+
+  async function deleteAd(adId) {
+    confirmDialog('هل أنت متأكد من حذف هذا الإعلان؟', async () => {
+      const { error } = await supabase.from('ads').delete().eq('id', adId).eq('teacher_id', teacher.id);
+      if (error) { showToast('حدث خطأ عند الحذف', 'danger'); return; }
+      showToast('تم حذف الإعلان', 'success');
+      await loadAds();
+    });
+  }
+
+  async function saveProfile(e) {
+    e.preventDefault();
+    const btn = document.getElementById('profile-save-btn');
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spinner"></span> جارٍ الحفظ...';
+
+    try {
+      const updates = {
+        name: document.getElementById('p-name').value.trim(),
+        bio: document.getElementById('p-bio').value.trim(),
+        whatsapp: document.getElementById('p-whatsapp').value.trim(),
+        facebook: document.getElementById('p-facebook').value.trim(),
+        phone: document.getElementById('p-phone').value.trim(),
+        avatar_url: document.getElementById('p-avatar').value.trim(),
+      };
+
+      const newPassword = document.getElementById('p-new-password').value;
+      if (newPassword) {
+        if (newPassword.length < 6) throw new Error('كلمة المرور يجب أن تكون 6 أحرف على الأقل');
+        updates.password_hash = await sha256(newPassword);
+      }
+
+      const { error } = await supabase.from('teachers').update(updates).eq('id', teacher.id);
+      if (error) throw error;
+
+      // Update session name
+      teacher.name = updates.name;
+      Auth.setTeacherSession({ ...teacher, name: updates.name });
+      document.getElementById('teacher-name-display').textContent = updates.name;
+      document.getElementById('nav-teacher-name').textContent = updates.name;
+
+      showToast('تم حفظ التغييرات ✅', 'success');
+    } catch (err) {
+      showToast(err.message || 'حدث خطأ', 'danger');
+    } finally {
+      btn.disabled = false;
+      btn.textContent = '💾 حفظ التغييرات';
+    }
+  }
+
+  function switchTab(tab) {
+    document.querySelectorAll('.dash-tab').forEach((t, i) => {
+      t.classList.toggle('active', (i === 0 && tab === 'ads') || (i === 1 && tab === 'profile'));
+    });
+    document.getElementById('tab-ads').classList.toggle('active', tab === 'ads');
+    document.getElementById('tab-profile').classList.toggle('active', tab === 'profile');
+  }
+
+  function openModal(id) { document.getElementById(id).classList.add('open'); document.body.style.overflow = 'hidden'; }
+  function closeModal(id) { document.getElementById(id).classList.remove('open'); document.body.style.overflow = ''; }
+  function closeAdModal() { closeModal('ad-modal'); }
+
+  function logout() {
+    Auth.clearTeacher();
+    window.location.href = 'index.html';
+  }
+
+  // Close modal on overlay click
+  document.getElementById('ad-modal').addEventListener('click', (e) => {
+    if (e.target === e.currentTarget) closeAdModal();
+  });
+</script>
+</body>
+</html>

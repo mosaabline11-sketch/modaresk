@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>الصفحة غير موجودة - مدرسك</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700;800&family=Cairo:wght@700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+  <style>
+    body { display: flex; flex-direction: column; min-height: 100vh; align-items: center; justify-content: center; text-align: center; padding: 40px 20px; }
+    .code { font-family: 'Cairo', sans-serif; font-size: 8rem; font-weight: 900; color: var(--primary-bg); line-height: 1; margin-bottom: 8px; position: relative; }
+    .code::after { content: '404'; position: absolute; inset: 0; color: var(--primary); opacity: 0.15; }
+    .emoji { font-size: 4rem; margin-bottom: 16px; }
+    h1 { font-family: 'Cairo', sans-serif; font-size: 1.8rem; margin-bottom: 10px; }
+    p { color: var(--text-secondary); margin-bottom: 28px; max-width: 340px; }
+  </style>
+</head>
+<body>
+  <div class="emoji">😕</div>
+  <div class="code">404</div>
+  <h1>الصفحة غير موجودة</h1>
+  <p>عذراً، الصفحة التي تبحث عنها غير موجودة أو تم نقلها.</p>
+  <div style="display:flex;gap:12px;flex-wrap:wrap;justify-content:center">
+    <a href="index.html" class="btn btn-primary btn-lg">🏠 الرئيسية</a>
+    <a href="javascript:history.back()" class="btn btn-ghost btn-lg">← رجوع</a>
+  </div>
+</body>
+</html>
