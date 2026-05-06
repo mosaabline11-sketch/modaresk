@@ -828,6 +828,71 @@
     }
   }
 
+
+  // ── Subjects Management ──
+  function renderSubjects() {
+    const list = document.getElementById('subjects-list');
+    if (!list) return;
+
+    if (!allSubjects || !allSubjects.length) {
+      list.innerHTML = '<div class="empty-text">لا توجد مواد بعد. أضف أول مادة من الأعلى.</div>';
+      return;
+    }
+
+    list.innerHTML = allSubjects.map(subject => `
+      <span class="inline-badge" style="background:var(--primary-bg);color:var(--primary);border:1px solid var(--primary-border);gap:8px">
+        📘 ${escapeHtml(subject)}
+        <button type="button" onclick="deleteSubject('${String(subject).replace(/'/g, "\\'")}')" title="حذف المادة" style="border:none;background:transparent;color:var(--danger);font-weight:800;cursor:pointer;font-size:1rem;line-height:1">×</button>
+      </span>
+    `).join('');
+  }
+
+  async function addSubject(e) {
+    e.preventDefault();
+    const input = document.getElementById('new-subject-name');
+    const name = (input?.value || '').trim();
+
+    if (!name) {
+      showToast('اكتب اسم المادة أولاً', 'warning');
+      return;
+    }
+
+    if (allSubjects.includes(name)) {
+      showToast('المادة موجودة بالفعل', 'warning');
+      return;
+    }
+
+    try {
+      const { error } = await supabase.from('subjects').insert({ name });
+      if (error) throw error;
+
+      input.value = '';
+      allSubjects = await loadSubjectsSafe();
+      renderSubjects();
+      populateAllSubjectAndGradeSelects();
+      showToast('تمت إضافة المادة ✅', 'success');
+    } catch (err) {
+      showToast(`خطأ في إضافة المادة: ${err.message}`, 'danger');
+    }
+  }
+
+  async function deleteSubject(subjectName) {
+    confirmDialog(`هل تريد حذف مادة "${subjectName}"؟`, async () => {
+      try {
+        const { error } = await supabase.from('subjects').delete().eq('name', subjectName);
+        if (error) throw error;
+
+        allSubjects = allSubjects.filter(s => s !== subjectName);
+        SUBJECTS_CACHE = [...allSubjects];
+        renderSubjects();
+        populateAllSubjectAndGradeSelects();
+        showToast('تم حذف المادة ✅', 'success');
+      } catch (err) {
+        showToast(`خطأ في حذف المادة: ${err.message}`, 'danger');
+      }
+    });
+  }
+
   // ── Navigation ──
   function showPane(paneId, linkEl) {
     document.querySelectorAll('.admin-pane').forEach(p => p.classList.remove('active'));
