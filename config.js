@@ -6,14 +6,15 @@
 
 const CONFIG = {
   // ── Supabase ──
- SUPABASE_URL: "https://iazevtsralvjfsojrknt.supabase.co",
+  SUPABASE_URL: "https://iazevtsralvjfsojrknt.supabase.co",
   SUPABASE_ANON_KEY:
     "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImlhemV2dHNyYWx2amZzb2pya250Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzgwNzE3NDMsImV4cCI6MjA5MzY0Nzc0M30.1Y4Yt11SZ7niqWdDojHKZqrIoO0h76RgknnuG6V8hLQ",
 
   // ── Admin Credentials ──
   // غيّر هذه البيانات قبل النشر!
   ADMIN_USERNAME: "admin",
-  ADMIN_PASSWORD_HASH: "117359aea30411a81daffb675ed2ba8d2b6a2f395b5296ad188ee64e273977fa", // كلمة مرور الإدارة مشفرة SHA-256
+  ADMIN_PASSWORD_HASH:
+    "117359aea30411a81daffb675ed2ba8d2b6a2f395b5296ad188ee64e273977fa", // كلمة مرور الإدارة مشفرة SHA-256
 
   // ── App Settings ──
   APP_NAME: "مدرسك",
@@ -22,7 +23,7 @@ const CONFIG = {
 };
 
 // ── Initialize Supabase ──
-let supabase;
+
 const _supabaseReady = (function () {
   // التحقق من صحة الإعدادات قبل الاتصال
   if (
@@ -72,12 +73,19 @@ const _supabaseReady = (function () {
     return false;
   }
   try {
-    const cleanUrl = CONFIG.SUPABASE_URL.replace(/\/+$/, "").replace(/\/rest\/v1$/, "");
-    supabase = window.supabase.createClient(
+    const cleanUrl = CONFIG.SUPABASE_URL.replace(/\/+$/, "").replace(
+      /\/rest\/v1$/,
+      "",
+    );
+
+    const supabaseLib = window.supabase;
+
+    window.supabase = supabaseLib.createClient(
       cleanUrl,
       CONFIG.SUPABASE_ANON_KEY,
-      { auth: { persistSession: false } }
+      { auth: { persistSession: false } },
     );
+
     return true;
   } catch (e) {
     console.error("❌ Supabase init error:", e.message);
