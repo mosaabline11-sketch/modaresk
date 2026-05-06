@@ -7,6 +7,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800;900&family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css">
+  <link rel="icon" type="image/png" href="logo.png">
   <style>
     .admin-navbar { background: #0F172A; border-bottom: 1px solid rgba(255,255,255,0.08); position: sticky; top: 0; z-index: 100; }
     .admin-navbar .nav-container { max-width: 1300px; margin: 0 auto; }
@@ -59,7 +60,7 @@
 <nav class="navbar admin-navbar">
   <div class="nav-container" style="max-width:1300px;margin:0 auto">
     <div class="nav-brand">
-      <div class="brand-icon">🎓</div>
+      <img src="logo.png" alt="مدرسك" class="site-logo">
       مدرسك
       <span class="admin-badge">ADMIN</span>
     </div>
@@ -78,6 +79,7 @@
       <li><a href="#" class="active" onclick="return showPane('pane-overview', this)"><span class="icon">📊</span> نظرة عامة</a></li>
       <li><a href="#" onclick="return showPane('pane-teachers', this)"><span class="icon">👨‍🏫</span> المدرسون</a></li>
       <li><a href="#" onclick="return showPane('pane-ads', this)"><span class="icon">📋</span> الإعلانات</a></li>
+      <li><a href="#" onclick="return showPane('pane-subjects', this)"><span class="icon">📚</span> المواد</a></li>
     </ul>
     <div class="sidebar-divider"></div>
     <div class="sidebar-section-title">إدارة</div>
@@ -184,6 +186,27 @@
       </div>
     </div>
 
+
+
+    <!-- ── Subjects Pane ── -->
+    <div class="admin-pane" id="pane-subjects">
+      <div class="admin-header">
+        <h1>📚 المواد</h1>
+        <p>إضافة مواد جديدة تظهر في لوحة المدرس والفلاتر.</p>
+      </div>
+      <div class="panel">
+        <div class="panel-header">
+          <span class="panel-title">إدارة المواد</span>
+          <form onsubmit="addSubject(event)" style="display:flex;gap:10px;flex-wrap:wrap">
+            <input id="new-subject-name" class="form-control" placeholder="اسم المادة الجديدة" style="min-width:220px">
+            <button class="btn btn-primary btn-sm" type="submit">+ إضافة</button>
+          </form>
+        </div>
+        <div id="subjects-list" style="padding:20px;display:flex;gap:10px;flex-wrap:wrap"></div>
+        <div class="form-hint" style="padding:0 20px 20px">لو لم يظهر جدول المواد، شغّل ملف <code>supabase_setup.sql</code> الجديد في Supabase.</div>
+      </div>
+    </div>
+
   </main>
 </div>
 
@@ -221,11 +244,23 @@
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
           <div class="form-group">
             <label class="form-label">واتساب</label>
-            <input type="text" id="t-whatsapp" class="form-control" placeholder="966501234567" dir="ltr">
+            <input type="text" id="t-whatsapp" class="form-control" placeholder="201xxxxxxxxx" dir="ltr">
           </div>
           <div class="form-group">
             <label class="form-label">فيسبوك</label>
             <input type="url" id="t-facebook" class="form-control" placeholder="https://facebook.com/..." dir="ltr">
+          </div>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+          <div class="form-group">
+            <label class="form-label">رقم اتصال</label>
+            <input type="tel" id="t-phone" class="form-control" placeholder="01xxxxxxxxx" dir="ltr">
+          </div>
+          <div class="form-group">
+            <label class="form-label">وسائل تواصل إضافية</label>
+            <textarea id="t-contact-methods" class="form-control" rows="2" placeholder="مثال:
+تيليجرام: @username
+إنستجرام: https://..."></textarea>
           </div>
         </div>
         <div class="form-group">
@@ -265,27 +300,16 @@
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
           <div class="form-group">
             <label class="form-label">المادة</label>
-            <select id="ea-subject" class="form-control form-select">
-              <option>رياضيات</option><option>فيزياء</option><option>كيمياء</option>
-              <option>أحياء</option><option>عربي</option><option>إنجليزي</option>
-              <option>تاريخ</option><option>جغرافيا</option><option>علوم</option>
-              <option>فرنسي</option><option>حاسب آلي</option><option>أخرى</option>
-            </select>
+            <select id="ea-subject" class="form-control form-select"></select>
           </div>
           <div class="form-group">
             <label class="form-label">الصف</label>
-            <select id="ea-grade" class="form-control form-select">
-              <option>الصف الأول</option><option>الصف الثاني</option><option>الصف الثالث</option>
-              <option>الصف الرابع</option><option>الصف الخامس</option><option>الصف السادس</option>
-              <option>الصف السابع</option><option>الصف الثامن</option><option>الصف التاسع</option>
-              <option>الصف العاشر</option><option>الصف الحادي عشر</option><option>الصف الثاني عشر</option>
-              <option>جامعي</option>
-            </select>
+            <select id="ea-grade" class="form-control form-select"></select>
           </div>
         </div>
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
           <div class="form-group">
-            <label class="form-label">السعر (ريال/ساعة)</label>
+            <label class="form-label">السعر (جنيه/الحصة)</label>
             <input type="number" id="ea-price" class="form-control" min="1">
           </div>
           <div class="form-group">
@@ -323,6 +347,7 @@
 <script>
   let allTeachers = [];
   let allAds = [];
+  let allSubjects = [];
 
   // ── Guard: require admin login ──
   document.addEventListener('DOMContentLoaded', async () => {
@@ -332,6 +357,9 @@
 
   async function initAdmin() {
     // Run all loads in parallel, each handles its own errors
+    allSubjects = await loadSubjectsSafe();
+    populateAllSubjectAndGradeSelects();
+    renderSubjects();
     await Promise.all([
       loadOverview(),
       loadTeachers(),
@@ -562,7 +590,7 @@
     document.getElementById('ads-tbody').innerHTML = list.map(ad => `
       <tr>
         <td><strong style="font-size:0.92rem">${ad.title || '—'}</strong></td>
-        <td><a href="teacher.html?id=${ad.teachers?.id}" target="_blank" style="color:var(--primary);font-weight:500">${ad.teachers?.name || '—'}</a></td>
+        <td>${ad.teachers?.name || '—'}</td>
         <td><div>${ad.subject}</div><div style="font-size:0.78rem;color:var(--text-muted)">${ad.grade}</div></td>
         <td style="font-weight:700;color:var(--primary)">${formatPrice(ad.price)}</td>
         <td><span class="tc-badge ${lessonTypeBadgeClass(ad.lesson_type)}">${lessonTypeLabel(ad.lesson_type)}</span></td>
@@ -573,6 +601,7 @@
             ${ad.status !== 'active'   ? `<button class="btn btn-success btn-sm" onclick="changeAdStatus('${ad.id}','active')">✅</button>` : ''}
             ${ad.status !== 'rejected' ? `<button class="btn btn-danger btn-sm" onclick="changeAdStatus('${ad.id}','rejected')">❌</button>` : ''}
             ${ad.status !== 'pending'  ? `<button class="btn btn-warning btn-sm" onclick="changeAdStatus('${ad.id}','pending')">⏳</button>` : ''}
+            <a class="btn btn-ghost btn-sm" href="teacher.html?ad=${ad.id}" target="_blank">👁</a>
             <button class="btn btn-outline btn-sm" onclick="openEditAdModal('${ad.id}')">✏️</button>
             <button class="btn btn-danger btn-sm" onclick="deleteAd('${ad.id}')">🗑</button>
           </div>
@@ -685,6 +714,8 @@
       document.getElementById('t-ads-limit').value = data.ads_limit || CONFIG.DEFAULT_ADS_LIMIT;
       document.getElementById('t-whatsapp').value = data.whatsapp || '';
       document.getElementById('t-facebook').value = data.facebook || '';
+      document.getElementById('t-phone').value = data.phone || '';
+      document.getElementById('t-contact-methods').value = data.contact_methods || '';
       document.getElementById('t-bio').value = data.bio || '';
       document.getElementById('t-active').checked = data.is_active ?? true;
       document.getElementById('t-password').value = '';
@@ -717,6 +748,8 @@
         ads_limit: parseInt(document.getElementById('t-ads-limit').value) || CONFIG.DEFAULT_ADS_LIMIT,
         whatsapp:  document.getElementById('t-whatsapp').value.trim(),
         facebook:  document.getElementById('t-facebook').value.trim(),
+        phone:     document.getElementById('t-phone').value.trim(),
+        contact_methods: document.getElementById('t-contact-methods').value.trim(),
         bio:       document.getElementById('t-bio').value.trim(),
         is_active: document.getElementById('t-active').checked,
       };
@@ -761,6 +794,8 @@
     if (!ad) return;
     document.getElementById('ea-id').value = adId;
     document.getElementById('ea-title').value = ad.title || '';
+    populateSubjectSelect('ea-subject', ad.subject || '');
+    populateGradeSelect('ea-grade', ad.grade || '');
     document.getElementById('ea-subject').value = ad.subject || '';
     document.getElementById('ea-grade').value = ad.grade || '';
     document.getElementById('ea-price').value = ad.price || '';

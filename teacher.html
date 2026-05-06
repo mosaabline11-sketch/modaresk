@@ -3,325 +3,106 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>ملف المدرس - مدرسك</title>
+  <title>تفاصيل الإعلان - مدرسك</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800;900&family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css">
+  <link rel="icon" type="image/png" href="logo.png">
   <style>
-    .profile-hero {
-      background: linear-gradient(135deg, #0F172A 0%, #1E3A5F 100%);
-      padding: 48px 0 80px;
-      color: white;
-    }
-    .profile-card {
-      background: white;
-      border-radius: var(--radius-xl);
-      padding: 32px;
-      margin-top: -48px;
-      box-shadow: var(--shadow-lg);
-      position: relative;
-      z-index: 2;
-    }
-    .profile-header {
-      display: flex;
-      align-items: flex-start;
-      gap: 24px;
-      margin-bottom: 28px;
-      flex-wrap: wrap;
-    }
-    .profile-avatar {
-      width: 100px;
-      height: 100px;
-      border-radius: 50%;
-      border: 4px solid white;
-      box-shadow: 0 4px 20px rgba(37,99,235,0.2);
-      background: linear-gradient(135deg, var(--primary), var(--sky));
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 2.2rem;
-      color: white;
-      font-weight: 700;
-      font-family: 'Cairo', sans-serif;
-      overflow: hidden;
-      flex-shrink: 0;
-    }
-    .profile-avatar img { width: 100%; height: 100%; object-fit: cover; }
-    .profile-name { font-family: 'Cairo', sans-serif; font-size: 1.8rem; font-weight: 800; margin-bottom: 6px; }
-    .profile-title { font-size: 1rem; color: var(--text-secondary); margin-bottom: 16px; }
-    .profile-contacts { display: flex; flex-wrap: wrap; gap: 10px; }
-    .profile-stats {
-      display: flex;
-      gap: 24px;
-      padding: 20px 0;
-      border-top: 1px solid var(--border);
-      border-bottom: 1px solid var(--border);
-      margin-bottom: 24px;
-      flex-wrap: wrap;
-    }
-    .pstat { text-align: center; flex: 1; min-width: 80px; }
-    .pstat-num { font-family: 'Cairo', sans-serif; font-size: 1.5rem; font-weight: 800; color: var(--primary); }
-    .pstat-label { font-size: 0.8rem; color: var(--text-muted); }
-    .profile-bio { font-size: 0.95rem; color: var(--text-secondary); line-height: 1.8; }
-    .ads-section { margin-top: 40px; }
-    .ads-section-title { font-family: 'Cairo', sans-serif; font-size: 1.3rem; font-weight: 700; margin-bottom: 20px; display: flex; align-items: center; gap: 8px; }
-    .ad-detail-card {
-      background: white;
-      border: 1px solid var(--border);
-      border-radius: var(--radius-lg);
-      overflow: hidden;
-      margin-bottom: 16px;
-      transition: var(--transition);
-    }
-    .ad-detail-card:hover { box-shadow: var(--shadow-md); border-color: var(--primary-border); }
-    .ad-card-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: flex-start;
-      padding: 20px 20px 16px;
-      border-bottom: 1px solid var(--border-light);
-      flex-wrap: wrap;
-      gap: 12px;
-    }
-    .ad-card-title { font-family: 'Cairo', sans-serif; font-size: 1.1rem; font-weight: 700; margin-bottom: 6px; }
-    .ad-card-body { padding: 16px 20px; }
-    .ad-card-footer {
-      padding: 14px 20px;
-      background: var(--bg-light);
-      display: flex;
-      gap: 10px;
-      flex-wrap: wrap;
-    }
-    .info-row { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; font-size: 0.92rem; color: var(--text-secondary); }
-    .info-row strong { color: var(--text-primary); font-weight: 600; }
-    .back-btn { display: inline-flex; align-items: center; gap: 6px; color: rgba(255,255,255,0.8); font-size: 0.9rem; margin-bottom: 20px; transition: color 0.2s; }
-    .back-btn:hover { color: white; }
-
-    @media (max-width: 768px) {
-      .profile-header { flex-direction: column; align-items: center; text-align: center; }
-      .profile-contacts { justify-content: center; }
-      .profile-stats { justify-content: center; }
-      .ad-card-header { flex-direction: column; }
-    }
+    .detail-hero{background:linear-gradient(135deg,#0F172A,#1D4ED8);color:white;padding:54px 0 90px;position:relative;overflow:hidden}.detail-hero:before{content:"";position:absolute;inset:-40%;background:radial-gradient(circle,rgba(96,165,250,.25),transparent 45%);pointer-events:none}.detail-hero .container{position:relative;z-index:1}.detail-card{background:white;border:1px solid var(--border);border-radius:var(--radius-xl);box-shadow:var(--shadow-xl);padding:30px;margin-top:-52px;position:relative}.teacher-mini{display:flex;align-items:center;gap:14px;background:var(--bg-light);border:1px solid var(--border);border-radius:var(--radius-lg);padding:16px;margin:20px 0}.mini-avatar{width:58px;height:58px;border-radius:50%;background:linear-gradient(135deg,var(--primary),var(--sky));color:white;display:flex;align-items:center;justify-content:center;font-family:Cairo,sans-serif;font-weight:800;font-size:1.3rem;overflow:hidden;flex-shrink:0}.mini-avatar img{width:100%;height:100%;object-fit:cover}.detail-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin:20px 0}.detail-item{background:var(--bg-light);border:1px solid var(--border);border-radius:var(--radius-md);padding:14px}.detail-label{font-size:.78rem;color:var(--text-muted);margin-bottom:4px}.detail-value{font-weight:800;font-family:Cairo,sans-serif}.contact-row{display:flex;gap:10px;flex-wrap:wrap;margin-top:20px}.description-box{line-height:1.9;color:var(--text-secondary);font-size:1rem;background:white;border-top:1px solid var(--border-light);padding-top:20px}@media(max-width:760px){.detail-grid{grid-template-columns:1fr 1fr}.detail-card{padding:20px}.teacher-mini{align-items:flex-start}}@media(max-width:460px){.detail-grid{grid-template-columns:1fr}}
   </style>
 </head>
 <body>
-
-<!-- Navbar -->
 <nav class="navbar">
   <div class="nav-container" style="max-width:1200px;margin:0 auto">
-    <a href="index.html" class="nav-brand">
-      <div class="brand-icon">🎓</div>
-      مدرسك
-    </a>
-    <div class="nav-actions">
-      <a href="index.html" class="btn btn-ghost btn-sm">← العودة للرئيسية</a>
-    </div>
+    <a href="index.html" class="nav-brand"><img src="logo.png" alt="مدرسك" class="site-logo"> مدرسك</a>
+    <div class="nav-actions"><a href="index.html" class="btn btn-ghost btn-sm">← الرئيسية</a></div>
   </div>
 </nav>
-
-<!-- Profile Hero -->
-<div class="profile-hero">
+<section class="detail-hero">
   <div class="container">
-    <a href="javascript:history.back()" class="back-btn">← رجوع</a>
-    <div id="hero-loading" class="text-center" style="padding:20px">
-      <div style="display:inline-block;width:40px;height:40px;border:3px solid rgba(255,255,255,0.3);border-top-color:white;border-radius:50%;animation:spin 0.8s linear infinite"></div>
-    </div>
+    <a href="javascript:history.back()" style="color:rgba(255,255,255,.85);display:inline-block;margin-bottom:18px">← رجوع</a>
+    <div id="hero-loading" class="text-center" style="padding:20px"><div class="spinner-lg" style="border-top-color:white"></div></div>
     <div id="hero-content" style="display:none"></div>
   </div>
-</div>
-
-<!-- Profile Content -->
-<div class="container" style="padding-bottom:60px">
-  <div id="profile-content" style="display:none">
-    <!-- Profile Card -->
-    <div class="profile-card" id="profile-card"></div>
-
-    <!-- Ads -->
-    <div class="ads-section" id="ads-section"></div>
-  </div>
-
-  <div id="not-found" class="empty-state" style="display:none">
-    <div class="empty-icon">😕</div>
-    <div class="empty-title">المدرس غير موجود</div>
-    <div class="empty-text">هذا الملف غير متاح أو تم حذفه</div>
+</section>
+<main class="container" style="padding-bottom:60px">
+  <div id="detail-content" style="display:none"></div>
+  <div id="not-found" class="empty-state" style="display:none;margin-top:40px">
+    <div class="empty-icon">😕</div><div class="empty-title">الإعلان غير موجود</div><div class="empty-text">ربما تم حذفه أو لم تتم الموافقة عليه بعد.</div>
     <a href="index.html" class="btn btn-primary mt-16">العودة للرئيسية</a>
   </div>
-</div>
-
-<!-- Footer -->
-<footer class="footer" style="margin-top:0">
-  <div class="container">
-    <div class="footer-bottom" style="border-top:none;margin-top:0">
-      © 2024 مدرسك — جميع الحقوق محفوظة
-    </div>
-  </div>
-</footer>
-
+</main>
+<footer class="footer" style="margin-top:0"><div class="container"><div class="footer-bottom" style="border-top:none;margin-top:0">© 2024 مدرسك — جميع الحقوق محفوظة</div></div></footer>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="config.js"></script>
 <script>
   document.addEventListener('DOMContentLoaded', async () => {
-    const params = new URLSearchParams(window.location.search);
+    const params = new URLSearchParams(location.search);
+    const adId = params.get('ad');
     const teacherId = params.get('id');
-
-    if (!teacherId) {
-      showNotFound();
-      return;
-    }
-
-    await loadTeacherProfile(teacherId);
+    if (adId) return loadAdDetails(adId);
+    if (teacherId) return loadFirstTeacherAd(teacherId);
+    showNotFound();
   });
 
-  async function loadTeacherProfile(teacherId) {
-    try {
-      // Load teacher
-      const { data: teacher, error: tError } = await supabase
-        .from('teachers')
-        .select('id, name, bio, avatar_url, whatsapp, facebook, phone')
-        .eq('id', teacherId)
-        .eq('is_active', true)
-        .single();
+  async function loadFirstTeacherAd(teacherId){
+    try{
+      const {data, error}=await supabase.from('ads').select('id').eq('teacher_id', teacherId).eq('status','active').order('created_at',{ascending:false}).limit(1).maybeSingle();
+      if(error || !data) return showNotFound();
+      location.replace(`teacher.html?ad=${data.id}`);
+    }catch(e){showNotFound();}
+  }
 
-      if (tError || !teacher) { showNotFound(); return; }
-
-      // Load teacher's active ads
-      const { data: ads } = await supabase
+  async function loadAdDetails(adId){
+    try{
+      const {data: ad, error}=await supabase
         .from('ads')
-        .select('*')
-        .eq('teacher_id', teacherId)
-        .eq('status', 'active')
-        .order('created_at', { ascending: false });
-
-      renderHero(teacher, ads || []);
-      renderProfile(teacher, ads || []);
-
-    } catch (e) {
-      console.error(e);
-      showNotFound();
-    }
+        .select('*, teachers(id, name, bio, avatar_url, whatsapp, facebook, phone, contact_methods, is_active)')
+        .eq('id', adId)
+        .eq('status','active')
+        .single();
+      if(error || !ad || !ad.teachers?.is_active) return showNotFound();
+      renderAd(ad);
+    }catch(e){console.error(e);showNotFound();}
   }
 
-  function renderHero(teacher, ads) {
-    const loading = document.getElementById('hero-loading');
-    const content = document.getElementById('hero-content');
-    loading.style.display = 'none';
-    content.style.display = '';
+  function renderAd(ad){
+    const t=ad.teachers || {};
+    document.getElementById('hero-loading').style.display='none';
+    document.getElementById('hero-content').style.display='';
+    document.getElementById('hero-content').innerHTML=`
+      <div style="color:#BFDBFE;font-weight:700;margin-bottom:8px">📋 تفاصيل الإعلان</div>
+      <h1 style="font-family:Cairo,sans-serif;font-size:clamp(1.8rem,4vw,2.7rem);font-weight:900;margin-bottom:10px">${escapeHtml(ad.title || ad.subject)}</h1>
+      <p style="color:#CBD5E1">${escapeHtml(ad.subject)} • ${escapeHtml(ad.grade)} • ${lessonTypeLabel(ad.lesson_type)}</p>`;
 
-    const subjects = [...new Set(ads.map(a => a.subject))].join(' | ');
-
-    content.innerHTML = `
-      <div style="color:rgba(255,255,255,0.7);font-size:0.88rem;margin-bottom:8px">👨‍🏫 ملف المدرس</div>
-      <h1 style="font-family:'Cairo',sans-serif;font-size:2rem;font-weight:800;margin-bottom:8px">${teacher.name}</h1>
-      <p style="color:rgba(255,255,255,0.8);font-size:1rem">${subjects || 'مدرس خصوصي'}</p>
-    `;
-  }
-
-  function renderProfile(teacher, ads) {
-    document.getElementById('profile-content').style.display = '';
-    const card = document.getElementById('profile-card');
-
-    const initial = getInitials(teacher.name);
-    const avatar = teacher.avatar_url
-      ? `<img src="${teacher.avatar_url}" alt="${teacher.name}" onerror="this.style.display='none'">`
-      : initial;
-
-    const subjects = [...new Set(ads.map(a => a.subject))];
-    const grades = [...new Set(ads.map(a => a.grade))];
-    const prices = ads.map(a => Number(a.price));
-    const minPrice = prices.length ? Math.min(...prices) : 0;
-    const maxPrice = prices.length ? Math.max(...prices) : 0;
-
-    const contactBtns = [];
-    if (teacher.whatsapp) contactBtns.push(`
-      <a href="https://wa.me/${teacher.whatsapp.replace(/[^0-9]/g,'')}" target="_blank" class="btn btn-whatsapp">
-        <svg width="18" height="18" fill="currentColor" viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
-        تواصل عبر واتساب
-      </a>`);
-    if (teacher.facebook) contactBtns.push(`
-      <a href="${teacher.facebook}" target="_blank" class="btn btn-facebook">
-        <svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>
-        فيسبوك
-      </a>`);
-    if (teacher.phone) contactBtns.push(`
-      <a href="tel:${teacher.phone}" class="btn btn-ghost">📞 ${teacher.phone}</a>`);
-
-    card.innerHTML = `
-      <div class="profile-header">
-        <div class="profile-avatar">${avatar}</div>
-        <div style="flex:1">
-          <div class="profile-name">${teacher.name}</div>
-          <div class="profile-title">${subjects.join(' | ') || 'مدرس'}</div>
-          <div class="profile-contacts">${contactBtns.join('') || '<span style="color:var(--text-muted)">لا توجد معلومات تواصل</span>'}</div>
-        </div>
-      </div>
-
-      <div class="profile-stats">
-        <div class="pstat"><div class="pstat-num">${ads.length}</div><div class="pstat-label">إعلان نشط</div></div>
-        <div class="pstat"><div class="pstat-num">${subjects.length}</div><div class="pstat-label">مادة</div></div>
-        <div class="pstat"><div class="pstat-num">${prices.length ? formatPrice(minPrice) : '—'}</div><div class="pstat-label">أدنى سعر</div></div>
-        <div class="pstat"><div class="pstat-num">${prices.length ? formatPrice(maxPrice) : '—'}</div><div class="pstat-label">أعلى سعر</div></div>
-      </div>
-
-      ${teacher.bio ? `<div class="profile-bio">${teacher.bio}</div>` : ''}
-    `;
-
-    // Render ads
-    const adsSection = document.getElementById('ads-section');
-    if (ads.length === 0) {
-      adsSection.innerHTML = `
-        <div class="ads-section-title">📋 الإعلانات</div>
-        <div class="empty-state" style="padding:40px">
-          <div class="empty-icon">📭</div>
-          <div class="empty-title">لا توجد إعلانات نشطة حالياً</div>
-        </div>`;
-    } else {
-      adsSection.innerHTML = `
-        <div class="ads-section-title">📋 الإعلانات (${ads.length})</div>
-        ${ads.map(ad => renderAdCard(ad, teacher)).join('')}`;
-    }
-  }
-
-  function renderAdCard(ad, teacher) {
-    const whatsapp = teacher.whatsapp || ad.whatsapp || '';
-    const facebook = teacher.facebook || ad.facebook || '';
-
-    const contactBtns = [];
-    if (whatsapp) contactBtns.push(`<a href="https://wa.me/${whatsapp.replace(/[^0-9]/g,'')}" target="_blank" class="btn btn-whatsapp btn-sm">واتساب</a>`);
-    if (facebook) contactBtns.push(`<a href="${facebook}" target="_blank" class="btn btn-facebook btn-sm">فيسبوك</a>`);
-    if (ad.extra_contact) contactBtns.push(`<span class="btn btn-ghost btn-sm">${ad.extra_contact}</span>`);
-
-    return `
-    <div class="ad-detail-card animate-in">
-      <div class="ad-card-header">
-        <div>
-          <div class="ad-card-title">${ad.title || ad.subject}</div>
-          <div style="display:flex;gap:8px;flex-wrap:wrap">
-            <span class="tc-badge badge-grade">📗 ${ad.grade}</span>
-            <span class="tc-badge ${lessonTypeBadgeClass(ad.lesson_type)}">${lessonTypeLabel(ad.lesson_type)}</span>
+    const initial=getInitials(t.name);
+    const avatar=t.avatar_url?`<img src="${escapeHtml(t.avatar_url)}" alt="${escapeHtml(t.name)}" onerror="this.style.display='none'">`:initial;
+    const contacts=buildContactButtons(t, ad, '');
+    document.getElementById('detail-content').style.display='';
+    document.getElementById('detail-content').innerHTML=`
+      <article class="detail-card animate-in">
+        <div class="teacher-mini">
+          <div class="mini-avatar">${avatar}</div>
+          <div style="flex:1">
+            <div style="font-family:Cairo,sans-serif;font-weight:800;font-size:1.15rem">${escapeHtml(t.name || 'مدرس')}</div>
+            <div style="color:var(--text-secondary);font-size:.92rem">${escapeHtml(t.bio || 'مدرس على منصة مدرسك')}</div>
           </div>
         </div>
-        <div style="text-align:left;white-space:nowrap">
-          <div style="font-family:'Cairo',sans-serif;font-weight:800;font-size:1.3rem;color:var(--primary)">${formatPrice(ad.price)}</div>
-          <div style="font-size:0.8rem;color:var(--text-muted)">/ الساعة</div>
+        <div class="detail-grid">
+          <div class="detail-item"><div class="detail-label">المادة</div><div class="detail-value">${escapeHtml(ad.subject)}</div></div>
+          <div class="detail-item"><div class="detail-label">الصف/المرحلة</div><div class="detail-value">${escapeHtml(ad.grade)}</div></div>
+          <div class="detail-item"><div class="detail-label">نوع الدرس</div><div class="detail-value">${lessonTypeLabel(ad.lesson_type)}</div></div>
+          <div class="detail-item"><div class="detail-label">السعر</div><div class="detail-value" style="color:var(--primary)">${formatPrice(ad.price)} / الحصة</div></div>
         </div>
-      </div>
-      <div class="ad-card-body">
-        <div class="info-row">📚 <strong>المادة:</strong> ${ad.subject}</div>
-        ${ad.description ? `<div style="color:var(--text-secondary);font-size:0.92rem;line-height:1.7;margin-top:8px">${ad.description}</div>` : ''}
-      </div>
-      <div class="ad-card-footer">
-        ${contactBtns.join('') || '<span style="color:var(--text-muted);font-size:0.88rem">لا توجد معلومات تواصل</span>'}
-      </div>
-    </div>`;
+        <div class="description-box">
+          <h3 style="margin-bottom:10px;color:var(--text-primary)">وصف الإعلان</h3>
+          ${ad.description ? nl2br(ad.description) : 'لا يوجد وصف إضافي.'}
+        </div>
+        <div class="contact-row">${contacts.join('') || '<span style="color:var(--text-muted)">لا توجد وسائل تواصل متاحة</span>'}</div>
+      </article>`;
   }
-
-  function showNotFound() {
-    document.getElementById('hero-loading').style.display = 'none';
-    document.getElementById('hero-content').style.display = '';
-    document.getElementById('hero-content').innerHTML = '<h2 style="color:white">المدرس غير موجود</h2>';
-    document.getElementById('not-found').style.display = '';
-  }
+  function showNotFound(){document.getElementById('hero-loading').style.display='none';document.getElementById('hero-content').style.display='';document.getElementById('hero-content').innerHTML='<h1 style="font-family:Cairo,sans-serif">الإعلان غير موجود</h1>';document.getElementById('not-found').style.display='';}
 </script>
 </body>
 </html>

@@ -7,6 +7,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800;900&family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css">
+  <link rel="icon" type="image/png" href="logo.png">
   <style>
     .dash-navbar { background: var(--bg-white); border-bottom: 1px solid var(--border); position: sticky; top: 0; z-index: 100; box-shadow: var(--shadow-sm); }
     .teacher-welcome {
@@ -76,7 +77,7 @@
 <nav class="navbar">
   <div class="nav-container" style="max-width:1200px;margin:0 auto">
     <a href="index.html" class="nav-brand">
-      <div class="brand-icon">🎓</div>
+      <img src="logo.png" alt="مدرسك" class="site-logo">
       مدرسك
     </a>
     <div class="nav-actions" style="display:flex;align-items:center;gap:12px">
@@ -159,17 +160,15 @@
           </div>
         </div>
         <div class="form-group">
-          <label class="form-label">رابط صورة الملف الشخصي</label>
-          <input type="url" id="p-avatar" class="form-control" placeholder="https://...">
-        </div>
-        <div class="form-group">
           <label class="form-label">نبذة عنك</label>
           <textarea id="p-bio" class="form-control" rows="4" placeholder="اكتب نبذة مختصرة عن خبرتك وأسلوب تدريسك..."></textarea>
         </div>
         <div class="form-group">
-          <label class="form-label">تغيير كلمة المرور</label>
-          <input type="password" id="p-new-password" class="form-control" placeholder="اتركه فارغاً إذا لا تريد التغيير">
-          <div class="form-hint">6 أحرف على الأقل</div>
+          <label class="form-label">وسائل تواصل إضافية</label>
+          <textarea id="p-contact-methods" class="form-control" rows="3" placeholder="مثال:
+تيليجرام: @username
+إنستجرام: https://..."></textarea>
+          <div class="form-hint">تغيير كلمة المرور يتم من لوحة الإدارة فقط.</div>
         </div>
         <button type="submit" class="btn btn-primary btn-lg" id="profile-save-btn">💾 حفظ التغييرات</button>
       </form>
@@ -195,35 +194,16 @@
         <div class="form-row">
           <div class="form-group">
             <label class="form-label">المادة <span class="required">*</span></label>
-            <select id="ad-subject" class="form-control form-select" required>
-              <option value="">اختر المادة</option>
-              <option>رياضيات</option><option>فيزياء</option><option>كيمياء</option>
-              <option>أحياء</option><option>عربي</option><option>إنجليزي</option>
-              <option>تاريخ</option><option>جغرافيا</option><option>علوم</option>
-              <option>فرنسي</option><option>حاسب آلي</option><option>أخرى</option>
-            </select>
+            <select id="ad-subject" class="form-control form-select" required><option value="">اختر المادة</option></select>
           </div>
           <div class="form-group">
             <label class="form-label">الصف الدراسي <span class="required">*</span></label>
-            <select id="ad-grade" class="form-control form-select" required>
-              <option value="">اختر الصف</option>
-              <optgroup label="ابتدائي">
-                <option>الصف الأول</option><option>الصف الثاني</option><option>الصف الثالث</option>
-                <option>الصف الرابع</option><option>الصف الخامس</option><option>الصف السادس</option>
-              </optgroup>
-              <optgroup label="متوسط">
-                <option>الصف السابع</option><option>الصف الثامن</option><option>الصف التاسع</option>
-              </optgroup>
-              <optgroup label="ثانوي">
-                <option>الصف العاشر</option><option>الصف الحادي عشر</option><option>الصف الثاني عشر</option>
-              </optgroup>
-              <option>جامعي</option>
-            </select>
+            <select id="ad-grade" class="form-control form-select" required><option value="">اختر الصف أو المرحلة</option></select>
           </div>
         </div>
         <div class="form-row">
           <div class="form-group">
-            <label class="form-label">السعر (ريال/ساعة) <span class="required">*</span></label>
+            <label class="form-label">السعر (جنيه/الحصة) <span class="required">*</span></label>
             <input type="number" id="ad-price" class="form-control" placeholder="100" min="1" required>
           </div>
           <div class="form-group">
@@ -269,6 +249,8 @@
     document.getElementById('nav-teacher-name').textContent = teacher.name;
     document.getElementById('view-profile-btn').href = `teacher.html?id=${teacher.id}`;
 
+    await loadSubjectsSafe();
+    populateAllSubjectAndGradeSelects();
     await loadTeacherData();
     await loadAds();
   });
@@ -276,7 +258,7 @@
   async function loadTeacherData() {
     const { data } = await supabase
       .from('teachers')
-      .select('name, bio, avatar_url, whatsapp, facebook, phone, ads_limit')
+      .select('name, bio, whatsapp, facebook, phone, contact_methods, ads_limit')
       .eq('id', teacher.id)
       .single();
 
@@ -285,8 +267,8 @@
       document.getElementById('p-bio').value = data.bio || '';
       document.getElementById('p-whatsapp').value = data.whatsapp || '';
       document.getElementById('p-facebook').value = data.facebook || '';
+      document.getElementById('p-contact-methods').value = data.contact_methods || '';
       document.getElementById('p-phone').value = data.phone || '';
-      document.getElementById('p-avatar').value = data.avatar_url || '';
 
       // Update limit in auth session
       teacher.ads_limit = data.ads_limit || CONFIG.DEFAULT_ADS_LIMIT;
@@ -364,7 +346,7 @@
           </div>
         </div>
         <div class="amc-body">
-          <div class="amc-price">💰 ${formatPrice(ad.price)} / الساعة</div>
+          <div class="amc-price">💰 ${formatPrice(ad.price)} / الحصة</div>
           ${ad.description ? `<div class="amc-desc mt-8">${ad.description}</div>` : ''}
           ${ad.status === 'pending' ? '<div class="alert alert-info mt-8" style="padding:8px 12px;font-size:0.82rem">⏳ هذا الإعلان في انتظار مراجعة الإدارة</div>' : ''}
           ${ad.status === 'rejected' ? '<div class="alert alert-danger mt-8" style="padding:8px 12px;font-size:0.82rem">❌ تم رفض هذا الإعلان من قبل الإدارة</div>' : ''}
@@ -383,6 +365,8 @@
     document.getElementById('ad-submit-btn').textContent = 'نشر الإعلان';
     document.getElementById('ad-id').value = '';
     document.getElementById('ad-form').reset();
+    populateSubjectSelect('ad-subject');
+    populateGradeSelect('ad-grade');
     document.getElementById('modal-error').style.display = 'none';
     openModal('ad-modal');
   }
@@ -395,6 +379,8 @@
     document.getElementById('ad-submit-btn').textContent = 'حفظ التعديلات';
     document.getElementById('ad-id').value = adId;
     document.getElementById('ad-title').value = ad.title || '';
+    populateSubjectSelect('ad-subject', ad.subject || '');
+    populateGradeSelect('ad-grade', ad.grade || '');
     document.getElementById('ad-subject').value = ad.subject || '';
     document.getElementById('ad-grade').value = ad.grade || '';
     document.getElementById('ad-price').value = ad.price || '';
@@ -475,14 +461,8 @@
         whatsapp: document.getElementById('p-whatsapp').value.trim(),
         facebook: document.getElementById('p-facebook').value.trim(),
         phone: document.getElementById('p-phone').value.trim(),
-        avatar_url: document.getElementById('p-avatar').value.trim(),
+        contact_methods: document.getElementById('p-contact-methods').value.trim(),
       };
-
-      const newPassword = document.getElementById('p-new-password').value;
-      if (newPassword) {
-        if (newPassword.length < 6) throw new Error('كلمة المرور يجب أن تكون 6 أحرف على الأقل');
-        updates.password_hash = await sha256(newPassword);
-      }
 
       const { error } = await supabase.from('teachers').update(updates).eq('id', teacher.id);
       if (error) throw error;

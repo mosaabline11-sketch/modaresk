@@ -9,6 +9,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800;900&family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css">
+  <link rel="icon" type="image/png" href="logo.png">
   <style>
     /* ── Hero Section ── */
     .hero {
@@ -242,7 +243,7 @@
 <nav class="navbar">
   <div class="nav-container" style="max-width:1200px;margin:0 auto">
     <a href="index.html" class="nav-brand">
-      <div class="brand-icon">🎓</div>
+      <img src="logo.png" alt="مدرسك" class="site-logo">
       مدرسك
     </a>
     <ul class="nav-links" id="nav-links">
@@ -277,20 +278,7 @@
             <span class="sicon">🔍</span>
             <input type="text" id="hero-search" class="form-control" placeholder="اسم المدرس أو المادة...">
           </div>
-          <select id="hero-grade" class="form-control form-select">
-            <option value="">جميع الصفوف</option>
-            <optgroup label="المرحلة الابتدائية">
-              <option>الصف الأول</option><option>الصف الثاني</option><option>الصف الثالث</option>
-              <option>الصف الرابع</option><option>الصف الخامس</option><option>الصف السادس</option>
-            </optgroup>
-            <optgroup label="المرحلة المتوسطة">
-              <option>الصف السابع</option><option>الصف الثامن</option><option>الصف التاسع</option>
-            </optgroup>
-            <optgroup label="المرحلة الثانوية">
-              <option>الصف العاشر</option><option>الصف الحادي عشر</option><option>الصف الثاني عشر</option>
-            </optgroup>
-            <option>جامعي</option>
-          </select>
+          <select id="hero-grade" class="form-control form-select"><option value="">جميع الصفوف والمراحل</option></select>
           <button class="btn btn-primary" onclick="applySearch()">
             🔍 بحث
           </button>
@@ -318,13 +306,10 @@
       <button class="filter-chip" data-type="both">🌐🏠 كلاهما</button>
 
       <span class="filter-label" style="margin-right:16px">المادة:</span>
-      <select class="filter-select" id="filter-subject">
-        <option value="">جميع المواد</option>
-        <option>رياضيات</option><option>فيزياء</option><option>كيمياء</option>
-        <option>أحياء</option><option>عربي</option><option>إنجليزي</option>
-        <option>تاريخ</option><option>جغرافيا</option><option>علوم</option>
-        <option>فرنسي</option><option>حاسب آلي</option><option>أخرى</option>
-      </select>
+      <select class="filter-select" id="filter-subject"><option value="">جميع المواد</option></select>
+
+      <span class="filter-label" style="margin-right:16px">الصف:</span>
+      <select class="filter-select" id="filter-grade"><option value="">جميع الصفوف والمراحل</option></select>
 
       <span class="filters-count" id="results-count"></span>
     </div>
@@ -401,7 +386,7 @@
   <div class="container">
     <div class="grid grid-3" style="gap:40px;margin-bottom:0">
       <div>
-        <div class="footer-brand">🎓 مدرسك</div>
+        <img src="logo.png" alt="مدرسك" class="footer-logo"><div class="footer-brand">مدرسك</div>
         <div class="footer-desc">منصة تربط الطلاب بأفضل المدرسين الخصوصيين في مختلف المواد والمراحل الدراسية</div>
       </div>
       <div>
@@ -439,6 +424,8 @@
   // ── On Load ──
   document.addEventListener('DOMContentLoaded', async () => {
     updateNavAuth();
+    await loadSubjectsSafe();
+    populateAllSubjectAndGradeSelects();
     await loadAds();
     setupFilters();
     animateStats();
@@ -466,7 +453,7 @@
     try {
       const { data, error } = await supabase
         .from('ads')
-        .select('*, teachers(id, name, avatar_url, bio, whatsapp, facebook)')
+        .select('*, teachers(id, name, avatar_url, bio, whatsapp, facebook, phone, contact_methods)')
         .eq('status', 'active')
         .order('created_at', { ascending: false });
 
@@ -527,6 +514,7 @@
 
     if (activeType) result = result.filter(ad => ad.lesson_type === activeType);
     if (filterSubject) result = result.filter(ad => ad.subject === filterSubject);
+    if (filterGrade) result = result.filter(ad => ad.grade === filterGrade);
 
     filteredAds = result;
     sortAds(false);
@@ -545,7 +533,8 @@
     searchQuery = document.getElementById('hero-search').value.trim();
     const grade = document.getElementById('hero-grade').value;
     if (grade) {
-      // Scroll to results and filter
+      filterGrade = grade;
+      document.getElementById('filter-grade').value = grade;
       document.getElementById('filters-bar').scrollIntoView({ behavior: 'smooth' });
     }
     applyFilters();
@@ -569,6 +558,10 @@
     // Subject filter
     document.getElementById('filter-subject').addEventListener('change', (e) => {
       filterSubject = e.target.value;
+      applyFilters();
+    });
+    document.getElementById('filter-grade').addEventListener('change', (e) => {
+      filterGrade = e.target.value;
       applyFilters();
     });
 
