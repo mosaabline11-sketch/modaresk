@@ -6,7 +6,7 @@
 
 const CONFIG = {
   // ── Supabase ──
-  SUPABASE_URL: "https://iazevtsralvjfsojrknt.supabase.co",
+ SUPABASE_URL: "https://iazevtsralvjfsojrknt.supabase.co",
   SUPABASE_ANON_KEY:
     "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImlhemV2dHNyYWx2amZzb2pya250Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzgwNzE3NDMsImV4cCI6MjA5MzY0Nzc0M30.1Y4Yt11SZ7niqWdDojHKZqrIoO0h76RgknnuG6V8hLQ",
 
