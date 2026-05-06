@@ -233,7 +233,8 @@
   }
 
   async function loginAdmin(username, password) {
-    if (username !== CONFIG.ADMIN_USERNAME || password !== CONFIG.ADMIN_PASSWORD) {
+    const passwordHash = await sha256(password);
+    if (username !== CONFIG.ADMIN_USERNAME || passwordHash !== CONFIG.ADMIN_PASSWORD_HASH) {
       throw new Error('اسم المستخدم أو كلمة المرور غير صحيحة');
     }
     Auth.setAdminSession();

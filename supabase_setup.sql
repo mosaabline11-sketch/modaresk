@@ -67,43 +67,34 @@ CREATE TRIGGER trg_ads_updated
   FOR EACH ROW EXECUTE FUNCTION update_updated_at();
 
 -- ── 6. Row Level Security (RLS) ──
+-- ملاحظة مهمة: هذا الإصدار مصمم ليعمل على موقع Frontend فقط بدون Backend.
+-- لذلك السياسات التالية تسمح للـ anon بالقراءة/الكتابة حتى تعمل لوحة الإدارة ولوحة المدرس.
+-- للأمان الحقيقي: انقل عمليات الإدارة إلى Backend/Edge Function واستخدم Service Role هناك فقط.
 ALTER TABLE teachers ENABLE ROW LEVEL SECURITY;
-ALTER TABLE ads      ENABLE ROW LEVEL SECURITY;
+ALTER TABLE ads ENABLE ROW LEVEL SECURITY;
 
--- Drop existing policies if any
-DROP POLICY IF EXISTS "public_read_teachers"   ON teachers;
-DROP POLICY IF EXISTS "anon_read_teachers"     ON teachers;
-DROP POLICY IF EXISTS "anon_write_teachers"    ON teachers;
+DROP POLICY IF EXISTS "public_read_teachers" ON teachers;
+DROP POLICY IF EXISTS "anon_read_teachers" ON teachers;
+DROP POLICY IF EXISTS "anon_write_teachers" ON teachers;
+DROP POLICY IF EXISTS "allow_all_teachers" ON teachers;
 DROP POLICY IF EXISTS "public_read_active_ads" ON ads;
-DROP POLICY IF EXISTS "anon_read_ads"          ON ads;
-DROP POLICY IF EXISTS "anon_write_ads"         ON ads;
+DROP POLICY IF EXISTS "anon_read_ads" ON ads;
+DROP POLICY IF EXISTS "anon_write_ads" ON ads;
+DROP POLICY IF EXISTS "allow_all_ads" ON ads;
 
--- Allow anon to READ active teachers (for public profile pages)
-CREATE POLICY "anon_read_teachers" ON teachers
-  FOR SELECT
-  TO anon
-  USING (is_active = TRUE);
+CREATE POLICY "allow_all_teachers" ON teachers
+  FOR ALL TO anon
+  USING (true)
+  WITH CHECK (true);
 
--- Allow anon to read/write teachers (app handles auth logic in JS)
--- Note: In production with real Supabase Auth, restrict this further
-CREATE POLICY "anon_write_teachers" ON teachers
-  FOR ALL
-  TO anon
-  USING (TRUE)
-  WITH CHECK (TRUE);
+CREATE POLICY "allow_all_ads" ON ads
+  FOR ALL TO anon
+  USING (true)
+  WITH CHECK (true);
 
--- Allow anon to read active ads (public listing)
-CREATE POLICY "anon_read_ads" ON ads
-  FOR SELECT
-  TO anon
-  USING (status = 'active');
-
--- Allow anon full access to ads (teacher dashboard & admin panel)
-CREATE POLICY "anon_write_ads" ON ads
-  FOR ALL
-  TO anon
-  USING (TRUE)
-  WITH CHECK (TRUE);
+GRANT USAGE ON SCHEMA public TO anon;
+GRANT SELECT, INSERT, UPDATE, DELETE ON TABLE teachers TO anon;
+GRANT SELECT, INSERT, UPDATE, DELETE ON TABLE ads TO anon;
 
 -- ── 7. Sample Data (Optional - remove in production) ──
 -- Uncomment to add demo data:

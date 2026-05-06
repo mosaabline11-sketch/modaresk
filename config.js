@@ -6,14 +6,14 @@
 
 const CONFIG = {
   // ── Supabase ──
-  SUPABASE_URL: "https://iazevtsralvjfsojrknt.supabase.co/rest/v1/",
+  SUPABASE_URL: "https://iazevtsralvjfsojrknt.supabase.co",
   SUPABASE_ANON_KEY:
     "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImlhemV2dHNyYWx2amZzb2pya250Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzgwNzE3NDMsImV4cCI6MjA5MzY0Nzc0M30.1Y4Yt11SZ7niqWdDojHKZqrIoO0h76RgknnuG6V8hLQ",
 
   // ── Admin Credentials ──
   // غيّر هذه البيانات قبل النشر!
   ADMIN_USERNAME: "admin",
-  ADMIN_PASSWORD: "Admin@Mudarrisak2024", // ← غيّر هذا!
+  ADMIN_PASSWORD_HASH: "117359aea30411a81daffb675ed2ba8d2b6a2f395b5296ad188ee64e273977fa", // كلمة مرور الإدارة مشفرة SHA-256
 
   // ── App Settings ──
   APP_NAME: "مدرسك",
@@ -58,7 +58,7 @@ const _supabaseReady = (function () {
             <div class="empty-icon">⚙️</div>
             <div class="empty-title">الموقع يحتاج إعداداً</div>
             <div class="empty-text" style="max-width:420px;margin:0 auto">
-              يرجى فتح ملف <code>js/config.js</code> وإدخال بيانات Supabase الصحيحة
+              يرجى فتح ملف <code>config.js</code> وإدخال بيانات Supabase الصحيحة
               (SUPABASE_URL و SUPABASE_ANON_KEY)
             </div>`;
         }
@@ -72,9 +72,11 @@ const _supabaseReady = (function () {
     return false;
   }
   try {
+    const cleanUrl = CONFIG.SUPABASE_URL.replace(/\/+$/, "").replace(/\/rest\/v1$/, "");
     supabase = window.supabase.createClient(
-      CONFIG.SUPABASE_URL,
+      cleanUrl,
       CONFIG.SUPABASE_ANON_KEY,
+      { auth: { persistSession: false } }
     );
     return true;
   } catch (e) {
