@@ -82,6 +82,75 @@ function buildContactButtons(teacher = {}, ad = {}, size = 'btn-sm') {
   return btns;
 }
 
+
+
+// ── Media Upload Helpers (Supabase Storage) ──
+const MEDIA_BUCKET = "uploads";
+const MAX_IMAGE_SIZE_MB = 6;
+const IMAGE_TYPES = ["image/jpeg", "image/png", "image/webp", "image/gif"];
+
+function normalizeList(value) {
+  if (!value) return [];
+  if (Array.isArray(value)) return value.filter(Boolean);
+  if (typeof value === "string") {
+    try {
+      const parsed = JSON.parse(value);
+      if (Array.isArray(parsed)) return parsed.filter(Boolean);
+    } catch (_) {}
+    return value.split(/\n|،|,/).map(x => x.trim()).filter(Boolean);
+  }
+  return [];
+}
+
+function getFileExt(file) {
+  const fromName = (file.name || "").split(".").pop();
+  if (fromName && fromName.length <= 5) return fromName.toLowerCase();
+  return (file.type || "image/png").split("/").pop() || "png";
+}
+
+async function uploadImageFile(file, folder = "ads") {
+  if (!file) return "";
+  if (!IMAGE_TYPES.includes(file.type)) throw new Error("ارفع صورة فقط بصيغة JPG أو PNG أو WEBP أو GIF");
+  if (file.size > MAX_IMAGE_SIZE_MB * 1024 * 1024) throw new Error(`حجم الصورة كبير. الحد الأقصى ${MAX_IMAGE_SIZE_MB}MB`);
+
+  const safeFolder = String(folder).replace(/[^a-zA-Z0-9_-]/g, "") || "ads";
+  const path = `${safeFolder}/${Date.now()}_${Math.random().toString(36).slice(2)}.${getFileExt(file)}`;
+  const { error } = await supabase.storage.from(MEDIA_BUCKET).upload(path, file, {
+    cacheControl: "3600",
+    upsert: false,
+    contentType: file.type || "image/png",
+  });
+  if (error) throw error;
+  const { data } = supabase.storage.from(MEDIA_BUCKET).getPublicUrl(path);
+  return data.publicUrl;
+}
+
+async function uploadImageInput(inputId, folder = "ads") {
+  const input = document.getElementById(inputId);
+  const file = input?.files?.[0];
+  return file ? uploadImageFile(file, folder) : "";
+}
+
+async function uploadMultipleImagesInput(inputId, folder = "ads") {
+  const input = document.getElementById(inputId);
+  const files = Array.from(input?.files || []);
+  const urls = [];
+  for (const file of files) urls.push(await uploadImageFile(file, folder));
+  return urls;
+}
+
+function mediaImage(url, alt = "صورة الإعلان", className = "") {
+  if (!url) return "";
+  return `<img src="${escapeHtml(url)}" alt="${escapeHtml(alt)}" class="${className}" loading="lazy" onerror="this.remove()">`;
+}
+
+function videoEmbedHtml(url) {
+  const safe = escapeHtml(url);
+  let yt = String(url).match(/(?:youtube\.com\/(?:watch\?v=|embed\/|shorts\/)|youtu\.be\/)([A-Za-z0-9_-]{6,})/);
+  if (yt) return `<div class="video-frame"><iframe src="https://www.youtube.com/embed/${yt[1]}" title="فيديو الإعلان" allowfullscreen loading="lazy"></iframe></div>`;
+  return `<a class="media-link" href="${safe}" target="_blank" rel="noopener">🎬 فتح الفيديو</a>`;
+}
+
 // ── Initialize Supabase ──
 const _supabaseReady = (function () {
   // التحقق من صحة الإعدادات قبل الاتصال
@@ -315,6 +384,7 @@ function buildTeacherCard(ad, teacher) {
   const contactBtns = buildContactButtons(t, ad, 'btn-sm');
   return `
   <div class="teacher-card animate-in" data-id="${ad.id}" data-teacher="${t.id || ""}">
+    ${ad.main_image_url ? `<a href="teacher.html?ad=${ad.id}" class="tc-image-link">${mediaImage(ad.main_image_url, ad.title || ad.subject, "tc-main-image")}</a>` : ""}
     <div class="tc-header">
       <div class="tc-avatar">${avatar}</div>
       <div class="tc-info">

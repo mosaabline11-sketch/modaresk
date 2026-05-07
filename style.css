@@ -571,3 +571,19 @@ textarea.form-control { resize: vertical; min-height: 100px; }
   font-size: .9rem;
   color: var(--text-secondary);
 }
+
+/* ── Media / Ad Images ── */
+.tc-image-link { display:block; overflow:hidden; background:var(--bg-soft); border-bottom:1px solid var(--border-light); }
+.tc-main-image { width:100%; height:170px; object-fit:cover; transition:transform .25s ease; }
+.teacher-card:hover .tc-main-image { transform:scale(1.035); }
+.media-preview { display:flex; gap:10px; flex-wrap:wrap; margin-top:10px; }
+.media-preview img { width:88px; height:64px; object-fit:cover; border-radius:10px; border:1px solid var(--border); background:var(--bg-soft); }
+.ad-main-detail-image { width:100%; max-height:420px; object-fit:cover; border-radius:var(--radius-lg); border:1px solid var(--border); margin:0 0 20px; background:var(--bg-soft); }
+.gallery-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(130px,1fr)); gap:12px; margin-top:12px; }
+.gallery-grid img { width:100%; height:120px; object-fit:cover; border-radius:var(--radius-md); border:1px solid var(--border); background:var(--bg-soft); cursor:pointer; }
+.video-list { display:grid; grid-template-columns:repeat(auto-fit,minmax(240px,1fr)); gap:12px; margin-top:12px; }
+.video-frame { position:relative; width:100%; aspect-ratio:16/9; background:#0f172a; border-radius:var(--radius-md); overflow:hidden; border:1px solid var(--border); }
+.video-frame iframe { position:absolute; inset:0; width:100%; height:100%; border:0; }
+.media-link { display:flex; align-items:center; justify-content:center; padding:18px; border:1px solid var(--border); border-radius:var(--radius-md); background:var(--bg-light); color:var(--primary); font-weight:700; }
+.file-note { font-size:.82rem; color:var(--text-muted); margin-top:6px; }
+@media(max-width:640px){ .tc-main-image{height:150px}.gallery-grid{grid-template-columns:repeat(2,1fr)} }

@@ -31,6 +31,9 @@ CREATE TABLE IF NOT EXISTS ads (
   lesson_type   TEXT NOT NULL CHECK (lesson_type IN ('online','inperson','both')),
   description   TEXT,
   extra_contact TEXT,
+  main_image_url TEXT,
+  gallery_images JSONB NOT NULL DEFAULT '[]'::jsonb,
+  video_links JSONB NOT NULL DEFAULT '[]'::jsonb,
   status        TEXT NOT NULL DEFAULT 'pending' CHECK (status IN ('pending','active','rejected')),
   created_at    TIMESTAMPTZ DEFAULT NOW(),
   updated_at    TIMESTAMPTZ DEFAULT NOW()
@@ -48,6 +51,9 @@ ALTER TABLE teachers ADD COLUMN IF NOT EXISTS avatar_url TEXT;
 ALTER TABLE teachers ADD COLUMN IF NOT EXISTS ads_limit INTEGER DEFAULT 3;
 ALTER TABLE teachers ADD COLUMN IF NOT EXISTS is_active BOOLEAN DEFAULT TRUE;
 ALTER TABLE ads ADD COLUMN IF NOT EXISTS extra_contact TEXT;
+ALTER TABLE ads ADD COLUMN IF NOT EXISTS main_image_url TEXT;
+ALTER TABLE ads ADD COLUMN IF NOT EXISTS gallery_images JSONB NOT NULL DEFAULT '[]'::jsonb;
+ALTER TABLE ads ADD COLUMN IF NOT EXISTS video_links JSONB NOT NULL DEFAULT '[]'::jsonb;
 
 INSERT INTO subjects (name) VALUES
 ('رياضيات'),('لغة عربية'),('لغة إنجليزية'),('علوم'),('دراسات اجتماعية'),('فيزياء'),('كيمياء'),('أحياء'),('تاريخ'),('جغرافيا'),('فرنسي'),('حاسب آلي'),('أخرى')
@@ -88,5 +94,36 @@ GRANT USAGE ON SCHEMA public TO anon;
 GRANT SELECT, INSERT, UPDATE, DELETE ON TABLE teachers TO anon;
 GRANT SELECT, INSERT, UPDATE, DELETE ON TABLE ads TO anon;
 GRANT SELECT, INSERT, UPDATE, DELETE ON TABLE subjects TO anon;
+
+
+
+-- =====================================================
+--  Supabase Storage: uploads bucket for ad images
+-- =====================================================
+INSERT INTO storage.buckets (id, name, public)
+VALUES ('uploads', 'uploads', true)
+ON CONFLICT (id) DO UPDATE SET public = true;
+
+DROP POLICY IF EXISTS "public_read_uploads" ON storage.objects;
+DROP POLICY IF EXISTS "anon_insert_uploads" ON storage.objects;
+DROP POLICY IF EXISTS "anon_update_uploads" ON storage.objects;
+DROP POLICY IF EXISTS "anon_delete_uploads" ON storage.objects;
+
+CREATE POLICY "public_read_uploads" ON storage.objects
+FOR SELECT TO anon
+USING (bucket_id = 'uploads');
+
+CREATE POLICY "anon_insert_uploads" ON storage.objects
+FOR INSERT TO anon
+WITH CHECK (bucket_id = 'uploads');
+
+CREATE POLICY "anon_update_uploads" ON storage.objects
+FOR UPDATE TO anon
+USING (bucket_id = 'uploads')
+WITH CHECK (bucket_id = 'uploads');
+
+CREATE POLICY "anon_delete_uploads" ON storage.objects
+FOR DELETE TO anon
+USING (bucket_id = 'uploads');
 
 -- ✅ انتهى الإعداد/التحديث

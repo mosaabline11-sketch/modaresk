@@ -326,6 +326,22 @@
           <textarea id="ea-description" class="form-control" rows="3"></textarea>
         </div>
         <div class="form-group">
+          <label class="form-label">الصورة الرئيسية للإعلان</label>
+          <input type="file" id="ea-main-image" class="form-control" accept="image/*">
+          <div class="file-note">اتركها فارغة إذا لا تريد تغيير الصورة.</div>
+          <div id="ea-current-main-image" class="media-preview"></div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">صور إضافية داخل التفاصيل</label>
+          <input type="file" id="ea-gallery-images" class="form-control" accept="image/*" multiple>
+          <div class="file-note">الصور الجديدة ستُضاف للصور الموجودة.</div>
+          <div id="ea-current-gallery" class="media-preview"></div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">روابط الفيديوهات</label>
+          <textarea id="ea-video-links" class="form-control" rows="3" placeholder="كل رابط في سطر منفصل"></textarea>
+        </div>
+        <div class="form-group">
           <label class="form-label">الحالة</label>
           <select id="ea-status" class="form-control form-select">
             <option value="pending">قيد المراجعة</option>
@@ -802,6 +818,11 @@
     document.getElementById('ea-lesson-type').value = ad.lesson_type || 'online';
     document.getElementById('ea-description').value = ad.description || '';
     document.getElementById('ea-status').value = ad.status || 'pending';
+    document.getElementById('ea-main-image').value = '';
+    document.getElementById('ea-gallery-images').value = '';
+    document.getElementById('ea-video-links').value = normalizeList(ad.video_links).join('\n');
+    document.getElementById('ea-current-main-image').innerHTML = ad.main_image_url ? `<img src="${escapeHtml(ad.main_image_url)}" alt="الصورة الحالية">` : '';
+    document.getElementById('ea-current-gallery').innerHTML = normalizeList(ad.gallery_images).map(url => `<img src="${escapeHtml(url)}" alt="صورة إضافية">`).join('');
     openModal('edit-ad-modal');
   }
 
@@ -809,6 +830,10 @@
     e.preventDefault();
     try {
       const adId = document.getElementById('ea-id').value;
+      const currentAd = allAds.find(a => a.id === adId) || {};
+      const folder = `ads/admin`;
+      const uploadedMain = await uploadImageInput('ea-main-image', folder);
+      const uploadedGallery = await uploadMultipleImagesInput('ea-gallery-images', folder);
       const { error } = await supabase.from('ads').update({
         title:       document.getElementById('ea-title').value.trim(),
         subject:     document.getElementById('ea-subject').value,
@@ -816,6 +841,9 @@
         price:       parseFloat(document.getElementById('ea-price').value),
         lesson_type: document.getElementById('ea-lesson-type').value,
         description: document.getElementById('ea-description').value.trim(),
+        main_image_url: uploadedMain || currentAd.main_image_url || null,
+        gallery_images: [...normalizeList(currentAd.gallery_images), ...uploadedGallery],
+        video_links: normalizeList(document.getElementById('ea-video-links').value),
         status:      document.getElementById('ea-status').value,
         updated_at:  new Date().toISOString(),
       }).eq('id', adId);

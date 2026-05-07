@@ -221,6 +221,23 @@
           <textarea id="ad-description" class="form-control" rows="3" placeholder="اكتب تفاصيل إضافية عن أسلوب التدريس والخبرة..."></textarea>
         </div>
         <div class="form-group">
+          <label class="form-label">الصورة الرئيسية للإعلان</label>
+          <input type="file" id="ad-main-image" class="form-control" accept="image/*">
+          <div class="file-note">تظهر في كارت الإعلان بالصفحة الرئيسية. اتركها فارغة عند التعديل إذا لا تريد تغيير الصورة.</div>
+          <div id="ad-current-main-image" class="media-preview"></div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">صور إضافية داخل التفاصيل</label>
+          <input type="file" id="ad-gallery-images" class="form-control" accept="image/*" multiple>
+          <div class="file-note">يمكنك اختيار أكثر من صورة. عند التعديل ستُضاف للصور القديمة.</div>
+          <div id="ad-current-gallery" class="media-preview"></div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">روابط فيديوهات الإعلان</label>
+          <textarea id="ad-video-links" class="form-control" rows="3" placeholder="ضع كل رابط فيديو في سطر منفصل مثل YouTube أو Google Drive"></textarea>
+          <div class="file-note">الفيديوهات روابط فقط حاليًا لتقليل استهلاك مساحة التخزين.</div>
+        </div>
+        <div class="form-group">
           <label class="form-label">معلومات تواصل إضافية</label>
           <input type="text" id="ad-extra-contact" class="form-control" placeholder="مثال: تيليجرام: @username أو أي رابط تواصل آخر">
           <div class="form-hint">سيُعرض بجانب بيانات واتساب وفيسبوك من ملفك</div>
@@ -347,7 +364,10 @@
         </div>
         <div class="amc-body">
           <div class="amc-price">💰 ${formatPrice(ad.price)} / الحصة</div>
-          ${ad.description ? `<div class="amc-desc mt-8">${ad.description}</div>` : ''}
+          ${ad.main_image_url ? `<div class="media-preview"><img src="${escapeHtml(ad.main_image_url)}" alt="صورة الإعلان"></div>` : ''}
+          ${normalizeList(ad.gallery_images).length ? `<div class="amc-desc mt-8">🖼 ${normalizeList(ad.gallery_images).length} صور إضافية</div>` : ''}
+          ${normalizeList(ad.video_links).length ? `<div class="amc-desc mt-8">🎬 ${normalizeList(ad.video_links).length} فيديو</div>` : ''}
+          ${ad.description ? `<div class="amc-desc mt-8">${escapeHtml(ad.description)}</div>` : ''}
           ${ad.status === 'pending' ? '<div class="alert alert-info mt-8" style="padding:8px 12px;font-size:0.82rem">⏳ هذا الإعلان في انتظار مراجعة الإدارة</div>' : ''}
           ${ad.status === 'rejected' ? '<div class="alert alert-danger mt-8" style="padding:8px 12px;font-size:0.82rem">❌ تم رفض هذا الإعلان من قبل الإدارة</div>' : ''}
         </div>
@@ -365,6 +385,8 @@
     document.getElementById('ad-submit-btn').textContent = 'نشر الإعلان';
     document.getElementById('ad-id').value = '';
     document.getElementById('ad-form').reset();
+    document.getElementById('ad-current-main-image').innerHTML = '';
+    document.getElementById('ad-current-gallery').innerHTML = '';
     populateSubjectSelect('ad-subject');
     populateGradeSelect('ad-grade');
     document.getElementById('modal-error').style.display = 'none';
@@ -387,6 +409,11 @@
     document.getElementById('ad-lesson-type').value = ad.lesson_type || '';
     document.getElementById('ad-description').value = ad.description || '';
     document.getElementById('ad-extra-contact').value = ad.extra_contact || '';
+    document.getElementById('ad-video-links').value = normalizeList(ad.video_links).join('\n');
+    document.getElementById('ad-main-image').value = '';
+    document.getElementById('ad-gallery-images').value = '';
+    document.getElementById('ad-current-main-image').innerHTML = ad.main_image_url ? `<img src="${escapeHtml(ad.main_image_url)}" alt="الصورة الحالية">` : '';
+    document.getElementById('ad-current-gallery').innerHTML = normalizeList(ad.gallery_images).map(url => `<img src="${escapeHtml(url)}" alt="صورة إضافية">`).join('');
     document.getElementById('modal-error').style.display = 'none';
     openModal('ad-modal');
   }
@@ -400,22 +427,33 @@
     const adId = document.getElementById('ad-id').value;
     const isEdit = !!adId;
 
-    const payload = {
-      teacher_id: teacher.id,
-      title: document.getElementById('ad-title').value.trim(),
-      subject: document.getElementById('ad-subject').value,
-      grade: document.getElementById('ad-grade').value,
-      price: parseFloat(document.getElementById('ad-price').value),
-      lesson_type: document.getElementById('ad-lesson-type').value,
-      description: document.getElementById('ad-description').value.trim(),
-      extra_contact: document.getElementById('ad-extra-contact').value.trim(),
-      status: isEdit ? undefined : 'pending',
-    };
-
-    if (isEdit) delete payload.status;
-    if (isEdit) delete payload.teacher_id;
+    const currentAd = isEdit ? teacherAds.find(a => a.id === adId) : null;
 
     try {
+      const folder = `ads/${teacher.id}`;
+      const uploadedMain = await uploadImageInput('ad-main-image', folder);
+      const uploadedGallery = await uploadMultipleImagesInput('ad-gallery-images', folder);
+      const oldGallery = normalizeList(currentAd?.gallery_images);
+      const videos = normalizeList(document.getElementById('ad-video-links').value);
+
+      const payload = {
+        teacher_id: teacher.id,
+        title: document.getElementById('ad-title').value.trim(),
+        subject: document.getElementById('ad-subject').value,
+        grade: document.getElementById('ad-grade').value,
+        price: parseFloat(document.getElementById('ad-price').value),
+        lesson_type: document.getElementById('ad-lesson-type').value,
+        description: document.getElementById('ad-description').value.trim(),
+        extra_contact: document.getElementById('ad-extra-contact').value.trim(),
+        main_image_url: uploadedMain || currentAd?.main_image_url || null,
+        gallery_images: [...oldGallery, ...uploadedGallery],
+        video_links: videos,
+        status: isEdit ? undefined : 'pending',
+      };
+
+      if (isEdit) delete payload.status;
+      if (isEdit) delete payload.teacher_id;
+
       let error;
       if (isEdit) {
         const res = await supabase.from('ads').update({ ...payload, updated_at: new Date().toISOString() }).eq('id', adId).eq('teacher_id', teacher.id);

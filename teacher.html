@@ -82,6 +82,7 @@
     document.getElementById('detail-content').style.display='';
     document.getElementById('detail-content').innerHTML=`
       <article class="detail-card animate-in">
+        ${ad.main_image_url ? mediaImage(ad.main_image_url, ad.title || ad.subject, 'ad-main-detail-image') : ''}
         <div class="teacher-mini">
           <div class="mini-avatar">${avatar}</div>
           <div style="flex:1">
@@ -99,6 +100,16 @@
           <h3 style="margin-bottom:10px;color:var(--text-primary)">وصف الإعلان</h3>
           ${ad.description ? nl2br(ad.description) : 'لا يوجد وصف إضافي.'}
         </div>
+        ${normalizeList(ad.gallery_images).length ? `
+          <div class="description-box">
+            <h3 style="margin-bottom:10px;color:var(--text-primary)">صور إضافية</h3>
+            <div class="gallery-grid">${normalizeList(ad.gallery_images).map(url => mediaImage(url, 'صورة إضافية للإعلان')).join('')}</div>
+          </div>` : ''}
+        ${normalizeList(ad.video_links).length ? `
+          <div class="description-box">
+            <h3 style="margin-bottom:10px;color:var(--text-primary)">فيديوهات الإعلان</h3>
+            <div class="video-list">${normalizeList(ad.video_links).map(videoEmbedHtml).join('')}</div>
+          </div>` : ''}
         <div class="contact-row">${contacts.join('') || '<span style="color:var(--text-muted)">لا توجد وسائل تواصل متاحة</span>'}</div>
       </article>`;
   }
