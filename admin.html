@@ -323,8 +323,9 @@
         <div class="form-group">
           <label class="form-label" style="display:flex;align-items:center;gap:8px;cursor:pointer">
             <input type="checkbox" id="t-active" checked style="width:16px;height:16px">
-            الحساب مفعّل
+            حالة الحساب: نشط
           </label>
+          <div class="form-hint">لو ألغيت التفعيل سيتم إيقاف الحساب يدويًا، ولن تظهر إعلاناته حتى تعيد تنشيطه.</div>
         </div>
         <div id="teacher-modal-error" class="alert alert-danger" style="display:none"></div>
         <div style="display:flex;gap:10px;justify-content:flex-end">
@@ -381,13 +382,19 @@
         <div class="form-group">
           <label class="form-label">الصورة الرئيسية للإعلان</label>
           <input type="file" id="ea-main-image" class="form-control" accept="image/*">
-          <div class="file-note">اتركها فارغة إذا لا تريد تغيير الصورة.</div>
+          <input type="hidden" id="ea-main-image-position" value="50% 50%">
+          <div class="file-note">اتركها فارغة إذا لا تريد تغيير الصورة. المعاينة تتحكم في الجزء الظاهر في كارت الإعلان.</div>
+          <div id="ea-main-position-editor" class="image-position-editor" style="display:none">
+            <div class="image-position-preview"><img id="ea-main-position-preview" alt="معاينة الجزء الظاهر"></div>
+            <div class="range-row"><label>تحريك أفقي</label><input type="range" id="ea-pos-x" min="0" max="100" value="50"></div>
+            <div class="range-row"><label>تحريك رأسي</label><input type="range" id="ea-pos-y" min="0" max="100" value="50"></div>
+          </div>
           <div id="ea-current-main-image" class="media-preview"></div>
         </div>
         <div class="form-group">
           <label class="form-label">صور إضافية داخل التفاصيل</label>
           <input type="file" id="ea-gallery-images" class="form-control" accept="image/*" multiple>
-          <div class="file-note">الصور الجديدة ستُضاف للصور الموجودة.</div>
+          <div class="file-note">الصور الجديدة ستُضاف للصور الموجودة، بحد أقصى 10 صور إضافية.</div>
           <div id="ea-current-gallery" class="media-preview"></div>
         </div>
         <div class="form-group">
@@ -412,7 +419,7 @@
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="config.js"></script>
+<script src="config.js?v=5.0"></script>
 <script>
   let allTeachers = [];
   let allAds = [];
@@ -422,6 +429,7 @@
   document.addEventListener('DOMContentLoaded', async () => {
     if (!Auth.requireAdmin()) return;
     await initAdmin();
+    setupAdminImagePositionControls();
   });
 
   async function initAdmin() {
@@ -579,7 +587,7 @@
           </div>
         </td>
         <td id="tc-${t.id}" style="color:var(--text-muted);font-size:0.85rem">جارٍ...</td>
-        <td><span class="inline-badge ${t.is_active ? 'badge-active' : 'badge-rejected'}">${t.is_active ? '✅ مفعّل' : '⛔ موقوف'}</span></td>
+        <td><span class="inline-badge ${t.is_active ? 'badge-active' : 'badge-rejected'}">${t.is_active ? '✅ نشط' : '⛔ موقوف يدويًا'}</span></td>
         <td>
           <div class="table-actions">
             <button class="btn btn-outline btn-sm" onclick="openEditTeacherModal('${t.id}')">✏️</button>
@@ -902,10 +910,12 @@
     document.getElementById('ea-lesson-type').value = ad.lesson_type || 'online';
     document.getElementById('ea-description').value = ad.description || '';
     document.getElementById('ea-status').value = ad.status || 'pending';
+    document.getElementById('ea-main-image-position').value = ad.main_image_position || '50% 50%';
     document.getElementById('ea-main-image').value = '';
     document.getElementById('ea-gallery-images').value = '';
     document.getElementById('ea-video-links').value = normalizeList(ad.video_links).join('\n');
     document.getElementById('ea-current-main-image').innerHTML = ad.main_image_url ? `<img src="${escapeHtml(ad.main_image_url)}" alt="الصورة الحالية">` : '';
+    initAdminImagePositionEditor(ad.main_image_url || '', ad.main_image_position || '50% 50%');
     document.getElementById('ea-current-gallery').innerHTML = normalizeList(ad.gallery_images).map(url => `<img src="${escapeHtml(url)}" alt="صورة إضافية">`).join('');
     openModal('edit-ad-modal');
   }
@@ -917,7 +927,10 @@
       const currentAd = allAds.find(a => a.id === adId) || {};
       const folder = `ads/admin`;
       const uploadedMain = await uploadImageInput('ea-main-image', folder);
-      const uploadedGallery = await uploadMultipleImagesInput('ea-gallery-images', folder);
+      const oldGallery = normalizeList(currentAd.gallery_images);
+      const newGalleryInput = document.getElementById('ea-gallery-images');
+      if (oldGallery.length + (newGalleryInput?.files?.length || 0) > MAX_GALLERY_IMAGES) throw new Error(`الحد الأقصى ${MAX_GALLERY_IMAGES} صور إضافية للإعلان الواحد.`);
+      const uploadedGallery = await uploadMultipleImagesInput('ea-gallery-images', folder, MAX_GALLERY_IMAGES - oldGallery.length);
       const { error } = await supabase.from('ads').update({
         title:       document.getElementById('ea-title').value.trim(),
         subject:     document.getElementById('ea-subject').value,
@@ -926,7 +939,8 @@
         lesson_type: document.getElementById('ea-lesson-type').value,
         description: document.getElementById('ea-description').value.trim(),
         main_image_url: uploadedMain || currentAd.main_image_url || null,
-        gallery_images: [...normalizeList(currentAd.gallery_images), ...uploadedGallery],
+        main_image_position: document.getElementById('ea-main-image-position').value || '50% 50%',
+        gallery_images: [...oldGallery, ...uploadedGallery],
         video_links: normalizeList(document.getElementById('ea-video-links').value),
         status:      document.getElementById('ea-status').value,
         updated_at:  new Date().toISOString(),
@@ -1079,6 +1093,42 @@
     } catch(e) {
       box.innerHTML = `<div class="error-banner">❌ تعذّر تحميل الإحصائيات: ${escapeHtml(e.message)} — تأكد من تشغيل supabase_setup.sql الجديد.</div>`;
     }
+  }
+
+  function parsePosition(value = '50% 50%') {
+    const parts = String(value || '50% 50%').match(/(\d+(?:\.\d+)?)%\s+(\d+(?:\.\d+)?)%/);
+    return parts ? { x: Number(parts[1]), y: Number(parts[2]) } : { x: 50, y: 50 };
+  }
+  function initAdminImagePositionEditor(imageUrl = '', position = '50% 50%') {
+    const editor = document.getElementById('ea-main-position-editor');
+    const img = document.getElementById('ea-main-position-preview');
+    const x = document.getElementById('ea-pos-x');
+    const y = document.getElementById('ea-pos-y');
+    const hidden = document.getElementById('ea-main-image-position');
+    if (!editor || !img || !x || !y || !hidden) return;
+    const pos = parsePosition(position);
+    x.value = pos.x; y.value = pos.y; hidden.value = `${pos.x}% ${pos.y}%`;
+    if (imageUrl) { img.src = imageUrl; editor.style.display = ''; }
+    else { img.removeAttribute('src'); editor.style.display = 'none'; }
+    updateAdminImagePositionPreview();
+  }
+  function updateAdminImagePositionPreview() {
+    const x = document.getElementById('ea-pos-x')?.value || 50;
+    const y = document.getElementById('ea-pos-y')?.value || 50;
+    const hidden = document.getElementById('ea-main-image-position');
+    const img = document.getElementById('ea-main-position-preview');
+    if (hidden) hidden.value = `${x}% ${y}%`;
+    if (img) img.style.objectPosition = `${x}% ${y}%`;
+  }
+  function setupAdminImagePositionControls() {
+    ['ea-pos-x','ea-pos-y'].forEach(id => document.getElementById(id)?.addEventListener('input', updateAdminImagePositionPreview));
+    document.getElementById('ea-main-image')?.addEventListener('change', e => {
+      const file = e.target.files?.[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = () => initAdminImagePositionEditor(reader.result, document.getElementById('ea-main-image-position')?.value || '50% 50%');
+      reader.readAsDataURL(file);
+    });
   }
 
   // ── Navigation ──

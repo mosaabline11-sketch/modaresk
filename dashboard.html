@@ -155,6 +155,12 @@
     <div class="profile-form-card">
       <h3 style="font-family:'Cairo',sans-serif;font-weight:700;margin-bottom:24px">👤 تعديل الملف الشخصي</h3>
       <form id="profile-form" onsubmit="saveProfile(event)">
+        <div class="form-group">
+          <label class="form-label">صورة المعلم</label>
+          <input type="file" id="p-avatar-file" class="form-control" accept="image/*">
+          <div class="form-hint">اختياري — تظهر صورتك في كارت الإعلان وصفحة التفاصيل.</div>
+          <div id="p-avatar-preview" class="teacher-avatar-preview"></div>
+        </div>
         <div class="form-row">
           <div class="form-group">
             <label class="form-label">الاسم الكامل <span class="required">*</span></label>
@@ -240,13 +246,20 @@
         <div class="form-group">
           <label class="form-label">الصورة الرئيسية للإعلان</label>
           <input type="file" id="ad-main-image" class="form-control" accept="image/*">
+          <input type="hidden" id="ad-main-image-position" value="50% 50%">
           <div class="file-note">تظهر في كارت الإعلان بالصفحة الرئيسية. اتركها فارغة عند التعديل إذا لا تريد تغيير الصورة.</div>
+          <div id="ad-main-position-editor" class="image-position-editor" style="display:none">
+            <div class="image-position-preview"><img id="ad-main-position-preview" alt="معاينة الجزء الظاهر"></div>
+            <div class="range-row"><label>تحريك أفقي</label><input type="range" id="ad-pos-x" min="0" max="100" value="50"></div>
+            <div class="range-row"><label>تحريك رأسي</label><input type="range" id="ad-pos-y" min="0" max="100" value="50"></div>
+            <div class="form-hint">المعاينة هنا تتحكم في الجزء الظاهر من الصورة داخل كارت الإعلان فقط، أما التفاصيل فستعرض الصورة كاملة.</div>
+          </div>
           <div id="ad-current-main-image" class="media-preview"></div>
         </div>
         <div class="form-group">
           <label class="form-label">صور إضافية داخل التفاصيل</label>
           <input type="file" id="ad-gallery-images" class="form-control" accept="image/*" multiple>
-          <div class="file-note">يمكنك اختيار أكثر من صورة. عند التعديل ستُضاف للصور القديمة.</div>
+          <div class="file-note">يمكنك اختيار حتى 10 صور إضافية. عند التعديل ستُضاف للصور القديمة مع عدم تجاوز الحد.</div>
           <div id="ad-current-gallery" class="media-preview"></div>
         </div>
         <div class="form-group">
@@ -257,7 +270,7 @@
         <div class="form-group">
           <label class="form-label">معلومات تواصل إضافية</label>
           <input type="text" id="ad-extra-contact" class="form-control" placeholder="مثال: تيليجرام: @username أو أي رابط تواصل آخر">
-          <div class="form-hint">سيُعرض بجانب بيانات واتساب وفيسبوك من ملفك</div>
+          <div class="form-hint">ستظهر داخل تفاصيل الإعلان، وفي كارت الإعلان سيظهر تنبيه بوجود طرق أخرى للتواصل</div>
         </div>
         <div id="modal-error" class="alert alert-danger" style="display:none"></div>
         <div style="display:flex;gap:10px;justify-content:flex-end;margin-top:4px">
@@ -270,7 +283,7 @@
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="config.js"></script>
+<script src="config.js?v=5.0"></script>
 <script>
   let teacher = null;
   let teacherAds = [];
@@ -287,12 +300,14 @@
     populateAllSubjectAndGradeSelects();
     await loadTeacherData();
     await loadAds();
+    setupMainImagePositionControls();
+    setupAvatarPreview();
   });
 
   async function loadTeacherData() {
     const { data } = await supabase
       .from('teachers')
-      .select('name, bio, whatsapp, facebook, phone, contact_methods, ads_limit, is_active, plan_type, subscription_start, subscription_end, subscription_status, allow_basic_stats, allow_advanced_stats, allow_unlimited_edits, allow_fast_support, custom_features')
+      .select('name, bio, avatar_url, whatsapp, facebook, phone, contact_methods, ads_limit, is_active, plan_type, subscription_start, subscription_end, subscription_status, allow_basic_stats, allow_advanced_stats, allow_unlimited_edits, allow_fast_support, custom_features')
       .eq('id', teacher.id)
       .single();
 
@@ -303,6 +318,7 @@
       document.getElementById('p-facebook').value = data.facebook || '';
       document.getElementById('p-contact-methods').value = data.contact_methods || '';
       document.getElementById('p-phone').value = data.phone || '';
+      renderAvatarPreview(data.avatar_url || '');
 
       // Update full teacher session data
       Object.assign(teacher, data);
@@ -388,7 +404,7 @@
         </div>
         <div class="amc-body">
           <div class="amc-price">💰 ${formatPrice(ad.price)} / الحصة</div>
-          ${ad.main_image_url ? `<div class="media-preview"><img src="${escapeHtml(ad.main_image_url)}" alt="صورة الإعلان"></div>` : ''}
+          ${ad.main_image_url ? `<div class="media-preview"><img src="${escapeHtml(ad.main_image_url)}" alt="صورة الإعلان" style="object-position:${escapeHtml(ad.main_image_position || '50% 50%')}"></div>` : ''}
           ${normalizeList(ad.gallery_images).length ? `<div class="amc-desc mt-8">🖼 ${normalizeList(ad.gallery_images).length} صور إضافية</div>` : ''}
           ${normalizeList(ad.video_links).length ? `<div class="amc-desc mt-8">🎬 ${normalizeList(ad.video_links).length} فيديو</div>` : ''}
           ${!getTeacherFeatures(teacher).unlimited_edits ? `<div class="amc-desc mt-8">✏️ عدد التعديلات: ${Number(ad.edit_count||0)} / 3</div>` : ''}
@@ -413,6 +429,7 @@
     document.getElementById('ad-form').reset();
     document.getElementById('ad-current-main-image').innerHTML = '';
     document.getElementById('ad-current-gallery').innerHTML = '';
+    initMainImagePositionEditor('', '50% 50%');
     populateSubjectSelect('ad-subject');
     populateGradeSelect('ad-grade');
     document.getElementById('modal-error').style.display = 'none';
@@ -439,9 +456,11 @@
     document.getElementById('ad-description').value = ad.description || '';
     document.getElementById('ad-extra-contact').value = ad.extra_contact || '';
     document.getElementById('ad-video-links').value = normalizeList(ad.video_links).join('\n');
+    document.getElementById('ad-main-image-position').value = ad.main_image_position || '50% 50%';
     document.getElementById('ad-main-image').value = '';
     document.getElementById('ad-gallery-images').value = '';
     document.getElementById('ad-current-main-image').innerHTML = ad.main_image_url ? `<img src="${escapeHtml(ad.main_image_url)}" alt="الصورة الحالية">` : '';
+    initMainImagePositionEditor(ad.main_image_url || '', ad.main_image_position || '50% 50%');
     document.getElementById('ad-current-gallery').innerHTML = normalizeList(ad.gallery_images).map(url => `<img src="${escapeHtml(url)}" alt="صورة إضافية">`).join('');
     document.getElementById('modal-error').style.display = 'none';
     openModal('ad-modal');
@@ -462,8 +481,10 @@
     try {
       const folder = `ads/${teacher.id}`;
       const uploadedMain = await uploadImageInput('ad-main-image', folder);
-      const uploadedGallery = await uploadMultipleImagesInput('ad-gallery-images', folder);
       const oldGallery = normalizeList(currentAd?.gallery_images);
+      const newGalleryInput = document.getElementById('ad-gallery-images');
+      if (oldGallery.length + (newGalleryInput?.files?.length || 0) > MAX_GALLERY_IMAGES) throw new Error(`الحد الأقصى ${MAX_GALLERY_IMAGES} صور إضافية. احذف صورًا قديمة أو اختر عددًا أقل.`);
+      const uploadedGallery = await uploadMultipleImagesInput('ad-gallery-images', folder, MAX_GALLERY_IMAGES - oldGallery.length);
       const videos = normalizeList(document.getElementById('ad-video-links').value);
 
       const payload = {
@@ -476,6 +497,7 @@
         description: document.getElementById('ad-description').value.trim(),
         extra_contact: document.getElementById('ad-extra-contact').value.trim(),
         main_image_url: uploadedMain || currentAd?.main_image_url || null,
+        main_image_position: document.getElementById('ad-main-image-position').value || '50% 50%',
         gallery_images: [...oldGallery, ...uploadedGallery],
         video_links: videos,
         status: isEdit ? undefined : 'pending',
@@ -525,6 +547,7 @@
     btn.innerHTML = '<span class="spinner"></span> جارٍ الحفظ...';
 
     try {
+      const uploadedAvatar = await uploadImageInput('p-avatar-file', `teachers/${teacher.id}`);
       const updates = {
         name: document.getElementById('p-name').value.trim(),
         bio: document.getElementById('p-bio').value.trim(),
@@ -532,6 +555,7 @@
         facebook: document.getElementById('p-facebook').value.trim(),
         phone: document.getElementById('p-phone').value.trim(),
         contact_methods: document.getElementById('p-contact-methods').value.trim(),
+        avatar_url: uploadedAvatar || teacher.avatar_url || null,
       };
 
       const { error } = await supabase.from('teachers').update(updates).eq('id', teacher.id);
@@ -539,6 +563,8 @@
 
       // Update session name
       teacher.name = updates.name;
+      teacher.avatar_url = updates.avatar_url;
+      renderAvatarPreview(updates.avatar_url || '');
       Auth.setTeacherSession({ ...teacher, name: updates.name });
       document.getElementById('teacher-name-display').textContent = updates.name;
       document.getElementById('nav-teacher-name').textContent = updates.name;
@@ -585,6 +611,14 @@
           <div>${f.fast_support ? '✅ دعم أسرع' : '🔒 دعم أسرع غير مفعّل'}</div>
           ${f.custom_features ? `<div>🎁 مميزات إضافية: ${escapeHtml(f.custom_features)}</div>` : ''}
         </div>
+      </div>
+      <div class="profile-form-card mt-24">
+        <h3 style="margin-bottom:12px">💰 أسعار الإضافات</h3>
+        <p class="text-muted mb-16">يمكنك طلب أي إضافة بالتواصل مع الإدارة، حتى لو حسابك على باقة أقل.</p>
+        <div class="addon-grid">
+          ${ADDON_DEFINITIONS.map(addon => `<div class="addon-card ${addon.className}"><div class="addon-icon">${addon.icon}</div><h4>${escapeHtml(addon.name)}</h4><div class="addon-price">${addon.price}<span>${escapeHtml(addon.unit)}</span></div><p>${escapeHtml(addon.desc)}</p></div>`).join('')}
+        </div>
+        <div class="alert alert-info mt-16">لإضافة أي ميزة: تواصل مع الإدارة، ويمكن الجمع بين أكثر من إضافة حسب احتياجك.</div>
       </div>`;
   }
 
@@ -634,6 +668,60 @@
       </div>
       <div class="alert alert-info">🏆 أفضل إعلان عندك: ${bestAd ? bestAd[0].slice(0,8)+'...' : 'لا توجد بيانات كافية بعد'} — نصيحة: لو المشاهدات عالية والتواصل قليل، حسّن الوصف والسعر والصورة.</div>
     </div>`;
+  }
+
+  function parsePosition(value = '50% 50%') {
+    const parts = String(value || '50% 50%').match(/(\d+(?:\.\d+)?)%\s+(\d+(?:\.\d+)?)%/);
+    return parts ? { x: Number(parts[1]), y: Number(parts[2]) } : { x: 50, y: 50 };
+  }
+
+  function initMainImagePositionEditor(imageUrl = '', position = '50% 50%') {
+    const editor = document.getElementById('ad-main-position-editor');
+    const img = document.getElementById('ad-main-position-preview');
+    const x = document.getElementById('ad-pos-x');
+    const y = document.getElementById('ad-pos-y');
+    const hidden = document.getElementById('ad-main-image-position');
+    const pos = parsePosition(position);
+    x.value = pos.x; y.value = pos.y; hidden.value = `${pos.x}% ${pos.y}%`;
+    if (imageUrl) { img.src = imageUrl; editor.style.display = ''; }
+    else { img.removeAttribute('src'); editor.style.display = 'none'; }
+    updateMainPositionPreview();
+  }
+
+  function updateMainPositionPreview() {
+    const x = document.getElementById('ad-pos-x')?.value || 50;
+    const y = document.getElementById('ad-pos-y')?.value || 50;
+    const hidden = document.getElementById('ad-main-image-position');
+    const img = document.getElementById('ad-main-position-preview');
+    if (hidden) hidden.value = `${x}% ${y}%`;
+    if (img) img.style.objectPosition = `${x}% ${y}%`;
+  }
+
+  function setupMainImagePositionControls() {
+    ['ad-pos-x','ad-pos-y'].forEach(id => document.getElementById(id)?.addEventListener('input', updateMainPositionPreview));
+    document.getElementById('ad-main-image')?.addEventListener('change', e => {
+      const file = e.target.files?.[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = () => initMainImagePositionEditor(reader.result, document.getElementById('ad-main-image-position')?.value || '50% 50%');
+      reader.readAsDataURL(file);
+    });
+  }
+
+  function renderAvatarPreview(url = '') {
+    const box = document.getElementById('p-avatar-preview');
+    if (!box) return;
+    box.innerHTML = url ? `<img src="${escapeHtml(url)}" alt="صورة المعلم">` : '<span>لا توجد صورة بعد</span>';
+  }
+
+  function setupAvatarPreview() {
+    document.getElementById('p-avatar-file')?.addEventListener('change', e => {
+      const file = e.target.files?.[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = () => renderAvatarPreview(reader.result);
+      reader.readAsDataURL(file);
+    });
   }
 
   function openModal(id) { document.getElementById(id).classList.add('open'); document.body.style.overflow = 'hidden'; }

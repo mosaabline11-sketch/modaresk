@@ -33,9 +33,9 @@
     <a href="index.html" class="btn btn-primary mt-16">العودة للرئيسية</a>
   </div>
 </main>
-<footer class="footer" style="margin-top:0"><div class="container"><div class="footer-bottom" style="border-top:none;margin-top:0">© 2024 مدرسك — جميع الحقوق محفوظة</div></div></footer>
+<footer class="footer" style="margin-top:0"><div class="container"><div class="footer-bottom" style="border-top:none;margin-top:0">© 2026 مدرسك — جميع الحقوق محفوظة</div></div></footer>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="config.js"></script>
+<script src="config.js?v=5.0"></script>
 <script>
   document.addEventListener('DOMContentLoaded', async () => {
     const params = new URLSearchParams(location.search);
@@ -84,7 +84,7 @@
     document.getElementById('detail-content').style.display='';
     document.getElementById('detail-content').innerHTML=`
       <article class="detail-card animate-in">
-        ${ad.main_image_url ? mediaImage(ad.main_image_url, ad.title || ad.subject, 'ad-main-detail-image') : ''}
+        ${ad.main_image_url ? `<button class="image-open-btn" type="button" onclick="openImageViewer('${escapeHtml(ad.main_image_url)}','${escapeHtml(ad.title || ad.subject)}')">${mediaImage(ad.main_image_url, ad.title || ad.subject, 'ad-main-detail-image')}</button>` : ''}
         <div class="teacher-mini">
           <div class="mini-avatar">${avatar}</div>
           <div style="flex:1">
@@ -105,7 +105,7 @@
         ${normalizeList(ad.gallery_images).length ? `
           <div class="description-box">
             <h3 style="margin-bottom:10px;color:var(--text-primary)">صور إضافية</h3>
-            <div class="gallery-grid">${normalizeList(ad.gallery_images).map(url => mediaImage(url, 'صورة إضافية للإعلان')).join('')}</div>
+            <div class="gallery-grid">${normalizeList(ad.gallery_images).map(url => `<button class="image-open-btn" type="button" onclick="openImageViewer('${escapeHtml(url)}','صورة إضافية للإعلان')">${mediaImage(url, 'صورة إضافية للإعلان')}</button>`).join('')}</div>
           </div>` : ''}
         ${normalizeList(ad.video_links).length ? `
           <div class="description-box">

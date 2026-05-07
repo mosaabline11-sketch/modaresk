@@ -72,18 +72,24 @@ function populateAllSubjectAndGradeSelects() {
 function parseExtraContacts(text = "") {
   return String(text || '').split(/\n|،/).map(x => x.trim()).filter(Boolean);
 }
-function buildContactButtons(teacher = {}, ad = {}, size = 'btn-sm') {
+function buildContactButtons(teacher = {}, ad = {}, size = 'btn-sm', options = {}) {
   const btns = [];
   const adId = ad?.id || '';
   const teacherId = teacher?.id || ad?.teacher_id || '';
+  const stop = "event.stopPropagation();";
   if (teacher.whatsapp) {
     const wa = `https://wa.me/${String(teacher.whatsapp).replace(/[^0-9]/g,'')}`;
-    btns.push(`<a href="${escapeHtml(wa)}" target="_blank" onclick="trackEvent('whatsapp_click',{ad_id:'${escapeHtml(adId)}',teacher_id:'${escapeHtml(teacherId)}'})" class="btn btn-whatsapp ${size}">واتساب</a>`);
+    btns.push(`<a href="${escapeHtml(wa)}" target="_blank" onclick="${stop} trackEvent('whatsapp_click',{ad_id:'${escapeHtml(adId)}',teacher_id:'${escapeHtml(teacherId)}'})" class="btn btn-whatsapp ${size}">واتساب</a>`);
   }
-  if (teacher.facebook) btns.push(`<a href="${escapeHtml(teacher.facebook)}" target="_blank" onclick="trackEvent('facebook_click',{ad_id:'${escapeHtml(adId)}',teacher_id:'${escapeHtml(teacherId)}'})" class="btn btn-facebook ${size}">فيسبوك</a>`);
-  if (teacher.phone) btns.push(`<a href="tel:${escapeHtml(teacher.phone)}" onclick="trackEvent('phone_click',{ad_id:'${escapeHtml(adId)}',teacher_id:'${escapeHtml(teacherId)}'})" class="btn btn-ghost ${size}">📞 اتصال</a>`);
-  parseExtraContacts(teacher.contact_methods).forEach(c => btns.push(`<span class="btn btn-ghost ${size}">${escapeHtml(c)}</span>`));
-  parseExtraContacts(ad.extra_contact).forEach(c => btns.push(`<span class="btn btn-ghost ${size}">${escapeHtml(c)}</span>`));
+  if (teacher.facebook) btns.push(`<a href="${escapeHtml(teacher.facebook)}" target="_blank" onclick="${stop} trackEvent('facebook_click',{ad_id:'${escapeHtml(adId)}',teacher_id:'${escapeHtml(teacherId)}'})" class="btn btn-facebook ${size}">فيسبوك</a>`);
+  if (teacher.phone) btns.push(`<a href="tel:${escapeHtml(teacher.phone)}" onclick="${stop} trackEvent('phone_click',{ad_id:'${escapeHtml(adId)}',teacher_id:'${escapeHtml(teacherId)}'})" class="btn btn-ghost ${size}">📞 اتصال</a>`);
+
+  const extras = [...parseExtraContacts(teacher.contact_methods), ...parseExtraContacts(ad.extra_contact)];
+  if (extras.length && options.compactExtra) {
+    btns.push(`<button type="button" onclick="${stop} window.location.href='teacher.html?ad=${escapeHtml(adId)}'" class="btn btn-ghost ${size} extra-contact-hint">طرق أخرى للتواصل</button>`);
+  } else {
+    extras.forEach(c => btns.push(`<span class="btn btn-ghost ${size} contact-extra-chip">${escapeHtml(c)}</span>`));
+  }
   return btns;
 }
 
@@ -92,6 +98,7 @@ function buildContactButtons(teacher = {}, ad = {}, size = 'btn-sm') {
 // ── Media Upload Helpers (Supabase Storage) ──
 const MEDIA_BUCKET = "uploads";
 const MAX_IMAGE_SIZE_MB = 6;
+const MAX_GALLERY_IMAGES = 10;
 const IMAGE_TYPES = ["image/jpeg", "image/png", "image/webp", "image/gif"];
 
 function normalizeList(value) {
@@ -136,9 +143,10 @@ async function uploadImageInput(inputId, folder = "ads") {
   return file ? uploadImageFile(file, folder) : "";
 }
 
-async function uploadMultipleImagesInput(inputId, folder = "ads") {
+async function uploadMultipleImagesInput(inputId, folder = "ads", maxFiles = MAX_GALLERY_IMAGES) {
   const input = document.getElementById(inputId);
   const files = Array.from(input?.files || []);
+  if (files.length > maxFiles) throw new Error(`يمكنك رفع ${maxFiles} صور إضافية كحد أقصى`);
   const urls = [];
   for (const file of files) urls.push(await uploadImageFile(file, folder));
   return urls;
@@ -164,7 +172,7 @@ const PLAN_DEFINITIONS = {
     key: 'monthly_40', name: 'باقة الشهر', price: 40, months: 1, color: 'green',
     ads_limit: 1, max_edits_per_ad: 3,
     basic_stats: false, advanced_stats: false, unlimited_edits: false, fast_support: false,
-    features: ['إعلان واحد', 'ظهور عادي', '3 تعديلات لكل إعلان']
+    features: ['إعلان واحد', '3 تعديلات لكل إعلان']
   },
   quarter_100: {
     key: 'quarter_100', name: 'باقة 3 شهور', price: 100, months: 3, color: 'blue',
@@ -179,6 +187,15 @@ const PLAN_DEFINITIONS = {
     features: ['كل مميزات باقة 3 شهور', 'إحصائيات متقدمة', 'دعم أسرع']
   }
 };
+
+const ADDON_DEFINITIONS = [
+  { name: 'إحصائيات بسيطة', price: 20, unit: 'جنيه / شهر', desc: 'عدد المشاهدات + عدد ضغطات التواصل', icon: '📊', className: 'addon-green' },
+  { name: 'تعديل غير محدود', price: 25, unit: 'جنيه / شهر', desc: 'بدلاً من 3 تعديلات فقط لكل إعلان', icon: '✏️', className: 'addon-blue' },
+  { name: 'إعلان إضافي', price: 30, unit: 'جنيه / شهر', desc: 'أضف إعلانًا إضافيًا إلى حسابك', icon: '📣', className: 'addon-purple' },
+  { name: 'دعم أسرع', price: 30, unit: 'جنيه / شهر', desc: 'أولوية في الرد والمساعدة', icon: '🎧', className: 'addon-teal' },
+  { name: 'إحصائيات متقدمة', price: 50, unit: 'جنيه / شهر', desc: 'واتساب + فيسبوك + اتصال + أفضل إعلان', icon: '💎', className: 'addon-indigo' },
+  { name: 'تصميم إعلان احترافي', price: 75, unit: 'جنيه مرة واحدة', desc: 'تصميم صورة أو بوستر احترافي لإعلانك', icon: '🎨', className: 'addon-pink' }
+];
 
 function getPlan(planType = 'monthly_40') { return PLAN_DEFINITIONS[planType] || PLAN_DEFINITIONS.monthly_40; }
 function toDateOnlyInput(dateLike) {
@@ -248,7 +265,8 @@ function lockedFeatureHtml(title, requiredPlan = 'باقة أعلى') {
 
 async function trackEvent(eventType, payload = {}) {
   try {
-    await supabase.from('analytics_events').insert({
+    if (!window.supabase || !eventType) return;
+    await window.supabase.from('analytics_events').insert({
       event_type: eventType,
       teacher_id: payload.teacher_id || null,
       ad_id: payload.ad_id || null,
@@ -494,10 +512,12 @@ function buildTeacherCard(ad, teacher) {
   const avatar = t.avatar_url
     ? `<img src="${escapeHtml(t.avatar_url)}" alt="${escapeHtml(name)}" onerror="this.style.display='none'">`
     : initial;
-  const contactBtns = buildContactButtons(t, ad, 'btn-sm');
+  const contactBtns = buildContactButtons(t, ad, 'btn-sm', { compactExtra: true });
+  const footerHtml = contactBtns.length ? contactBtns.join("") : '<span class="tc-open-hint">اضغط على الكارت لعرض التفاصيل</span>';
+  const position = escapeHtml(ad.main_image_position || '50% 50%');
   return `
-  <div class="teacher-card animate-in" data-id="${ad.id}" data-teacher="${t.id || ""}">
-    ${ad.main_image_url ? `<a href="teacher.html?ad=${ad.id}" class="tc-image-link">${mediaImage(ad.main_image_url, ad.title || ad.subject, "tc-main-image")}</a>` : ""}
+  <article class="teacher-card animate-in" data-id="${ad.id}" data-teacher="${t.id || ""}" onclick="window.location.href='teacher.html?ad=${ad.id}'" role="link" tabindex="0" onkeydown="if(event.key==='Enter') window.location.href='teacher.html?ad=${ad.id}'">
+    ${ad.main_image_url ? `<div class="tc-image-link">${mediaImage(ad.main_image_url, ad.title || ad.subject, "tc-main-image").replace('<img ', `<img style="object-position:${position}" `)}</div>` : ""}
     <div class="tc-header">
       <div class="tc-avatar">${avatar}</div>
       <div class="tc-info">
@@ -514,10 +534,25 @@ function buildTeacherCard(ad, teacher) {
       <div class="tc-price">${formatPrice(ad.price)} <span>/ الحصة</span></div>
     </div>
     <div class="tc-footer">
-      ${contactBtns.join("")}
-      <a href="teacher.html?ad=${ad.id}" class="btn btn-outline btn-sm">🔍 تفاصيل الإعلان</a>
+      ${footerHtml}
     </div>
-  </div>`;
+  </article>`;
+}
+
+function openImageViewer(url, alt = 'صورة') {
+  if (!url) return;
+  const overlay = document.createElement('div');
+  overlay.className = 'image-viewer open';
+  overlay.innerHTML = `
+    <button class="image-viewer-close" type="button" aria-label="إغلاق">✕</button>
+    <img src="${escapeHtml(url)}" alt="${escapeHtml(alt)}">
+  `;
+  document.body.appendChild(overlay);
+  document.body.style.overflow = 'hidden';
+  const close = () => { overlay.remove(); document.body.style.overflow = ''; };
+  overlay.querySelector('.image-viewer-close').onclick = close;
+  overlay.onclick = e => { if (e.target === overlay) close(); };
+  document.addEventListener('keydown', function esc(e){ if(e.key === 'Escape'){ close(); document.removeEventListener('keydown', esc); } });
 }
 
 // ── Confirm Dialog ──

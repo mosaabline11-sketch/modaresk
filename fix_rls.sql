@@ -1,5 +1,5 @@
 -- =====================================================
---  مدرسك V4 - Plans, Subscriptions, Analytics
+--  مدرسك V5 - Plans, Subscriptions, Analytics, Media Position
 --  شغّل هذا الملف في Supabase SQL Editor
 -- =====================================================
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
@@ -41,6 +41,7 @@ CREATE TABLE IF NOT EXISTS ads (
   description   TEXT,
   extra_contact TEXT,
   main_image_url TEXT,
+  main_image_position TEXT DEFAULT '50% 50%',
   gallery_images JSONB NOT NULL DEFAULT '[]'::jsonb,
   video_links JSONB NOT NULL DEFAULT '[]'::jsonb,
   edit_count INTEGER NOT NULL DEFAULT 0,
@@ -83,6 +84,7 @@ ALTER TABLE teachers ADD COLUMN IF NOT EXISTS custom_features TEXT;
 
 ALTER TABLE ads ADD COLUMN IF NOT EXISTS extra_contact TEXT;
 ALTER TABLE ads ADD COLUMN IF NOT EXISTS main_image_url TEXT;
+ALTER TABLE ads ADD COLUMN IF NOT EXISTS main_image_position TEXT DEFAULT '50% 50%';
 ALTER TABLE ads ADD COLUMN IF NOT EXISTS gallery_images JSONB NOT NULL DEFAULT '[]'::jsonb;
 ALTER TABLE ads ADD COLUMN IF NOT EXISTS video_links JSONB NOT NULL DEFAULT '[]'::jsonb;
 ALTER TABLE ads ADD COLUMN IF NOT EXISTS edit_count INTEGER NOT NULL DEFAULT 0;
