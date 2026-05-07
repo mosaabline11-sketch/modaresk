@@ -420,10 +420,12 @@
   let activeType = '';
   let searchQuery = '';
   let filterSubject = '';
+  let filterGrade = '';
 
   // ── On Load ──
   document.addEventListener('DOMContentLoaded', async () => {
     updateNavAuth();
+    trackEvent('site_visit', {page:'index.html'});
     await loadSubjectsSafe();
     populateAllSubjectAndGradeSelects();
     await loadAds();
@@ -453,12 +455,12 @@
     try {
       const { data, error } = await supabase
         .from('ads')
-        .select('*, teachers(id, name, avatar_url, bio, whatsapp, facebook, phone, contact_methods)')
+        .select('*, teachers(id, name, avatar_url, bio, whatsapp, facebook, phone, contact_methods, is_active, plan_type, subscription_status, subscription_end)')
         .eq('status', 'active')
         .order('created_at', { ascending: false });
 
       if (error) throw error;
-      allAds = data || [];
+      allAds = (data || []).filter(ad => isSubscriptionActive(ad.teachers));
       filteredAds = [...allAds];
 
       // Update stats
@@ -493,6 +495,7 @@
     grid.style.display = '';
     empty.style.display = 'none';
     grid.innerHTML = filteredAds.map(ad => buildTeacherCard(ad, ad.teachers)).join('');
+    filteredAds.forEach(ad => trackEvent('ad_card_view', {ad_id: ad.id, teacher_id: ad.teacher_id, page:'index.html'}));
 
     if (searchQuery) title.textContent = `🔍 نتائج: "${searchQuery}"`;
     else if (activeType) title.textContent = `🎓 إعلانات ${activeType}`;

@@ -1,5 +1,5 @@
 -- =====================================================
---  مدرسك - Supabase Database Setup / Update
+--  مدرسك V4 - Plans, Subscriptions, Analytics
 --  شغّل هذا الملف في Supabase SQL Editor
 -- =====================================================
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
@@ -15,8 +15,17 @@ CREATE TABLE IF NOT EXISTS teachers (
   facebook      TEXT,
   phone         TEXT,
   contact_methods TEXT,
-  ads_limit     INTEGER NOT NULL DEFAULT 3,
+  ads_limit     INTEGER NOT NULL DEFAULT 1,
   is_active     BOOLEAN NOT NULL DEFAULT TRUE,
+  plan_type     TEXT NOT NULL DEFAULT 'monthly_40',
+  subscription_start DATE DEFAULT CURRENT_DATE,
+  subscription_end DATE DEFAULT (CURRENT_DATE + INTERVAL '1 month'),
+  subscription_status TEXT NOT NULL DEFAULT 'active',
+  allow_basic_stats BOOLEAN NOT NULL DEFAULT FALSE,
+  allow_advanced_stats BOOLEAN NOT NULL DEFAULT FALSE,
+  allow_unlimited_edits BOOLEAN NOT NULL DEFAULT FALSE,
+  allow_fast_support BOOLEAN NOT NULL DEFAULT FALSE,
+  custom_features TEXT,
   created_at    TIMESTAMPTZ DEFAULT NOW(),
   updated_at    TIMESTAMPTZ DEFAULT NOW()
 );
@@ -34,6 +43,7 @@ CREATE TABLE IF NOT EXISTS ads (
   main_image_url TEXT,
   gallery_images JSONB NOT NULL DEFAULT '[]'::jsonb,
   video_links JSONB NOT NULL DEFAULT '[]'::jsonb,
+  edit_count INTEGER NOT NULL DEFAULT 0,
   status        TEXT NOT NULL DEFAULT 'pending' CHECK (status IN ('pending','active','rejected')),
   created_at    TIMESTAMPTZ DEFAULT NOW(),
   updated_at    TIMESTAMPTZ DEFAULT NOW()
@@ -45,15 +55,37 @@ CREATE TABLE IF NOT EXISTS subjects (
   created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
+CREATE TABLE IF NOT EXISTS analytics_events (
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  event_type TEXT NOT NULL,
+  teacher_id UUID REFERENCES teachers(id) ON DELETE SET NULL,
+  ad_id UUID REFERENCES ads(id) ON DELETE SET NULL,
+  page TEXT,
+  user_agent TEXT,
+  meta JSONB NOT NULL DEFAULT '{}'::jsonb,
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
 ALTER TABLE teachers ADD COLUMN IF NOT EXISTS phone TEXT;
 ALTER TABLE teachers ADD COLUMN IF NOT EXISTS contact_methods TEXT;
 ALTER TABLE teachers ADD COLUMN IF NOT EXISTS avatar_url TEXT;
-ALTER TABLE teachers ADD COLUMN IF NOT EXISTS ads_limit INTEGER DEFAULT 3;
+ALTER TABLE teachers ADD COLUMN IF NOT EXISTS ads_limit INTEGER DEFAULT 1;
 ALTER TABLE teachers ADD COLUMN IF NOT EXISTS is_active BOOLEAN DEFAULT TRUE;
+ALTER TABLE teachers ADD COLUMN IF NOT EXISTS plan_type TEXT DEFAULT 'monthly_40';
+ALTER TABLE teachers ADD COLUMN IF NOT EXISTS subscription_start DATE DEFAULT CURRENT_DATE;
+ALTER TABLE teachers ADD COLUMN IF NOT EXISTS subscription_end DATE DEFAULT (CURRENT_DATE + INTERVAL '1 month');
+ALTER TABLE teachers ADD COLUMN IF NOT EXISTS subscription_status TEXT DEFAULT 'active';
+ALTER TABLE teachers ADD COLUMN IF NOT EXISTS allow_basic_stats BOOLEAN DEFAULT FALSE;
+ALTER TABLE teachers ADD COLUMN IF NOT EXISTS allow_advanced_stats BOOLEAN DEFAULT FALSE;
+ALTER TABLE teachers ADD COLUMN IF NOT EXISTS allow_unlimited_edits BOOLEAN DEFAULT FALSE;
+ALTER TABLE teachers ADD COLUMN IF NOT EXISTS allow_fast_support BOOLEAN DEFAULT FALSE;
+ALTER TABLE teachers ADD COLUMN IF NOT EXISTS custom_features TEXT;
+
 ALTER TABLE ads ADD COLUMN IF NOT EXISTS extra_contact TEXT;
 ALTER TABLE ads ADD COLUMN IF NOT EXISTS main_image_url TEXT;
 ALTER TABLE ads ADD COLUMN IF NOT EXISTS gallery_images JSONB NOT NULL DEFAULT '[]'::jsonb;
 ALTER TABLE ads ADD COLUMN IF NOT EXISTS video_links JSONB NOT NULL DEFAULT '[]'::jsonb;
+ALTER TABLE ads ADD COLUMN IF NOT EXISTS edit_count INTEGER NOT NULL DEFAULT 0;
 
 INSERT INTO subjects (name) VALUES
 ('رياضيات'),('لغة عربية'),('لغة إنجليزية'),('علوم'),('دراسات اجتماعية'),('فيزياء'),('كيمياء'),('أحياء'),('تاريخ'),('جغرافيا'),('فرنسي'),('حاسب آلي'),('أخرى')
@@ -65,6 +97,10 @@ CREATE INDEX IF NOT EXISTS idx_ads_subject ON ads(subject);
 CREATE INDEX IF NOT EXISTS idx_ads_grade ON ads(grade);
 CREATE INDEX IF NOT EXISTS idx_teachers_username ON teachers(username);
 CREATE INDEX IF NOT EXISTS idx_subjects_name ON subjects(name);
+CREATE INDEX IF NOT EXISTS idx_analytics_type ON analytics_events(event_type);
+CREATE INDEX IF NOT EXISTS idx_analytics_teacher ON analytics_events(teacher_id);
+CREATE INDEX IF NOT EXISTS idx_analytics_ad ON analytics_events(ad_id);
+CREATE INDEX IF NOT EXISTS idx_analytics_created ON analytics_events(created_at);
 
 CREATE OR REPLACE FUNCTION update_updated_at()
 RETURNS TRIGGER AS $$
@@ -82,24 +118,24 @@ CREATE TRIGGER trg_ads_updated BEFORE UPDATE ON ads FOR EACH ROW EXECUTE FUNCTIO
 ALTER TABLE teachers ENABLE ROW LEVEL SECURITY;
 ALTER TABLE ads ENABLE ROW LEVEL SECURITY;
 ALTER TABLE subjects ENABLE ROW LEVEL SECURITY;
+ALTER TABLE analytics_events ENABLE ROW LEVEL SECURITY;
 
 DROP POLICY IF EXISTS "allow_all_teachers" ON teachers;
 DROP POLICY IF EXISTS "allow_all_ads" ON ads;
 DROP POLICY IF EXISTS "allow_all_subjects" ON subjects;
+DROP POLICY IF EXISTS "allow_all_analytics" ON analytics_events;
 CREATE POLICY "allow_all_teachers" ON teachers FOR ALL TO anon USING (true) WITH CHECK (true);
 CREATE POLICY "allow_all_ads" ON ads FOR ALL TO anon USING (true) WITH CHECK (true);
 CREATE POLICY "allow_all_subjects" ON subjects FOR ALL TO anon USING (true) WITH CHECK (true);
+CREATE POLICY "allow_all_analytics" ON analytics_events FOR ALL TO anon USING (true) WITH CHECK (true);
 
 GRANT USAGE ON SCHEMA public TO anon;
 GRANT SELECT, INSERT, UPDATE, DELETE ON TABLE teachers TO anon;
 GRANT SELECT, INSERT, UPDATE, DELETE ON TABLE ads TO anon;
 GRANT SELECT, INSERT, UPDATE, DELETE ON TABLE subjects TO anon;
+GRANT SELECT, INSERT, UPDATE, DELETE ON TABLE analytics_events TO anon;
 
-
-
--- =====================================================
---  Supabase Storage: uploads bucket for ad images
--- =====================================================
+-- Supabase Storage: uploads bucket for ad images
 INSERT INTO storage.buckets (id, name, public)
 VALUES ('uploads', 'uploads', true)
 ON CONFLICT (id) DO UPDATE SET public = true;
@@ -109,21 +145,9 @@ DROP POLICY IF EXISTS "anon_insert_uploads" ON storage.objects;
 DROP POLICY IF EXISTS "anon_update_uploads" ON storage.objects;
 DROP POLICY IF EXISTS "anon_delete_uploads" ON storage.objects;
 
-CREATE POLICY "public_read_uploads" ON storage.objects
-FOR SELECT TO anon
-USING (bucket_id = 'uploads');
-
-CREATE POLICY "anon_insert_uploads" ON storage.objects
-FOR INSERT TO anon
-WITH CHECK (bucket_id = 'uploads');
-
-CREATE POLICY "anon_update_uploads" ON storage.objects
-FOR UPDATE TO anon
-USING (bucket_id = 'uploads')
-WITH CHECK (bucket_id = 'uploads');
-
-CREATE POLICY "anon_delete_uploads" ON storage.objects
-FOR DELETE TO anon
-USING (bucket_id = 'uploads');
+CREATE POLICY "public_read_uploads" ON storage.objects FOR SELECT TO anon USING (bucket_id = 'uploads');
+CREATE POLICY "anon_insert_uploads" ON storage.objects FOR INSERT TO anon WITH CHECK (bucket_id = 'uploads');
+CREATE POLICY "anon_update_uploads" ON storage.objects FOR UPDATE TO anon USING (bucket_id = 'uploads') WITH CHECK (bucket_id = 'uploads');
+CREATE POLICY "anon_delete_uploads" ON storage.objects FOR DELETE TO anon USING (bucket_id = 'uploads');
 
 -- ✅ انتهى الإعداد/التحديث

@@ -102,10 +102,13 @@
       👁 عرض ملفي
     </a>
   </div>
+  <div id="subscription-banner"></div>
 
   <!-- Tabs -->
   <div class="dash-tabs">
     <button class="dash-tab active" onclick="switchTab('ads')">📋 إعلاناتي</button>
+    <button class="dash-tab" onclick="switchTab('stats')">📊 الإحصائيات</button>
+    <button class="dash-tab" onclick="switchTab('features')">💎 مميزات الباقة</button>
     <button class="dash-tab" onclick="switchTab('profile')">👤 الملف الشخصي</button>
   </div>
 
@@ -131,6 +134,20 @@
       <div class="empty-text">أضف أول إعلان لك ليظهر للطلاب</div>
       <button class="btn btn-primary mt-16" onclick="openAddAdModal()">+ إضافة إعلان</button>
     </div>
+  </div>
+
+
+  <!-- ── Stats Tab ── -->
+  <div class="dash-pane" id="tab-stats">
+    <div id="teacher-stats-content" class="profile-form-card">
+      <h3 style="font-family:'Cairo',sans-serif;font-weight:700;margin-bottom:16px">📊 إحصائيات حسابك</h3>
+      <div class="loading-spinner"><div class="spinner-lg"></div></div>
+    </div>
+  </div>
+
+  <!-- ── Features Tab ── -->
+  <div class="dash-pane" id="tab-features">
+    <div id="features-content"></div>
   </div>
 
   <!-- ── Profile Tab ── -->
@@ -275,7 +292,7 @@
   async function loadTeacherData() {
     const { data } = await supabase
       .from('teachers')
-      .select('name, bio, whatsapp, facebook, phone, contact_methods, ads_limit')
+      .select('name, bio, whatsapp, facebook, phone, contact_methods, ads_limit, is_active, plan_type, subscription_start, subscription_end, subscription_status, allow_basic_stats, allow_advanced_stats, allow_unlimited_edits, allow_fast_support, custom_features')
       .eq('id', teacher.id)
       .single();
 
@@ -287,8 +304,12 @@
       document.getElementById('p-contact-methods').value = data.contact_methods || '';
       document.getElementById('p-phone').value = data.phone || '';
 
-      // Update limit in auth session
-      teacher.ads_limit = data.ads_limit || CONFIG.DEFAULT_ADS_LIMIT;
+      // Update full teacher session data
+      Object.assign(teacher, data);
+      Auth.setTeacherSession({ ...teacher, name: data.name || teacher.name });
+      document.getElementById('subscription-banner').innerHTML = subscriptionBannerHtml(teacher);
+      renderFeatures();
+      await loadTeacherStats();
     }
   }
 
@@ -317,14 +338,17 @@
   }
 
   function updateLimitDisplay() {
-    const limit = teacher.ads_limit || CONFIG.DEFAULT_ADS_LIMIT;
+    const limit = getTeacherFeatures(teacher).ads_limit;
     const used = teacherAds.length;
     const pct = Math.min(100, (used / limit) * 100);
     document.getElementById('limit-text').textContent = `الإعلانات: ${used} من ${limit}`;
     document.getElementById('limit-bar').style.width = `${pct}%`;
 
     const addBtn = document.getElementById('add-ad-btn');
-    if (used >= limit) {
+    if (!isSubscriptionActive(teacher)) {
+      addBtn.disabled = true;
+      addBtn.textContent = '🚫 الاشتراك منتهي';
+    } else if (used >= limit) {
       addBtn.disabled = true;
       addBtn.textContent = `🚫 وصلت للحد الأقصى (${limit})`;
     } else {
@@ -358,7 +382,7 @@
             </div>
           </div>
           <div class="amc-actions">
-            <button class="btn btn-ghost btn-sm" onclick="openEditAdModal('${ad.id}')">✏️ تعديل</button>
+            ${(!getTeacherFeatures(teacher).unlimited_edits && Number(ad.edit_count||0) >= 3) ? '<button class="btn btn-ghost btn-sm" disabled title="وصلت للحد الأقصى">🔒 تعديل</button>' : `<button class="btn btn-ghost btn-sm" onclick="openEditAdModal('${ad.id}')">✏️ تعديل</button>`}
             <button class="btn btn-danger btn-sm" onclick="deleteAd('${ad.id}')">🗑</button>
           </div>
         </div>
@@ -367,6 +391,7 @@
           ${ad.main_image_url ? `<div class="media-preview"><img src="${escapeHtml(ad.main_image_url)}" alt="صورة الإعلان"></div>` : ''}
           ${normalizeList(ad.gallery_images).length ? `<div class="amc-desc mt-8">🖼 ${normalizeList(ad.gallery_images).length} صور إضافية</div>` : ''}
           ${normalizeList(ad.video_links).length ? `<div class="amc-desc mt-8">🎬 ${normalizeList(ad.video_links).length} فيديو</div>` : ''}
+          ${!getTeacherFeatures(teacher).unlimited_edits ? `<div class="amc-desc mt-8">✏️ عدد التعديلات: ${Number(ad.edit_count||0)} / 3</div>` : ''}
           ${ad.description ? `<div class="amc-desc mt-8">${escapeHtml(ad.description)}</div>` : ''}
           ${ad.status === 'pending' ? '<div class="alert alert-info mt-8" style="padding:8px 12px;font-size:0.82rem">⏳ هذا الإعلان في انتظار مراجعة الإدارة</div>' : ''}
           ${ad.status === 'rejected' ? '<div class="alert alert-danger mt-8" style="padding:8px 12px;font-size:0.82rem">❌ تم رفض هذا الإعلان من قبل الإدارة</div>' : ''}
@@ -376,7 +401,8 @@
   }
 
   function openAddAdModal() {
-    const limit = teacher.ads_limit || CONFIG.DEFAULT_ADS_LIMIT;
+    if (!isSubscriptionActive(teacher)) { showToast('اشتراكك منتهي أو معلّق. جدّد الحساب أولاً', 'danger'); return; }
+    const limit = getTeacherFeatures(teacher).ads_limit;
     if (teacherAds.length >= limit) {
       showToast(`لا يمكنك إضافة أكثر من ${limit} إعلانات`, 'warning');
       return;
@@ -394,7 +420,10 @@
   }
 
   async function openEditAdModal(adId) {
+    if (!isSubscriptionActive(teacher)) { showToast('اشتراكك منتهي أو معلّق. لا يمكن تعديل الإعلانات حاليًا', 'danger'); return; }
     const ad = teacherAds.find(a => a.id === adId);
+    const features = getTeacherFeatures(teacher);
+    if (!features.unlimited_edits && Number(ad?.edit_count || 0) >= 3) { showToast('وصلت للحد الأقصى: 3 تعديلات لهذا الإعلان. راسل الإدارة للترقية.', 'warning', 6500); return; }
     if (!ad) return;
 
     document.getElementById('modal-title').textContent = '✏️ تعديل الإعلان';
@@ -420,6 +449,7 @@
 
   async function submitAd(e) {
     e.preventDefault();
+    if (!isSubscriptionActive(teacher)) { showToast('اشتراكك منتهي أو معلّق. جدّد الحساب أولاً', 'danger'); return; }
     const btn = document.getElementById('ad-submit-btn');
     btn.disabled = true;
     btn.innerHTML = '<span class="spinner"></span>';
@@ -449,6 +479,7 @@
         gallery_images: [...oldGallery, ...uploadedGallery],
         video_links: videos,
         status: isEdit ? undefined : 'pending',
+        edit_count: isEdit ? Number(currentAd?.edit_count || 0) + (getTeacherFeatures(teacher).unlimited_edits ? 0 : 1) : 0,
       };
 
       if (isEdit) delete payload.status;
@@ -478,6 +509,7 @@
   }
 
   async function deleteAd(adId) {
+    if (!isSubscriptionActive(teacher)) { showToast('اشتراكك منتهي أو معلّق. لا يمكن حذف الإعلانات حاليًا', 'danger'); return; }
     confirmDialog('هل أنت متأكد من حذف هذا الإعلان؟', async () => {
       const { error } = await supabase.from('ads').delete().eq('id', adId).eq('teacher_id', teacher.id);
       if (error) { showToast('حدث خطأ عند الحذف', 'danger'); return; }
@@ -521,11 +553,87 @@
   }
 
   function switchTab(tab) {
-    document.querySelectorAll('.dash-tab').forEach((t, i) => {
-      t.classList.toggle('active', (i === 0 && tab === 'ads') || (i === 1 && tab === 'profile'));
-    });
-    document.getElementById('tab-ads').classList.toggle('active', tab === 'ads');
-    document.getElementById('tab-profile').classList.toggle('active', tab === 'profile');
+    const tabs = ['ads','stats','features','profile'];
+    document.querySelectorAll('.dash-tab').forEach((t, i) => t.classList.toggle('active', tabs[i] === tab));
+    tabs.forEach(x => document.getElementById(`tab-${x}`)?.classList.toggle('active', x === tab));
+    if (tab === 'stats') loadTeacherStats();
+    if (tab === 'features') renderFeatures();
+  }
+
+  function renderFeatures() {
+    const box = document.getElementById('features-content');
+    if (!box) return;
+    const f = getTeacherFeatures(teacher);
+    const current = f.plan.key;
+    box.innerHTML = `
+      ${subscriptionBannerHtml(teacher)}
+      <div class="plan-grid">
+        ${Object.values(PLAN_DEFINITIONS).map(plan => `
+          <div class="plan-card ${plan.key === current ? 'current' : ''}">
+            <h3>${plan.key === current ? '✅ ' : ''}${escapeHtml(plan.name)}</h3>
+            <div style="font-family:Cairo,sans-serif;font-size:1.8rem;font-weight:900;color:var(--primary)">${plan.price} جنيه</div>
+            <div class="feature-list">${plan.features.map(x => `<div>• ${escapeHtml(x)}</div>`).join('')}</div>
+          </div>`).join('')}
+      </div>
+      <div class="profile-form-card mt-24">
+        <h3 style="margin-bottom:12px">المميزات المتاحة لك</h3>
+        <div class="feature-list">
+          <div>✅ عدد الإعلانات: ${f.ads_limit}</div>
+          <div>${f.unlimited_edits ? '✅ تعديل غير محدود' : '✅ 3 تعديلات لكل إعلان'}</div>
+          <div>${f.basic_stats ? '✅ الإحصائيات البسيطة مفعّلة' : '🔒 الإحصائيات البسيطة مقفولة'}</div>
+          <div>${f.advanced_stats ? '✅ الإحصائيات المتقدمة مفعّلة' : '🔒 الإحصائيات المتقدمة مقفولة'}</div>
+          <div>${f.fast_support ? '✅ دعم أسرع' : '🔒 دعم أسرع غير مفعّل'}</div>
+          ${f.custom_features ? `<div>🎁 مميزات إضافية: ${escapeHtml(f.custom_features)}</div>` : ''}
+        </div>
+      </div>`;
+  }
+
+  async function loadTeacherStats() {
+    const box = document.getElementById('teacher-stats-content');
+    if (!box || !teacher) return;
+    const f = getTeacherFeatures(teacher);
+    if (!f.basic_stats && !f.advanced_stats) {
+      box.innerHTML = `<h3 style="font-family:'Cairo',sans-serif;font-weight:700;margin-bottom:16px">📊 إحصائيات حسابك</h3>${lockedFeatureHtml('الإحصائيات', 'باقة 3 شهور أو تفعيل يدوي من الإدارة')}`;
+      return;
+    }
+    try {
+      const { data } = await supabase.from('analytics_events').select('*').eq('teacher_id', teacher.id).order('created_at', { ascending:false }).limit(1000);
+      const events = data || [];
+      const count = type => events.filter(e => e.event_type === type).length;
+      const totalContact = ['whatsapp_click','facebook_click','phone_click'].reduce((sum,t)=>sum+count(t),0);
+      const views = count('ad_card_view') + count('ad_detail_view');
+      box.innerHTML = `<h3 style="font-family:'Cairo',sans-serif;font-weight:700;margin-bottom:16px">📊 إحصائيات حسابك</h3>
+        <div class="stats-dashboard">
+          <div class="stat-mini-card"><div class="num">${views}</div><div class="lbl">مشاهدات الإعلانات</div></div>
+          <div class="stat-mini-card"><div class="num">${totalContact}</div><div class="lbl">ضغطات تواصل</div></div>
+          <div class="stat-mini-card"><div class="num">${count('whatsapp_click')}</div><div class="lbl">ضغطات واتساب</div></div>
+          <div class="stat-mini-card"><div class="num">${count('ad_detail_view')}</div><div class="lbl">فتح التفاصيل</div></div>
+        </div>
+        ${f.advanced_stats ? advancedTeacherStatsHtml(events) : lockedFeatureHtml('تفاصيل أكثر: فيسبوك/اتصال/أفضل إعلان/معدل التحويل/آخر 7 أيام', 'باقة 9 شهور')}`;
+    } catch (e) {
+      box.innerHTML = `<div class="alert alert-danger">تعذّر تحميل الإحصائيات: ${escapeHtml(e.message)}</div>`;
+    }
+  }
+
+  function advancedTeacherStatsHtml(events) {
+    const count = type => events.filter(e => e.event_type === type).length;
+    const last7 = events.filter(e => Date.now() - new Date(e.created_at).getTime() <= 7*86400000);
+    const adScores = {};
+    events.forEach(e => { if (e.ad_id) adScores[e.ad_id] = (adScores[e.ad_id] || 0) + (String(e.event_type).includes('click') ? 3 : 1); });
+    const bestAd = Object.entries(adScores).sort((a,b)=>b[1]-a[1])[0];
+    const views = count('ad_card_view') + count('ad_detail_view');
+    const contacts = count('whatsapp_click') + count('facebook_click') + count('phone_click');
+    const rate = views ? Math.round((contacts/views)*100) : 0;
+    return `<div class="profile-form-card mt-16">
+      <h3 style="margin-bottom:12px">💎 إحصائيات متقدمة</h3>
+      <div class="stats-dashboard">
+        <div class="stat-mini-card"><div class="num">${count('facebook_click')}</div><div class="lbl">فيسبوك</div></div>
+        <div class="stat-mini-card"><div class="num">${count('phone_click')}</div><div class="lbl">اتصال</div></div>
+        <div class="stat-mini-card"><div class="num">${last7.length}</div><div class="lbl">تفاعل آخر 7 أيام</div></div>
+        <div class="stat-mini-card"><div class="num">${rate}%</div><div class="lbl">معدل تحويل تقريبي</div></div>
+      </div>
+      <div class="alert alert-info">🏆 أفضل إعلان عندك: ${bestAd ? bestAd[0].slice(0,8)+'...' : 'لا توجد بيانات كافية بعد'} — نصيحة: لو المشاهدات عالية والتواصل قليل، حسّن الوصف والسعر والصورة.</div>
+    </div>`;
   }
 
   function openModal(id) { document.getElementById(id).classList.add('open'); document.body.style.overflow = 'hidden'; }

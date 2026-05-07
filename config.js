@@ -74,9 +74,14 @@ function parseExtraContacts(text = "") {
 }
 function buildContactButtons(teacher = {}, ad = {}, size = 'btn-sm') {
   const btns = [];
-  if (teacher.whatsapp) btns.push(`<a href="https://wa.me/${String(teacher.whatsapp).replace(/[^0-9]/g,'')}" target="_blank" class="btn btn-whatsapp ${size}">واتساب</a>`);
-  if (teacher.facebook) btns.push(`<a href="${escapeHtml(teacher.facebook)}" target="_blank" class="btn btn-facebook ${size}">فيسبوك</a>`);
-  if (teacher.phone) btns.push(`<a href="tel:${escapeHtml(teacher.phone)}" class="btn btn-ghost ${size}">📞 اتصال</a>`);
+  const adId = ad?.id || '';
+  const teacherId = teacher?.id || ad?.teacher_id || '';
+  if (teacher.whatsapp) {
+    const wa = `https://wa.me/${String(teacher.whatsapp).replace(/[^0-9]/g,'')}`;
+    btns.push(`<a href="${escapeHtml(wa)}" target="_blank" onclick="trackEvent('whatsapp_click',{ad_id:'${escapeHtml(adId)}',teacher_id:'${escapeHtml(teacherId)}'})" class="btn btn-whatsapp ${size}">واتساب</a>`);
+  }
+  if (teacher.facebook) btns.push(`<a href="${escapeHtml(teacher.facebook)}" target="_blank" onclick="trackEvent('facebook_click',{ad_id:'${escapeHtml(adId)}',teacher_id:'${escapeHtml(teacherId)}'})" class="btn btn-facebook ${size}">فيسبوك</a>`);
+  if (teacher.phone) btns.push(`<a href="tel:${escapeHtml(teacher.phone)}" onclick="trackEvent('phone_click',{ad_id:'${escapeHtml(adId)}',teacher_id:'${escapeHtml(teacherId)}'})" class="btn btn-ghost ${size}">📞 اتصال</a>`);
   parseExtraContacts(teacher.contact_methods).forEach(c => btns.push(`<span class="btn btn-ghost ${size}">${escapeHtml(c)}</span>`));
   parseExtraContacts(ad.extra_contact).forEach(c => btns.push(`<span class="btn btn-ghost ${size}">${escapeHtml(c)}</span>`));
   return btns;
@@ -149,6 +154,114 @@ function videoEmbedHtml(url) {
   let yt = String(url).match(/(?:youtube\.com\/(?:watch\?v=|embed\/|shorts\/)|youtu\.be\/)([A-Za-z0-9_-]{6,})/);
   if (yt) return `<div class="video-frame"><iframe src="https://www.youtube.com/embed/${yt[1]}" title="فيديو الإعلان" allowfullscreen loading="lazy"></iframe></div>`;
   return `<a class="media-link" href="${safe}" target="_blank" rel="noopener">🎬 فتح الفيديو</a>`;
+}
+
+
+
+// ── Plans / Subscriptions Helpers ──
+const PLAN_DEFINITIONS = {
+  monthly_40: {
+    key: 'monthly_40', name: 'باقة الشهر', price: 40, months: 1, color: 'green',
+    ads_limit: 1, max_edits_per_ad: 3,
+    basic_stats: false, advanced_stats: false, unlimited_edits: false, fast_support: false,
+    features: ['إعلان واحد', 'ظهور عادي', '3 تعديلات لكل إعلان']
+  },
+  quarter_100: {
+    key: 'quarter_100', name: 'باقة 3 شهور', price: 100, months: 3, color: 'blue',
+    ads_limit: 1, max_edits_per_ad: null,
+    basic_stats: true, advanced_stats: false, unlimited_edits: true, fast_support: false,
+    features: ['كل مميزات باقة الشهر', 'إحصائيات بسيطة', 'تعديل غير محدود']
+  },
+  nine_months_300: {
+    key: 'nine_months_300', name: 'باقة 9 شهور', price: 300, months: 9, color: 'purple',
+    ads_limit: 1, max_edits_per_ad: null,
+    basic_stats: true, advanced_stats: true, unlimited_edits: true, fast_support: true,
+    features: ['كل مميزات باقة 3 شهور', 'إحصائيات متقدمة', 'دعم أسرع']
+  }
+};
+
+function getPlan(planType = 'monthly_40') { return PLAN_DEFINITIONS[planType] || PLAN_DEFINITIONS.monthly_40; }
+function toDateOnlyInput(dateLike) {
+  if (!dateLike) return '';
+  const d = new Date(dateLike);
+  if (isNaN(d)) return '';
+  return d.toISOString().slice(0,10);
+}
+function addMonthsToDate(dateStr, months = 1) {
+  const d = dateStr ? new Date(dateStr) : new Date();
+  if (isNaN(d)) return '';
+  d.setMonth(d.getMonth() + Number(months || 1));
+  return d.toISOString().slice(0,10);
+}
+function normalizeDateEnd(dateLike) {
+  if (!dateLike) return null;
+  const d = new Date(dateLike);
+  if (isNaN(d)) return null;
+  d.setHours(23,59,59,999);
+  return d;
+}
+function daysUntil(dateLike) {
+  const end = normalizeDateEnd(dateLike);
+  if (!end) return null;
+  return Math.ceil((end.getTime() - Date.now()) / 86400000);
+}
+function isSubscriptionActive(teacher = {}) {
+  if (!teacher || teacher.is_active === false) return false;
+  if (teacher.subscription_status && teacher.subscription_status !== 'active') return false;
+  const days = daysUntil(teacher.subscription_end);
+  return days === null || days >= 0;
+}
+function getTeacherFeatures(teacher = {}) {
+  const plan = getPlan(teacher.plan_type);
+  return {
+    plan,
+    ads_limit: Number(teacher.ads_limit || plan.ads_limit || CONFIG.DEFAULT_ADS_LIMIT),
+    basic_stats: !!(plan.basic_stats || teacher.allow_basic_stats),
+    advanced_stats: !!(plan.advanced_stats || teacher.allow_advanced_stats),
+    unlimited_edits: !!(plan.unlimited_edits || teacher.allow_unlimited_edits),
+    fast_support: !!(plan.fast_support || teacher.allow_fast_support),
+    max_edits_per_ad: (plan.unlimited_edits || teacher.allow_unlimited_edits) ? null : (plan.max_edits_per_ad || 3),
+    custom_features: teacher.custom_features || ''
+  };
+}
+function planLabel(planType) { return getPlan(planType).name; }
+function subscriptionStatusText(teacher = {}) {
+  if (teacher.is_active === false || teacher.subscription_status === 'suspended') return 'موقوف من الإدارة';
+  const days = daysUntil(teacher.subscription_end);
+  if (days !== null && days < 0) return 'منتهي';
+  return 'نشط';
+}
+function subscriptionBannerHtml(teacher = {}) {
+  const days = daysUntil(teacher.subscription_end);
+  const plan = getPlan(teacher.plan_type);
+  const active = isSubscriptionActive(teacher);
+  if (!active) {
+    return `<div class="sub-banner sub-expired">🚫 انتهى أو تعلّق اشتراكك. الإعلانات مخفية مؤقتًا، وستعود كما كانت بعد التجديد من الإدارة.</div>`;
+  }
+  if (days === null) return `<div class="sub-banner sub-ok">✅ اشتراكك نشط على ${escapeHtml(plan.name)}.</div>`;
+  const danger = days <= 5;
+  return `<div class="sub-banner ${danger ? 'sub-warning' : 'sub-ok'}">${danger ? '⚠️' : '✅'} اشتراكك في ${escapeHtml(plan.name)} نشط — متبقي ${days} يوم.</div>`;
+}
+function lockedFeatureHtml(title, requiredPlan = 'باقة أعلى') {
+  return `<div class="locked-feature"><div class="lock-icon">🔒</div><strong>${escapeHtml(title)}</strong><span>هذه الميزة غير متاحة في باقتك الحالية. راسل الإدارة للترقية أو تفعيلها كمَيزة إضافية.</span><small>مطلوبة: ${escapeHtml(requiredPlan)}</small></div>`;
+}
+
+async function trackEvent(eventType, payload = {}) {
+  try {
+    await supabase.from('analytics_events').insert({
+      event_type: eventType,
+      teacher_id: payload.teacher_id || null,
+      ad_id: payload.ad_id || null,
+      page: payload.page || location.pathname.split('/').pop() || 'index.html',
+      user_agent: navigator.userAgent,
+      meta: payload.meta || {}
+    });
+  } catch (e) { console.warn('analytics skipped:', e.message); }
+}
+
+function trackedContactHref(href, eventType, adId, teacherId) {
+  const safeHref = escapeHtml(href);
+  return `${safeHref}" onclick="trackEvent('${eventType}', {ad_id:'${escapeHtml(adId || '')}', teacher_id:'${escapeHtml(teacherId || '')}'});`;
 }
 
 // ── Initialize Supabase ──

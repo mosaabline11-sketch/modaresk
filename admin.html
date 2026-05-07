@@ -77,6 +77,7 @@
     <div class="sidebar-section-title">القائمة الرئيسية</div>
     <ul class="sidebar-nav">
       <li><a href="#" class="active" onclick="return showPane('pane-overview', this)"><span class="icon">📊</span> نظرة عامة</a></li>
+      <li><a href="#" onclick="return showPane('pane-analytics', this)"><span class="icon">📈</span> إحصائيات المنصة</a></li>
       <li><a href="#" onclick="return showPane('pane-teachers', this)"><span class="icon">👨‍🏫</span> المدرسون</a></li>
       <li><a href="#" onclick="return showPane('pane-ads', this)"><span class="icon">📋</span> الإعلانات</a></li>
       <li><a href="#" onclick="return showPane('pane-subjects', this)"><span class="icon">📚</span> المواد</a></li>
@@ -117,6 +118,16 @@
       </div>
     </div>
 
+
+    <!-- ── Analytics Pane ── -->
+    <div class="admin-pane" id="pane-analytics">
+      <div class="admin-header">
+        <h1>📈 إحصائيات المنصة</h1>
+        <p>زيارات الموقع، ضغطات التواصل، وأفضل المدرسين حسب التفاعل.</p>
+      </div>
+      <div id="admin-analytics-content"><div class="loading-spinner" style="padding:30px"><div class="spinner-lg"></div></div></div>
+    </div>
+
     <!-- ── Teachers Pane ── -->
     <div class="admin-pane" id="pane-teachers">
       <div class="admin-header">
@@ -139,7 +150,7 @@
           <table class="table">
             <thead>
               <tr>
-                <th>المدرس</th><th>اسم المستخدم</th><th>الحد الأقصى</th>
+                <th>المدرس</th><th>اسم المستخدم</th><th>الباقة</th><th>الاشتراك</th><th>الحد الأقصى</th>
                 <th>الإعلانات</th><th>الحالة</th><th>الإجراءات</th>
               </tr>
             </thead>
@@ -238,8 +249,50 @@
           </div>
           <div class="form-group">
             <label class="form-label">الحد الأقصى للإعلانات</label>
-            <input type="number" id="t-ads-limit" class="form-control" value="3" min="1" max="50">
+            <input type="number" id="t-ads-limit" class="form-control" value="1" min="1" max="50">
           </div>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+          <div class="form-group">
+            <label class="form-label">نوع الباقة</label>
+            <select id="t-plan-type" class="form-control form-select" onchange="applyPlanDefaults()">
+              <option value="monthly_40">باقة الشهر - 40 جنيه</option>
+              <option value="quarter_100">باقة 3 شهور - 100 جنيه</option>
+              <option value="nine_months_300">باقة 9 شهور - 300 جنيه</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">حالة الاشتراك</label>
+            <select id="t-subscription-status" class="form-control form-select">
+              <option value="active">نشط</option>
+              <option value="suspended">معلّق يدويًا</option>
+              <option value="expired">منتهي</option>
+            </select>
+          </div>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+          <div class="form-group">
+            <label class="form-label">بداية الاشتراك</label>
+            <input type="date" id="t-subscription-start" class="form-control">
+          </div>
+          <div class="form-group">
+            <label class="form-label">نهاية الاشتراك</label>
+            <input type="date" id="t-subscription-end" class="form-control">
+            <div class="form-hint">عند انتهاء المدة تختفي إعلانات المدرس تلقائيًا، وترجع عند التجديد.</div>
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">مميزات إضافية يدوية</label>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;font-size:.9rem">
+            <label><input type="checkbox" id="t-allow-basic-stats"> إحصائيات بسيطة</label>
+            <label><input type="checkbox" id="t-allow-advanced-stats"> إحصائيات متقدمة</label>
+            <label><input type="checkbox" id="t-allow-unlimited-edits"> تعديل غير محدود</label>
+            <label><input type="checkbox" id="t-allow-fast-support"> دعم أسرع</label>
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">ملاحظات/مميزات مخصصة</label>
+          <textarea id="t-custom-features" class="form-control" rows="2" placeholder="مثال: ميزة إضافية تم بيعها للمدرس بسعر خاص"></textarea>
         </div>
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
           <div class="form-group">
@@ -379,7 +432,8 @@
     await Promise.all([
       loadOverview(),
       loadTeachers(),
-      loadAds()
+      loadAds(),
+      loadAdminAnalytics()
     ]);
   }
 
@@ -471,7 +525,7 @@
     try {
       const { data, error } = await supabase
         .from('teachers')
-        .select('id, name, username, ads_limit, is_active, created_at')
+        .select('id, name, username, ads_limit, is_active, created_at, plan_type, subscription_start, subscription_end, subscription_status, allow_basic_stats, allow_advanced_stats, allow_unlimited_edits, allow_fast_support, custom_features')
         .order('created_at', { ascending: false });
 
       if (error) throw error;
@@ -516,6 +570,8 @@
           </div>
         </td>
         <td><code style="background:var(--bg-soft);padding:2px 8px;border-radius:4px;font-size:0.85rem">${t.username}</code></td>
+        <td><span class="inline-badge badge-grade">${planLabel(t.plan_type)}</span></td>
+        <td><div style="font-size:.85rem"><strong>${subscriptionStatusText(t)}</strong><br><span style="color:var(--text-muted)">${toDateOnlyInput(t.subscription_end) || 'بدون نهاية'}</span></div></td>
         <td>
           <div style="display:flex;align-items:center;gap:6px">
             <span style="font-weight:700">${t.ads_limit}</span>
@@ -527,6 +583,7 @@
         <td>
           <div class="table-actions">
             <button class="btn btn-outline btn-sm" onclick="openEditTeacherModal('${t.id}')">✏️</button>
+            <button class="btn btn-success btn-sm" onclick="renewTeacher('${t.id}', '${String(t.plan_type || 'monthly_40')}')" title="تجديد">🔄</button>
             <button class="btn btn-${t.is_active ? 'warning' : 'success'} btn-sm" onclick="toggleTeacherStatus('${t.id}', ${t.is_active})">
               ${t.is_active ? '⛔' : '✅'}
             </button>
@@ -709,7 +766,16 @@
     document.getElementById('teacher-submit-btn').textContent = 'إضافة المدرس';
     document.getElementById('t-id').value = '';
     document.getElementById('teacher-form').reset();
-    document.getElementById('t-ads-limit').value = CONFIG.DEFAULT_ADS_LIMIT;
+    document.getElementById('t-plan-type').value = 'monthly_40';
+    document.getElementById('t-subscription-status').value = 'active';
+    document.getElementById('t-subscription-start').value = new Date().toISOString().slice(0,10);
+    document.getElementById('t-subscription-end').value = addMonthsToDate(null, 1);
+    document.getElementById('t-allow-basic-stats').checked = false;
+    document.getElementById('t-allow-advanced-stats').checked = false;
+    document.getElementById('t-allow-unlimited-edits').checked = false;
+    document.getElementById('t-allow-fast-support').checked = false;
+    document.getElementById('t-custom-features').value = '';
+    document.getElementById('t-ads-limit').value = 1;
     document.getElementById('t-active').checked = true;
     document.getElementById('pass-required').style.display = '';
     document.getElementById('pass-hint').textContent = '6 أحرف على الأقل — مطلوبة';
@@ -727,7 +793,16 @@
       document.getElementById('t-id').value = teacherId;
       document.getElementById('t-name').value = data.name || '';
       document.getElementById('t-username').value = data.username || '';
-      document.getElementById('t-ads-limit').value = data.ads_limit || CONFIG.DEFAULT_ADS_LIMIT;
+      document.getElementById('t-ads-limit').value = data.ads_limit || getPlan(data.plan_type).ads_limit || 1;
+      document.getElementById('t-plan-type').value = data.plan_type || 'monthly_40';
+      document.getElementById('t-subscription-status').value = data.subscription_status || 'active';
+      document.getElementById('t-subscription-start').value = toDateOnlyInput(data.subscription_start) || new Date().toISOString().slice(0,10);
+      document.getElementById('t-subscription-end').value = toDateOnlyInput(data.subscription_end);
+      document.getElementById('t-allow-basic-stats').checked = !!data.allow_basic_stats;
+      document.getElementById('t-allow-advanced-stats').checked = !!data.allow_advanced_stats;
+      document.getElementById('t-allow-unlimited-edits').checked = !!data.allow_unlimited_edits;
+      document.getElementById('t-allow-fast-support').checked = !!data.allow_fast_support;
+      document.getElementById('t-custom-features').value = data.custom_features || '';
       document.getElementById('t-whatsapp').value = data.whatsapp || '';
       document.getElementById('t-facebook').value = data.facebook || '';
       document.getElementById('t-phone').value = data.phone || '';
@@ -761,7 +836,16 @@
       const payload = {
         name:      document.getElementById('t-name').value.trim(),
         username:  document.getElementById('t-username').value.trim(),
-        ads_limit: parseInt(document.getElementById('t-ads-limit').value) || CONFIG.DEFAULT_ADS_LIMIT,
+        ads_limit: parseInt(document.getElementById('t-ads-limit').value) || getPlan(document.getElementById('t-plan-type').value).ads_limit || 1,
+        plan_type: document.getElementById('t-plan-type').value,
+        subscription_start: document.getElementById('t-subscription-start').value || null,
+        subscription_end: document.getElementById('t-subscription-end').value || null,
+        subscription_status: document.getElementById('t-subscription-status').value,
+        allow_basic_stats: document.getElementById('t-allow-basic-stats').checked,
+        allow_advanced_stats: document.getElementById('t-allow-advanced-stats').checked,
+        allow_unlimited_edits: document.getElementById('t-allow-unlimited-edits').checked,
+        allow_fast_support: document.getElementById('t-allow-fast-support').checked,
+        custom_features: document.getElementById('t-custom-features').value.trim(),
         whatsapp:  document.getElementById('t-whatsapp').value.trim(),
         facebook:  document.getElementById('t-facebook').value.trim(),
         phone:     document.getElementById('t-phone').value.trim(),
@@ -921,12 +1005,89 @@
     });
   }
 
+
+  // ── Plans / Renewals ──
+  function applyPlanDefaults() {
+    const plan = getPlan(document.getElementById('t-plan-type').value);
+    document.getElementById('t-ads-limit').value = plan.ads_limit || 1;
+    const start = document.getElementById('t-subscription-start').value || new Date().toISOString().slice(0,10);
+    document.getElementById('t-subscription-start').value = start;
+    document.getElementById('t-subscription-end').value = addMonthsToDate(start, plan.months);
+    document.getElementById('t-allow-basic-stats').checked = !!plan.basic_stats;
+    document.getElementById('t-allow-advanced-stats').checked = !!plan.advanced_stats;
+    document.getElementById('t-allow-unlimited-edits').checked = !!plan.unlimited_edits;
+    document.getElementById('t-allow-fast-support').checked = !!plan.fast_support;
+  }
+
+  async function renewTeacher(teacherId, planType = 'monthly_40') {
+    const plan = getPlan(planType);
+    const start = new Date().toISOString().slice(0,10);
+    const end = addMonthsToDate(start, plan.months);
+    confirmDialog(`تجديد الحساب على ${plan.name} حتى ${end}؟ ستعود الإعلانات للظهور لو كانت مخفية بسبب انتهاء المدة.`, async () => {
+      try {
+        const { error } = await supabase.from('teachers').update({
+          subscription_start: start,
+          subscription_end: end,
+          subscription_status: 'active',
+          is_active: true
+        }).eq('id', teacherId);
+        if (error) throw error;
+        showToast('تم تجديد الحساب وستعود الإعلانات للظهور ✅', 'success');
+        await Promise.all([loadTeachers(), loadOverview(), loadAdminAnalytics()]);
+      } catch(e) { showToast(`خطأ: ${e.message}`, 'danger'); }
+    });
+  }
+
+  // ── Admin Analytics ──
+  async function loadAdminAnalytics() {
+    const box = document.getElementById('admin-analytics-content');
+    if (!box) return;
+    try {
+      const [{data: events}, {data: teachers}] = await Promise.all([
+        supabase.from('analytics_events').select('*, teachers(name), ads(title, subject)').order('created_at', {ascending:false}).limit(3000),
+        supabase.from('teachers').select('id,name,plan_type,subscription_end,subscription_status,is_active')
+      ]);
+      const ev = events || [];
+      const count = type => ev.filter(e => e.event_type === type).length;
+      const contacts = count('whatsapp_click') + count('facebook_click') + count('phone_click');
+      const views = count('site_visit');
+      const teacherScores = {};
+      ev.forEach(e => { if (e.teacher_id) teacherScores[e.teacher_id] = (teacherScores[e.teacher_id] || 0) + (String(e.event_type).includes('click') ? 5 : 1); });
+      const best = Object.entries(teacherScores).sort((a,b)=>b[1]-a[1])[0];
+      const bestTeacher = best ? (teachers || []).find(t => t.id === best[0]) : null;
+      const soon = (teachers || []).filter(t => { const d = daysUntil(t.subscription_end); return isSubscriptionActive(t) && d !== null && d <= 5; }).length;
+      const expired = (teachers || []).filter(t => !isSubscriptionActive(t)).length;
+      box.innerHTML = `
+        <div class="stats-dashboard">
+          <div class="stat-mini-card"><div class="num">${views}</div><div class="lbl">عدد زوار الموقع</div></div>
+          <div class="stat-mini-card"><div class="num">${contacts}</div><div class="lbl">ضغطات التواصل مع المدرسين</div></div>
+          <div class="stat-mini-card"><div class="num">${count('whatsapp_click')}</div><div class="lbl">واتساب</div></div>
+          <div class="stat-mini-card"><div class="num">${soon}</div><div class="lbl">اشتراكات تنتهي خلال 5 أيام</div></div>
+          <div class="stat-mini-card"><div class="num">${expired}</div><div class="lbl">حسابات منتهية/معلقة</div></div>
+          <div class="stat-mini-card"><div class="num">${count('ad_detail_view')}</div><div class="lbl">فتح تفاصيل إعلان</div></div>
+          <div class="stat-mini-card"><div class="num">${count('facebook_click')}</div><div class="lbl">فيسبوك</div></div>
+          <div class="stat-mini-card"><div class="num">${count('phone_click')}</div><div class="lbl">اتصال</div></div>
+        </div>
+        <div class="panel mt-16"><div class="panel-header"><span class="panel-title">🏆 أفضل مدرس حسب التفاعل</span></div>
+          <div style="padding:20px;font-size:1.05rem">${bestTeacher ? `<strong>${escapeHtml(bestTeacher.name)}</strong> — نقاط التفاعل: ${best[1]}` : 'لا توجد بيانات كافية بعد'}</div>
+        </div>
+        <div class="panel mt-16"><div class="panel-header"><span class="panel-title">آخر التفاعلات</span></div>
+          <div class="table-wrapper"><table class="table"><thead><tr><th>الحدث</th><th>المدرس</th><th>الإعلان</th><th>الوقت</th></tr></thead><tbody>
+            ${ev.slice(0,20).map(e => `<tr><td>${escapeHtml(e.event_type)}</td><td>${escapeHtml(e.teachers?.name || '—')}</td><td>${escapeHtml(e.ads?.title || e.ads?.subject || '—')}</td><td>${timeAgo(e.created_at)}</td></tr>`).join('')}
+          </tbody></table></div>
+        </div>`;
+    } catch(e) {
+      box.innerHTML = `<div class="error-banner">❌ تعذّر تحميل الإحصائيات: ${escapeHtml(e.message)} — تأكد من تشغيل supabase_setup.sql الجديد.</div>`;
+    }
+  }
+
   // ── Navigation ──
   function showPane(paneId, linkEl) {
     document.querySelectorAll('.admin-pane').forEach(p => p.classList.remove('active'));
     document.getElementById(paneId).classList.add('active');
     document.querySelectorAll('.admin-sidebar .sidebar-nav a').forEach(a => a.classList.remove('active'));
     if (linkEl) linkEl.classList.add('active');
+    if (paneId === 'pane-analytics') loadAdminAnalytics();
     return false;
   }
 

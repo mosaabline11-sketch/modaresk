@@ -48,9 +48,10 @@
 
   async function loadFirstTeacherAd(teacherId){
     try{
-      const {data, error}=await supabase.from('ads').select('id').eq('teacher_id', teacherId).eq('status','active').order('created_at',{ascending:false}).limit(1).maybeSingle();
-      if(error || !data) return showNotFound();
-      location.replace(`teacher.html?ad=${data.id}`);
+      const {data, error}=await supabase.from('ads').select('id, teachers(is_active, subscription_status, subscription_end)').eq('teacher_id', teacherId).eq('status','active').order('created_at',{ascending:false}).limit(10);
+      const first=(data||[]).find(x=>isSubscriptionActive(x.teachers));
+      if(error || !first) return showNotFound();
+      location.replace(`teacher.html?ad=${first.id}`);
     }catch(e){showNotFound();}
   }
 
@@ -58,11 +59,12 @@
     try{
       const {data: ad, error}=await supabase
         .from('ads')
-        .select('*, teachers(id, name, bio, avatar_url, whatsapp, facebook, phone, contact_methods, is_active)')
+        .select('*, teachers(id, name, bio, avatar_url, whatsapp, facebook, phone, contact_methods, is_active, plan_type, subscription_status, subscription_end)')
         .eq('id', adId)
         .eq('status','active')
         .single();
-      if(error || !ad || !ad.teachers?.is_active) return showNotFound();
+      if(error || !ad || !isSubscriptionActive(ad.teachers)) return showNotFound();
+      trackEvent('ad_detail_view', {ad_id: ad.id, teacher_id: ad.teacher_id, page:'teacher.html'});
       renderAd(ad);
     }catch(e){console.error(e);showNotFound();}
   }
