@@ -300,7 +300,7 @@
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="config.js?v=6.2"></script>
+<script src="config.js?v=6.3"></script>
 <script>
   let teacher = null;
   let teacherAds = [];
@@ -648,7 +648,7 @@
       return;
     }
     try {
-      const { data } = await supabase.from('analytics_events').select('*').eq('teacher_id', teacher.id).order('created_at', { ascending:false }).limit(1000);
+      const { data } = await supabase.from('analytics_events').select('*').eq('teacher_id', teacher.id).order('created_at', { ascending:false }).limit(3000);
       const events = data || [];
       const count = type => events.filter(e => e.event_type === type).length;
       const totalContact = ['whatsapp_click','facebook_click','phone_click'].reduce((sum,t)=>sum+count(t),0);
@@ -660,10 +660,56 @@
           <div class="stat-mini-card"><div class="num">${count('whatsapp_click')}</div><div class="lbl">ضغطات واتساب</div></div>
           <div class="stat-mini-card"><div class="num">${count('ad_detail_view')}</div><div class="lbl">فتح التفاصيل</div></div>
         </div>
+        ${perAdStatsHtml(events, f.advanced_stats)}
         ${f.advanced_stats ? advancedTeacherStatsHtml(events) : lockedFeatureHtml('تفاصيل أكثر: فيسبوك/اتصال/أفضل إعلان/معدل التحويل/آخر 7 أيام', 'باقة 9 شهور')}`;
     } catch (e) {
       box.innerHTML = `<div class="alert alert-danger">تعذّر تحميل الإحصائيات: ${escapeHtml(e.message)}</div>`;
     }
+  }
+
+  function getAdTitleById(adId) {
+    const ad = teacherAds.find(a => String(a.id) === String(adId));
+    return ad ? (ad.title || ad.subject || 'إعلان بدون عنوان') : 'إعلان غير موجود أو محذوف';
+  }
+
+  function countEvents(events, type, adId = null) {
+    return events.filter(e => e.event_type === type && (adId === null || String(e.ad_id) === String(adId))).length;
+  }
+
+  function perAdStatsHtml(events, advanced = false) {
+    const ads = teacherAds || [];
+    if (!ads.length) return `<div class="profile-form-card mt-16"><h3 style="margin-bottom:8px">إحصائيات كل إعلان</h3><div class="empty-text">لا توجد إعلانات لعرض إحصائياتها بعد.</div></div>`;
+    return `<div class="profile-form-card mt-16">
+      <h3 style="margin-bottom:12px">📌 إحصائيات كل إعلان</h3>
+      <div class="per-ad-stats-grid">
+        ${ads.map(ad => {
+          const id = ad.id;
+          const cardViews = countEvents(events, 'ad_card_view', id);
+          const details = countEvents(events, 'ad_detail_view', id);
+          const whatsapp = countEvents(events, 'whatsapp_click', id);
+          const facebook = countEvents(events, 'facebook_click', id);
+          const phone = countEvents(events, 'phone_click', id);
+          const contacts = whatsapp + facebook + phone;
+          const views = cardViews + details;
+          const last7 = events.filter(e => String(e.ad_id) === String(id) && Date.now() - new Date(e.created_at).getTime() <= 7*86400000).length;
+          const rate = views ? Math.round((contacts / views) * 100) : 0;
+          return `<div class="per-ad-stat-card">
+            <div class="per-ad-title">${escapeHtml(ad.title || ad.subject || 'إعلان بدون عنوان')}</div>
+            <div class="per-ad-status"><span class="tc-badge ${statusBadgeClass(ad.status)}">${statusLabel(ad.status)}</span></div>
+            <div class="per-ad-row"><span>المشاهدات</span><strong>${views}</strong></div>
+            <div class="per-ad-row"><span>فتح التفاصيل</span><strong>${details}</strong></div>
+            <div class="per-ad-row"><span>ضغطات التواصل</span><strong>${contacts}</strong></div>
+            <div class="per-ad-row"><span>واتساب</span><strong>${whatsapp}</strong></div>
+            ${advanced ? `<div class="per-ad-advanced">
+              <div class="per-ad-row"><span>فيسبوك</span><strong>${facebook}</strong></div>
+              <div class="per-ad-row"><span>اتصال</span><strong>${phone}</strong></div>
+              <div class="per-ad-row"><span>آخر 7 أيام</span><strong>${last7}</strong></div>
+              <div class="per-ad-row"><span>معدل التحويل</span><strong>${rate}%</strong></div>
+            </div>` : ''}
+          </div>`;
+        }).join('')}
+      </div>
+    </div>`;
   }
 
   function advancedTeacherStatsHtml(events) {
@@ -672,6 +718,7 @@
     const adScores = {};
     events.forEach(e => { if (e.ad_id) adScores[e.ad_id] = (adScores[e.ad_id] || 0) + (String(e.event_type).includes('click') ? 3 : 1); });
     const bestAd = Object.entries(adScores).sort((a,b)=>b[1]-a[1])[0];
+    const bestAdName = bestAd ? getAdTitleById(bestAd[0]) : '';
     const views = count('ad_card_view') + count('ad_detail_view');
     const contacts = count('whatsapp_click') + count('facebook_click') + count('phone_click');
     const rate = views ? Math.round((contacts/views)*100) : 0;
@@ -683,7 +730,7 @@
         <div class="stat-mini-card"><div class="num">${last7.length}</div><div class="lbl">تفاعل آخر 7 أيام</div></div>
         <div class="stat-mini-card"><div class="num">${rate}%</div><div class="lbl">معدل تحويل تقريبي</div></div>
       </div>
-      <div class="alert alert-info">🏆 أفضل إعلان عندك: ${bestAd ? bestAd[0].slice(0,8)+'...' : 'لا توجد بيانات كافية بعد'} — نصيحة: لو المشاهدات عالية والتواصل قليل، حسّن الوصف والسعر والصورة.</div>
+      <div class="alert alert-info">🏆 أفضل إعلان عندك: ${bestAd ? `<strong>${escapeHtml(bestAdName)}</strong> — نقاط التفاعل: ${bestAd[1]}` : 'لا توجد بيانات كافية بعد'}<br>نصيحة: لو المشاهدات عالية والتواصل قليل، حسّن الوصف والسعر والصورة.</div>
     </div>`;
   }
 

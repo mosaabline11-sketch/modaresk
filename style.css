@@ -819,3 +819,73 @@ textarea.form-control { resize: vertical; min-height: 100px; }
   .launch-benefits { grid-template-columns: 1fr; }
   .launch-note { flex-direction: column; }
 }
+
+
+/* ── V6.3 fixes: text wrapping + per-ad stats + launch toggle ── */
+.detail-card,
+.description-box,
+.detail-value,
+.teacher-mini,
+.contact-row,
+.media-link,
+.alert,
+.form-hint,
+.tc-desc,
+.amc-desc,
+.per-ad-stat-card,
+.stat-mini-card {
+  overflow-wrap: anywhere;
+  word-break: break-word;
+  max-width: 100%;
+}
+.description-box { white-space: normal; }
+.contact-row .btn,
+.contact-extra-chip,
+.extra-contact-hint {
+  white-space: normal;
+  min-width: 120px;
+  text-align: center;
+  line-height: 1.5;
+}
+.detail-card { overflow-x: hidden; }
+.per-ad-stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 14px;
+}
+.per-ad-stat-card {
+  background: var(--bg-light);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: 14px;
+  box-shadow: var(--shadow-sm);
+}
+.per-ad-title {
+  font-family: Cairo, sans-serif;
+  font-weight: 800;
+  margin-bottom: 8px;
+  color: var(--text-primary);
+}
+.per-ad-status { margin-bottom: 10px; }
+.per-ad-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 8px 0;
+  border-top: 1px solid var(--border-light);
+  color: var(--text-secondary);
+  font-size: .9rem;
+}
+.per-ad-row strong { color: var(--primary); font-family: Cairo, sans-serif; }
+.per-ad-advanced {
+  background: #fff;
+  border: 1px dashed var(--primary-border);
+  border-radius: 10px;
+  padding: 0 10px;
+  margin-top: 8px;
+}
+@media (max-width: 560px) {
+  .contact-row .btn { width: 100%; }
+  .detail-card { padding-inline: 16px !important; }
+  .per-ad-stats-grid { grid-template-columns: 1fr; }
+}

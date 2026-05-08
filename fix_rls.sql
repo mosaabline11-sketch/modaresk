@@ -1,5 +1,5 @@
 -- =====================================================
---  مدرسك V5 - Plans, Subscriptions, Analytics, Media Position
+--  مدرسك V6.3 - Plans, Subscriptions, Analytics, Media Position, Site Settings
 --  شغّل هذا الملف في Supabase SQL Editor
 -- =====================================================
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
@@ -67,6 +67,13 @@ CREATE TABLE IF NOT EXISTS analytics_events (
   created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
+CREATE TABLE IF NOT EXISTS site_settings (
+  key TEXT PRIMARY KEY,
+  value JSONB NOT NULL DEFAULT '{}'::jsonb,
+  updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+
 ALTER TABLE teachers ADD COLUMN IF NOT EXISTS phone TEXT;
 ALTER TABLE teachers ADD COLUMN IF NOT EXISTS contact_methods TEXT;
 ALTER TABLE teachers ADD COLUMN IF NOT EXISTS avatar_url TEXT;
@@ -89,6 +96,9 @@ ALTER TABLE ads ADD COLUMN IF NOT EXISTS gallery_images JSONB NOT NULL DEFAULT '
 ALTER TABLE ads ADD COLUMN IF NOT EXISTS video_links JSONB NOT NULL DEFAULT '[]'::jsonb;
 ALTER TABLE ads ADD COLUMN IF NOT EXISTS edit_count INTEGER NOT NULL DEFAULT 0;
 
+INSERT INTO site_settings (key, value) VALUES ('launch_banner_visible', 'true'::jsonb)
+ON CONFLICT (key) DO NOTHING;
+
 INSERT INTO subjects (name) VALUES
 ('رياضيات'),('لغة عربية'),('لغة إنجليزية'),('علوم'),('دراسات اجتماعية'),('فيزياء'),('كيمياء'),('أحياء'),('تاريخ'),('جغرافيا'),('فرنسي'),('حاسب آلي'),('أخرى')
 ON CONFLICT (name) DO NOTHING;
@@ -103,6 +113,7 @@ CREATE INDEX IF NOT EXISTS idx_analytics_type ON analytics_events(event_type);
 CREATE INDEX IF NOT EXISTS idx_analytics_teacher ON analytics_events(teacher_id);
 CREATE INDEX IF NOT EXISTS idx_analytics_ad ON analytics_events(ad_id);
 CREATE INDEX IF NOT EXISTS idx_analytics_created ON analytics_events(created_at);
+CREATE INDEX IF NOT EXISTS idx_site_settings_key ON site_settings(key);
 
 CREATE OR REPLACE FUNCTION update_updated_at()
 RETURNS TRIGGER AS $$
@@ -121,21 +132,25 @@ ALTER TABLE teachers ENABLE ROW LEVEL SECURITY;
 ALTER TABLE ads ENABLE ROW LEVEL SECURITY;
 ALTER TABLE subjects ENABLE ROW LEVEL SECURITY;
 ALTER TABLE analytics_events ENABLE ROW LEVEL SECURITY;
+ALTER TABLE site_settings ENABLE ROW LEVEL SECURITY;
 
 DROP POLICY IF EXISTS "allow_all_teachers" ON teachers;
 DROP POLICY IF EXISTS "allow_all_ads" ON ads;
 DROP POLICY IF EXISTS "allow_all_subjects" ON subjects;
 DROP POLICY IF EXISTS "allow_all_analytics" ON analytics_events;
+DROP POLICY IF EXISTS "allow_all_site_settings" ON site_settings;
 CREATE POLICY "allow_all_teachers" ON teachers FOR ALL TO anon USING (true) WITH CHECK (true);
 CREATE POLICY "allow_all_ads" ON ads FOR ALL TO anon USING (true) WITH CHECK (true);
 CREATE POLICY "allow_all_subjects" ON subjects FOR ALL TO anon USING (true) WITH CHECK (true);
 CREATE POLICY "allow_all_analytics" ON analytics_events FOR ALL TO anon USING (true) WITH CHECK (true);
+CREATE POLICY "allow_all_site_settings" ON site_settings FOR ALL TO anon USING (true) WITH CHECK (true);
 
 GRANT USAGE ON SCHEMA public TO anon;
 GRANT SELECT, INSERT, UPDATE, DELETE ON TABLE teachers TO anon;
 GRANT SELECT, INSERT, UPDATE, DELETE ON TABLE ads TO anon;
 GRANT SELECT, INSERT, UPDATE, DELETE ON TABLE subjects TO anon;
 GRANT SELECT, INSERT, UPDATE, DELETE ON TABLE analytics_events TO anon;
+GRANT SELECT, INSERT, UPDATE, DELETE ON TABLE site_settings TO anon;
 
 -- Supabase Storage: uploads bucket for ad images
 INSERT INTO storage.buckets (id, name, public)

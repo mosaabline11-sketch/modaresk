@@ -308,6 +308,50 @@ async function trackEvent(eventType, payload = {}) {
   } catch (e) { console.warn('analytics skipped:', e.message); }
 }
 
+
+// ── Site Settings Helpers ──
+async function getSiteSetting(key, fallback = null) {
+  try {
+    if (!window.supabase || !key) return fallback;
+    const { data, error } = await window.supabase
+      .from('site_settings')
+      .select('value')
+      .eq('key', key)
+      .maybeSingle();
+    if (error || !data) return fallback;
+    return data.value;
+  } catch (_) { return fallback; }
+}
+
+async function setSiteSetting(key, value) {
+  if (!window.supabase || !key) throw new Error('Supabase غير جاهز');
+  const { error } = await window.supabase.from('site_settings').upsert({
+    key,
+    value,
+    updated_at: new Date().toISOString(),
+  }, { onConflict: 'key' });
+  if (error) throw error;
+  return true;
+}
+
+async function isLaunchBannerVisible() {
+  const value = await getSiteSetting('launch_banner_visible', true);
+  return value === true || value === 'true' || value?.enabled === true;
+}
+
+function eventTypeLabel(type = '') {
+  const map = {
+    site_visit: 'زيارة الموقع',
+    ad_card_view: 'ظهور كارت إعلان',
+    ad_detail_view: 'فتح تفاصيل إعلان',
+    whatsapp_click: 'ضغط واتساب',
+    facebook_click: 'ضغط فيسبوك',
+    phone_click: 'ضغط اتصال',
+    admin_contact_click: 'تواصل مع الإدارة'
+  };
+  return map[type] || type || '—';
+}
+
 function trackedContactHref(href, eventType, adId, teacherId) {
   const safeHref = escapeHtml(href);
   return `${safeHref}" onclick="trackEvent('${eventType}', {ad_id:'${escapeHtml(adId || '')}', teacher_id:'${escapeHtml(teacherId || '')}'});`;

@@ -281,12 +281,12 @@
 <section class="hero">
   <div class="container">
     <div class="hero-content">
-      <div class="hero-badge">🚀 مدرسك في مرحلة الانطلاق — <span id="hero-count">0</span> مدرس متاح الآن</div>
+      <div class="hero-badge" id="hero-badge">🚀 مدرسك في مرحلة الانطلاق — <span id="hero-count">0</span> مدرس متاح الآن</div>
       <h1>
         ابحث عن <span class="highlight">مدرسك</span><br>المثالي بسهولة
       </h1>
       <p>منصة تربط الطلاب بأفضل المدرسين الخصوصيين في مختلف المواد والمراحل الدراسية</p>
-      <div class="launch-note"><span>ℹ️</span><div><strong>ملاحظة:</strong> المنصة في مرحلة التوسع وجمع المدرسين الأوائل، لذلك عدد الإعلانات سيزيد تدريجيًا مع مراجعة الحسابات لضمان الجودة.</div></div>
+      <div class="launch-note" id="launch-note"><span>ℹ️</span><div><strong>ملاحظة:</strong> المنصة في مرحلة التوسع وجمع المدرسين الأوائل، لذلك عدد الإعلانات سيزيد تدريجيًا مع مراجعة الحسابات لضمان الجودة.</div></div>
 
       <!-- Search Card -->
       <div class="search-card">
@@ -450,7 +450,7 @@
 
 <!-- Scripts -->
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="config.js?v=6.2"></script>
+<script src="config.js?v=6.3"></script>
 <script>
   let allAds = [];
   let filteredAds = [];
@@ -469,6 +469,16 @@
     setupFilters();
     animateStats();
   });
+
+  async function applySiteLaunchSettings() {
+    const visible = await isLaunchBannerVisible();
+    const note = document.getElementById('launch-note');
+    const badge = document.getElementById('hero-badge');
+    if (!visible) {
+      if (note) note.style.display = 'none';
+      if (badge) badge.innerHTML = '✨ أكثر من <span id="hero-count">0</span> مدرس متاح الآن';
+    }
+  }
 
   function updateNavAuth() {
     const teacher = Auth.getTeacherSession();

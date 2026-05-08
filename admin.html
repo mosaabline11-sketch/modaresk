@@ -57,6 +57,9 @@
     .search-admin input { padding-right: 36px; }
     .search-admin .sicon { position: absolute; right: 11px; top: 50%; transform: translateY(-50%); font-size: 0.9rem; color: var(--text-muted); pointer-events: none; }
     .error-banner { background: #FEF2F2; border: 1px solid #FCA5A5; color: #9B1C1C; padding: 14px 18px; border-radius: var(--radius-md); margin-bottom: 20px; font-size: 0.9rem; display: flex; align-items: center; gap: 10px; }
+    .setting-toggle{display:flex;align-items:flex-start;gap:12px;background:var(--bg-light);border:1px solid var(--border);border-radius:var(--radius-md);padding:16px;cursor:pointer}
+    .setting-toggle input{width:20px;height:20px;margin-top:3px;accent-color:var(--primary)}
+    .setting-toggle span{display:flex;flex-direction:column;gap:4px}.setting-toggle small{color:var(--text-secondary);line-height:1.6}
     @media (max-width: 1024px) { .stats-row { grid-template-columns: repeat(2, 1fr); } }
     @media (max-width: 768px) {
       .admin-layout { flex-direction: column; }
@@ -98,6 +101,7 @@
       <li><a href="#" onclick="return showPane('pane-teachers', this)"><span class="icon">👨‍🏫</span> المدرسون</a></li>
       <li><a href="#" onclick="return showPane('pane-ads', this)"><span class="icon">📋</span> الإعلانات</a></li>
       <li><a href="#" onclick="return showPane('pane-subjects', this)"><span class="icon">📚</span> المواد</a></li>
+      <li><a href="#" onclick="return showPane('pane-settings', this)"><span class="icon">⚙️</span> إعدادات الموقع</a></li>
     </ul>
     <div class="sidebar-divider"></div>
     <div class="sidebar-section-title">إدارة</div>
@@ -143,6 +147,34 @@
         <p>زيارات الموقع، ضغطات التواصل، وأفضل المدرسين حسب التفاعل.</p>
       </div>
       <div id="admin-analytics-content"><div class="loading-spinner" style="padding:30px"><div class="spinner-lg"></div></div></div>
+    </div>
+
+
+    <!-- ── Site Settings Pane ── -->
+    <div class="admin-pane" id="pane-settings">
+      <div class="admin-header">
+        <h1>⚙️ إعدادات الموقع</h1>
+        <p>تحكم في الرسائل العامة التي تظهر للزوار بدون تعديل الكود.</p>
+      </div>
+      <div class="panel">
+        <div class="panel-header">
+          <span class="panel-title">🚀 حالة مرحلة الانطلاق</span>
+        </div>
+        <div style="padding:22px;display:grid;gap:14px">
+          <label class="setting-toggle">
+            <input type="checkbox" id="setting-launch-visible">
+            <span>
+              <strong>إظهار رسالة أن المنصة في مرحلة الانطلاق</strong>
+              <small>لو أغلقتها سيختفي التنبيه من الصفحة الرئيسية ويتغير النص العلوي إلى نص عادي.</small>
+            </span>
+          </label>
+          <div style="display:flex;gap:10px;flex-wrap:wrap">
+            <button class="btn btn-primary" onclick="saveSiteSettings()">💾 حفظ الإعدادات</button>
+            <a href="index.html" target="_blank" class="btn btn-ghost">معاينة الموقع</a>
+          </div>
+          <div id="settings-save-note" class="form-hint"></div>
+        </div>
+      </div>
     </div>
 
     <!-- ── Teachers Pane ── -->
@@ -436,7 +468,7 @@
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="config.js?v=6.2"></script>
+<script src="config.js?v=6.3"></script>
 <script>
   let allTeachers = [];
   let allAds = [];
@@ -458,7 +490,8 @@
       loadOverview(),
       loadTeachers(),
       loadAds(),
-      loadAdminAnalytics()
+      loadAdminAnalytics(),
+      loadSiteSettings()
     ]);
   }
 
@@ -1069,6 +1102,27 @@
     });
   }
 
+
+  // ── Site Settings ──
+  async function loadSiteSettings() {
+    const input = document.getElementById('setting-launch-visible');
+    if (!input) return;
+    input.checked = await isLaunchBannerVisible();
+  }
+
+  async function saveSiteSettings() {
+    const note = document.getElementById('settings-save-note');
+    try {
+      const visible = !!document.getElementById('setting-launch-visible')?.checked;
+      await setSiteSetting('launch_banner_visible', visible);
+      if (note) note.textContent = visible ? 'تم الحفظ: رسالة مرحلة الانطلاق ستظهر للزوار.' : 'تم الحفظ: تم إخفاء رسالة مرحلة الانطلاق من الصفحة الرئيسية.';
+      showToast('تم حفظ إعدادات الموقع ✅', 'success');
+    } catch (e) {
+      if (note) note.textContent = `خطأ: ${e.message}`;
+      showToast(`خطأ في حفظ الإعدادات: ${e.message}`, 'danger');
+    }
+  }
+
   // ── Admin Analytics ──
   async function loadAdminAnalytics() {
     const box = document.getElementById('admin-analytics-content');
@@ -1104,7 +1158,7 @@
         </div>
         <div class="panel mt-16"><div class="panel-header"><span class="panel-title">آخر التفاعلات</span></div>
           <div class="table-wrapper"><table class="table"><thead><tr><th>الحدث</th><th>المدرس</th><th>الإعلان</th><th>الوقت</th></tr></thead><tbody>
-            ${ev.slice(0,20).map(e => `<tr><td>${escapeHtml(e.event_type)}</td><td>${escapeHtml(e.teachers?.name || '—')}</td><td>${escapeHtml(e.ads?.title || e.ads?.subject || '—')}</td><td>${timeAgo(e.created_at)}</td></tr>`).join('')}
+            ${ev.slice(0,20).map(e => `<tr><td>${escapeHtml(eventTypeLabel(e.event_type))}</td><td>${escapeHtml(e.teachers?.name || '—')}</td><td>${escapeHtml(e.ads?.title || e.ads?.subject || '—')}</td><td>${timeAgo(e.created_at)}</td></tr>`).join('')}
           </tbody></table></div>
         </div>`;
     } catch(e) {
