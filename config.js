@@ -16,6 +16,11 @@ const CONFIG = {
   ADMIN_PASSWORD_HASH: "117359aea30411a81daffb675ed2ba8d2b6a2f395b5296ad188ee64e273977fa", // كلمة مرور الإدارة مشفرة SHA-256
 
   // ── App Settings ──
+  // غيّر SITE_BASE_URL إلى رابط موقعك الحقيقي بعد النشر لتحسين SEO وملف sitemap.xml
+  SITE_BASE_URL: "https://mosaabline11-sketch.github.io/modaresk",
+  // ضع رقم واتساب الإدارة بصيغة دولية بدون + لتفعيل أزرار التواصل، مثال: 201234567890
+  CONTACT_WHATSAPP: "",
+  CONTACT_EMAIL: "",
   APP_NAME: "مدرسك",
   APP_TAGLINE: "ابحث عن مدرسك المثالي",
   DEFAULT_ADS_LIMIT: 3,
@@ -35,6 +40,32 @@ function escapeHtml(str = "") {
   return String(str).replace(/[&<>"']/g, ch => ({ "&":"&amp;", "<":"&lt;", ">":"&gt;", "\"":"&quot;", "'":"&#39;" }[ch]));
 }
 function nl2br(str = "") { return escapeHtml(str).replace(/\n/g, "<br>"); }
+
+
+// ── Platform Contact Helpers ──
+function adminContactUrl(message = "") {
+  const phone = String(CONFIG.CONTACT_WHATSAPP || "").replace(/[^0-9]/g, "");
+  if (!phone) return "#";
+  return `https://wa.me/${phone}${message ? `?text=${encodeURIComponent(message)}` : ""}`;
+}
+function bindAdminContactLinks() {
+  document.querySelectorAll('[data-admin-contact]').forEach(link => {
+    const msg = link.getAttribute('data-message') || 'مرحبًا، أريد الاستفسار عن منصة مدرسك';
+    link.href = adminContactUrl(msg);
+    link.target = CONFIG.CONTACT_WHATSAPP ? '_blank' : '_self';
+    link.rel = 'noopener';
+    link.addEventListener('click', (e) => {
+      if (!CONFIG.CONTACT_WHATSAPP) {
+        e.preventDefault();
+        showToast('ضع رقم واتساب الإدارة في config.js داخل CONTACT_WHATSAPP', 'warning', 6000);
+      } else {
+        trackEvent('admin_contact_click', { page: location.pathname.split('/').pop() || 'index.html' });
+      }
+    });
+  });
+}
+window.addEventListener('DOMContentLoaded', bindAdminContactLinks);
+
 
 async function loadSubjectsSafe() {
   try {

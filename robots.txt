@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://mosaabline11-sketch.github.io/modaresk/sitemap.xml
