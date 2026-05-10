@@ -412,7 +412,7 @@ const _supabaseReady = (function () {
     window.supabase = supabaseLib.createClient(
       cleanUrl,
       CONFIG.SUPABASE_ANON_KEY,
-      { auth: { persistSession: false } }
+      { auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true } }
     );
     return true;
   } catch (e) {
@@ -482,6 +482,29 @@ const Auth = {
     return !!this.getAdminSession();
   },
 
+  async getSupabaseSession() {
+    try {
+      const { data } = await supabase.auth.getSession();
+      return data?.session || null;
+    } catch {
+      return null;
+    }
+  },
+
+  async isSupabaseAdmin() {
+    const session = await this.getSupabaseSession();
+    if (!session?.user) return false;
+    const { data, error } = await supabase
+      .from("profiles")
+      .select("role")
+      .eq("user_id", session.user.id)
+      .eq("role", "admin")
+      .maybeSingle();
+    if (error || !data) return false;
+    this.setAdminSession();
+    return true;
+  },
+
   requireTeacher() {
     if (!this.isTeacher()) {
       window.location.href = "login.html?role=teacher";
@@ -489,12 +512,25 @@ const Auth = {
     }
     return true;
   },
+
   requireAdmin() {
     if (!this.isAdmin()) {
       window.location.href = "login.html?role=admin";
       return false;
     }
     return true;
+  },
+
+  async requireAdminAsync() {
+    if (this.isAdmin()) return true;
+    if (await this.isSupabaseAdmin()) return true;
+    window.location.href = "login.html?role=admin";
+    return false;
+  },
+
+  async clearAdminFull() {
+    this.clearAdmin();
+    try { await supabase.auth.signOut(); } catch (_) {}
   },
 };
 

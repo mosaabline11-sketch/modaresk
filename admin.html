@@ -476,7 +476,7 @@
 
   // ── Guard: require admin login ──
   document.addEventListener('DOMContentLoaded', async () => {
-    if (!Auth.requireAdmin()) return;
+    if (!(await Auth.requireAdminAsync())) return;
     await initAdmin();
     setupAdminImagePositionControls();
   });
@@ -1215,7 +1215,7 @@
   function openModal(id)  { document.getElementById(id).classList.add('open');    document.body.style.overflow = 'hidden'; }
   function closeModal(id) { document.getElementById(id).classList.remove('open'); document.body.style.overflow = '';       }
 
-  function logoutAdmin() { Auth.clearAdmin(); window.location.href = 'index.html'; }
+  async function logoutAdmin() { await Auth.clearAdminFull(); window.location.href = 'index.html'; }
 
   // Close modals on overlay click
   ['teacher-modal','edit-ad-modal'].forEach(id => {

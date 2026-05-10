@@ -197,14 +197,14 @@
 <script>
   let currentRole = 'teacher';
 
-  document.addEventListener('DOMContentLoaded', () => {
+  document.addEventListener('DOMContentLoaded', async () => {
     // Check URL param
     const params = new URLSearchParams(window.location.search);
     const role = params.get('role');
     setRole(role === 'admin' ? 'admin' : 'teacher');
 
     // If already logged in, redirect
-    if (Auth.isAdmin()) { window.location.href = 'admin.html'; return; }
+    if (await Auth.isSupabaseAdmin()) { window.location.href = 'admin.html'; return; }
     if (Auth.isTeacher()) { window.location.href = 'dashboard.html'; return; }
   });
 
@@ -217,10 +217,15 @@
 
     if (role === 'admin') {
       document.getElementById('login-title').textContent = '🔧 دخول الإدارة';
-      document.getElementById('login-sub').textContent = 'للمشرفين فقط — أدخل بيانات الإدارة';
+      document.getElementById('login-sub').textContent = 'للمشرفين فقط — ادخل بالإيميل والباسورد المسجلين في Supabase';
+      document.querySelector('label[for=\"username\"]')?.removeAttribute('for');
+      document.getElementById('username').placeholder = 'اكتب إيميل الإدارة';
+      document.getElementById('username').type = 'email';
     } else {
       document.getElementById('login-title').textContent = '👨‍🏫 دخول المدرس';
       document.getElementById('login-sub').textContent = 'أدخل بياناتك للوصول إلى لوحة التحكم';
+      document.getElementById('username').placeholder = 'أدخل اسم المستخدم';
+      document.getElementById('username').type = 'text';
     }
   }
 
@@ -251,10 +256,24 @@
   }
 
   async function loginAdmin(username, password) {
-    const passwordHash = await sha256(password);
-    if (username !== CONFIG.ADMIN_USERNAME || passwordHash !== CONFIG.ADMIN_PASSWORD_HASH) {
-      throw new Error('اسم المستخدم أو كلمة المرور غير صحيحة');
+    const email = username.trim();
+    const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+    if (error || !data?.user) {
+      throw new Error('الإيميل أو كلمة المرور غير صحيحة');
     }
+
+    const { data: profile, error: profileError } = await supabase
+      .from('profiles')
+      .select('role')
+      .eq('user_id', data.user.id)
+      .eq('role', 'admin')
+      .maybeSingle();
+
+    if (profileError || !profile) {
+      await supabase.auth.signOut();
+      throw new Error('هذا الحساب ليس له صلاحية الإدارة');
+    }
+
     Auth.setAdminSession();
     showToast('مرحباً بك يا مدير! ✅', 'success');
     setTimeout(() => window.location.href = 'admin.html', 800);
