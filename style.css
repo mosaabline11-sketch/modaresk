@@ -894,3 +894,6 @@ textarea.form-control { resize: vertical; min-height: 100px; }
   .detail-card { padding-inline: 16px !important; }
   .per-ad-stats-grid { grid-template-columns: 1fr; }
 }
+
+/* Launch visibility global helpers */
+.launch-hidden [data-launch-hide] { display: none !important; }

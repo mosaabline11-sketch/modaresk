@@ -10,11 +10,6 @@ const CONFIG = {
   SUPABASE_ANON_KEY:
     "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImlhemV2dHNyYWx2amZzb2pya250Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzgwNzE3NDMsImV4cCI6MjA5MzY0Nzc0M30.1Y4Yt11SZ7niqWdDojHKZqrIoO0h76RgknnuG6V8hLQ",
 
-  // ── Admin Credentials ──
-  // غيّر هذه البيانات قبل النشر!
-  ADMIN_USERNAME: "admin",
-  ADMIN_PASSWORD_HASH: "117359aea30411a81daffb675ed2ba8d2b6a2f395b5296ad188ee64e273977fa", // كلمة مرور الإدارة مشفرة SHA-256
-
   // ── App Settings ──
   // غيّر SITE_BASE_URL إلى رابط موقعك الحقيقي بعد النشر لتحسين SEO وملف sitemap.xml
   SITE_BASE_URL: "https://mosaabline11-sketch.github.io/modaresk",
@@ -345,6 +340,53 @@ async function isLaunchBannerVisible() {
   return value === true || value === 'true' || value?.enabled === true;
 }
 
+
+// ── Global Launch Banner Visibility ──
+// Applies the "launch_banner_visible" setting on every page, not only index.html.
+async function applyGlobalLaunchVisibility() {
+  try {
+    const visible = await isLaunchBannerVisible();
+
+    // Hide/show notes and sections that explicitly talk about launch/development.
+    document.querySelectorAll('[data-launch-controlled], .launch-note').forEach(el => {
+      el.style.display = visible ? '' : 'none';
+    });
+
+    // Page-specific text cleanup when launch message is disabled.
+    const heroBadge = document.getElementById('hero-badge');
+    if (heroBadge) {
+      heroBadge.innerHTML = visible
+        ? '🚀 مدرسك في مرحلة الانطلاق — <span id="hero-count">0</span> مدرس متاح الآن'
+        : '✨ أكثر من <span id="hero-count">0</span> مدرس متاح الآن';
+    }
+
+    document.querySelectorAll('[data-launch-alt]').forEach(el => {
+      const normalText = el.getAttribute('data-normal-text');
+      const launchText = el.getAttribute('data-launch-text');
+      if (visible && launchText) el.textContent = launchText;
+      if (!visible && normalText) el.textContent = normalText;
+    });
+
+    // Hide whole marketing blocks that only talk about early launch.
+    document.querySelectorAll('.launch-card').forEach(el => {
+      el.style.display = visible ? '' : 'none';
+    });
+
+    document.body.classList.toggle('launch-hidden', !visible);
+  } catch (e) {
+    console.warn('launch visibility skipped:', e?.message || e);
+  }
+}
+
+function scheduleGlobalLaunchVisibility() {
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', applyGlobalLaunchVisibility);
+  } else {
+    applyGlobalLaunchVisibility();
+  }
+}
+scheduleGlobalLaunchVisibility();
+
 function eventTypeLabel(type = '') {
   const map = {
     site_visit: 'زيارة الموقع',
@@ -418,7 +460,7 @@ const _supabaseReady = (function () {
     window.supabase = supabaseLib.createClient(
       cleanUrl,
       CONFIG.SUPABASE_ANON_KEY,
-      { auth: { persistSession: false } }
+      { auth: { persistSession: true, autoRefreshToken: true } }
     );
     return true;
   } catch (e) {
@@ -429,7 +471,7 @@ const _supabaseReady = (function () {
 
 // ── Auth Helpers ──
 const Auth = {
-  // Store teacher session
+  // Store teacher session (old teacher login kept temporarily)
   setTeacherSession(teacher) {
     sessionStorage.setItem(
       "teacher_session",
@@ -446,7 +488,6 @@ const Auth = {
     try {
       const s = JSON.parse(sessionStorage.getItem("teacher_session") || "null");
       if (!s) return null;
-      // Session expires after 8 hours
       if (Date.now() - s.ts > 8 * 60 * 60 * 1000) {
         this.clearTeacher();
         return null;
@@ -460,32 +501,35 @@ const Auth = {
     sessionStorage.removeItem("teacher_session");
   },
 
-  // Admin session
-  setAdminSession() {
-    sessionStorage.setItem("admin_session", JSON.stringify({ ts: Date.now() }));
+  // Admin now uses Supabase Auth + profiles.role = admin
+  async getAdminSession() {
+    if (!window.supabase?.auth) return null;
+
+    const { data: { session }, error } = await window.supabase.auth.getSession();
+    if (error || !session?.user) return null;
+
+    const { data: profile, error: profileError } = await window.supabase
+      .from("profiles")
+      .select("role, teacher_id")
+      .eq("user_id", session.user.id)
+      .maybeSingle();
+
+    if (profileError || !profile || profile.role !== "admin") return null;
+
+    return { user: session.user, profile };
   },
-  getAdminSession() {
-    try {
-      const s = JSON.parse(sessionStorage.getItem("admin_session") || "null");
-      if (!s) return null;
-      if (Date.now() - s.ts > 4 * 60 * 60 * 1000) {
-        this.clearAdmin();
-        return null;
-      }
-      return s;
-    } catch {
-      return null;
-    }
-  },
-  clearAdmin() {
+
+  async clearAdmin() {
+    try { await window.supabase?.auth?.signOut(); } catch (_) {}
     sessionStorage.removeItem("admin_session");
   },
 
   isTeacher() {
     return !!this.getTeacherSession();
   },
-  isAdmin() {
-    return !!this.getAdminSession();
+
+  async isAdmin() {
+    return !!(await this.getAdminSession());
   },
 
   requireTeacher() {
@@ -495,8 +539,10 @@ const Auth = {
     }
     return true;
   },
-  requireAdmin() {
-    if (!this.isAdmin()) {
+
+  async requireAdmin() {
+    const ok = await this.isAdmin();
+    if (!ok) {
       window.location.href = "login.html?role=admin";
       return false;
     }
