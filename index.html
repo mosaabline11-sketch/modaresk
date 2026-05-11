@@ -463,6 +463,7 @@
   document.addEventListener('DOMContentLoaded', async () => {
     updateNavAuth();
     trackEvent('site_visit', {page:'index.html'});
+    await applySiteLaunchSettings();
     await loadSubjectsSafe();
     populateAllSubjectAndGradeSelects();
     await loadAds();
@@ -477,6 +478,9 @@
     if (!visible) {
       if (note) note.style.display = 'none';
       if (badge) badge.innerHTML = '✨ أكثر من <span id="hero-count">0</span> مدرس متاح الآن';
+    } else {
+      if (note) note.style.display = '';
+      if (badge) badge.innerHTML = '🚀 مدرسك في مرحلة الانطلاق — <span id="hero-count">0</span> مدرس متاح الآن';
     }
   }
 

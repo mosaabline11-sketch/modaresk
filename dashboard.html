@@ -6,7 +6,7 @@
   <meta name="description" content="لوحة المدرس في منصة مدرسك لإضافة وإدارة الإعلانات، الصور، الباقة، الإضافات والإحصائيات.">
   <meta name="keywords" content="مدرسك, مدرس خصوصي, دروس خصوصية, مدرسين, مدرس أونلاين, مدرس حضوري, منصة مدرسين, تعليم, طلاب, مصر">
   <meta name="author" content="مدرسك">
-  <meta name="robots" content="noindex, nofollow, noarchive">
+  <meta name="robots" content="index, follow">
   <meta name="theme-color" content="#2563EB">
   <link rel="canonical" href="https://mosaabline11-sketch.github.io/modaresk/dashboard.html">
   <meta property="og:locale" content="ar_AR">
@@ -403,34 +403,38 @@
     list.style.display = '';
     empty.style.display = 'none';
 
-    list.innerHTML = teacherAds.map(ad => `
+    list.innerHTML = teacherAds.map(ad => {
+      const safeId = escapeAttr(ad.id || '');
+      const galleryCount = normalizeList(ad.gallery_images).length;
+      const videoCount = normalizeList(ad.video_links).length;
+      return `
       <div class="ad-manage-card animate-in">
         <div class="amc-header">
           <div style="flex:1;min-width:0">
-            <div class="amc-title">${ad.title || ad.subject}</div>
+            <div class="amc-title">${escapeHtml(ad.title || ad.subject || '—')}</div>
             <div class="amc-meta">
-              <span class="tc-badge badge-grade">📗 ${ad.grade}</span>
-              <span class="tc-badge ${lessonTypeBadgeClass(ad.lesson_type)}">${lessonTypeLabel(ad.lesson_type)}</span>
-              <span class="tc-badge ${statusBadgeClass(ad.status)}">${statusLabel(ad.status)}</span>
+              <span class="tc-badge badge-grade">📗 ${escapeHtml(ad.grade || '—')}</span>
+              <span class="tc-badge ${lessonTypeBadgeClass(ad.lesson_type)}">${escapeHtml(lessonTypeLabel(ad.lesson_type))}</span>
+              <span class="tc-badge ${statusBadgeClass(ad.status)}">${escapeHtml(statusLabel(ad.status))}</span>
             </div>
           </div>
           <div class="amc-actions">
-            ${(!getTeacherFeatures(teacher).unlimited_edits && Number(ad.edit_count||0) >= 3) ? '<button class="btn btn-ghost btn-sm" disabled title="وصلت للحد الأقصى">🔒 تعديل</button>' : `<button class="btn btn-ghost btn-sm" onclick="openEditAdModal('${ad.id}')">✏️ تعديل</button>`}
-            <button class="btn btn-danger btn-sm" onclick="deleteAd('${ad.id}')">🗑</button>
+            ${(!getTeacherFeatures(teacher).unlimited_edits && Number(ad.edit_count||0) >= 3) ? '<button class="btn btn-ghost btn-sm" disabled title="وصلت للحد الأقصى">🔒 تعديل</button>' : `<button class="btn btn-ghost btn-sm" onclick="openEditAdModal('${safeId}')">✏️ تعديل</button>`}
+            <button class="btn btn-danger btn-sm" onclick="deleteAd('${safeId}')">🗑</button>
           </div>
         </div>
         <div class="amc-body">
-          <div class="amc-price">💰 ${formatPrice(ad.price)} / الحصة</div>
+          <div class="amc-price">💰 ${escapeHtml(formatPrice(ad.price))} / الحصة</div>
           ${ad.main_image_url ? `<div class="media-preview"><img src="${escapeHtml(ad.main_image_url)}" alt="صورة الإعلان" style="object-position:${escapeHtml(ad.main_image_position || '50% 50%')}"></div>` : ''}
-          ${normalizeList(ad.gallery_images).length ? `<div class="amc-desc mt-8">🖼 ${normalizeList(ad.gallery_images).length} صور إضافية</div>` : ''}
-          ${normalizeList(ad.video_links).length ? `<div class="amc-desc mt-8">🎬 ${normalizeList(ad.video_links).length} فيديو</div>` : ''}
+          ${galleryCount ? `<div class="amc-desc mt-8">🖼 ${galleryCount} صور إضافية</div>` : ''}
+          ${videoCount ? `<div class="amc-desc mt-8">🎬 ${videoCount} فيديو</div>` : ''}
           ${!getTeacherFeatures(teacher).unlimited_edits ? `<div class="amc-desc mt-8">✏️ عدد التعديلات: ${Number(ad.edit_count||0)} / 3</div>` : ''}
           ${ad.description ? `<div class="amc-desc mt-8">${escapeHtml(ad.description)}</div>` : ''}
           ${ad.status === 'pending' ? '<div class="alert alert-info mt-8" style="padding:8px 12px;font-size:0.82rem">⏳ هذا الإعلان في انتظار مراجعة الإدارة</div>' : ''}
           ${ad.status === 'rejected' ? '<div class="alert alert-danger mt-8" style="padding:8px 12px;font-size:0.82rem">❌ تم رفض هذا الإعلان من قبل الإدارة</div>' : ''}
         </div>
-      </div>
-    `).join('');
+      </div>`;
+    }).join('');
   }
 
   function openAddAdModal() {

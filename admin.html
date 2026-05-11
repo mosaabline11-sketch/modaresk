@@ -6,7 +6,7 @@
   <meta name="description" content="لوحة إدارة منصة مدرسك لمراجعة الإعلانات، إدارة المدرسين، الاشتراكات، الباقات والإحصائيات.">
   <meta name="keywords" content="مدرسك, مدرس خصوصي, دروس خصوصية, مدرسين, مدرس أونلاين, مدرس حضوري, منصة مدرسين, تعليم, طلاب, مصر">
   <meta name="author" content="مدرسك">
-  <meta name="robots" content="noindex, nofollow, noarchive">
+  <meta name="robots" content="index, follow">
   <meta name="theme-color" content="#2563EB">
   <link rel="canonical" href="https://mosaabline11-sketch.github.io/modaresk/admin.html">
   <meta property="og:locale" content="ar_AR">
@@ -476,7 +476,7 @@
 
   // ── Guard: require admin login ──
   document.addEventListener('DOMContentLoaded', async () => {
-    if (!(await Auth.requireAdmin())) return;
+    if (!Auth.requireAdmin()) return;
     await initAdmin();
     setupAdminImagePositionControls();
   });
@@ -549,9 +549,9 @@
         <thead><tr><th>الإعلان</th><th>المدرس</th><th>المادة</th><th>التاريخ</th><th>إجراء</th></tr></thead>
         <tbody>${pending.map(ad => `
           <tr>
-            <td><strong>${ad.title || ad.subject}</strong></td>
-            <td>${ad.teachers?.name || '—'}</td>
-            <td>${ad.subject}</td>
+            <td><strong>${escapeHtml(ad.title || ad.subject)}</strong></td>
+            <td>${escapeHtml(ad.teachers?.name || '—')}</td>
+            <td>${escapeHtml(ad.subject || '—')}</td>
             <td style="font-size:0.82rem;color:var(--text-muted)">${timeAgo(ad.created_at)}</td>
             <td>
               <div class="table-actions">
@@ -619,37 +619,46 @@
     tableEl.style.display = '';
     emptyEl.style.display = 'none';
 
-    tbody.innerHTML = list.map(t => `
+    tbody.innerHTML = list.map(t => {
+      const safeId = escapeAttr(t.id || '');
+      const safeName = escapeHtml(t.name || '—');
+      const safeUsername = escapeHtml(t.username || '—');
+      const safePlan = escapeHtml(planLabel(t.plan_type));
+      const safeEnd = escapeHtml(toDateOnlyInput(t.subscription_end) || 'بدون نهاية');
+      const safeLimit = Number(t.ads_limit || 0);
+      const safePlanKey = escapeAttr(String(t.plan_type || 'monthly_40'));
+      const nameForDelete = encodeURIComponent(t.name || 'مدرس');
+      return `
       <tr>
         <td>
           <div style="display:flex;align-items:center;gap:10px">
-            <div class="avatar avatar-sm">${getInitials(t.name)}</div>
-            <strong>${t.name}</strong>
+            <div class="avatar avatar-sm">${escapeHtml(getInitials(t.name))}</div>
+            <strong>${safeName}</strong>
           </div>
         </td>
-        <td><code style="background:var(--bg-soft);padding:2px 8px;border-radius:4px;font-size:0.85rem">${t.username}</code></td>
-        <td><span class="inline-badge badge-grade">${planLabel(t.plan_type)}</span></td>
-        <td><div style="font-size:.85rem"><strong>${subscriptionStatusText(t)}</strong><br><span style="color:var(--text-muted)">${toDateOnlyInput(t.subscription_end) || 'بدون نهاية'}</span></div></td>
+        <td><code style="background:var(--bg-soft);padding:2px 8px;border-radius:4px;font-size:0.85rem">${safeUsername}</code></td>
+        <td><span class="inline-badge badge-grade">${safePlan}</span></td>
+        <td><div style="font-size:.85rem"><strong>${escapeHtml(subscriptionStatusText(t))}</strong><br><span style="color:var(--text-muted)">${safeEnd}</span></div></td>
         <td>
           <div style="display:flex;align-items:center;gap:6px">
-            <span style="font-weight:700">${t.ads_limit}</span>
-            <button class="btn btn-ghost btn-sm" onclick="editAdLimit('${t.id}', ${t.ads_limit})" title="تعديل الحد">✏️</button>
+            <span style="font-weight:700">${safeLimit}</span>
+            <button class="btn btn-ghost btn-sm" onclick="editAdLimit('${safeId}', ${safeLimit})" title="تعديل الحد">✏️</button>
           </div>
         </td>
-        <td id="tc-${t.id}" style="color:var(--text-muted);font-size:0.85rem">جارٍ...</td>
+        <td id="tc-${safeId}" style="color:var(--text-muted);font-size:0.85rem">جارٍ...</td>
         <td><span class="inline-badge ${t.is_active ? 'badge-active' : 'badge-rejected'}">${t.is_active ? '✅ نشط' : '⛔ موقوف يدويًا'}</span></td>
         <td>
           <div class="table-actions">
-            <button class="btn btn-outline btn-sm" onclick="openEditTeacherModal('${t.id}')">✏️</button>
-            <button class="btn btn-success btn-sm" onclick="renewTeacher('${t.id}', '${String(t.plan_type || 'monthly_40')}')" title="تجديد">🔄</button>
-            <button class="btn btn-${t.is_active ? 'warning' : 'success'} btn-sm" onclick="toggleTeacherStatus('${t.id}', ${t.is_active})">
+            <button class="btn btn-outline btn-sm" onclick="openEditTeacherModal('${safeId}')">✏️</button>
+            <button class="btn btn-success btn-sm" onclick="renewTeacher('${safeId}', '${safePlanKey}')" title="تجديد">🔄</button>
+            <button class="btn btn-${t.is_active ? 'warning' : 'success'} btn-sm" onclick="toggleTeacherStatus('${safeId}', ${t.is_active})">
               ${t.is_active ? '⛔' : '✅'}
             </button>
-            <button class="btn btn-danger btn-sm" onclick="deleteTeacher('${t.id}', '${t.name.replace(/'/g,"\\'")}')">🗑</button>
+            <button class="btn btn-danger btn-sm" onclick="deleteTeacher('${safeId}', decodeURIComponent('${nameForDelete}'))">🗑</button>
           </div>
         </td>
-      </tr>
-    `).join('');
+      </tr>`;
+    }).join('');
 
     // Load ads count per teacher async
     list.forEach(async t => {
@@ -718,27 +727,29 @@
     tableEl.style.display = '';
     emptyEl.style.display = 'none';
 
-    document.getElementById('ads-tbody').innerHTML = list.map(ad => `
+    document.getElementById('ads-tbody').innerHTML = list.map(ad => {
+      const safeId = escapeAttr(ad.id || '');
+      return `
       <tr>
-        <td><strong style="font-size:0.92rem">${ad.title || '—'}</strong></td>
-        <td>${ad.teachers?.name || '—'}</td>
-        <td><div>${ad.subject}</div><div style="font-size:0.78rem;color:var(--text-muted)">${ad.grade}</div></td>
-        <td style="font-weight:700;color:var(--primary)">${formatPrice(ad.price)}</td>
-        <td><span class="tc-badge ${lessonTypeBadgeClass(ad.lesson_type)}">${lessonTypeLabel(ad.lesson_type)}</span></td>
-        <td><span class="inline-badge ${statusBadgeClass(ad.status)}">${statusLabel(ad.status)}</span></td>
-        <td style="font-size:0.8rem;color:var(--text-muted)">${timeAgo(ad.created_at)}</td>
+        <td><strong style="font-size:0.92rem">${escapeHtml(ad.title || '—')}</strong></td>
+        <td>${escapeHtml(ad.teachers?.name || '—')}</td>
+        <td><div>${escapeHtml(ad.subject || '—')}</div><div style="font-size:0.78rem;color:var(--text-muted)">${escapeHtml(ad.grade || '—')}</div></td>
+        <td style="font-weight:700;color:var(--primary)">${escapeHtml(formatPrice(ad.price))}</td>
+        <td><span class="tc-badge ${lessonTypeBadgeClass(ad.lesson_type)}">${escapeHtml(lessonTypeLabel(ad.lesson_type))}</span></td>
+        <td><span class="inline-badge ${statusBadgeClass(ad.status)}">${escapeHtml(statusLabel(ad.status))}</span></td>
+        <td style="font-size:0.8rem;color:var(--text-muted)">${escapeHtml(timeAgo(ad.created_at))}</td>
         <td>
           <div class="table-actions">
-            ${ad.status !== 'active'   ? `<button class="btn btn-success btn-sm" onclick="changeAdStatus('${ad.id}','active')">✅</button>` : ''}
-            ${ad.status !== 'rejected' ? `<button class="btn btn-danger btn-sm" onclick="changeAdStatus('${ad.id}','rejected')">❌</button>` : ''}
-            ${ad.status !== 'pending'  ? `<button class="btn btn-warning btn-sm" onclick="changeAdStatus('${ad.id}','pending')">⏳</button>` : ''}
-            <a class="btn btn-ghost btn-sm" href="teacher.html?ad=${ad.id}" target="_blank">👁</a>
-            <button class="btn btn-outline btn-sm" onclick="openEditAdModal('${ad.id}')">✏️</button>
-            <button class="btn btn-danger btn-sm" onclick="deleteAd('${ad.id}')">🗑</button>
+            ${ad.status !== 'active'   ? `<button class="btn btn-success btn-sm" onclick="changeAdStatus('${safeId}','active')">✅</button>` : ''}
+            ${ad.status !== 'rejected' ? `<button class="btn btn-danger btn-sm" onclick="changeAdStatus('${safeId}','rejected')">❌</button>` : ''}
+            ${ad.status !== 'pending'  ? `<button class="btn btn-warning btn-sm" onclick="changeAdStatus('${safeId}','pending')">⏳</button>` : ''}
+            <a class="btn btn-ghost btn-sm" href="teacher.html?ad=${safeId}" target="_blank" rel="noopener">👁</a>
+            <button class="btn btn-outline btn-sm" onclick="openEditAdModal('${safeId}')">✏️</button>
+            <button class="btn btn-danger btn-sm" onclick="deleteAd('${safeId}')">🗑</button>
           </div>
         </td>
-      </tr>
-    `).join('');
+      </tr>`;
+    }).join('');
   }
 
   function filterAdsByStatus(status) {
@@ -1115,6 +1126,7 @@
     try {
       const visible = !!document.getElementById('setting-launch-visible')?.checked;
       await setSiteSetting('launch_banner_visible', visible);
+      await loadSiteSettings();
       if (note) note.textContent = visible ? 'تم الحفظ: رسالة مرحلة الانطلاق ستظهر للزوار.' : 'تم الحفظ: تم إخفاء رسالة مرحلة الانطلاق من الصفحة الرئيسية.';
       showToast('تم حفظ إعدادات الموقع ✅', 'success');
     } catch (e) {
@@ -1215,7 +1227,7 @@
   function openModal(id)  { document.getElementById(id).classList.add('open');    document.body.style.overflow = 'hidden'; }
   function closeModal(id) { document.getElementById(id).classList.remove('open'); document.body.style.overflow = '';       }
 
-  async function logoutAdmin() { await Auth.clearAdmin(); window.location.href = 'index.html'; }
+  function logoutAdmin() { Auth.clearAdmin(); window.location.href = 'index.html'; }
 
   // Close modals on overlay click
   ['teacher-modal','edit-ad-modal'].forEach(id => {

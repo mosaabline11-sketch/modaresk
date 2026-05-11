@@ -176,6 +176,11 @@ h1, h2, h3, h4, h5 { font-family: 'Cairo', sans-serif; font-weight: 700; }
 .btn:disabled { opacity: 0.6; cursor: not-allowed; transform: none !important; }
 .btn .spinner { width: 16px; height: 16px; border: 2px solid rgba(255,255,255,0.4); border-top-color: white; border-radius: 50%; animation: spin 0.7s linear infinite; }
 
+.btn-white { background: white; color: var(--primary); font-weight: 700; }
+.btn-white:hover { background: #F0F9FF; transform: translateY(-2px); box-shadow: 0 8px 24px rgba(0,0,0,0.2); }
+.btn-outline-white { background: transparent; color: white; border: 2px solid rgba(255,255,255,0.5); }
+.btn-outline-white:hover { background: rgba(255,255,255,0.15); border-color: white; }
+
 /* ── Cards ── */
 .card {
   background: var(--bg-white);

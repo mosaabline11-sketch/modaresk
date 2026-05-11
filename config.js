@@ -10,6 +10,11 @@ const CONFIG = {
   SUPABASE_ANON_KEY:
     "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImlhemV2dHNyYWx2amZzb2pya250Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzgwNzE3NDMsImV4cCI6MjA5MzY0Nzc0M30.1Y4Yt11SZ7niqWdDojHKZqrIoO0h76RgknnuG6V8hLQ",
 
+  // ── Admin Credentials ──
+  // غيّر هذه البيانات قبل النشر!
+  ADMIN_USERNAME: "admin",
+  ADMIN_PASSWORD_HASH: "117359aea30411a81daffb675ed2ba8d2b6a2f395b5296ad188ee64e273977fa", // كلمة مرور الإدارة مشفرة SHA-256
+
   // ── App Settings ──
   // غيّر SITE_BASE_URL إلى رابط موقعك الحقيقي بعد النشر لتحسين SEO وملف sitemap.xml
   SITE_BASE_URL: "https://mosaabline11-sketch.github.io/modaresk",
@@ -33,6 +38,9 @@ let SUBJECTS_CACHE = [...DEFAULT_SUBJECTS];
 
 function escapeHtml(str = "") {
   return String(str).replace(/[&<>"']/g, ch => ({ "&":"&amp;", "<":"&lt;", ">":"&gt;", "\"":"&quot;", "'":"&#39;" }[ch]));
+}
+function escapeAttr(str = "") {
+  return escapeHtml(str).replace(/`/g, "&#96;");
 }
 function nl2br(str = "") { return escapeHtml(str).replace(/\n/g, "<br>"); }
 
@@ -331,6 +339,9 @@ async function setSiteSetting(key, value) {
 
 async function isLaunchBannerVisible() {
   const value = await getSiteSetting('launch_banner_visible', true);
+  // Supabase JSONB may return true/false directly, a string, or an object.
+  if (value === false || value === 'false') return false;
+  if (value && typeof value === 'object' && value.enabled === false) return false;
   return value === true || value === 'true' || value?.enabled === true;
 }
 
@@ -407,7 +418,7 @@ const _supabaseReady = (function () {
     window.supabase = supabaseLib.createClient(
       cleanUrl,
       CONFIG.SUPABASE_ANON_KEY,
-      { auth: { persistSession: true, autoRefreshToken: true } }
+      { auth: { persistSession: false } }
     );
     return true;
   } catch (e) {
@@ -418,7 +429,7 @@ const _supabaseReady = (function () {
 
 // ── Auth Helpers ──
 const Auth = {
-  // Store teacher session (old teacher login kept temporarily)
+  // Store teacher session
   setTeacherSession(teacher) {
     sessionStorage.setItem(
       "teacher_session",
@@ -435,6 +446,7 @@ const Auth = {
     try {
       const s = JSON.parse(sessionStorage.getItem("teacher_session") || "null");
       if (!s) return null;
+      // Session expires after 8 hours
       if (Date.now() - s.ts > 8 * 60 * 60 * 1000) {
         this.clearTeacher();
         return null;
@@ -448,35 +460,32 @@ const Auth = {
     sessionStorage.removeItem("teacher_session");
   },
 
-  // Admin now uses Supabase Auth + profiles.role = admin
-  async getAdminSession() {
-    if (!window.supabase?.auth) return null;
-
-    const { data: { session }, error } = await window.supabase.auth.getSession();
-    if (error || !session?.user) return null;
-
-    const { data: profile, error: profileError } = await window.supabase
-      .from("profiles")
-      .select("role, teacher_id")
-      .eq("user_id", session.user.id)
-      .maybeSingle();
-
-    if (profileError || !profile || profile.role !== "admin") return null;
-
-    return { user: session.user, profile };
+  // Admin session
+  setAdminSession() {
+    sessionStorage.setItem("admin_session", JSON.stringify({ ts: Date.now() }));
   },
-
-  async clearAdmin() {
-    try { await window.supabase?.auth?.signOut(); } catch (_) {}
+  getAdminSession() {
+    try {
+      const s = JSON.parse(sessionStorage.getItem("admin_session") || "null");
+      if (!s) return null;
+      if (Date.now() - s.ts > 4 * 60 * 60 * 1000) {
+        this.clearAdmin();
+        return null;
+      }
+      return s;
+    } catch {
+      return null;
+    }
+  },
+  clearAdmin() {
     sessionStorage.removeItem("admin_session");
   },
 
   isTeacher() {
     return !!this.getTeacherSession();
   },
-
-  async isAdmin() {
-    return !!(await this.getAdminSession());
+  isAdmin() {
+    return !!this.getAdminSession();
   },
 
   requireTeacher() {
@@ -486,10 +495,8 @@ const Auth = {
     }
     return true;
   },
-
-  async requireAdmin() {
-    const ok = await this.isAdmin();
-    if (!ok) {
+  requireAdmin() {
+    if (!this.isAdmin()) {
       window.location.href = "login.html?role=admin";
       return false;
     }
