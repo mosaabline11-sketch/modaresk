@@ -6,7 +6,7 @@
   <meta name="description" content="لوحة إدارة منصة مدرسك لمراجعة الإعلانات، إدارة المدرسين، الاشتراكات، الباقات والإحصائيات.">
   <meta name="keywords" content="مدرسك, مدرس خصوصي, دروس خصوصية, مدرسين, مدرس أونلاين, مدرس حضوري, منصة مدرسين, تعليم, طلاب, مصر">
   <meta name="author" content="مدرسك">
-  <meta name="robots" content="index, follow">
+  <meta name="robots" content="noindex, nofollow, noarchive">
   <meta name="theme-color" content="#2563EB">
   <link rel="canonical" href="https://mosaabline11-sketch.github.io/modaresk/admin.html">
   <meta property="og:locale" content="ar_AR">
@@ -476,7 +476,7 @@
 
   // ── Guard: require admin login ──
   document.addEventListener('DOMContentLoaded', async () => {
-    if (!(await Auth.requireAdminAsync())) return;
+    if (!(await Auth.requireAdmin())) return;
     await initAdmin();
     setupAdminImagePositionControls();
   });
@@ -1215,7 +1215,7 @@
   function openModal(id)  { document.getElementById(id).classList.add('open');    document.body.style.overflow = 'hidden'; }
   function closeModal(id) { document.getElementById(id).classList.remove('open'); document.body.style.overflow = '';       }
 
-  async function logoutAdmin() { await Auth.clearAdminFull(); window.location.href = 'index.html'; }
+  async function logoutAdmin() { await Auth.clearAdmin(); window.location.href = 'index.html'; }
 
   // Close modals on overlay click
   ['teacher-modal','edit-ad-modal'].forEach(id => {

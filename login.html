@@ -6,7 +6,7 @@
   <meta name="description" content="تسجيل دخول المدرسين والإدارة في منصة مدرسك لإدارة الإعلانات والباقات والاشتراكات.">
   <meta name="keywords" content="مدرسك, مدرس خصوصي, دروس خصوصية, مدرسين, مدرس أونلاين, مدرس حضوري, منصة مدرسين, تعليم, طلاب, مصر">
   <meta name="author" content="مدرسك">
-  <meta name="robots" content="index, follow">
+  <meta name="robots" content="noindex, nofollow, noarchive">
   <meta name="theme-color" content="#2563EB">
   <link rel="canonical" href="https://mosaabline11-sketch.github.io/modaresk/login.html">
   <meta property="og:locale" content="ar_AR">
@@ -204,7 +204,7 @@
     setRole(role === 'admin' ? 'admin' : 'teacher');
 
     // If already logged in, redirect
-    if (await Auth.isSupabaseAdmin()) { window.location.href = 'admin.html'; return; }
+    if (await Auth.isAdmin()) { window.location.href = 'admin.html'; return; }
     if (Auth.isTeacher()) { window.location.href = 'dashboard.html'; return; }
   });
 
@@ -217,15 +217,13 @@
 
     if (role === 'admin') {
       document.getElementById('login-title').textContent = '🔧 دخول الإدارة';
-      document.getElementById('login-sub').textContent = 'للمشرفين فقط — ادخل بالإيميل والباسورد المسجلين في Supabase';
-      document.querySelector('label[for=\"username\"]')?.removeAttribute('for');
-      document.getElementById('username').placeholder = 'اكتب إيميل الإدارة';
-      document.getElementById('username').type = 'email';
+      document.getElementById('login-sub').textContent = 'للمشرفين فقط — ادخل بإيميل Supabase Auth';
+      document.getElementById('username').placeholder = 'admin email@example.com';
+      document.querySelector('label[for="username"]')?.removeAttribute('for');
     } else {
       document.getElementById('login-title').textContent = '👨‍🏫 دخول المدرس';
       document.getElementById('login-sub').textContent = 'أدخل بياناتك للوصول إلى لوحة التحكم';
       document.getElementById('username').placeholder = 'أدخل اسم المستخدم';
-      document.getElementById('username').type = 'text';
     }
   }
 
@@ -255,9 +253,12 @@
     }
   }
 
-  async function loginAdmin(username, password) {
-    const email = username.trim();
-    const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+  async function loginAdmin(email, password) {
+    const { data, error } = await supabase.auth.signInWithPassword({
+      email,
+      password
+    });
+
     if (error || !data?.user) {
       throw new Error('الإيميل أو كلمة المرور غير صحيحة');
     }
@@ -266,15 +267,13 @@
       .from('profiles')
       .select('role')
       .eq('user_id', data.user.id)
-      .eq('role', 'admin')
       .maybeSingle();
 
-    if (profileError || !profile) {
+    if (profileError || !profile || profile.role !== 'admin') {
       await supabase.auth.signOut();
-      throw new Error('هذا الحساب ليس له صلاحية الإدارة');
+      throw new Error('هذا الحساب ليس له صلاحية إدارة');
     }
 
-    Auth.setAdminSession();
     showToast('مرحباً بك يا مدير! ✅', 'success');
     setTimeout(() => window.location.href = 'admin.html', 800);
   }
