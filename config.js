@@ -23,11 +23,97 @@ const CONFIG = {
 
 
 // ── مدرسك shared data helpers ──
+const GRADE_SECTIONS = {
+  primary: {
+    label: "الابتدائي",
+    grades: ["أول ابتدائي", "ثاني ابتدائي", "ثالث ابتدائي", "رابع ابتدائي", "خامس ابتدائي", "سادس ابتدائي"]
+  },
+  prep: {
+    label: "الإعدادي",
+    grades: ["أول إعدادي", "ثاني إعدادي", "ثالث إعدادي"]
+  },
+  secondary: {
+    label: "الثانوي",
+    grades: ["أول ثانوي", "ثاني ثانوي", "ثالث ثانوي"]
+  }
+};
+
 const GRADE_OPTIONS = [
-  "المرحلة الابتدائية كاملة", "أول ابتدائي", "ثاني ابتدائي", "ثالث ابتدائي", "رابع ابتدائي", "خامس ابتدائي", "سادس ابتدائي",
-  "المرحلة الإعدادية كاملة", "أول إعدادي", "ثاني إعدادي", "ثالث إعدادي",
-  "المرحلة الثانوية كاملة", "أول ثانوي", "ثاني ثانوي", "ثالث ثانوي"
+  ...GRADE_SECTIONS.primary.grades,
+  ...GRADE_SECTIONS.prep.grades,
+  ...GRADE_SECTIONS.secondary.grades
 ];
+
+function gradeSectionOf(grade = "") {
+  const g = String(grade || "").trim();
+  for (const [key, section] of Object.entries(GRADE_SECTIONS)) {
+    if (section.grades.includes(g)) return key;
+  }
+  return "";
+}
+
+function getAdGrades(ad = {}) {
+  const list = normalizeList(ad.grades);
+  if (list.length) return list;
+  return ad.grade ? [ad.grade] : [];
+}
+
+function gradeDisplay(ad = {}) {
+  const list = getAdGrades(ad);
+  return list.length ? list.join("، ") : (ad.grade || "—");
+}
+
+function validateSameGradeSection(grades = []) {
+  const clean = [...new Set((grades || []).map(g => String(g || "").trim()).filter(Boolean))];
+  if (!clean.length) return { ok: false, message: "اختر فصلًا واحدًا على الأقل", grades: [], section: "" };
+  const sections = [...new Set(clean.map(gradeSectionOf).filter(Boolean))];
+  if (sections.length !== 1) return { ok: false, message: "لا يمكن خلط فصول من مراحل مختلفة. اختر فصولًا من نفس القسم فقط.", grades: clean, section: "" };
+  return { ok: true, message: "", grades: clean, section: sections[0] };
+}
+
+function renderGradeCheckboxes(containerId, selected = []) {
+  const box = document.getElementById(containerId);
+  if (!box) return;
+  const selectedSet = new Set(normalizeList(selected));
+  const currentSection = [...selectedSet].map(gradeSectionOf).find(Boolean) || "";
+  box.innerHTML = Object.entries(GRADE_SECTIONS).map(([sectionKey, section]) => `
+    <div class="grade-check-section">
+      <div class="grade-check-title">${escapeHtml(section.label)}</div>
+      <div class="grade-check-grid">
+        ${section.grades.map(g => {
+          const checked = selectedSet.has(g);
+          const disabled = currentSection && currentSection !== sectionKey;
+          return `<label class="grade-check ${checked ? "checked" : ""} ${disabled ? "disabled" : ""}">
+            <input type="checkbox" value="${escapeAttr(g)}" data-section="${sectionKey}" ${checked ? "checked" : ""} ${disabled ? "disabled" : ""}>
+            <span>${escapeHtml(g)}</span>
+          </label>`;
+        }).join("")}
+      </div>
+    </div>
+  `).join("");
+  box.querySelectorAll('input[type="checkbox"]').forEach(input => {
+    input.addEventListener("change", () => updateGradeCheckboxState(containerId));
+  });
+  updateGradeCheckboxState(containerId);
+}
+
+function updateGradeCheckboxState(containerId) {
+  const box = document.getElementById(containerId);
+  if (!box) return;
+  const checked = Array.from(box.querySelectorAll('input[type="checkbox"]:checked'));
+  const activeSection = checked[0]?.dataset.section || "";
+  box.querySelectorAll('input[type="checkbox"]').forEach(input => {
+    input.disabled = !!activeSection && input.dataset.section !== activeSection;
+    input.closest(".grade-check")?.classList.toggle("checked", input.checked);
+    input.closest(".grade-check")?.classList.toggle("disabled", input.disabled);
+  });
+}
+
+function getSelectedGrades(containerId) {
+  const box = document.getElementById(containerId);
+  if (!box) return [];
+  return Array.from(box.querySelectorAll('input[type="checkbox"]:checked')).map(x => x.value);
+}
 const DEFAULT_SUBJECTS = ["رياضيات", "لغة عربية", "لغة إنجليزية", "علوم", "دراسات اجتماعية", "فيزياء", "كيمياء", "أحياء", "تاريخ", "جغرافيا", "فرنسي", "حاسب آلي", "أخرى"];
 let SUBJECTS_CACHE = [...DEFAULT_SUBJECTS];
 
@@ -81,17 +167,14 @@ function populateSubjectSelect(selectId, selected = "") {
 function populateGradeSelect(selectId, selected = "") {
   const el = document.getElementById(selectId);
   if (!el) return;
-  const keepEmpty = el.querySelector('option[value=""]') ? '<option value="">اختر الصف أو المرحلة</option>' : '';
-  el.innerHTML = keepEmpty + `
-    <optgroup label="الابتدائي">
-      <option>المرحلة الابتدائية كاملة</option><option>أول ابتدائي</option><option>ثاني ابتدائي</option><option>ثالث ابتدائي</option><option>رابع ابتدائي</option><option>خامس ابتدائي</option><option>سادس ابتدائي</option>
+  const keepEmpty = el.querySelector('option[value=""]')
+    ? '<option value="">جميع الصفوف</option>'
+    : '';
+  el.innerHTML = keepEmpty + Object.values(GRADE_SECTIONS).map(section => `
+    <optgroup label="${escapeHtml(section.label)}">
+      ${section.grades.map(g => `<option value="${escapeAttr(g)}">${escapeHtml(g)}</option>`).join("")}
     </optgroup>
-    <optgroup label="الإعدادي">
-      <option>المرحلة الإعدادية كاملة</option><option>أول إعدادي</option><option>ثاني إعدادي</option><option>ثالث إعدادي</option>
-    </optgroup>
-    <optgroup label="الثانوي">
-      <option>المرحلة الثانوية كاملة</option><option>أول ثانوي</option><option>ثاني ثانوي</option><option>ثالث ثانوي</option>
-    </optgroup>`;
+  `).join("");
   if (selected) el.value = selected;
 }
 function populateAllSubjectAndGradeSelects() {

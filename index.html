@@ -23,7 +23,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800;900&family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="style.css?v=6.5">
+  <link rel="stylesheet" href="style.css?v=7.0">
   <link rel="icon" type="image/png" href="logo.png">
   <link rel="manifest" href="manifest.webmanifest">
   <style>
@@ -290,16 +290,11 @@
 
       <!-- Search Card -->
       <div class="search-card">
-        <h3>🔍 ابحث عن مدرس</h3>
+        <h3>🎯 فلتر المدرسين</h3>
         <div class="search-row">
-          <div class="search-main">
-            <span class="sicon">🔍</span>
-            <input type="text" id="hero-search" class="form-control" placeholder="اسم المدرس أو المادة...">
-          </div>
-          <select id="hero-grade" class="form-control form-select"><option value="">جميع الصفوف والمراحل</option></select>
-          <button class="btn btn-primary" onclick="applySearch()">
-            🔍 بحث
-          </button>
+          <select id="hero-subject" class="form-control form-select"><option value="">جميع المواد</option></select>
+          <select id="hero-grade" class="form-control form-select"><option value="">جميع الصفوف</option></select>
+          <button class="btn btn-primary" onclick="applySearch()">تطبيق الفلترة</button>
         </div>
       </div>
 
@@ -327,7 +322,7 @@
       <select class="filter-select" id="filter-subject"><option value="">جميع المواد</option></select>
 
       <span class="filter-label" style="margin-right:16px">الصف:</span>
-      <select class="filter-select" id="filter-grade"><option value="">جميع الصفوف والمراحل</option></select>
+      <select class="filter-select" id="filter-grade"><option value="">جميع الصفوف</option></select>
 
       <span class="filters-count" id="results-count"></span>
     </div>
@@ -450,7 +445,7 @@
 
 <!-- Scripts -->
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="config.js?v=6.5"></script>
+<script src="config.js?v=7.0"></script>
 <script>
   let allAds = [];
   let filteredAds = [];

@@ -22,7 +22,7 @@
   <title>تفاصيل الإعلان - مدرسك</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800;900&family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="style.css?v=6.5">
+  <link rel="stylesheet" href="style.css?v=7.0">
   <link rel="icon" type="image/png" href="logo.png">
   <link rel="manifest" href="manifest.webmanifest">
   <style>
@@ -52,7 +52,7 @@
 </main>
 <footer class="footer" style="margin-top:0"><div class="container"><div class="footer-bottom" style="border-top:none;margin-top:0">© 2026 مدرسك — جميع الحقوق محفوظة · <a href="privacy.html">سياسة الخصوصية</a> · <a href="terms.html">شروط الاستخدام</a></div></div></footer>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="config.js?v=6.5"></script>
+<script src="config.js?v=7.0"></script>
 <script>
   document.addEventListener('DOMContentLoaded', async () => {
     const params = new URLSearchParams(location.search);
@@ -93,7 +93,7 @@
     document.getElementById('hero-content').innerHTML=`
       <div style="color:#BFDBFE;font-weight:700;margin-bottom:8px">📋 تفاصيل الإعلان</div>
       <h1 style="font-family:Cairo,sans-serif;font-size:clamp(1.8rem,4vw,2.7rem);font-weight:900;margin-bottom:10px">${escapeHtml(ad.title || ad.subject)}</h1>
-      <p style="color:#CBD5E1">${escapeHtml(ad.subject)} • ${escapeHtml(ad.grade)} • ${lessonTypeLabel(ad.lesson_type)}</p>`;
+      <p style="color:#CBD5E1">${escapeHtml(ad.subject)} • ${escapeHtml(gradeDisplay(ad))} • ${lessonTypeLabel(ad.lesson_type)}</p>`;
 
     const initial=getInitials(t.name);
     const avatar=t.avatar_url?`<img src="${escapeHtml(t.avatar_url)}" alt="${escapeHtml(t.name)}" onerror="this.style.display='none'">`:initial;
@@ -111,7 +111,7 @@
         </div>
         <div class="detail-grid">
           <div class="detail-item"><div class="detail-label">المادة</div><div class="detail-value">${escapeHtml(ad.subject)}</div></div>
-          <div class="detail-item"><div class="detail-label">الصف/المرحلة</div><div class="detail-value">${escapeHtml(ad.grade)}</div></div>
+          <div class="detail-item"><div class="detail-label">الصف/المرحلة</div><div class="detail-value">${escapeHtml(gradeDisplay(ad))}</div></div>
           <div class="detail-item"><div class="detail-label">نوع الدرس</div><div class="detail-value">${lessonTypeLabel(ad.lesson_type)}</div></div>
           <div class="detail-item"><div class="detail-label">السعر</div><div class="detail-value" style="color:var(--primary)">${formatPrice(ad.price)} / الحصة</div></div>
         </div>
