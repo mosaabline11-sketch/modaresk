@@ -67,7 +67,9 @@ function validateSameGradeSection(grades = []) {
   const clean = [...new Set((grades || []).map(g => String(g || "").trim()).filter(Boolean))];
   if (!clean.length) return { ok: false, message: "اختر فصلًا واحدًا على الأقل", grades: [], section: "" };
   const sections = [...new Set(clean.map(gradeSectionOf).filter(Boolean))];
-  if (sections.length !== 1) return { ok: false, message: "لا يمكن خلط فصول من مراحل مختلفة. اختر فصولًا من نفس القسم فقط.", grades: clean, section: "" };
+  if (sections.length !== 1) {
+    return { ok: false, message: "لا يمكن خلط فصول من مراحل مختلفة. اختر فصولًا من نفس القسم فقط.", grades: clean, section: "" };
+  }
   return { ok: true, message: "", grades: clean, section: sections[0] };
 }
 
@@ -167,9 +169,7 @@ function populateSubjectSelect(selectId, selected = "") {
 function populateGradeSelect(selectId, selected = "") {
   const el = document.getElementById(selectId);
   if (!el) return;
-  const keepEmpty = el.querySelector('option[value=""]')
-    ? '<option value="">جميع الصفوف</option>'
-    : '';
+  const keepEmpty = el.querySelector('option[value=""]') ? '<option value="">جميع الصفوف</option>' : '';
   el.innerHTML = keepEmpty + Object.values(GRADE_SECTIONS).map(section => `
     <optgroup label="${escapeHtml(section.label)}">
       ${section.grades.map(g => `<option value="${escapeAttr(g)}">${escapeHtml(g)}</option>`).join("")}

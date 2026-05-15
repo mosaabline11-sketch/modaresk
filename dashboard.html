@@ -22,7 +22,7 @@
   <title>لوحة المدرس - مدرسك</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800;900&family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="style.css?v=7.0">
+  <link rel="stylesheet" href="style.css?v=7.4.1">
   <link rel="icon" type="image/png" href="logo.png">
   <link rel="manifest" href="manifest.webmanifest">
   <style>
@@ -301,7 +301,7 @@
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="config.js?v=7.0"></script>
+<script src="config.js?v=7.4.1"></script>
 <script>
   let teacher = null;
   let teacherAds = [];
@@ -468,7 +468,7 @@
     populateSubjectSelect('ad-subject', ad.subject || '');
     renderGradeCheckboxes('ad-grades-box', getAdGrades(ad));
     document.getElementById('ad-subject').value = ad.subject || '';
-    document.getElementById('ad-price').value = ad.price || '';
+        document.getElementById('ad-price').value = ad.price || '';
     document.getElementById('ad-lesson-type').value = ad.lesson_type || '';
     document.getElementById('ad-description').value = ad.description || '';
     document.getElementById('ad-extra-contact').value = ad.extra_contact || '';
@@ -511,9 +511,9 @@
         teacher_id: teacher.id,
         title: document.getElementById('ad-title').value.trim(),
         subject: document.getElementById('ad-subject').value,
-        grades: validateSameGradeSection(getSelectedGrades('ad-grades-box')).grades,
-        grade: validateSameGradeSection(getSelectedGrades('ad-grades-box')).grades.join('، '),
-        grade_section: validateSameGradeSection(getSelectedGrades('ad-grades-box')).section,
+        grade: gradeCheck.grades.join('، '),
+        grades: gradeCheck.grades,
+        grade_section: gradeCheck.section
         price: parseFloat(document.getElementById('ad-price').value),
         lesson_type: document.getElementById('ad-lesson-type').value,
         description: document.getElementById('ad-description').value.trim(),

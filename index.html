@@ -23,7 +23,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800;900&family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="style.css?v=7.0">
+  <link rel="stylesheet" href="style.css?v=7.4.1">
   <link rel="icon" type="image/png" href="logo.png">
   <link rel="manifest" href="manifest.webmanifest">
   <style>
@@ -290,11 +290,13 @@
 
       <!-- Search Card -->
       <div class="search-card">
-        <h3>🎯 فلتر المدرسين</h3>
+        <h3>🔍 ابحث عن مدرس</h3>
         <div class="search-row">
           <select id="hero-subject" class="form-control form-select"><option value="">جميع المواد</option></select>
           <select id="hero-grade" class="form-control form-select"><option value="">جميع الصفوف</option></select>
-          <button class="btn btn-primary" onclick="applySearch()">تطبيق الفلترة</button>
+          <button class="btn btn-primary" onclick="applySearch()">
+            تطبيق الفلترة
+          </button>
         </div>
       </div>
 
@@ -445,7 +447,7 @@
 
 <!-- Scripts -->
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="config.js?v=7.0"></script>
+<script src="config.js?v=7.4.1"></script>
 <script>
   let allAds = [];
   let filteredAds = [];
@@ -560,7 +562,7 @@
 
     if (activeType) result = result.filter(ad => ad.lesson_type === activeType);
     if (filterSubject) result = result.filter(ad => ad.subject === filterSubject);
-    if (filterGrade) result = result.filter(ad => ad.grade === filterGrade);
+    if (filterGrade) result = result.filter(ad => adMatchesGrade(ad, filterGrade));
 
     filteredAds = result;
     sortAds(false);
@@ -641,5 +643,20 @@
     document.getElementById('nav-links').classList.toggle('open');
   }
 </script>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+  const hs = document.getElementById('hero-search');
+  if (hs) hs.closest('.search-main')?.remove();
+  const heroSubject = document.getElementById('hero-subject');
+  if (heroSubject && window.SUBJECTS_CACHE) populateSubjectSelect('hero-subject');
+});
+
+function adMatchesGrade(ad, grade) {
+  if (!grade) return true;
+  return getAdGrades(ad).includes(grade);
+}
+</script>
+
 </body>
 </html>
