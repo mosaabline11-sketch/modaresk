@@ -1,0 +1,1216 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex, nofollow, noarchive">
+<title>الإدارة المالية — مدرسك</title>
+<link rel="icon" type="image/png" href="logo.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&family=Tajawal:wght@300;400;500;700;800&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<style>
+:root {
+  --primary: #2563EB; --primary-dark: #1D4ED8; --primary-light: #DBEAFE;
+  --success: #16A34A; --success-bg: #DCFCE7;
+  --warning: #D97706; --warning-bg: #FEF3C7;
+  --danger:  #DC2626; --danger-bg:  #FEE2E2;
+  --info:    #0891B2; --info-bg:    #CFFAFE;
+  --purple:  #7C3AED; --purple-bg:  #EDE9FE;
+  --text-primary: #0F172A; --text-secondary: #475569; --text-muted: #94A3B8;
+  --bg: #F8FAFC; --bg-card: #FFFFFF; --border: #E2E8F0; --border-light: #F1F5F9;
+  --radius-sm: 6px; --radius-md: 10px; --radius-lg: 14px; --radius-xl: 20px;
+  --shadow-sm: 0 1px 3px rgba(0,0,0,.06); --shadow: 0 4px 16px rgba(0,0,0,.08); --shadow-lg: 0 8px 32px rgba(0,0,0,.12);
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: 'Tajawal', sans-serif; background: var(--bg); color: var(--text-primary); direction: rtl; min-height: 100vh; visibility: hidden; }
+body.auth-ok { visibility: visible; }
+a { text-decoration: none; color: inherit; }
+button { cursor: pointer; font-family: inherit; }
+
+/* AUTH GATE */
+#auth-gate { visibility: visible; position: fixed; inset: 0; background: #0F172A; display: flex; align-items: center; justify-content: center; flex-direction: column; gap: 14px; z-index: 9999; color: white; }
+#auth-gate .spinner { width: 44px; height: 44px; border-radius: 50%; border: 4px solid rgba(255,255,255,.15); border-top-color: #60A5FA; animation: spin .8s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+#auth-gate p { color: #94A3B8; font-size: .95rem; }
+
+/* NAVBAR */
+.fnav { background: var(--bg-card); border-bottom: 1px solid var(--border); padding: 0 24px; height: 60px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 100; }
+.fnav-brand { display: flex; align-items: center; gap: 10px; font-family: 'Cairo', sans-serif; font-weight: 900; font-size: 1.2rem; color: var(--primary); }
+.fnav-brand img { width: 32px; height: 32px; }
+.fnav-right { display: flex; align-items: center; gap: 10px; }
+.btn-back { font-size: .85rem; color: var(--text-secondary); background: var(--border-light); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 6px 14px; transition: .2s; }
+.btn-back:hover { background: var(--border); }
+
+/* PAGE HEADER */
+.page-header { background: linear-gradient(135deg,#0F172A,#1E3A8A); color: white; padding: 28px 24px 24px; }
+.page-header h1 { font-family: 'Cairo', sans-serif; font-size: clamp(1.4rem,3vw,2rem); font-weight: 900; margin-bottom: 4px; }
+.page-header p { color: #94A3B8; font-size: .9rem; }
+
+/* ALERTS BANNER */
+#alerts-banner { padding: 0 24px; margin-top: 16px; display: flex; flex-direction: column; gap: 8px; }
+.alert-item { display: flex; align-items: center; gap: 10px; padding: 10px 16px; border-radius: var(--radius-md); font-size: .88rem; font-weight: 600; }
+.alert-item.warn { background: var(--warning-bg); color: var(--warning); }
+.alert-item.danger { background: var(--danger-bg); color: var(--danger); }
+.alert-item.info { background: var(--info-bg); color: var(--info); }
+
+/* TABS */
+.tabs-bar { padding: 16px 24px 0; background: var(--bg-card); border-bottom: 1px solid var(--border); display: flex; gap: 4px; overflow-x: auto; }
+.tab-btn { padding: 10px 18px; border: none; background: none; font-family: 'Tajawal', sans-serif; font-size: .92rem; font-weight: 600; color: var(--text-muted); border-bottom: 2px solid transparent; cursor: pointer; white-space: nowrap; transition: .2s; }
+.tab-btn.active { color: var(--primary); border-bottom-color: var(--primary); }
+.tab-btn:hover:not(.active) { color: var(--text-secondary); }
+.tab-content { display: none; padding: 24px; }
+.tab-content.active { display: block; }
+
+/* STAT CARDS */
+.stats-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px,1fr)); gap: 14px; margin-bottom: 24px; }
+.stat-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 18px; display: flex; gap: 14px; align-items: flex-start; box-shadow: var(--shadow-sm); }
+.stat-icon { width: 44px; height: 44px; border-radius: var(--radius-md); display: flex; align-items: center; justify-content: center; font-size: 1.3rem; flex-shrink: 0; }
+.stat-icon.green { background: var(--success-bg); }
+.stat-icon.red { background: var(--danger-bg); }
+.stat-icon.blue { background: var(--primary-light); }
+.stat-icon.yellow { background: var(--warning-bg); }
+.stat-icon.purple { background: var(--purple-bg); }
+.stat-icon.info { background: var(--info-bg); }
+.stat-label { font-size: .78rem; color: var(--text-muted); margin-bottom: 4px; }
+.stat-value { font-family: 'Cairo', sans-serif; font-size: 1.5rem; font-weight: 900; color: var(--text-primary); line-height: 1; }
+.stat-sub { font-size: .75rem; color: var(--text-muted); margin-top: 3px; }
+
+/* CHARTS GRID */
+.charts-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 24px; }
+.chart-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 20px; box-shadow: var(--shadow-sm); }
+.chart-card.full { grid-column: 1/-1; }
+.chart-title { font-family: 'Cairo', sans-serif; font-weight: 700; font-size: 1rem; color: var(--text-primary); margin-bottom: 16px; }
+.chart-wrap { position: relative; height: 240px; }
+
+/* SECTION HEADER */
+.section-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; flex-wrap: wrap; gap: 10px; }
+.section-header h2 { font-family: 'Cairo', sans-serif; font-weight: 800; font-size: 1.1rem; }
+
+/* FILTER BAR */
+.filter-bar { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 14px; }
+.filter-bar input, .filter-bar select { padding: 8px 12px; border: 1px solid var(--border); border-radius: var(--radius-md); font-family: 'Tajawal', sans-serif; font-size: .88rem; color: var(--text-primary); background: var(--bg-card); outline: none; min-width: 120px; }
+.filter-bar input:focus, .filter-bar select:focus { border-color: var(--primary); }
+.filter-bar input { flex: 1; min-width: 180px; }
+
+/* TABLE */
+.table-wrap { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-lg); overflow: hidden; box-shadow: var(--shadow-sm); overflow-x: auto; }
+table { width: 100%; border-collapse: collapse; min-width: 600px; }
+th { background: var(--border-light); padding: 12px 14px; font-size: .8rem; font-weight: 700; color: var(--text-secondary); text-align: right; white-space: nowrap; }
+td { padding: 12px 14px; font-size: .85rem; border-top: 1px solid var(--border-light); vertical-align: middle; }
+tr:hover td { background: #F8FBFF; }
+.table-empty { text-align: center; padding: 40px; color: var(--text-muted); font-size: .9rem; }
+
+/* BADGES */
+.badge { display: inline-flex; align-items: center; gap: 4px; padding: 3px 10px; border-radius: 20px; font-size: .75rem; font-weight: 700; white-space: nowrap; }
+.badge-green  { background: var(--success-bg); color: var(--success); }
+.badge-yellow { background: var(--warning-bg); color: var(--warning); }
+.badge-red    { background: var(--danger-bg);  color: var(--danger); }
+.badge-blue   { background: var(--primary-light); color: var(--primary); }
+.badge-purple { background: var(--purple-bg); color: var(--purple); }
+.badge-gray   { background: #F1F5F9; color: #64748B; }
+
+/* BUTTONS */
+.btn { display: inline-flex; align-items: center; gap: 6px; padding: 8px 16px; border-radius: var(--radius-md); border: none; font-family: 'Tajawal', sans-serif; font-size: .88rem; font-weight: 600; cursor: pointer; transition: .2s; text-decoration: none; }
+.btn-primary { background: var(--primary); color: white; }
+.btn-primary:hover { background: var(--primary-dark); }
+.btn-success { background: var(--success); color: white; }
+.btn-danger { background: var(--danger); color: white; }
+.btn-sm { padding: 5px 10px; font-size: .78rem; border-radius: var(--radius-sm); }
+.btn-outline { background: none; border: 1px solid var(--border); color: var(--text-secondary); }
+.btn-outline:hover { background: var(--border-light); }
+.btn-ghost { background: none; border: none; color: var(--text-muted); }
+.btn-ghost:hover { color: var(--danger); }
+
+/* ACTION BTNS in table */
+.action-btns { display: flex; gap: 4px; }
+
+/* MODAL */
+.modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,.55); z-index: 500; display: none; align-items: flex-start; justify-content: center; padding: 30px 16px; overflow-y: auto; }
+.modal-overlay.open { display: flex; }
+.modal { background: var(--bg-card); border-radius: var(--radius-xl); width: 100%; max-width: 620px; box-shadow: var(--shadow-lg); margin: auto; }
+.modal-head { display: flex; align-items: center; justify-content: space-between; padding: 20px 24px; border-bottom: 1px solid var(--border); }
+.modal-head h3 { font-family: 'Cairo', sans-serif; font-weight: 800; font-size: 1.1rem; }
+.modal-head button { background: none; border: none; font-size: 1.3rem; color: var(--text-muted); cursor: pointer; }
+.modal-body { padding: 24px; display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+.modal-body .full { grid-column: 1/-1; }
+.form-group { display: flex; flex-direction: column; gap: 5px; }
+.form-label { font-size: .82rem; font-weight: 700; color: var(--text-secondary); }
+.form-control { padding: 9px 12px; border: 1px solid var(--border); border-radius: var(--radius-md); font-family: 'Tajawal', sans-serif; font-size: .9rem; background: var(--bg); color: var(--text-primary); outline: none; width: 100%; }
+.form-control:focus { border-color: var(--primary); background: white; }
+textarea.form-control { resize: vertical; min-height: 80px; }
+.modal-foot { padding: 16px 24px; border-top: 1px solid var(--border); display: flex; gap: 8px; justify-content: flex-end; }
+
+/* SUMMARY ROW */
+.summary-row { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 12px; }
+.summary-chip { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-md); padding: 8px 16px; font-size: .85rem; font-weight: 700; }
+.summary-chip span { color: var(--text-muted); font-weight: 400; }
+
+/* CONVERSION BAR */
+.conv-bar-wrap { background: var(--border-light); border-radius: 10px; height: 10px; flex: 1; overflow: hidden; }
+.conv-bar { height: 100%; background: linear-gradient(90deg, var(--primary), var(--success)); border-radius: 10px; transition: width .5s; }
+
+/* RESPONSIVE */
+@media(max-width:768px){
+  .charts-grid { grid-template-columns: 1fr; }
+  .modal-body { grid-template-columns: 1fr; }
+  .tabs-bar { padding: 12px 16px 0; }
+  .tab-content { padding: 16px; }
+  .stats-grid { grid-template-columns: 1fr 1fr; }
+}
+@media(max-width:480px){
+  .stats-grid { grid-template-columns: 1fr; }
+  .fnav { padding: 0 12px; }
+}
+</style>
+</head>
+<body>
+
+<!-- AUTH GATE -->
+<div id="auth-gate">
+  <div class="spinner"></div>
+  <p>جارٍ التحقق من صلاحية الوصول...</p>
+</div>
+
+<!-- NAVBAR -->
+<nav class="fnav">
+  <div class="fnav-brand">
+    <img src="logo.png" alt="مدرسك">
+    الإدارة المالية
+  </div>
+  <div class="fnav-right">
+    <span id="admin-name" style="font-size:.85rem;color:var(--text-muted)"></span>
+    <a href="admin.html" class="btn-back">← لوحة الإدارة</a>
+  </div>
+</nav>
+
+<!-- PAGE HEADER -->
+<div class="page-header">
+  <h1>💰 الإدارة المالية</h1>
+  <p id="fin-date">تتبع الإيرادات والمصروفات والعملاء والاشتراكات</p>
+</div>
+
+<!-- ALERTS -->
+<div id="alerts-banner"></div>
+
+<!-- TABS -->
+<div class="tabs-bar">
+  <button class="tab-btn active" onclick="switchTab('dashboard')">📊 لوحة التحكم</button>
+  <button class="tab-btn" onclick="switchTab('subscriptions')">📋 الاشتراكات</button>
+  <button class="tab-btn" onclick="switchTab('expenses')">💸 المصروفات</button>
+  <button class="tab-btn" onclick="switchTab('leads')">🎯 العملاء المحتملين</button>
+  <button class="tab-btn" onclick="switchTab('analytics')">📈 التحليلات</button>
+</div>
+
+<!-- ═══════════ TAB: DASHBOARD ═══════════ -->
+<div id="tab-dashboard" class="tab-content active">
+  <div class="stats-grid" id="stats-grid">
+    <!-- filled by JS -->
+  </div>
+  <div class="charts-grid">
+    <div class="chart-card full">
+      <div class="chart-title">📅 الإيرادات والمصروفات الشهرية</div>
+      <div class="chart-wrap"><canvas id="chart-monthly"></canvas></div>
+    </div>
+    <div class="chart-card">
+      <div class="chart-title">📦 توزيع الباقات</div>
+      <div class="chart-wrap"><canvas id="chart-plans"></canvas></div>
+    </div>
+    <div class="chart-card">
+      <div class="chart-title">📣 مصادر العملاء</div>
+      <div class="chart-wrap"><canvas id="chart-sources"></canvas></div>
+    </div>
+    <div class="chart-card">
+      <div class="chart-title">📚 المواد الأكثر طلبًا</div>
+      <div class="chart-wrap"><canvas id="chart-subjects"></canvas></div>
+    </div>
+    <div class="chart-card">
+      <div class="chart-title">💸 توزيع المصروفات</div>
+      <div class="chart-wrap"><canvas id="chart-expenses-type"></canvas></div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════ TAB: SUBSCRIPTIONS ═══════════ -->
+<div id="tab-subscriptions" class="tab-content">
+  <div class="section-header">
+    <h2>📋 الاشتراكات</h2>
+    <button class="btn btn-primary" onclick="openModal('sub')">+ إضافة اشتراك</button>
+  </div>
+  <div class="filter-bar">
+    <input type="text" id="sub-search" placeholder="🔍 بحث بالاسم أو الهاتف..." oninput="renderSubs()">
+    <select id="sub-filter-status" onchange="renderSubs()">
+      <option value="">كل الحالات</option>
+      <option value="active">نشط</option>
+      <option value="expiring">ينتهي قريبًا</option>
+      <option value="expired">منتهي</option>
+      <option value="cancelled">ملغي</option>
+    </select>
+    <select id="sub-filter-plan" onchange="renderSubs()">
+      <option value="">كل الباقات</option>
+      <option value="monthly">باقة شهر</option>
+      <option value="3months">باقة 3 شهور</option>
+      <option value="9months">باقة 9 شهور</option>
+      <option value="custom">مخصصة</option>
+    </select>
+    <select id="sub-filter-payment" onchange="renderSubs()">
+      <option value="">كل حالات الدفع</option>
+      <option value="paid">مدفوع</option>
+      <option value="pending">معلق</option>
+      <option value="overdue">متأخر</option>
+    </select>
+    <select id="sub-filter-month" onchange="renderSubs()">
+      <option value="">كل الشهور</option>
+    </select>
+  </div>
+  <div class="summary-row" id="sub-summary"></div>
+  <div class="table-wrap" style="margin-top:14px">
+    <table>
+      <thead>
+        <tr>
+          <th>#</th><th>المدرس</th><th>الهاتف</th><th>المادة</th><th>الباقة</th>
+          <th>السعر</th><th>تاريخ البداية</th><th>تاريخ النهاية</th>
+          <th>حالة الاشتراك</th><th>الدفع</th><th>المصدر</th><th>نوع العميل</th><th>إجراءات</th>
+        </tr>
+      </thead>
+      <tbody id="sub-tbody"></tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ═══════════ TAB: EXPENSES ═══════════ -->
+<div id="tab-expenses" class="tab-content">
+  <div class="section-header">
+    <h2>💸 المصروفات</h2>
+    <button class="btn btn-primary" onclick="openModal('exp')">+ إضافة مصروف</button>
+  </div>
+  <div class="filter-bar">
+    <select id="exp-filter-type" onchange="renderExp()">
+      <option value="">كل الأنواع</option>
+      <option value="domain">دومين</option>
+      <option value="hosting">استضافة</option>
+      <option value="ads">إعلانات</option>
+      <option value="design">تصميم</option>
+      <option value="whatsapp">رقم واتساب</option>
+      <option value="tools">أدوات</option>
+      <option value="other">أخرى</option>
+    </select>
+    <select id="exp-filter-month" onchange="renderExp()">
+      <option value="">كل الشهور</option>
+    </select>
+  </div>
+  <div class="summary-row" id="exp-summary"></div>
+  <div class="table-wrap" style="margin-top:14px">
+    <table>
+      <thead>
+        <tr><th>#</th><th>التاريخ</th><th>النوع</th><th>المبلغ</th><th>ملاحظات</th><th>إجراءات</th></tr>
+      </thead>
+      <tbody id="exp-tbody"></tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ═══════════ TAB: LEADS ═══════════ -->
+<div id="tab-leads" class="tab-content">
+  <div class="section-header">
+    <h2>🎯 العملاء المحتملين</h2>
+    <button class="btn btn-primary" onclick="openModal('lead')">+ إضافة عميل محتمل</button>
+  </div>
+  <div class="filter-bar">
+    <input type="text" id="lead-search" placeholder="🔍 بحث بالاسم..." oninput="renderLeads()">
+    <select id="lead-filter-status" onchange="renderLeads()">
+      <option value="">كل الحالات</option>
+      <option value="new">جديد</option>
+      <option value="contacted">تم التواصل</option>
+      <option value="interested">مهتم</option>
+      <option value="not_interested">غير مهتم</option>
+      <option value="subscribed">اشترك</option>
+    </select>
+    <select id="lead-filter-source" onchange="renderLeads()">
+      <option value="">كل المصادر</option>
+      <option value="facebook">فيسبوك</option>
+      <option value="whatsapp">واتساب</option>
+      <option value="referral">ترشيح</option>
+      <option value="ad">إعلان</option>
+      <option value="mosque">مسجد</option>
+      <option value="other">غير ذلك</option>
+    </select>
+  </div>
+  <div id="conv-rate-bar" style="display:flex;align-items:center;gap:12px;margin-bottom:12px;background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-md);padding:12px 16px">
+    <span style="font-size:.85rem;font-weight:700;white-space:nowrap">معدل التحويل:</span>
+    <div class="conv-bar-wrap"><div class="conv-bar" id="conv-bar-inner" style="width:0%"></div></div>
+    <span id="conv-rate-label" style="font-weight:800;color:var(--primary);white-space:nowrap">0%</span>
+  </div>
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr><th>#</th><th>الاسم</th><th>الهاتف</th><th>المادة</th><th>الصف</th><th>المصدر</th><th>آخر تواصل</th><th>الحالة</th><th>ملاحظات</th><th>إجراءات</th></tr>
+      </thead>
+      <tbody id="lead-tbody"></tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ═══════════ TAB: ANALYTICS ═══════════ -->
+<div id="tab-analytics" class="tab-content">
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px" class="analytics-grid">
+    <div class="chart-card full">
+      <div class="chart-title">📈 نمو عدد العملاء شهريًا</div>
+      <div class="chart-wrap"><canvas id="chart-growth"></canvas></div>
+    </div>
+    <div class="chart-card" id="top-teachers-card">
+      <div class="chart-title">🏆 أعلى المدرسين دفعًا</div>
+      <div id="top-teachers-list" style="margin-top:8px"></div>
+    </div>
+    <div class="chart-card" id="smart-analytics-card">
+      <div class="chart-title">🧠 تحليلات ذكية</div>
+      <div id="smart-analytics-list" style="margin-top:8px;display:flex;flex-direction:column;gap:8px"></div>
+    </div>
+    <div class="chart-card full" id="expiring-card">
+      <div class="chart-title">⏰ اشتراكات ستنتهي خلال 7 أيام</div>
+      <div id="expiring-list"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════ MODAL: SUBSCRIPTION ═══════════ -->
+<div class="modal-overlay" id="modal-sub">
+  <div class="modal">
+    <div class="modal-head">
+      <h3 id="modal-sub-title">إضافة اشتراك</h3>
+      <button onclick="closeModal('sub')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group"><label class="form-label">اسم المدرس *</label><input class="form-control" id="sub-name" placeholder="اسم المدرس"></div>
+      <div class="form-group"><label class="form-label">رقم الهاتف / واتساب</label><input class="form-control" id="sub-phone" placeholder="01xxxxxxxxx"></div>
+      <div class="form-group"><label class="form-label">المادة</label><input class="form-control" id="sub-subject" placeholder="مثال: رياضيات"></div>
+      <div class="form-group"><label class="form-label">الصف / المرحلة</label><input class="form-control" id="sub-grade" placeholder="مثال: ثالث ثانوي"></div>
+      <div class="form-group"><label class="form-label">نوع الباقة *</label>
+        <select class="form-control" id="sub-plan">
+          <option value="monthly">باقة شهر</option>
+          <option value="3months">باقة 3 شهور</option>
+          <option value="9months">باقة 9 شهور</option>
+          <option value="custom">مخصصة</option>
+        </select>
+      </div>
+      <div class="form-group"><label class="form-label">السعر (جنيه) *</label><input class="form-control" id="sub-price" type="number" min="0" placeholder="0"></div>
+      <div class="form-group"><label class="form-label">تاريخ البداية *</label><input class="form-control" id="sub-start" type="date"></div>
+      <div class="form-group"><label class="form-label">تاريخ النهاية *</label><input class="form-control" id="sub-end" type="date"></div>
+      <div class="form-group"><label class="form-label">نوع العميل</label>
+        <select class="form-control" id="sub-client-type">
+          <option value="new">مدرس جديد</option>
+          <option value="renewed">مدرس مجدد</option>
+          <option value="potential">عميل محتمل</option>
+          <option value="overdue">متأخر عن الدفع</option>
+        </select>
+      </div>
+      <div class="form-group"><label class="form-label">مصدر العميل</label>
+        <select class="form-control" id="sub-source">
+          <option value="facebook">فيسبوك</option>
+          <option value="whatsapp">واتساب</option>
+          <option value="referral">ترشيح</option>
+          <option value="ad">إعلان</option>
+          <option value="mosque">مسجد</option>
+          <option value="other">غير ذلك</option>
+        </select>
+      </div>
+      <div class="form-group"><label class="form-label">طريقة الدفع</label>
+        <select class="form-control" id="sub-pay-method">
+          <option value="vodafone_cash">فودافون كاش</option>
+          <option value="instapay">إنستا باي</option>
+          <option value="bank_transfer">تحويل بنكي</option>
+          <option value="cash">كاش</option>
+          <option value="other">أخرى</option>
+        </select>
+      </div>
+      <div class="form-group"><label class="form-label">حالة الدفع</label>
+        <select class="form-control" id="sub-pay-status">
+          <option value="paid">مدفوع</option>
+          <option value="pending">معلق</option>
+          <option value="overdue">متأخر</option>
+        </select>
+      </div>
+      <div class="form-group"><label class="form-label">رقم العملية / إثبات الدفع</label><input class="form-control" id="sub-ref" placeholder="اختياري"></div>
+      <div class="form-group"><label class="form-label">عدد الإعلانات المسموحة</label><input class="form-control" id="sub-ads" type="number" min="1" value="1"></div>
+      <div class="form-group full"><label class="form-label">ملاحظات</label><textarea class="form-control" id="sub-notes" placeholder="أي ملاحظات إضافية..."></textarea></div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn btn-outline" onclick="closeModal('sub')">إلغاء</button>
+      <button class="btn btn-primary" onclick="saveSub()">💾 حفظ</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════ MODAL: EXPENSE ═══════════ -->
+<div class="modal-overlay" id="modal-exp">
+  <div class="modal">
+    <div class="modal-head">
+      <h3 id="modal-exp-title">إضافة مصروف</h3>
+      <button onclick="closeModal('exp')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group"><label class="form-label">التاريخ *</label><input class="form-control" id="exp-date" type="date"></div>
+      <div class="form-group"><label class="form-label">نوع المصروف *</label>
+        <select class="form-control" id="exp-type">
+          <option value="domain">دومين</option>
+          <option value="hosting">استضافة</option>
+          <option value="ads">إعلانات</option>
+          <option value="design">تصميم</option>
+          <option value="whatsapp">رقم واتساب</option>
+          <option value="tools">أدوات</option>
+          <option value="other">مصاريف أخرى</option>
+        </select>
+      </div>
+      <div class="form-group"><label class="form-label">المبلغ (جنيه) *</label><input class="form-control" id="exp-amount" type="number" min="0" placeholder="0"></div>
+      <div class="form-group full"><label class="form-label">ملاحظات</label><textarea class="form-control" id="exp-notes" placeholder="تفاصيل المصروف..."></textarea></div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn btn-outline" onclick="closeModal('exp')">إلغاء</button>
+      <button class="btn btn-primary" onclick="saveExp()">💾 حفظ</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════ MODAL: LEAD ═══════════ -->
+<div class="modal-overlay" id="modal-lead">
+  <div class="modal">
+    <div class="modal-head">
+      <h3 id="modal-lead-title">إضافة عميل محتمل</h3>
+      <button onclick="closeModal('lead')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group"><label class="form-label">الاسم *</label><input class="form-control" id="lead-name" placeholder="اسم المدرس"></div>
+      <div class="form-group"><label class="form-label">رقم الهاتف</label><input class="form-control" id="lead-phone" placeholder="01xxxxxxxxx"></div>
+      <div class="form-group"><label class="form-label">المادة</label><input class="form-control" id="lead-subject" placeholder="مثال: رياضيات"></div>
+      <div class="form-group"><label class="form-label">الصف</label><input class="form-control" id="lead-grade" placeholder="مثال: ثالث ثانوي"></div>
+      <div class="form-group"><label class="form-label">المصدر</label>
+        <select class="form-control" id="lead-source">
+          <option value="facebook">فيسبوك</option>
+          <option value="whatsapp">واتساب</option>
+          <option value="referral">ترشيح</option>
+          <option value="ad">إعلان</option>
+          <option value="mosque">مسجد</option>
+          <option value="other">غير ذلك</option>
+        </select>
+      </div>
+      <div class="form-group"><label class="form-label">آخر تواصل</label><input class="form-control" id="lead-contact" type="date"></div>
+      <div class="form-group"><label class="form-label">الحالة</label>
+        <select class="form-control" id="lead-status">
+          <option value="new">جديد</option>
+          <option value="contacted">تم التواصل</option>
+          <option value="interested">مهتم</option>
+          <option value="not_interested">غير مهتم</option>
+          <option value="subscribed">اشترك</option>
+        </select>
+      </div>
+      <div class="form-group full"><label class="form-label">ملاحظات</label><textarea class="form-control" id="lead-notes" placeholder="ملاحظات عن العميل المحتمل..."></textarea></div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn btn-outline" onclick="closeModal('lead')">إلغاء</button>
+      <button class="btn btn-primary" onclick="saveLead()">💾 حفظ</button>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="config.js?v=7.4.2"></script>
+<script>
+// ══════════════════════════════════════════
+// STATE & CONSTANTS
+// ══════════════════════════════════════════
+const ST = { subs: [], expenses: [], leads: [], charts: {} };
+let editId = { sub: null, exp: null, lead: null };
+
+const PLAN_LBL   = { monthly:'باقة شهر', '3months':'باقة 3 شهور', '9months':'باقة 9 شهور', custom:'مخصصة' };
+const SRC_LBL    = { facebook:'فيسبوك', whatsapp:'واتساب', referral:'ترشيح', ad:'إعلان', mosque:'مسجد', other:'غير ذلك' };
+const CLIENT_LBL = { new:'جديد', renewed:'مجدد', potential:'محتمل', overdue:'متأخر' };
+const EXP_LBL    = { domain:'دومين', hosting:'استضافة', ads:'إعلانات', design:'تصميم', whatsapp:'واتساب', tools:'أدوات', other:'أخرى' };
+const PAY_LBL    = { vodafone_cash:'فودافون كاش', instapay:'إنستا باي', bank_transfer:'تحويل بنكي', cash:'كاش', other:'أخرى' };
+const LEAD_LBL   = { new:'جديد', contacted:'تم التواصل', interested:'مهتم', not_interested:'غير مهتم', subscribed:'اشترك' };
+const AR_MONTHS  = ['يناير','فبراير','مارس','أبريل','مايو','يونيو','يوليو','أغسطس','سبتمبر','أكتوبر','نوفمبر','ديسمبر'];
+
+// ══════════════════════════════════════════
+// INIT
+// ══════════════════════════════════════════
+document.addEventListener('DOMContentLoaded', async () => {
+  const gate = document.getElementById('auth-gate');
+  const ok = await Auth.requireAdmin();
+  if (!ok) return;
+  gate.remove();
+  document.body.classList.add('auth-ok');
+
+  // Set date
+  const now = new Date();
+  document.getElementById('fin-date').textContent =
+    `${now.toLocaleDateString('ar-EG', { weekday:'long', year:'numeric', month:'long', day:'numeric' })}`;
+
+  // Set today as default date for forms
+  const today = now.toISOString().slice(0, 10);
+  ['sub-start', 'exp-date', 'lead-contact'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.value = today;
+  });
+
+  // Auto-set sub end date
+  document.getElementById('sub-start').addEventListener('change', autoSetEnd);
+  document.getElementById('sub-plan').addEventListener('change', autoSetEnd);
+
+  populateMonthFilters();
+  await loadAll();
+});
+
+function autoSetEnd() {
+  const start = document.getElementById('sub-start').value;
+  const plan  = document.getElementById('sub-plan').value;
+  if (!start) return;
+  const d = new Date(start);
+  if (plan === 'monthly')  d.setMonth(d.getMonth() + 1);
+  if (plan === '3months')  d.setMonth(d.getMonth() + 3);
+  if (plan === '9months')  d.setMonth(d.getMonth() + 9);
+  if (plan === 'custom')   return;
+  document.getElementById('sub-end').value = d.toISOString().slice(0, 10);
+}
+
+function populateMonthFilters() {
+  const now = new Date();
+  ['sub-filter-month', 'exp-filter-month'].forEach(id => {
+    const sel = document.getElementById(id);
+    for (let i = 11; i >= 0; i--) {
+      const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+      const val = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`;
+      const opt = document.createElement('option');
+      opt.value = val;
+      opt.textContent = `${AR_MONTHS[d.getMonth()]} ${d.getFullYear()}`;
+      sel.appendChild(opt);
+    }
+  });
+}
+
+// ══════════════════════════════════════════
+// DATA LOADING
+// ══════════════════════════════════════════
+async function loadAll() {
+  try {
+    const [sRes, eRes, lRes] = await Promise.all([
+      supabase.from('fin_subscriptions').select('*').order('created_at', { ascending: false }),
+      supabase.from('fin_expenses').select('*').order('expense_date', { ascending: false }),
+      supabase.from('fin_leads').select('*').order('created_at', { ascending: false })
+    ]);
+    ST.subs     = sRes.data || [];
+    ST.expenses = eRes.data || [];
+    ST.leads    = lRes.data || [];
+
+    renderDashboard();
+    renderSubs();
+    renderExp();
+    renderLeads();
+    renderAnalytics();
+    renderAlerts();
+  } catch (e) { console.error(e); }
+}
+
+// ══════════════════════════════════════════
+// HELPERS
+// ══════════════════════════════════════════
+const fmt = n => Number(n).toLocaleString('ar-EG') + ' ج';
+const fmtNum = n => Number(n).toLocaleString('ar-EG');
+const today = () => new Date().toISOString().slice(0,10);
+const daysDiff = (d) => Math.ceil((new Date(d) - new Date()) / 86400000);
+
+function subStatus(s) {
+  if (s.status === 'cancelled') return 'cancelled';
+  const d = daysDiff(s.end_date);
+  if (d < 0) return 'expired';
+  if (d <= 7) return 'expiring';
+  return 'active';
+}
+
+const statusBadge = {
+  active:    '<span class="badge badge-green">✅ نشط</span>',
+  expiring:  '<span class="badge badge-yellow">⚠️ ينتهي قريبًا</span>',
+  expired:   '<span class="badge badge-red">❌ منتهي</span>',
+  cancelled: '<span class="badge badge-gray">🚫 ملغي</span>'
+};
+const payBadge = {
+  paid:    '<span class="badge badge-green">💚 مدفوع</span>',
+  pending: '<span class="badge badge-yellow">⏳ معلق</span>',
+  overdue: '<span class="badge badge-red">🔴 متأخر</span>'
+};
+const leadBadge = {
+  new:           '<span class="badge badge-blue">🆕 جديد</span>',
+  contacted:     '<span class="badge badge-yellow">📞 تم التواصل</span>',
+  interested:    '<span class="badge badge-purple">💡 مهتم</span>',
+  not_interested:'<span class="badge badge-gray">👎 غير مهتم</span>',
+  subscribed:    '<span class="badge badge-green">✅ اشترك</span>'
+};
+
+// ══════════════════════════════════════════
+// DASHBOARD
+// ══════════════════════════════════════════
+function renderDashboard() {
+  const now = new Date();
+  const thisMonth = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}`;
+
+  const activeSubs   = ST.subs.filter(s => subStatus(s) === 'active' || subStatus(s) === 'expiring');
+  const totalRev     = ST.subs.filter(s => s.payment_status === 'paid').reduce((a,s) => a + +s.price, 0);
+  const totalExp     = ST.expenses.reduce((a,e) => a + +e.amount, 0);
+  const netProfit    = totalRev - totalExp;
+  const newThisMonth = ST.subs.filter(s => (s.created_at||'').startsWith(thisMonth) && s.client_type === 'new').length;
+  const renewedM     = ST.subs.filter(s => (s.created_at||'').startsWith(thisMonth) && s.client_type === 'renewed').length;
+  const overdueCount = ST.subs.filter(s => s.payment_status === 'overdue').length;
+  const expiringCount= ST.subs.filter(s => subStatus(s) === 'expiring').length;
+  const avgValue     = activeSubs.length ? (totalRev / activeSubs.length).toFixed(0) : 0;
+  const expRev       = ST.subs.filter(s => subStatus(s) === 'active' && s.payment_status === 'paid').reduce((a,s) => a + +s.price, 0);
+
+  document.getElementById('stats-grid').innerHTML = `
+    <div class="stat-card"><div class="stat-icon green">💰</div><div><div class="stat-label">إجمالي الإيرادات</div><div class="stat-value">${fmt(totalRev)}</div></div></div>
+    <div class="stat-card"><div class="stat-icon red">💸</div><div><div class="stat-label">إجمالي المصروفات</div><div class="stat-value">${fmt(totalExp)}</div></div></div>
+    <div class="stat-card"><div class="stat-icon ${netProfit>=0?'green':'red'}">📊</div><div><div class="stat-label">صافي الربح</div><div class="stat-value" style="color:${netProfit>=0?'var(--success)':'var(--danger)'}">${fmt(netProfit)}</div></div></div>
+    <div class="stat-card"><div class="stat-icon blue">👥</div><div><div class="stat-label">العملاء الحاليين</div><div class="stat-value">${fmtNum(activeSubs.length)}</div></div></div>
+    <div class="stat-card"><div class="stat-icon green">🆕</div><div><div class="stat-label">جدد هذا الشهر</div><div class="stat-value">${fmtNum(newThisMonth)}</div></div></div>
+    <div class="stat-card"><div class="stat-icon purple">🔄</div><div><div class="stat-label">مجددين هذا الشهر</div><div class="stat-value">${fmtNum(renewedM)}</div></div></div>
+    <div class="stat-card"><div class="stat-icon red">⚠️</div><div><div class="stat-label">متأخرون في الدفع</div><div class="stat-value">${fmtNum(overdueCount)}</div></div></div>
+    <div class="stat-card"><div class="stat-icon yellow">⏰</div><div><div class="stat-label">تنتهي خلال 7 أيام</div><div class="stat-value">${fmtNum(expiringCount)}</div></div></div>
+    <div class="stat-card"><div class="stat-icon info">💎</div><div><div class="stat-label">متوسط قيمة العميل</div><div class="stat-value">${fmt(avgValue)}</div></div></div>
+    <div class="stat-card"><div class="stat-icon green">🚀</div><div><div class="stat-label">توقع إيرادات قادمة</div><div class="stat-value">${fmt(expRev)}</div><div class="stat-sub">من الاشتراكات النشطة</div></div></div>
+  `;
+
+  renderCharts();
+}
+
+function renderCharts() {
+  // Monthly Revenue vs Expenses
+  const monthlyData = {};
+  ST.subs.filter(s => s.payment_status === 'paid').forEach(s => {
+    const k = (s.created_at || '').slice(0, 7);
+    if (!k) return;
+    monthlyData[k] = monthlyData[k] || { rev: 0, exp: 0 };
+    monthlyData[k].rev += +s.price;
+  });
+  ST.expenses.forEach(e => {
+    const k = e.expense_date.slice(0, 7);
+    monthlyData[k] = monthlyData[k] || { rev: 0, exp: 0 };
+    monthlyData[k].exp += +e.amount;
+  });
+  const months = Object.keys(monthlyData).sort().slice(-6);
+  const monthLabels = months.map(m => { const [y, mo] = m.split('-'); return `${AR_MONTHS[+mo-1]} ${y}`; });
+  destroyChart('chart-monthly');
+  ST.charts['chart-monthly'] = new Chart(document.getElementById('chart-monthly'), {
+    type: 'bar',
+    data: {
+      labels: monthLabels,
+      datasets: [
+        { label: 'الإيرادات', data: months.map(m => monthlyData[m].rev), backgroundColor: 'rgba(37,99,235,.8)', borderRadius: 6 },
+        { label: 'المصروفات', data: months.map(m => monthlyData[m].exp), backgroundColor: 'rgba(220,38,38,.7)', borderRadius: 6 }
+      ]
+    },
+    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom' } } }
+  });
+
+  // Plans distribution
+  const planCounts = {};
+  ST.subs.forEach(s => { planCounts[s.plan_type] = (planCounts[s.plan_type] || 0) + 1; });
+  destroyChart('chart-plans');
+  ST.charts['chart-plans'] = new Chart(document.getElementById('chart-plans'), {
+    type: 'doughnut',
+    data: {
+      labels: Object.keys(planCounts).map(k => PLAN_LBL[k] || k),
+      datasets: [{ data: Object.values(planCounts), backgroundColor: ['#2563EB','#16A34A','#7C3AED','#D97706'], borderWidth: 2 }]
+    },
+    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom' } } }
+  });
+
+  // Sources
+  const srcCounts = {};
+  ST.subs.forEach(s => { srcCounts[s.client_source] = (srcCounts[s.client_source] || 0) + 1; });
+  destroyChart('chart-sources');
+  ST.charts['chart-sources'] = new Chart(document.getElementById('chart-sources'), {
+    type: 'pie',
+    data: {
+      labels: Object.keys(srcCounts).map(k => SRC_LBL[k] || k),
+      datasets: [{ data: Object.values(srcCounts), backgroundColor: ['#3B82F6','#10B981','#F59E0B','#EF4444','#8B5CF6','#6B7280'], borderWidth: 2 }]
+    },
+    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom' } } }
+  });
+
+  // Subjects
+  const subjCounts = {};
+  ST.subs.forEach(s => { if (s.subject) subjCounts[s.subject] = (subjCounts[s.subject] || 0) + 1; });
+  const subjSorted = Object.entries(subjCounts).sort((a,b) => b[1]-a[1]).slice(0, 8);
+  destroyChart('chart-subjects');
+  ST.charts['chart-subjects'] = new Chart(document.getElementById('chart-subjects'), {
+    type: 'bar',
+    data: {
+      labels: subjSorted.map(e => e[0]),
+      datasets: [{ label: 'عدد المدرسين', data: subjSorted.map(e => e[1]), backgroundColor: 'rgba(124,58,237,.8)', borderRadius: 6 }]
+    },
+    options: { indexAxis: 'y', responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } }
+  });
+
+  // Expenses by type
+  const expByType = {};
+  ST.expenses.forEach(e => { expByType[e.expense_type] = (expByType[e.expense_type] || 0) + +e.amount; });
+  destroyChart('chart-expenses-type');
+  ST.charts['chart-expenses-type'] = new Chart(document.getElementById('chart-expenses-type'), {
+    type: 'doughnut',
+    data: {
+      labels: Object.keys(expByType).map(k => EXP_LBL[k] || k),
+      datasets: [{ data: Object.values(expByType), backgroundColor: ['#EF4444','#F59E0B','#3B82F6','#10B981','#8B5CF6','#6B7280','#EC4899'], borderWidth: 2 }]
+    },
+    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom' } } }
+  });
+}
+
+function destroyChart(id) {
+  if (ST.charts[id]) { ST.charts[id].destroy(); delete ST.charts[id]; }
+}
+
+// ══════════════════════════════════════════
+// ALERTS
+// ══════════════════════════════════════════
+function renderAlerts() {
+  const alerts = [];
+  const expiring7 = ST.subs.filter(s => subStatus(s) === 'expiring');
+  const overdueP  = ST.subs.filter(s => s.payment_status === 'overdue');
+  const now = new Date();
+  const thisMonth = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}`;
+  const prevMonth = (() => { const d = new Date(now); d.setMonth(d.getMonth()-1); return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`; })();
+  const newThisM = ST.subs.filter(s => (s.created_at||'').startsWith(thisMonth) && s.client_type === 'new').length;
+  const newLastM = ST.subs.filter(s => (s.created_at||'').startsWith(prevMonth) && s.client_type === 'new').length;
+  const totalRevM = ST.subs.filter(s => (s.created_at||'').startsWith(thisMonth) && s.payment_status==='paid').reduce((a,s)=>a+ +s.price,0);
+  const totalExpM = ST.expenses.filter(e => e.expense_date.startsWith(thisMonth)).reduce((a,e)=>a+ +e.amount,0);
+
+  if (expiring7.length) alerts.push({ type:'warn', msg: `⏰ ${expiring7.length} اشتراك سينتهي خلال 7 أيام` });
+  if (overdueP.length)  alerts.push({ type:'danger', msg: `🔴 ${overdueP.length} عميل متأخر في الدفع` });
+  if (totalExpM > totalRevM && totalRevM > 0) alerts.push({ type:'danger', msg: `📉 مصروفات هذا الشهر (${fmt(totalExpM)}) تجاوزت الإيرادات (${fmt(totalRevM)})` });
+  if (newLastM > 0 && newThisM < newLastM) alerts.push({ type:'warn', msg: `📊 عدد العملاء الجدد هذا الشهر (${newThisM}) أقل من الشهر الماضي (${newLastM})` });
+
+  // Uncontacted leads
+  const sevenAgo = new Date(); sevenAgo.setDate(sevenAgo.getDate() - 7);
+  const staleLeads = ST.leads.filter(l => l.status !== 'subscribed' && l.status !== 'not_interested' && (!l.last_contact || new Date(l.last_contact) < sevenAgo));
+  if (staleLeads.length) alerts.push({ type:'info', msg: `🎯 ${staleLeads.length} عميل محتمل لم يتم متابعته منذ أكثر من 7 أيام` });
+
+  document.getElementById('alerts-banner').innerHTML = alerts.map(a => `<div class="alert-item ${a.type}">${a.msg}</div>`).join('');
+}
+
+// ══════════════════════════════════════════
+// SUBSCRIPTIONS TABLE
+// ══════════════════════════════════════════
+function renderSubs() {
+  const search  = document.getElementById('sub-search').value.trim().toLowerCase();
+  const fStatus = document.getElementById('sub-filter-status').value;
+  const fPlan   = document.getElementById('sub-filter-plan').value;
+  const fPay    = document.getElementById('sub-filter-payment').value;
+  const fMonth  = document.getElementById('sub-filter-month').value;
+
+  let data = ST.subs.filter(s => {
+    if (search && !(s.teacher_name||'').toLowerCase().includes(search) && !(s.phone||'').includes(search)) return false;
+    if (fStatus && subStatus(s) !== fStatus) return false;
+    if (fPlan   && s.plan_type !== fPlan) return false;
+    if (fPay    && s.payment_status !== fPay) return false;
+    if (fMonth  && !(s.created_at||'').startsWith(fMonth)) return false;
+    return true;
+  });
+
+  const totalRev = data.filter(s=>s.payment_status==='paid').reduce((a,s)=>a+ +s.price,0);
+  document.getElementById('sub-summary').innerHTML = `
+    <div class="summary-chip"><span>الإجمالي: </span>${fmtNum(data.length)} اشتراك</div>
+    <div class="summary-chip"><span>إيرادات: </span>${fmt(totalRev)}</div>
+    <div class="summary-chip"><span>نشط: </span>${fmtNum(data.filter(s=>subStatus(s)==='active').length)}</div>
+    <div class="summary-chip"><span>ينتهي قريبًا: </span>${fmtNum(data.filter(s=>subStatus(s)==='expiring').length)}</div>
+  `;
+
+  const tbody = document.getElementById('sub-tbody');
+  if (!data.length) { tbody.innerHTML = `<tr><td colspan="13" class="table-empty">لا توجد اشتراكات</td></tr>`; return; }
+
+  tbody.innerHTML = data.map((s, i) => {
+    const st = subStatus(s);
+    const days = daysDiff(s.end_date);
+    const daysLabel = days >= 0 ? `(${fmtNum(days)} يوم)` : `(انتهى منذ ${fmtNum(-days)} يوم)`;
+    return `<tr>
+      <td style="color:var(--text-muted)">${i+1}</td>
+      <td><strong>${esc(s.teacher_name)}</strong></td>
+      <td style="direction:ltr">${esc(s.phone||'—')}</td>
+      <td>${esc(s.subject||'—')}</td>
+      <td><span class="badge badge-blue">${PLAN_LBL[s.plan_type]||s.plan_type}</span></td>
+      <td><strong style="color:var(--success)">${fmt(s.price)}</strong></td>
+      <td>${s.start_date||'—'}</td>
+      <td>${s.end_date||'—'} <small style="color:var(--text-muted)">${daysLabel}</small></td>
+      <td>${statusBadge[st]||st}</td>
+      <td>${payBadge[s.payment_status]||s.payment_status}</td>
+      <td>${SRC_LBL[s.client_source]||'—'}</td>
+      <td><span class="badge badge-gray">${CLIENT_LBL[s.client_type]||s.client_type}</span></td>
+      <td><div class="action-btns">
+        <button class="btn btn-sm btn-outline" onclick="editSub('${s.id}')">✏️</button>
+        <button class="btn btn-sm btn-ghost" onclick="deleteSub('${s.id}')">🗑️</button>
+      </div></td>
+    </tr>`;
+  }).join('');
+}
+
+// ══════════════════════════════════════════
+// EXPENSES TABLE
+// ══════════════════════════════════════════
+function renderExp() {
+  const fType  = document.getElementById('exp-filter-type').value;
+  const fMonth = document.getElementById('exp-filter-month').value;
+
+  let data = ST.expenses.filter(e => {
+    if (fType  && e.expense_type !== fType) return false;
+    if (fMonth && !e.expense_date.startsWith(fMonth)) return false;
+    return true;
+  });
+
+  const total = data.reduce((a,e)=>a+ +e.amount, 0);
+  document.getElementById('exp-summary').innerHTML = `
+    <div class="summary-chip"><span>الإجمالي: </span>${fmtNum(data.length)} مصروف</div>
+    <div class="summary-chip"><span>المجموع: </span>${fmt(total)}</div>
+  `;
+
+  const tbody = document.getElementById('exp-tbody');
+  if (!data.length) { tbody.innerHTML = `<tr><td colspan="6" class="table-empty">لا توجد مصروفات</td></tr>`; return; }
+
+  tbody.innerHTML = data.map((e, i) => `<tr>
+    <td style="color:var(--text-muted)">${i+1}</td>
+    <td>${e.expense_date}</td>
+    <td><span class="badge badge-red">${EXP_LBL[e.expense_type]||e.expense_type}</span></td>
+    <td><strong style="color:var(--danger)">${fmt(e.amount)}</strong></td>
+    <td style="color:var(--text-secondary);font-size:.82rem">${esc(e.notes||'—')}</td>
+    <td><div class="action-btns">
+      <button class="btn btn-sm btn-outline" onclick="editExp('${e.id}')">✏️</button>
+      <button class="btn btn-sm btn-ghost" onclick="deleteExp('${e.id}')">🗑️</button>
+    </div></td>
+  </tr>`).join('');
+}
+
+// ══════════════════════════════════════════
+// LEADS TABLE
+// ══════════════════════════════════════════
+function renderLeads() {
+  const search  = document.getElementById('lead-search').value.trim().toLowerCase();
+  const fStatus = document.getElementById('lead-filter-status').value;
+  const fSource = document.getElementById('lead-filter-source').value;
+
+  let data = ST.leads.filter(l => {
+    if (search  && !(l.name||'').toLowerCase().includes(search)) return false;
+    if (fStatus && l.status !== fStatus) return false;
+    if (fSource && l.source !== fSource) return false;
+    return true;
+  });
+
+  // Conversion rate
+  const total       = ST.leads.length;
+  const subscribed  = ST.leads.filter(l => l.status === 'subscribed').length;
+  const rate        = total ? Math.round(subscribed / total * 100) : 0;
+  document.getElementById('conv-bar-inner').style.width = rate + '%';
+  document.getElementById('conv-rate-label').textContent = `${rate}% (${subscribed}/${total})`;
+
+  const tbody = document.getElementById('lead-tbody');
+  if (!data.length) { tbody.innerHTML = `<tr><td colspan="10" class="table-empty">لا توجد عملاء محتملين</td></tr>`; return; }
+
+  tbody.innerHTML = data.map((l, i) => `<tr>
+    <td style="color:var(--text-muted)">${i+1}</td>
+    <td><strong>${esc(l.name)}</strong></td>
+    <td style="direction:ltr">${esc(l.phone||'—')}</td>
+    <td>${esc(l.subject||'—')}</td>
+    <td>${esc(l.grade||'—')}</td>
+    <td>${SRC_LBL[l.source]||'—'}</td>
+    <td>${l.last_contact||'—'}</td>
+    <td>${leadBadge[l.status]||l.status}</td>
+    <td style="font-size:.8rem;color:var(--text-secondary);max-width:150px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(l.notes||'—')}</td>
+    <td><div class="action-btns">
+      <button class="btn btn-sm btn-outline" onclick="editLead('${l.id}')">✏️</button>
+      <button class="btn btn-sm btn-ghost" onclick="deleteLead('${l.id}')">🗑️</button>
+    </div></td>
+  </tr>`).join('');
+}
+
+// ══════════════════════════════════════════
+// ANALYTICS
+// ══════════════════════════════════════════
+function renderAnalytics() {
+  // Growth chart
+  const growthData = {};
+  ST.subs.forEach(s => {
+    const k = (s.created_at||'').slice(0,7);
+    if (k) growthData[k] = (growthData[k]||0) + 1;
+  });
+  const gMonths = Object.keys(growthData).sort().slice(-12);
+  destroyChart('chart-growth');
+  ST.charts['chart-growth'] = new Chart(document.getElementById('chart-growth'), {
+    type: 'line',
+    data: {
+      labels: gMonths.map(m => { const [y,mo]=m.split('-'); return `${AR_MONTHS[+mo-1]} ${y}`; }),
+      datasets: [{ label:'عملاء جدد', data: gMonths.map(m=>growthData[m]), fill:true, backgroundColor:'rgba(37,99,235,.1)', borderColor:'var(--primary)', tension:.3, pointRadius:4 }]
+    },
+    options: { responsive:true, maintainAspectRatio:false, plugins:{legend:{display:false}} }
+  });
+
+  // Top teachers by total paid
+  const teacherPaid = {};
+  ST.subs.filter(s=>s.payment_status==='paid').forEach(s => {
+    teacherPaid[s.teacher_name] = (teacherPaid[s.teacher_name]||0) + +s.price;
+  });
+  const topTeachers = Object.entries(teacherPaid).sort((a,b)=>b[1]-a[1]).slice(0,5);
+  document.getElementById('top-teachers-list').innerHTML = topTeachers.length
+    ? topTeachers.map(([name,total],i) => `
+      <div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--border-light)">
+        <span style="font-size:1.1rem">${['🥇','🥈','🥉','4️⃣','5️⃣'][i]}</span>
+        <div style="flex:1">
+          <div style="font-weight:700;font-size:.9rem">${esc(name)}</div>
+          <div style="font-size:.78rem;color:var(--text-muted)">${fmtNum(ST.subs.filter(s=>s.teacher_name===name).length)} اشتراك</div>
+        </div>
+        <div style="font-weight:800;color:var(--success);font-family:Cairo,sans-serif">${fmt(total)}</div>
+      </div>`).join('')
+    : '<div style="color:var(--text-muted);font-size:.9rem;text-align:center;padding:20px">لا توجد بيانات بعد</div>';
+
+  // Smart analytics
+  const mostPlan = Object.entries(ST.subs.reduce((a,s)=>{a[s.plan_type]=(a[s.plan_type]||0)+1;return a;},{})).sort((a,b)=>b[1]-a[1])[0];
+  const mostSrc  = Object.entries(ST.subs.reduce((a,s)=>{a[s.client_source]=(a[s.client_source]||0)+1;return a;},{})).sort((a,b)=>b[1]-a[1])[0];
+  const mostSubj = Object.entries(ST.subs.reduce((a,s)=>{if(s.subject)a[s.subject]=(a[s.subject]||0)+1;return a;},{})).sort((a,b)=>b[1]-a[1])[0];
+  const bigExp   = Object.entries(ST.expenses.reduce((a,e)=>{a[e.expense_type]=(a[e.expense_type]||0)+ +e.amount;return a;},{})).sort((a,b)=>b[1]-a[1])[0];
+  const renewedM = ST.subs.filter(s=>s.renewal_count>0||s.client_type==='renewed').length;
+  const notRenewed= ST.subs.filter(s=>subStatus(s)==='expired').length;
+
+  const insights = [
+    mostPlan  ? `📦 أكثر باقة طلبًا: <strong>${PLAN_LBL[mostPlan[0]]||mostPlan[0]}</strong> (${mostPlan[1]} مدرس)` : null,
+    mostSrc   ? `📣 أكثر مصدر للعملاء: <strong>${SRC_LBL[mostSrc[0]]}</strong> (${mostSrc[1]} عميل)` : null,
+    mostSubj  ? `📚 أكثر مادة طلبًا: <strong>${mostSubj[0]}</strong> (${mostSubj[1]} مدرس)` : null,
+    bigExp    ? `💸 أكبر مصروف: <strong>${EXP_LBL[bigExp[0]]}</strong> (${fmt(bigExp[1])})` : null,
+    `🔄 مدرسون جددوا: <strong>${renewedM}</strong>`,
+    `❌ اشتراكات منتهية لم تجدد: <strong>${notRenewed}</strong>`,
+  ].filter(Boolean);
+
+  document.getElementById('smart-analytics-list').innerHTML = insights.map(t =>
+    `<div style="padding:8px 12px;background:var(--border-light);border-radius:var(--radius-sm);font-size:.85rem">${t}</div>`
+  ).join('');
+
+  // Expiring soon list
+  const expiring = ST.subs.filter(s=>subStatus(s)==='expiring').sort((a,b)=>new Date(a.end_date)-new Date(b.end_date));
+  document.getElementById('expiring-list').innerHTML = expiring.length
+    ? `<table style="width:100%;min-width:0"><thead><tr><th>المدرس</th><th>الهاتف</th><th>الباقة</th><th>ينتهي في</th><th>أيام متبقية</th></tr></thead><tbody>
+      ${expiring.map(s=>`<tr>
+        <td><strong>${esc(s.teacher_name)}</strong></td>
+        <td style="direction:ltr">${esc(s.phone||'—')}</td>
+        <td>${PLAN_LBL[s.plan_type]||s.plan_type}</td>
+        <td>${s.end_date}</td>
+        <td><span class="badge badge-yellow">⚠️ ${fmtNum(daysDiff(s.end_date))} يوم</span></td>
+      </tr>`).join('')}
+    </tbody></table>`
+    : '<div style="color:var(--text-muted);padding:16px;text-align:center">لا توجد اشتراكات ستنتهي قريبًا ✅</div>';
+}
+
+// ══════════════════════════════════════════
+// MODALS
+// ══════════════════════════════════════════
+function openModal(type) {
+  editId[type] = null;
+  const prefix = type;
+  if (type === 'sub') {
+    document.getElementById('modal-sub-title').textContent = 'إضافة اشتراك';
+    clearFields(['sub-name','sub-phone','sub-subject','sub-grade','sub-ref','sub-notes']);
+    document.getElementById('sub-plan').value = 'monthly';
+    document.getElementById('sub-price').value = '';
+    document.getElementById('sub-start').value = today();
+    document.getElementById('sub-end').value = '';
+    document.getElementById('sub-client-type').value = 'new';
+    document.getElementById('sub-source').value = 'facebook';
+    document.getElementById('sub-pay-method').value = 'cash';
+    document.getElementById('sub-pay-status').value = 'paid';
+    document.getElementById('sub-ads').value = '1';
+    autoSetEnd();
+  } else if (type === 'exp') {
+    document.getElementById('modal-exp-title').textContent = 'إضافة مصروف';
+    document.getElementById('exp-date').value = today();
+    document.getElementById('exp-type').value = 'other';
+    document.getElementById('exp-amount').value = '';
+    document.getElementById('exp-notes').value = '';
+  } else if (type === 'lead') {
+    document.getElementById('modal-lead-title').textContent = 'إضافة عميل محتمل';
+    clearFields(['lead-name','lead-phone','lead-subject','lead-grade','lead-notes']);
+    document.getElementById('lead-source').value = 'facebook';
+    document.getElementById('lead-status').value = 'new';
+    document.getElementById('lead-contact').value = today();
+  }
+  document.getElementById(`modal-${type}`).classList.add('open');
+}
+
+function closeModal(type) {
+  document.getElementById(`modal-${type}`).classList.remove('open');
+}
+
+function clearFields(ids) { ids.forEach(id => { const el=document.getElementById(id); if(el) el.value=''; }); }
+
+// ── SUBSCRIPTION CRUD ──
+function editSub(id) {
+  const s = ST.subs.find(x=>x.id===id); if(!s) return;
+  editId.sub = id;
+  document.getElementById('modal-sub-title').textContent = 'تعديل الاشتراك';
+  document.getElementById('sub-name').value       = s.teacher_name||'';
+  document.getElementById('sub-phone').value      = s.phone||'';
+  document.getElementById('sub-subject').value    = s.subject||'';
+  document.getElementById('sub-grade').value      = s.grade||'';
+  document.getElementById('sub-plan').value       = s.plan_type||'monthly';
+  document.getElementById('sub-price').value      = s.price||'';
+  document.getElementById('sub-start').value      = s.start_date||'';
+  document.getElementById('sub-end').value        = s.end_date||'';
+  document.getElementById('sub-client-type').value= s.client_type||'new';
+  document.getElementById('sub-source').value     = s.client_source||'other';
+  document.getElementById('sub-pay-method').value = s.payment_method||'cash';
+  document.getElementById('sub-pay-status').value = s.payment_status||'paid';
+  document.getElementById('sub-ref').value        = s.payment_ref||'';
+  document.getElementById('sub-ads').value        = s.ads_allowed||1;
+  document.getElementById('sub-notes').value      = s.notes||'';
+  document.getElementById('modal-sub').classList.add('open');
+}
+
+async function saveSub() {
+  const name = document.getElementById('sub-name').value.trim();
+  const start = document.getElementById('sub-start').value;
+  const end   = document.getElementById('sub-end').value;
+  const price = parseFloat(document.getElementById('sub-price').value);
+  if (!name || !start || !end || isNaN(price)) { alert('يرجى ملء الحقول المطلوبة: الاسم، السعر، التواريخ'); return; }
+
+  const data = {
+    teacher_name:   name,
+    phone:          document.getElementById('sub-phone').value.trim(),
+    subject:        document.getElementById('sub-subject').value.trim(),
+    grade:          document.getElementById('sub-grade').value.trim(),
+    plan_type:      document.getElementById('sub-plan').value,
+    price,
+    start_date:     start,
+    end_date:       end,
+    client_type:    document.getElementById('sub-client-type').value,
+    client_source:  document.getElementById('sub-source').value,
+    payment_method: document.getElementById('sub-pay-method').value,
+    payment_status: document.getElementById('sub-pay-status').value,
+    payment_ref:    document.getElementById('sub-ref').value.trim(),
+    ads_allowed:    parseInt(document.getElementById('sub-ads').value)||1,
+    notes:          document.getElementById('sub-notes').value.trim(),
+  };
+
+  if (editId.sub) {
+    await supabase.from('fin_subscriptions').update(data).eq('id', editId.sub);
+  } else {
+    await supabase.from('fin_subscriptions').insert(data);
+  }
+  closeModal('sub');
+  await loadAll();
+}
+
+async function deleteSub(id) {
+  if (!confirm('هل تريد حذف هذا الاشتراك؟')) return;
+  await supabase.from('fin_subscriptions').delete().eq('id', id);
+  await loadAll();
+}
+
+// ── EXPENSE CRUD ──
+function editExp(id) {
+  const e = ST.expenses.find(x=>x.id===id); if(!e) return;
+  editId.exp = id;
+  document.getElementById('modal-exp-title').textContent = 'تعديل المصروف';
+  document.getElementById('exp-date').value   = e.expense_date||'';
+  document.getElementById('exp-type').value   = e.expense_type||'other';
+  document.getElementById('exp-amount').value = e.amount||'';
+  document.getElementById('exp-notes').value  = e.notes||'';
+  document.getElementById('modal-exp').classList.add('open');
+}
+
+async function saveExp() {
+  const amount = parseFloat(document.getElementById('exp-amount').value);
+  const date   = document.getElementById('exp-date').value;
+  if (!date || isNaN(amount)) { alert('يرجى ملء التاريخ والمبلغ'); return; }
+
+  const data = {
+    expense_date: date,
+    expense_type: document.getElementById('exp-type').value,
+    amount,
+    notes: document.getElementById('exp-notes').value.trim()
+  };
+
+  if (editId.exp) {
+    await supabase.from('fin_expenses').update(data).eq('id', editId.exp);
+  } else {
+    await supabase.from('fin_expenses').insert(data);
+  }
+  closeModal('exp');
+  await loadAll();
+}
+
+async function deleteExp(id) {
+  if (!confirm('هل تريد حذف هذا المصروف؟')) return;
+  await supabase.from('fin_expenses').delete().eq('id', id);
+  await loadAll();
+}
+
+// ── LEAD CRUD ──
+function editLead(id) {
+  const l = ST.leads.find(x=>x.id===id); if(!l) return;
+  editId.lead = id;
+  document.getElementById('modal-lead-title').textContent = 'تعديل العميل المحتمل';
+  document.getElementById('lead-name').value    = l.name||'';
+  document.getElementById('lead-phone').value   = l.phone||'';
+  document.getElementById('lead-subject').value = l.subject||'';
+  document.getElementById('lead-grade').value   = l.grade||'';
+  document.getElementById('lead-source').value  = l.source||'other';
+  document.getElementById('lead-contact').value = l.last_contact||'';
+  document.getElementById('lead-status').value  = l.status||'new';
+  document.getElementById('lead-notes').value   = l.notes||'';
+  document.getElementById('modal-lead').classList.add('open');
+}
+
+async function saveLead() {
+  const name = document.getElementById('lead-name').value.trim();
+  if (!name) { alert('يرجى إدخال اسم العميل'); return; }
+
+  const data = {
+    name,
+    phone:        document.getElementById('lead-phone').value.trim(),
+    subject:      document.getElementById('lead-subject').value.trim(),
+    grade:        document.getElementById('lead-grade').value.trim(),
+    source:       document.getElementById('lead-source').value,
+    last_contact: document.getElementById('lead-contact').value||null,
+    status:       document.getElementById('lead-status').value,
+    notes:        document.getElementById('lead-notes').value.trim()
+  };
+
+  if (editId.lead) {
+    await supabase.from('fin_leads').update(data).eq('id', editId.lead);
+  } else {
+    await supabase.from('fin_leads').insert(data);
+  }
+  closeModal('lead');
+  await loadAll();
+}
+
+async function deleteLead(id) {
+  if (!confirm('هل تريد حذف هذا العميل المحتمل؟')) return;
+  await supabase.from('fin_leads').delete().eq('id', id);
+  await loadAll();
+}
+
+// ══════════════════════════════════════════
+// TABS
+// ══════════════════════════════════════════
+function switchTab(name) {
+  document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById(`tab-${name}`).classList.add('active');
+  event.currentTarget.classList.add('active');
+}
+
+// ══════════════════════════════════════════
+// UTILS
+// ══════════════════════════════════════════
+function esc(str) {
+  if (!str) return '';
+  return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+// Close modals on overlay click
+document.querySelectorAll('.modal-overlay').forEach(el => {
+  el.addEventListener('click', e => { if (e.target === el) el.classList.remove('open'); });
+});
+</script>
+</body>
+</html>
