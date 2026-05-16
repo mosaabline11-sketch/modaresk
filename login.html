@@ -259,7 +259,18 @@
       password
     });
 
-    if (error || !data?.user) {
+    if (error) {
+      // رسائل خطأ واضحة حسب نوع الخطأ
+      if (error.message?.includes('Invalid login') || error.message?.includes('invalid_credentials')) {
+        throw new Error('الإيميل أو كلمة المرور غير صحيحة');
+      }
+      if (error.message?.includes('Email not confirmed')) {
+        throw new Error('يجب تأكيد الإيميل أولًا من بريدك الإلكتروني');
+      }
+      throw new Error('خطأ في تسجيل الدخول: ' + error.message);
+    }
+
+    if (!data?.user) {
       throw new Error('الإيميل أو كلمة المرور غير صحيحة');
     }
 
@@ -269,9 +280,18 @@
       .eq('user_id', data.user.id)
       .maybeSingle();
 
-    if (profileError || !profile || profile.role !== 'admin') {
+    if (profileError) {
       await supabase.auth.signOut();
-      throw new Error('هذا الحساب ليس له صلاحية إدارة');
+      // جدول profiles غير موجود على الأرجح
+      if (profileError.code === '42P01' || profileError.message?.includes('does not exist')) {
+        throw new Error('إعداد قاعدة البيانات غير مكتمل — شغّل ملف fix_profiles_admin.sql في Supabase');
+      }
+      throw new Error('خطأ في التحقق من الصلاحيات: ' + profileError.message);
+    }
+
+    if (!profile || profile.role !== 'admin') {
+      await supabase.auth.signOut();
+      throw new Error('هذا الحساب ليس له صلاحية إدارة — تأكد من تشغيل fix_profiles_admin.sql');
     }
 
     showToast('مرحباً بك يا مدير! ✅', 'success');
