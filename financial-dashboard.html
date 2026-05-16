@@ -200,6 +200,7 @@ textarea.form-control { resize: vertical; min-height: 80px; }
   <button class="tab-btn" onclick="switchTab('expenses')">💸 المصروفات</button>
   <button class="tab-btn" onclick="switchTab('leads')">🎯 العملاء المحتملين</button>
   <button class="tab-btn" onclick="switchTab('analytics')">📈 التحليلات</button>
+  <button class="tab-btn" onclick="switchTab('teachers')">👨‍🏫 المدرسون</button>
 </div>
 
 <!-- ═══════════ TAB: DASHBOARD ═══════════ -->
@@ -381,15 +382,22 @@ textarea.form-control { resize: vertical; min-height: 80px; }
       <button onclick="closeModal('sub')">✕</button>
     </div>
     <div class="modal-body">
+      <!-- ── اختيار مدرس موجود ── -->
+      <div class="form-group full">
+        <label class="form-label">🔗 ربط بمدرس موجود في النظام</label>
+        <select class="form-control" id="sub-teacher-select" onchange="onTeacherSelect()">
+          <option value="">— اختر مدرسًا موجودًا (اختياري) —</option>
+        </select>
+      </div>
       <div class="form-group"><label class="form-label">اسم المدرس *</label><input class="form-control" id="sub-name" placeholder="اسم المدرس"></div>
       <div class="form-group"><label class="form-label">رقم الهاتف / واتساب</label><input class="form-control" id="sub-phone" placeholder="01xxxxxxxxx"></div>
       <div class="form-group"><label class="form-label">المادة</label><input class="form-control" id="sub-subject" placeholder="مثال: رياضيات"></div>
       <div class="form-group"><label class="form-label">الصف / المرحلة</label><input class="form-control" id="sub-grade" placeholder="مثال: ثالث ثانوي"></div>
       <div class="form-group"><label class="form-label">نوع الباقة *</label>
-        <select class="form-control" id="sub-plan">
-          <option value="monthly">باقة شهر</option>
-          <option value="3months">باقة 3 شهور</option>
-          <option value="9months">باقة 9 شهور</option>
+        <select class="form-control" id="sub-plan" onchange="onPlanChange()">
+          <option value="monthly">باقة الشهر — 40 ج</option>
+          <option value="3months">باقة 3 شهور — 100 ج</option>
+          <option value="9months">باقة 9 شهور — 300 ج</option>
           <option value="custom">مخصصة</option>
         </select>
       </div>
@@ -432,12 +440,47 @@ textarea.form-control { resize: vertical; min-height: 80px; }
       </div>
       <div class="form-group"><label class="form-label">رقم العملية / إثبات الدفع</label><input class="form-control" id="sub-ref" placeholder="اختياري"></div>
       <div class="form-group"><label class="form-label">عدد الإعلانات المسموحة</label><input class="form-control" id="sub-ads" type="number" min="1" value="1"></div>
+      <!-- إضافات -->
+      <div class="form-group full">
+        <label class="form-label">➕ الإضافات المفعّلة</label>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:6px">
+          <label style="display:flex;align-items:center;gap:6px;font-size:.85rem;cursor:pointer"><input type="checkbox" id="addon-basic_stats" onchange="recalcTotal()"> إحصائيات بسيطة (+20ج/شهر)</label>
+          <label style="display:flex;align-items:center;gap:6px;font-size:.85rem;cursor:pointer"><input type="checkbox" id="addon-unlimited_edits" onchange="recalcTotal()"> تعديل غير محدود (+25ج/شهر)</label>
+          <label style="display:flex;align-items:center;gap:6px;font-size:.85rem;cursor:pointer"><input type="checkbox" id="addon-extra_ad" onchange="recalcTotal()"> إعلان إضافي (+30ج/شهر)</label>
+          <label style="display:flex;align-items:center;gap:6px;font-size:.85rem;cursor:pointer"><input type="checkbox" id="addon-fast_support" onchange="recalcTotal()"> دعم أسرع (+30ج/شهر)</label>
+          <label style="display:flex;align-items:center;gap:6px;font-size:.85rem;cursor:pointer"><input type="checkbox" id="addon-advanced_stats" onchange="recalcTotal()"> إحصائيات متقدمة (+50ج/شهر)</label>
+          <label style="display:flex;align-items:center;gap:6px;font-size:.85rem;cursor:pointer"><input type="checkbox" id="addon-design" onchange="recalcTotal()"> تصميم احترافي (+75ج مرة)</label>
+        </div>
+      </div>
+      <!-- الإجمالي -->
+      <div class="form-group full">
+        <div id="price-summary" style="background:var(--primary-light);border-radius:var(--radius-md);padding:12px 16px;font-size:.9rem;display:flex;justify-content:space-between;align-items:center">
+          <span>💰 الإجمالي المقدّر:</span>
+          <strong id="price-total" style="font-family:Cairo,sans-serif;font-size:1.1rem;color:var(--primary)">40 ج</strong>
+        </div>
+      </div>
       <div class="form-group full"><label class="form-label">ملاحظات</label><textarea class="form-control" id="sub-notes" placeholder="أي ملاحظات إضافية..."></textarea></div>
     </div>
     <div class="modal-foot">
       <button class="btn btn-outline" onclick="closeModal('sub')">إلغاء</button>
       <button class="btn btn-primary" onclick="saveSub()">💾 حفظ</button>
     </div>
+  </div>
+</div>
+
+<!-- ═══════════ TAB: TEACHERS (Real Data) ═══════════ -->
+<div id="tab-teachers" class="tab-content">
+  <div class="section-header">
+    <h2>👨‍🏫 المدرسون في النظام</h2>
+    <span id="teachers-count" style="font-size:.85rem;color:var(--text-muted)"></span>
+  </div>
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr><th>المدرس</th><th>الباقة</th><th>بداية الاشتراك</th><th>نهاية الاشتراك</th><th>الحالة</th><th>مشاهدات</th><th>واتساب</th><th>الإيرادات</th><th>إضافات</th><th>إجراءات</th></tr>
+      </thead>
+      <tbody id="teachers-tbody"></tbody>
+    </table>
   </div>
 </div>
 
@@ -512,16 +555,43 @@ textarea.form-control { resize: vertical; min-height: 80px; }
   </div>
 </div>
 
+<!-- ═══════════ MODAL: TEACHER DETAIL ═══════════ -->
+<div class="modal-overlay" id="modal-teacher-detail">
+  <div class="modal" style="max-width:720px">
+    <div class="modal-head">
+      <div>
+        <h3 id="td-teacher-name" style="margin-bottom:2px">تفاصيل المدرس</h3>
+        <div id="td-teacher-phone" style="font-size:.85rem;color:var(--text-muted)"></div>
+      </div>
+      <button onclick="document.getElementById('modal-teacher-detail').classList.remove('open')">✕</button>
+    </div>
+    <div style="padding:24px;overflow-y:auto;max-height:70vh" id="td-content"></div>
+  </div>
+</div>
+
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="config.js?v=7.4.2"></script>
 <script>
 // ══════════════════════════════════════════
 // STATE & CONSTANTS
 // ══════════════════════════════════════════
-const ST = { subs: [], expenses: [], leads: [], charts: {} };
+const ST = { subs: [], expenses: [], leads: [], charts: {}, teachers: [], ads: [], analytics: {} };
 let editId = { sub: null, exp: null, lead: null };
 
-const PLAN_LBL   = { monthly:'باقة شهر', '3months':'باقة 3 شهور', '9months':'باقة 9 شهور', custom:'مخصصة' };
+// ══ الأسعار الحقيقية من صور التسعير ══
+const PLAN_PRICES = { monthly: 40, '3months': 100, '9months': 300, custom: 0 };
+const PLAN_MONTHS = { monthly: 1, '3months': 3, '9months': 9, custom: 0 };
+const ADDON_PRICES = {
+  basic_stats: 20, unlimited_edits: 25, extra_ad: 30,
+  fast_support: 30, advanced_stats: 50, design: 75
+};
+const ADDON_LBL = {
+  basic_stats:'إحصائيات بسيطة', unlimited_edits:'تعديل غير محدود',
+  extra_ad:'إعلان إضافي', fast_support:'دعم أسرع',
+  advanced_stats:'إحصائيات متقدمة', design:'تصميم احترافي'
+};
+
+const PLAN_LBL   = { monthly:'باقة الشهر (40ج)', '3months':'باقة 3 شهور (100ج)', '9months':'باقة 9 شهور (300ج)', custom:'مخصصة' };
 const SRC_LBL    = { facebook:'فيسبوك', whatsapp:'واتساب', referral:'ترشيح', ad:'إعلان', mosque:'مسجد', other:'غير ذلك' };
 const CLIENT_LBL = { new:'جديد', renewed:'مجدد', potential:'محتمل', overdue:'متأخر' };
 const EXP_LBL    = { domain:'دومين', hosting:'استضافة', ads:'إعلانات', design:'تصميم', whatsapp:'واتساب', tools:'أدوات', other:'أخرى' };
@@ -553,7 +623,107 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   // Auto-set sub end date
   document.getElementById('sub-start').addEventListener('change', autoSetEnd);
-  document.getElementById('sub-plan').addEventListener('change', autoSetEnd);
+  document.getElementById('sub-plan').addEventListener('change', onPlanChange);
+
+function onTeacherSelect() {
+  const sel = document.getElementById('sub-teacher-select');
+  const opt = sel.options[sel.selectedIndex];
+  if (!opt || !opt.value) return;
+  document.getElementById('sub-name').value  = opt.dataset.name  || '';
+  document.getElementById('sub-phone').value = opt.dataset.phone || '';
+  const teacher = ST.teachers.find(t => t.id === opt.value);
+  if (!teacher) return;
+  // Map plan_type to plan key
+  const planMap = { monthly_40:'monthly', '3months_100':'3months', '9months_300':'9months' };
+  const mapped = planMap[teacher.plan_type] || teacher.plan_type;
+  if (PLAN_PRICES[mapped]) {
+    document.getElementById('sub-plan').value = mapped;
+    document.getElementById('sub-price').value = PLAN_PRICES[mapped];
+  }
+  document.getElementById('addon-basic_stats').checked    = !!teacher.allow_basic_stats;
+  document.getElementById('addon-advanced_stats').checked = !!teacher.allow_advanced_stats;
+  document.getElementById('addon-unlimited_edits').checked= !!teacher.allow_unlimited_edits;
+  document.getElementById('addon-fast_support').checked   = !!teacher.allow_fast_support;
+  if (teacher.subscription_start) document.getElementById('sub-start').value = teacher.subscription_start;
+  if (teacher.subscription_end)   document.getElementById('sub-end').value   = teacher.subscription_end;
+  recalcTotal();
+}
+
+function onPlanChange() {
+  const plan = document.getElementById('sub-plan').value;
+  const price = PLAN_PRICES[plan];
+  if (price > 0) document.getElementById('sub-price').value = price;
+  autoSetEnd();
+  recalcTotal();
+}
+
+function recalcTotal() {
+  const base = parseFloat(document.getElementById('sub-price').value) || 0;
+  let addonsTotal = 0;
+  ['basic_stats','unlimited_edits','extra_ad','fast_support','advanced_stats','design'].forEach(k => {
+    if (document.getElementById('addon-'+k)?.checked) addonsTotal += ADDON_PRICES[k] || 0;
+  });
+  document.getElementById('price-total').textContent = `${base + addonsTotal} ج`;
+}
+
+// ═══ TEACHER DETAIL MODAL ═══
+function openTeacherDetail(teacherId) {
+  const t = ST.teachers.find(x => x.id === teacherId);
+  if (!t) return;
+  const analytics = ST.analytics.byTeacher?.[teacherId] || {};
+  const subs      = ST.subs.filter(s => s.teacher_id === teacherId);
+  const totalPaid = subs.filter(s=>s.payment_status==='paid').reduce((a,s)=>a+ +(s.total_price||s.price),0);
+  const tAds      = ST.ads.filter(a => a.teacher_id === teacherId);
+  const daysLeft  = daysDiff(t.subscription_end);
+
+  document.getElementById('td-teacher-name').textContent  = t.name;
+  document.getElementById('td-teacher-phone').textContent = t.whatsapp || t.phone || '—';
+  document.getElementById('td-content').innerHTML = `
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px">
+      <div class="stat-card"><div class="stat-icon blue">👁️</div><div><div class="stat-label">مشاهدات</div><div class="stat-value">${fmtNum(analytics.views||0)}</div></div></div>
+      <div class="stat-card"><div class="stat-icon green">💬</div><div><div class="stat-label">ضغطات واتساب</div><div class="stat-value">${fmtNum(analytics.whatsapp||0)}</div></div></div>
+      <div class="stat-card"><div class="stat-icon purple">📋</div><div><div class="stat-label">تفاصيل الإعلان</div><div class="stat-value">${fmtNum(analytics.details||0)}</div></div></div>
+      <div class="stat-card"><div class="stat-icon info">💰</div><div><div class="stat-label">إجمالي ما دفعه</div><div class="stat-value">${fmt(totalPaid)}</div></div></div>
+    </div>
+    <div style="margin-bottom:14px">
+      <div style="font-weight:700;margin-bottom:8px">📦 الاشتراك الحالي في النظام</div>
+      <div style="background:var(--border-light);border-radius:var(--radius-md);padding:12px;display:grid;grid-template-columns:1fr 1fr;gap:8px;font-size:.85rem">
+        <div><span style="color:var(--text-muted)">الباقة: </span><strong>${t.plan_type||'—'}</strong></div>
+        <div><span style="color:var(--text-muted)">الحالة: </span>${daysLeft<0?'<span class="badge badge-red">❌ منتهي</span>':daysLeft<=7?'<span class="badge badge-yellow">⚠️ ينتهي قريبًا</span>':'<span class="badge badge-green">✅ نشط</span>'}</div>
+        <div><span style="color:var(--text-muted)">البداية: </span><strong>${t.subscription_start||'—'}</strong></div>
+        <div><span style="color:var(--text-muted)">النهاية: </span><strong>${t.subscription_end||'—'}</strong> <span style="font-size:.72rem;color:${daysLeft<0?'var(--danger)':daysLeft<=7?'var(--warning)':'var(--success)'}">(${daysLeft<0?'منتهي منذ '+(- daysLeft)+' يوم':fmtNum(daysLeft)+' يوم'})</span></div>
+        <div><span style="color:var(--text-muted)">إحصائيات بسيطة: </span>${t.allow_basic_stats?'✅':'❌'}</div>
+        <div><span style="color:var(--text-muted)">إحصائيات متقدمة: </span>${t.allow_advanced_stats?'✅':'❌'}</div>
+      </div>
+    </div>
+    <div style="margin-bottom:14px">
+      <div style="font-weight:700;margin-bottom:8px">📣 الإعلانات في النظام (${tAds.length})</div>
+      ${tAds.length ? tAds.map(ad => {
+        const adA = ST.analytics.byAd?.[ad.id] || {};
+        return `<div style="background:var(--border-light);border-radius:var(--radius-md);padding:10px 12px;font-size:.83rem;display:flex;gap:10px;align-items:center;margin-bottom:6px">
+          <div style="flex:1"><strong>${esc(ad.subject)}</strong> — ${esc(ad.grade)}<br>
+            <span style="color:var(--text-muted)">تعديلات: ${ad.edit_count||0} | </span>${ad.status==='active'?'<span class="badge badge-green">نشط</span>':'<span class="badge badge-yellow">'+ad.status+'</span>'}
+          </div>
+          <div style="text-align:center;font-size:.78rem;color:var(--text-secondary)">
+            👁 ${fmtNum(adA.views||0)}<br>💬 ${fmtNum(adA.whatsapp||0)}
+          </div>
+        </div>`;
+      }).join('') : '<div style="color:var(--text-muted);font-size:.85rem">لا توجد إعلانات</div>'}
+    </div>
+    <div>
+      <div style="font-weight:700;margin-bottom:8px">📋 سجل الاشتراكات المالية (${subs.length})</div>
+      ${subs.length ? `<table style="width:100%;font-size:.8rem;border-collapse:collapse"><thead><tr style="background:var(--border-light)"><th style="padding:6px 10px;text-align:right">الباقة</th><th>المبلغ</th><th>الدفع</th><th>البداية</th><th>النهاية</th></tr></thead><tbody>
+        ${subs.map(s=>`<tr style="border-top:1px solid var(--border-light)">
+          <td style="padding:6px 10px">${PLAN_LBL[s.plan_type]||s.plan_type}</td>
+          <td><strong style="color:var(--success)">${fmt(s.total_price||s.price)}</strong></td>
+          <td>${payBadge[s.payment_status]||''}</td>
+          <td>${s.start_date||'—'}</td>
+          <td>${s.end_date||'—'}</td>
+        </tr>`).join('')}
+      </tbody></table>` : '<div style="color:var(--text-muted);font-size:.85rem">لا توجد سجلات</div>'}
+    </div>`;
+  document.getElementById('modal-teacher-detail').classList.add('open');
+}
 
   populateMonthFilters();
   await loadAll();
@@ -591,22 +761,66 @@ function populateMonthFilters() {
 // ══════════════════════════════════════════
 async function loadAll() {
   try {
-    const [sRes, eRes, lRes] = await Promise.all([
+    const [sRes, eRes, lRes, tRes, aRes, analyticsRes] = await Promise.all([
       supabase.from('fin_subscriptions').select('*').order('created_at', { ascending: false }),
       supabase.from('fin_expenses').select('*').order('expense_date', { ascending: false }),
-      supabase.from('fin_leads').select('*').order('created_at', { ascending: false })
+      supabase.from('fin_leads').select('*').order('created_at', { ascending: false }),
+      supabase.from('teachers').select('id,name,username,phone,whatsapp,plan_type,subscription_start,subscription_end,subscription_status,is_active,allow_basic_stats,allow_advanced_stats,allow_unlimited_edits,allow_fast_support').order('name'),
+      supabase.from('ads').select('id,teacher_id,title,subject,grade,status,edit_count').order('created_at'),
+      supabase.from('analytics_events').select('event_type,teacher_id,ad_id,created_at').order('created_at', { ascending: false }).limit(2000)
     ]);
-    ST.subs     = sRes.data || [];
-    ST.expenses = eRes.data || [];
-    ST.leads    = lRes.data || [];
+    ST.subs      = sRes.data  || [];
+    ST.expenses  = eRes.data  || [];
+    ST.leads     = lRes.data  || [];
+    ST.teachers  = tRes.data  || [];
+    ST.ads       = aRes.data  || [];
+    ST.analytics = buildAnalyticsSummary(analyticsRes.data || []);
 
+    populateTeacherDropdown();
     renderDashboard();
     renderSubs();
     renderExp();
     renderLeads();
+    renderTeachersTab();
     renderAnalytics();
     renderAlerts();
   } catch (e) { console.error(e); }
+}
+
+function buildAnalyticsSummary(events) {
+  const byTeacher = {}, byAd = {}, monthly = {};
+  events.forEach(e => {
+    const month = (e.created_at||'').slice(0,7);
+    if (!monthly[month]) monthly[month] = { visits:0, views:0, details:0, whatsapp:0, facebook:0 };
+    if (e.event_type === 'site_visit')     monthly[month].visits++;
+    if (e.event_type === 'ad_card_view')   monthly[month].views++;
+    if (e.event_type === 'ad_detail_view') monthly[month].details++;
+    if (e.event_type === 'whatsapp_click') monthly[month].whatsapp++;
+    if (e.event_type === 'facebook_click') monthly[month].facebook++;
+
+    if (e.teacher_id) {
+      if (!byTeacher[e.teacher_id]) byTeacher[e.teacher_id] = { views:0, details:0, whatsapp:0, facebook:0 };
+      if (e.event_type === 'ad_card_view')   byTeacher[e.teacher_id].views++;
+      if (e.event_type === 'ad_detail_view') byTeacher[e.teacher_id].details++;
+      if (e.event_type === 'whatsapp_click') byTeacher[e.teacher_id].whatsapp++;
+      if (e.event_type === 'facebook_click') byTeacher[e.teacher_id].facebook++;
+    }
+    if (e.ad_id) {
+      if (!byAd[e.ad_id]) byAd[e.ad_id] = { views:0, details:0, whatsapp:0, facebook:0 };
+      if (e.event_type === 'ad_card_view')   byAd[e.ad_id].views++;
+      if (e.event_type === 'ad_detail_view') byAd[e.ad_id].details++;
+      if (e.event_type === 'whatsapp_click') byAd[e.ad_id].whatsapp++;
+      if (e.event_type === 'facebook_click') byAd[e.ad_id].facebook++;
+    }
+  });
+  return { byTeacher, byAd, monthly, total: events.length };
+}
+
+function populateTeacherDropdown() {
+  const sel = document.getElementById('sub-teacher-select');
+  if (!sel) return;
+  sel.innerHTML = '<option value="">— اختر مدرسًا موجودًا (اختياري) —</option>' +
+    ST.teachers.map(t => `<option value="${t.id}" data-name="${esc(t.name)}" data-phone="${esc(t.whatsapp||t.phone||'')}">${esc(t.name)} (${t.plan_type||''})</option>`).join('');
 }
 
 // ══════════════════════════════════════════
@@ -662,15 +876,22 @@ function renderDashboard() {
   const avgValue     = activeSubs.length ? (totalRev / activeSubs.length).toFixed(0) : 0;
   const expRev       = ST.subs.filter(s => subStatus(s) === 'active' && s.payment_status === 'paid').reduce((a,s) => a + +s.price, 0);
 
+  // Real analytics from analytics_events
+  const totalViews    = Object.values(ST.analytics.byAd||{}).reduce((a,v)=>a+v.views,0);
+  const totalWhatsapp = Object.values(ST.analytics.byAd||{}).reduce((a,v)=>a+v.whatsapp,0);
+  const totalDetails  = Object.values(ST.analytics.byAd||{}).reduce((a,v)=>a+v.details,0);
+
   document.getElementById('stats-grid').innerHTML = `
     <div class="stat-card"><div class="stat-icon green">💰</div><div><div class="stat-label">إجمالي الإيرادات</div><div class="stat-value">${fmt(totalRev)}</div></div></div>
     <div class="stat-card"><div class="stat-icon red">💸</div><div><div class="stat-label">إجمالي المصروفات</div><div class="stat-value">${fmt(totalExp)}</div></div></div>
     <div class="stat-card"><div class="stat-icon ${netProfit>=0?'green':'red'}">📊</div><div><div class="stat-label">صافي الربح</div><div class="stat-value" style="color:${netProfit>=0?'var(--success)':'var(--danger)'}">${fmt(netProfit)}</div></div></div>
-    <div class="stat-card"><div class="stat-icon blue">👥</div><div><div class="stat-label">العملاء الحاليين</div><div class="stat-value">${fmtNum(activeSubs.length)}</div></div></div>
+    <div class="stat-card"><div class="stat-icon blue">👥</div><div><div class="stat-label">العملاء الحاليين</div><div class="stat-value">${fmtNum(activeSubs.length)}</div><div class="stat-sub">${fmtNum(ST.teachers.filter(t=>t.is_active).length)} مدرس نشط في النظام</div></div></div>
     <div class="stat-card"><div class="stat-icon green">🆕</div><div><div class="stat-label">جدد هذا الشهر</div><div class="stat-value">${fmtNum(newThisMonth)}</div></div></div>
     <div class="stat-card"><div class="stat-icon purple">🔄</div><div><div class="stat-label">مجددين هذا الشهر</div><div class="stat-value">${fmtNum(renewedM)}</div></div></div>
     <div class="stat-card"><div class="stat-icon red">⚠️</div><div><div class="stat-label">متأخرون في الدفع</div><div class="stat-value">${fmtNum(overdueCount)}</div></div></div>
     <div class="stat-card"><div class="stat-icon yellow">⏰</div><div><div class="stat-label">تنتهي خلال 7 أيام</div><div class="stat-value">${fmtNum(expiringCount)}</div></div></div>
+    <div class="stat-card"><div class="stat-icon info">👁️</div><div><div class="stat-label">مشاهدات الإعلانات</div><div class="stat-value">${fmtNum(totalViews)}</div><div class="stat-sub">من analytics_events الحقيقي</div></div></div>
+    <div class="stat-card"><div class="stat-icon green">💬</div><div><div class="stat-label">ضغطات واتساب</div><div class="stat-value">${fmtNum(totalWhatsapp)}</div><div class="stat-sub">${fmtNum(totalDetails)} تفاصيل إعلان</div></div></div>
     <div class="stat-card"><div class="stat-icon info">💎</div><div><div class="stat-label">متوسط قيمة العميل</div><div class="stat-value">${fmt(avgValue)}</div></div></div>
     <div class="stat-card"><div class="stat-icon green">🚀</div><div><div class="stat-label">توقع إيرادات قادمة</div><div class="stat-value">${fmt(expRev)}</div><div class="stat-sub">من الاشتراكات النشطة</div></div></div>
   `;
@@ -926,8 +1147,55 @@ function renderLeads() {
 }
 
 // ══════════════════════════════════════════
-// ANALYTICS
+// TEACHERS TABLE (Real Data)
 // ══════════════════════════════════════════
+function renderTeachersTab() {
+  const tbody = document.getElementById('teachers-tbody');
+  const countEl = document.getElementById('teachers-count');
+  if (!tbody) return;
+
+  const PLAN_SHORT = { monthly_40:'شهر (40ج)', '3months_100':'3 شهور (100ج)', '9months_300':'9 شهور (300ج)' };
+
+  document.getElementById('teachers-count').textContent = `${ST.teachers.length} مدرس مسجل`;
+
+  if (!ST.teachers.length) {
+    tbody.innerHTML = `<tr><td colspan="10" class="table-empty">لا يوجد مدرسون في النظام بعد</td></tr>`;
+    return;
+  }
+
+  tbody.innerHTML = ST.teachers.map((t, i) => {
+    const analytics   = ST.analytics.byTeacher?.[t.id] || {};
+    const subs        = ST.subs.filter(s => s.teacher_id === t.id);
+    const totalPaid   = subs.filter(s=>s.payment_status==='paid').reduce((a,s)=>a+ +(s.total_price||s.price), 0);
+    const daysLeft    = daysDiff(t.subscription_end);
+    const statusBadge = daysLeft < 0
+      ? '<span class="badge badge-red">❌ منتهي</span>'
+      : daysLeft <= 7
+        ? '<span class="badge badge-yellow">⚠️ ينتهي قريبًا</span>'
+        : '<span class="badge badge-green">✅ نشط</span>';
+    const addonsActive = [
+      t.allow_basic_stats    && '<span class="badge badge-blue" style="font-size:.68rem">إحصائيات</span>',
+      t.allow_advanced_stats && '<span class="badge badge-purple" style="font-size:.68rem">متقدمة</span>',
+      t.allow_unlimited_edits&& '<span class="badge badge-green" style="font-size:.68rem">تعديل∞</span>',
+      t.allow_fast_support   && '<span class="badge badge-yellow" style="font-size:.68rem">دعم أسرع</span>',
+    ].filter(Boolean).join(' ');
+
+    return `<tr>
+      <td><strong>${esc(t.name)}</strong><br><span style="font-size:.75rem;color:var(--text-muted)">${esc(t.username)}</span></td>
+      <td><span class="badge badge-blue">${PLAN_SHORT[t.plan_type]||t.plan_type||'—'}</span></td>
+      <td style="font-size:.82rem">${t.subscription_start||'—'}</td>
+      <td style="font-size:.82rem">${t.subscription_end||'—'}
+        <br><span style="font-size:.72rem;color:${daysLeft<0?'var(--danger)':daysLeft<=7?'var(--warning)':'var(--text-muted)'}">${daysLeft<0?'منتهي منذ '+(-daysLeft)+' يوم':fmtNum(daysLeft)+' يوم متبقي'}</span>
+      </td>
+      <td>${statusBadge}</td>
+      <td><strong style="color:var(--info)">${fmtNum(analytics.views||0)}</strong></td>
+      <td><strong style="color:var(--success)">${fmtNum(analytics.whatsapp||0)}</strong></td>
+      <td><strong style="color:var(--success)">${fmt(totalPaid)}</strong></td>
+      <td style="font-size:.78rem">${addonsActive||'<span style="color:var(--text-muted)">لا إضافات</span>'}</td>
+      <td><button class="btn btn-sm btn-outline" onclick="openTeacherDetail('${t.id}')">🔍 تفاصيل</button></td>
+    </tr>`;
+  }).join('');
+}
 function renderAnalytics() {
   // Growth chart
   const growthData = {};
@@ -1009,8 +1277,9 @@ function openModal(type) {
   if (type === 'sub') {
     document.getElementById('modal-sub-title').textContent = 'إضافة اشتراك';
     clearFields(['sub-name','sub-phone','sub-subject','sub-grade','sub-ref','sub-notes']);
+    document.getElementById('sub-teacher-select').value = '';
     document.getElementById('sub-plan').value = 'monthly';
-    document.getElementById('sub-price').value = '';
+    document.getElementById('sub-price').value = '40';
     document.getElementById('sub-start').value = today();
     document.getElementById('sub-end').value = '';
     document.getElementById('sub-client-type').value = 'new';
@@ -1018,6 +1287,11 @@ function openModal(type) {
     document.getElementById('sub-pay-method').value = 'cash';
     document.getElementById('sub-pay-status').value = 'paid';
     document.getElementById('sub-ads').value = '1';
+    ['basic_stats','unlimited_edits','extra_ad','fast_support','advanced_stats','design'].forEach(k => {
+      const el = document.getElementById('addon-'+k);
+      if (el) el.checked = false;
+    });
+    document.getElementById('price-total').textContent = '40 ج';
     autoSetEnd();
   } else if (type === 'exp') {
     document.getElementById('modal-exp-title').textContent = 'إضافة مصروف';
@@ -1071,13 +1345,21 @@ async function saveSub() {
   const price = parseFloat(document.getElementById('sub-price').value);
   if (!name || !start || !end || isNaN(price)) { alert('يرجى ملء الحقول المطلوبة: الاسم، السعر، التواريخ'); return; }
 
+  const addonKeys = ['basic_stats','unlimited_edits','extra_ad','fast_support','advanced_stats','design'];
+  const activeAddons = addonKeys.filter(k => document.getElementById('addon-'+k)?.checked);
+  const addonsPrice = activeAddons.reduce((a, k) => a + (ADDON_PRICES[k]||0), 0);
+  const teacherSel = document.getElementById('sub-teacher-select')?.value || null;
+
   const data = {
+    teacher_id:     teacherSel || null,
     teacher_name:   name,
     phone:          document.getElementById('sub-phone').value.trim(),
     subject:        document.getElementById('sub-subject').value.trim(),
     grade:          document.getElementById('sub-grade').value.trim(),
     plan_type:      document.getElementById('sub-plan').value,
     price,
+    addons_price:   addonsPrice,
+    addons:         activeAddons,
     start_date:     start,
     end_date:       end,
     client_type:    document.getElementById('sub-client-type').value,
@@ -1197,6 +1479,7 @@ function switchTab(name) {
   document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
   document.getElementById(`tab-${name}`).classList.add('active');
   event.currentTarget.classList.add('active');
+  if (name === 'teachers') renderTeachersTab();
 }
 
 // ══════════════════════════════════════════
