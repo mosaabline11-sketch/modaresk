@@ -262,6 +262,9 @@
         </div>
         <div class="form-group">
           <label class="form-label">الصورة الرئيسية للإعلان</label>
+          <div class="file-note" style="background:var(--primary-bg,#EFF6FF);border:1px solid #BFDBFE;border-radius:6px;padding:8px 12px;margin-bottom:8px;font-size:.82rem;color:#1D4ED8">
+            📐 <strong>الأبعاد المثالية: 800 × 450 بكسل</strong> (نسبة 16:9) — الحجم الأقصى: 6MB — الصيغ: JPG / PNG / WEBP
+          </div>
           <input type="file" id="ad-main-image" class="form-control" accept="image/*">
           <input type="hidden" id="ad-main-image-position" value="50% 50%">
           <div class="file-note">تظهر في كارت الإعلان بالصفحة الرئيسية. اتركها فارغة عند التعديل إذا لا تريد تغيير الصورة.</div>
@@ -278,11 +281,6 @@
           <input type="file" id="ad-gallery-images" class="form-control" accept="image/*" multiple>
           <div class="file-note">يمكنك اختيار حتى 10 صور إضافية. عند التعديل ستُضاف للصور القديمة مع عدم تجاوز الحد.</div>
           <div id="ad-current-gallery" class="media-preview"></div>
-        </div>
-        <div class="form-group">
-          <label class="form-label">روابط فيديوهات الإعلان</label>
-          <textarea id="ad-video-links" class="form-control" rows="3" placeholder="ضع كل رابط فيديو في سطر منفصل مثل YouTube أو Google Drive"></textarea>
-          <div class="file-note">الفيديوهات روابط فقط حاليًا لتقليل استهلاك مساحة التخزين.</div>
         </div>
         <div class="form-group">
           <label class="form-label">معلومات تواصل إضافية</label>
@@ -423,7 +421,6 @@
           <div class="amc-price">💰 ${formatPrice(ad.price)} / الحصة</div>
           ${ad.main_image_url ? `<div class="media-preview"><img src="${escapeHtml(ad.main_image_url)}" alt="صورة الإعلان" style="object-position:${escapeHtml(ad.main_image_position || '50% 50%')}"></div>` : ''}
           ${normalizeList(ad.gallery_images).length ? `<div class="amc-desc mt-8">🖼 ${normalizeList(ad.gallery_images).length} صور إضافية</div>` : ''}
-          ${normalizeList(ad.video_links).length ? `<div class="amc-desc mt-8">🎬 ${normalizeList(ad.video_links).length} فيديو</div>` : ''}
           ${!getTeacherFeatures(teacher).unlimited_edits ? `<div class="amc-desc mt-8">✏️ عدد التعديلات: ${Number(ad.edit_count||0)} / 3</div>` : ''}
           ${ad.description ? `<div class="amc-desc mt-8">${escapeHtml(ad.description)}</div>` : ''}
           ${ad.status === 'pending' ? '<div class="alert alert-info mt-8" style="padding:8px 12px;font-size:0.82rem">⏳ هذا الإعلان في انتظار مراجعة الإدارة</div>' : ''}
@@ -471,7 +468,6 @@
     document.getElementById('ad-lesson-type').value = ad.lesson_type || '';
     document.getElementById('ad-description').value = ad.description || '';
     document.getElementById('ad-extra-contact').value = ad.extra_contact || '';
-    document.getElementById('ad-video-links').value = normalizeList(ad.video_links).join('\n');
     document.getElementById('ad-main-image-position').value = ad.main_image_position || '50% 50%';
     document.getElementById('ad-main-image').value = '';
     document.getElementById('ad-gallery-images').value = '';
@@ -501,7 +497,6 @@
       const newGalleryInput = document.getElementById('ad-gallery-images');
       if (oldGallery.length + (newGalleryInput?.files?.length || 0) > MAX_GALLERY_IMAGES) throw new Error(`الحد الأقصى ${MAX_GALLERY_IMAGES} صور إضافية. احذف صورًا قديمة أو اختر عددًا أقل.`);
       const uploadedGallery = await uploadMultipleImagesInput('ad-gallery-images', folder, MAX_GALLERY_IMAGES - oldGallery.length);
-      const videos = normalizeList(document.getElementById('ad-video-links').value);
 
       const gradeCheck = validateSameGradeSection(getSelectedGrades('ad-grades-box'));
       if (!gradeCheck.ok) throw new Error(gradeCheck.message);
@@ -520,7 +515,7 @@
         main_image_url: uploadedMain || currentAd?.main_image_url || null,
         main_image_position: document.getElementById('ad-main-image-position').value || '50% 50%',
         gallery_images: [...oldGallery, ...uploadedGallery],
-        video_links: videos,
+        video_links: [],
         status: isEdit ? undefined : 'pending',
         edit_count: isEdit ? Number(currentAd?.edit_count || 0) + (getTeacherFeatures(teacher).unlimited_edits ? 0 : 1) : 0,
       };

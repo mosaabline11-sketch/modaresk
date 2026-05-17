@@ -371,6 +371,12 @@ textarea.form-control { resize: vertical; min-height: 80px; }
       <div class="chart-title">⏰ اشتراكات ستنتهي خلال 7 أيام</div>
       <div id="expiring-list"></div>
     </div>
+
+    <!-- تحليلات الصفوف الدراسية -->
+    <div class="chart-card full" id="grades-analytics-card">
+      <div class="chart-title">📚 تحليلات الصفوف الدراسية</div>
+      <div id="grades-analytics-content" style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;margin-top:8px"></div>
+    </div>
   </div>
 </div>
 
@@ -494,7 +500,7 @@ textarea.form-control { resize: vertical; min-height: 80px; }
     <div class="modal-body">
       <div class="form-group"><label class="form-label">التاريخ *</label><input class="form-control" id="exp-date" type="date"></div>
       <div class="form-group"><label class="form-label">نوع المصروف *</label>
-        <select class="form-control" id="exp-type">
+        <select class="form-control" id="exp-type" onchange="toggleCustomExpType()">
           <option value="domain">دومين</option>
           <option value="hosting">استضافة</option>
           <option value="ads">إعلانات</option>
@@ -503,6 +509,10 @@ textarea.form-control { resize: vertical; min-height: 80px; }
           <option value="tools">أدوات</option>
           <option value="other">مصاريف أخرى</option>
         </select>
+      </div>
+      <div class="form-group" id="exp-custom-wrap" style="display:none">
+        <label class="form-label">اكتب نوع المصروف *</label>
+        <input class="form-control" id="exp-custom-type" placeholder="مثال: مصاريف طباعة، رسوم بنكية...">
       </div>
       <div class="form-group"><label class="form-label">المبلغ (جنيه) *</label><input class="form-control" id="exp-amount" type="number" min="0" placeholder="0"></div>
       <div class="form-group full"><label class="form-label">ملاحظات</label><textarea class="form-control" id="exp-notes" placeholder="تفاصيل المصروف..."></textarea></div>
@@ -789,9 +799,16 @@ async function loadAll() {
 
 function buildAnalyticsSummary(events) {
   const byTeacher = {}, byAd = {}, monthly = {};
+  const uniqueSessionsSet = new Set();
+  const byGrade = {};
+
   events.forEach(e => {
+    // جلسات فريدة للموقع كله
+    if (e.session_id) uniqueSessionsSet.add(e.session_id);
+
     const month = (e.created_at||'').slice(0,7);
-    if (!monthly[month]) monthly[month] = { visits:0, views:0, details:0, whatsapp:0, facebook:0 };
+    if (!monthly[month]) monthly[month] = { visits:0, views:0, details:0, whatsapp:0, facebook:0, sessions: new Set() };
+    if (e.session_id) monthly[month].sessions.add(e.session_id);
     if (e.event_type === 'site_visit')     monthly[month].visits++;
     if (e.event_type === 'ad_card_view')   monthly[month].views++;
     if (e.event_type === 'ad_detail_view') monthly[month].details++;
@@ -799,21 +816,29 @@ function buildAnalyticsSummary(events) {
     if (e.event_type === 'facebook_click') monthly[month].facebook++;
 
     if (e.teacher_id) {
-      if (!byTeacher[e.teacher_id]) byTeacher[e.teacher_id] = { views:0, details:0, whatsapp:0, facebook:0 };
+      if (!byTeacher[e.teacher_id]) byTeacher[e.teacher_id] = { views:0, details:0, whatsapp:0, facebook:0, sessions: new Set() };
+      if (e.session_id) byTeacher[e.teacher_id].sessions.add(e.session_id);
       if (e.event_type === 'ad_card_view')   byTeacher[e.teacher_id].views++;
       if (e.event_type === 'ad_detail_view') byTeacher[e.teacher_id].details++;
       if (e.event_type === 'whatsapp_click') byTeacher[e.teacher_id].whatsapp++;
       if (e.event_type === 'facebook_click') byTeacher[e.teacher_id].facebook++;
     }
     if (e.ad_id) {
-      if (!byAd[e.ad_id]) byAd[e.ad_id] = { views:0, details:0, whatsapp:0, facebook:0 };
+      if (!byAd[e.ad_id]) byAd[e.ad_id] = { views:0, details:0, whatsapp:0, facebook:0, sessions: new Set() };
+      if (e.session_id) byAd[e.ad_id].sessions.add(e.session_id);
       if (e.event_type === 'ad_card_view')   byAd[e.ad_id].views++;
       if (e.event_type === 'ad_detail_view') byAd[e.ad_id].details++;
       if (e.event_type === 'whatsapp_click') byAd[e.ad_id].whatsapp++;
       if (e.event_type === 'facebook_click') byAd[e.ad_id].facebook++;
     }
   });
-  return { byTeacher, byAd, monthly, total: events.length };
+
+  // تحويل Sessions إلى أرقام
+  Object.values(byTeacher).forEach(v => { v.uniqueSessions = v.sessions.size; delete v.sessions; });
+  Object.values(byAd).forEach(v => { v.uniqueSessions = v.sessions.size; delete v.sessions; });
+  Object.values(monthly).forEach(v => { v.uniqueSessions = v.sessions.size; delete v.sessions; });
+
+  return { byTeacher, byAd, monthly, total: events.length, uniqueSessions: uniqueSessionsSet.size };
 }
 
 function populateTeacherDropdown() {
@@ -877,9 +902,10 @@ function renderDashboard() {
   const expRev       = ST.subs.filter(s => subStatus(s) === 'active' && s.payment_status === 'paid').reduce((a,s) => a + +s.price, 0);
 
   // Real analytics from analytics_events
-  const totalViews    = Object.values(ST.analytics.byAd||{}).reduce((a,v)=>a+v.views,0);
-  const totalWhatsapp = Object.values(ST.analytics.byAd||{}).reduce((a,v)=>a+v.whatsapp,0);
-  const totalDetails  = Object.values(ST.analytics.byAd||{}).reduce((a,v)=>a+v.details,0);
+  const totalViews       = Object.values(ST.analytics.byAd||{}).reduce((a,v)=>a+v.views,0);
+  const totalWhatsapp    = Object.values(ST.analytics.byAd||{}).reduce((a,v)=>a+v.whatsapp,0);
+  const totalDetails     = Object.values(ST.analytics.byAd||{}).reduce((a,v)=>a+v.details,0);
+  const uniqueVisitors   = ST.analytics.uniqueSessions || 0; // زوار فريدون (session_id مختلف)
 
   document.getElementById('stats-grid').innerHTML = `
     <div class="stat-card"><div class="stat-icon green">💰</div><div><div class="stat-label">إجمالي الإيرادات</div><div class="stat-value">${fmt(totalRev)}</div></div></div>
@@ -890,8 +916,8 @@ function renderDashboard() {
     <div class="stat-card"><div class="stat-icon purple">🔄</div><div><div class="stat-label">مجددين هذا الشهر</div><div class="stat-value">${fmtNum(renewedM)}</div></div></div>
     <div class="stat-card"><div class="stat-icon red">⚠️</div><div><div class="stat-label">متأخرون في الدفع</div><div class="stat-value">${fmtNum(overdueCount)}</div></div></div>
     <div class="stat-card"><div class="stat-icon yellow">⏰</div><div><div class="stat-label">تنتهي خلال 7 أيام</div><div class="stat-value">${fmtNum(expiringCount)}</div></div></div>
-    <div class="stat-card"><div class="stat-icon info">👁️</div><div><div class="stat-label">مشاهدات الإعلانات</div><div class="stat-value">${fmtNum(totalViews)}</div><div class="stat-sub">من analytics_events الحقيقي</div></div></div>
-    <div class="stat-card"><div class="stat-icon green">💬</div><div><div class="stat-label">ضغطات واتساب</div><div class="stat-value">${fmtNum(totalWhatsapp)}</div><div class="stat-sub">${fmtNum(totalDetails)} تفاصيل إعلان</div></div></div>
+    <div class="stat-card"><div class="stat-icon info">👁️</div><div><div class="stat-label">ظهور الإعلانات (إجمالي)</div><div class="stat-value">${fmtNum(totalViews)}</div><div class="stat-sub">زوار فريدون: ${fmtNum(uniqueVisitors)}</div></div></div>
+    <div class="stat-card"><div class="stat-icon green">💬</div><div><div class="stat-label">ضغطات واتساب</div><div class="stat-value">${fmtNum(totalWhatsapp)}</div><div class="stat-sub">${fmtNum(totalDetails)} فتح تفاصيل إعلان</div></div></div>
     <div class="stat-card"><div class="stat-icon info">💎</div><div><div class="stat-label">متوسط قيمة العميل</div><div class="stat-value">${fmt(avgValue)}</div></div></div>
     <div class="stat-card"><div class="stat-icon green">🚀</div><div><div class="stat-label">توقع إيرادات قادمة</div><div class="stat-value">${fmt(expRev)}</div><div class="stat-sub">من الاشتراكات النشطة</div></div></div>
   `;
@@ -1094,7 +1120,7 @@ function renderExp() {
   tbody.innerHTML = data.map((e, i) => `<tr>
     <td style="color:var(--text-muted)">${i+1}</td>
     <td>${e.expense_date}</td>
-    <td><span class="badge badge-red">${EXP_LBL[e.expense_type]||e.expense_type}</span></td>
+    <td><span class="badge badge-red">${EXP_LBL[e.expense_type] || e.expense_type || 'أخرى'}</span></td>
     <td><strong style="color:var(--danger)">${fmt(e.amount)}</strong></td>
     <td style="color:var(--text-secondary);font-size:.82rem">${esc(e.notes||'—')}</td>
     <td><div class="action-btns">
@@ -1266,6 +1292,80 @@ function renderAnalytics() {
       </tr>`).join('')}
     </tbody></table>`
     : '<div style="color:var(--text-muted);padding:16px;text-align:center">لا توجد اشتراكات ستنتهي قريبًا ✅</div>';
+
+  // ── تحليلات الصفوف ──
+  renderGradesAnalytics();
+}
+
+function renderGradesAnalytics() {
+  const container = document.getElementById('grades-analytics-content');
+  if (!container) return;
+
+  // جمع بيانات الصفوف من الاشتراكات والمدرسين الحقيقيين
+  const gradeCount = {}, gradeRevenue = {}, gradeSubjects = {};
+  ST.subs.forEach(s => {
+    const g = s.grade || '—';
+    gradeCount[g]   = (gradeCount[g]   || 0) + 1;
+    gradeRevenue[g] = (gradeRevenue[g] || 0) + (s.payment_status==='paid' ? +s.price : 0);
+    if (s.subject) {
+      if (!gradeSubjects[g]) gradeSubjects[g] = {};
+      gradeSubjects[g][s.subject] = (gradeSubjects[g][s.subject] || 0) + 1;
+    }
+  });
+
+  // من جدول teachers الحقيقي + ads
+  const gradeAds = {};
+  ST.ads.forEach(a => {
+    const g = a.grade || '—';
+    gradeAds[g] = (gradeAds[g] || 0) + 1;
+  });
+
+  // دمج البيانات
+  const allGrades = [...new Set([...Object.keys(gradeCount), ...Object.keys(gradeAds)])].filter(g => g !== '—' && g !== 'متعدد');
+
+  // مجموعات المراحل
+  const STAGES = {
+    'الابتدائي':  ['أول ابتدائي','ثاني ابتدائي','ثالث ابتدائي','رابع ابتدائي','خامس ابتدائي','سادس ابتدائي'],
+    'الإعدادي':   ['أول إعدادي','ثاني إعدادي','ثالث إعدادي'],
+    'الثانوي':    ['أول ثانوي','ثاني ثانوي','ثالث ثانوي']
+  };
+
+  const stageColors = { 'الابتدائي':'var(--success)', 'الإعدادي':'var(--primary)', 'الثانوي':'var(--purple)' };
+  const stageBg     = { 'الابتدائي':'var(--success-bg)', 'الإعدادي':'var(--primary-light)', 'الثانوي':'var(--purple-bg)' };
+
+  container.innerHTML = Object.entries(STAGES).map(([stage, grades]) => {
+    const stageGrades = grades.filter(g => allGrades.includes(g) || gradeCount[g] || gradeAds[g]);
+    const totalSubs = stageGrades.reduce((a,g) => a + (gradeCount[g]||0), 0);
+    const totalRev  = stageGrades.reduce((a,g) => a + (gradeRevenue[g]||0), 0);
+    const totalAds  = stageGrades.reduce((a,g) => a + (gradeAds[g]||0), 0);
+
+    const rows = grades.map(g => {
+      const subs = gradeCount[g]||0;
+      const ads  = gradeAds[g]||0;
+      const rev  = gradeRevenue[g]||0;
+      const topSubj = gradeSubjects[g] ? Object.entries(gradeSubjects[g]).sort((a,b)=>b[1]-a[1])[0]?.[0] : '—';
+      if (!subs && !ads) return '';
+      return `<div style="display:flex;align-items:center;justify-content:space-between;padding:7px 0;border-bottom:1px solid var(--border-light);font-size:.82rem">
+        <span style="font-weight:600;min-width:110px">${g}</span>
+        <span style="color:var(--text-muted)">👥 ${subs} | 📣 ${ads}</span>
+        <span style="color:var(--success);font-weight:700">${rev>0?fmt(rev):''}</span>
+        <span style="color:var(--text-muted);font-size:.75rem">${topSubj!=='—'?topSubj:''}</span>
+      </div>`;
+    }).filter(Boolean).join('');
+
+    return `<div style="background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-lg);padding:16px;box-shadow:var(--shadow-sm)">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px">
+        <div style="width:10px;height:10px;border-radius:50%;background:${stageColors[stage]}"></div>
+        <strong style="font-family:Cairo,sans-serif;color:${stageColors[stage]}">${stage}</strong>
+        <span class="badge" style="background:${stageBg[stage]};color:${stageColors[stage]};margin-right:auto">${totalSubs} مدرس</span>
+      </div>
+      <div style="display:flex;gap:12px;margin-bottom:10px;font-size:.8rem">
+        <span>📣 ${totalAds} إعلان</span>
+        <span style="color:var(--success);font-weight:700">${totalRev>0?fmt(totalRev):''}</span>
+      </div>
+      ${rows || '<div style="color:var(--text-muted);font-size:.82rem;text-align:center;padding:8px">لا توجد بيانات بعد</div>'}
+    </div>`;
+  }).join('');
 }
 
 // ══════════════════════════════════════════
@@ -1387,12 +1487,22 @@ async function deleteSub(id) {
 }
 
 // ── EXPENSE CRUD ──
+function toggleCustomExpType() {
+  const val = document.getElementById('exp-type').value;
+  document.getElementById('exp-custom-wrap').style.display = val === 'other' ? '' : 'none';
+  if (val !== 'other') document.getElementById('exp-custom-type').value = '';
+}
+
 function editExp(id) {
   const e = ST.expenses.find(x=>x.id===id); if(!e) return;
   editId.exp = id;
   document.getElementById('modal-exp-title').textContent = 'تعديل المصروف';
   document.getElementById('exp-date').value   = e.expense_date||'';
-  document.getElementById('exp-type').value   = e.expense_type||'other';
+  const knownTypes = ['domain','hosting','ads','design','whatsapp','tools','other'];
+  const isKnown = knownTypes.includes(e.expense_type);
+  document.getElementById('exp-type').value = isKnown ? e.expense_type : 'other';
+  document.getElementById('exp-custom-type').value = isKnown ? '' : (e.expense_type||'');
+  document.getElementById('exp-custom-wrap').style.display = isKnown ? 'none' : '';
   document.getElementById('exp-amount').value = e.amount||'';
   document.getElementById('exp-notes').value  = e.notes||'';
   document.getElementById('modal-exp').classList.add('open');
@@ -1405,7 +1515,9 @@ async function saveExp() {
 
   const data = {
     expense_date: date,
-    expense_type: document.getElementById('exp-type').value,
+    expense_type: document.getElementById('exp-type').value === 'other'
+      ? (document.getElementById('exp-custom-type').value.trim() || 'other')
+      : document.getElementById('exp-type').value,
     amount,
     notes: document.getElementById('exp-notes').value.trim()
   };

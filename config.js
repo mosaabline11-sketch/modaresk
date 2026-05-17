@@ -146,8 +146,8 @@ function populateGradeSelect(selectId, selected = "") {
   if (selected) el.value = selected;
 }
 function populateAllSubjectAndGradeSelects() {
-  ['ad-subject','ea-subject','filter-subject','hero-subject'].forEach(id => populateSubjectSelect(id, document.getElementById(id)?.value || ''));
-  ['ad-grade','ea-grade','filter-grade','hero-grade'].forEach(id => populateGradeSelect(id, document.getElementById(id)?.value || ''));
+  ['ad-subject','ea-subject','filter-subject','hero-subject','s-subject'].forEach(id => populateSubjectSelect(id, document.getElementById(id)?.value || ''));
+  ['ad-grade','ea-grade','filter-grade','hero-grade','s-grade'].forEach(id => populateGradeSelect(id, document.getElementById(id)?.value || ''));
 }
 function parseExtraContacts(text = "") {
   return String(text || '').split(/\n|،/).map(x => x.trim()).filter(Boolean);
@@ -343,16 +343,30 @@ function lockedFeatureHtml(title, requiredPlan = 'باقة أعلى') {
   return `<div class="locked-feature"><div class="lock-icon">🔒</div><strong>${escapeHtml(title)}</strong><span>هذه الميزة غير متاحة في باقتك الحالية. راسل الإدارة للترقية أو تفعيلها كمَيزة إضافية.</span><small>مطلوبة: ${escapeHtml(requiredPlan)}</small></div>`;
 }
 
+// ── Session ID للزوار الفريدين ──
+// يُولَّد مرة واحدة لكل جلسة متصفح ويُحفظ في sessionStorage
+function getSessionId() {
+  const KEY = 'mdrsk_sid';
+  let sid = sessionStorage.getItem(KEY);
+  if (!sid) {
+    sid = ([1e7]+-1e3+-4e3+-8e3+-1e11).replace(/[018]/g, c =>
+      (c ^ crypto.getRandomValues(new Uint8Array(1))[0] & 15 >> c / 4).toString(16));
+    sessionStorage.setItem(KEY, sid);
+  }
+  return sid;
+}
+
 async function trackEvent(eventType, payload = {}) {
   try {
     if (!window.supabase || !eventType) return;
     await window.supabase.from('analytics_events').insert({
       event_type: eventType,
       teacher_id: payload.teacher_id || null,
-      ad_id: payload.ad_id || null,
-      page: payload.page || location.pathname.split('/').pop() || 'index.html',
+      ad_id:      payload.ad_id      || null,
+      page:       payload.page || location.pathname.split('/').pop() || 'index.html',
       user_agent: navigator.userAgent,
-      meta: payload.meta || {}
+      session_id: getSessionId(),   // ← الزائر الفريد
+      meta:       payload.meta || {}
     });
   } catch (e) { console.warn('analytics skipped:', e.message); }
 }

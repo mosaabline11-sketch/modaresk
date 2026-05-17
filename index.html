@@ -408,8 +408,7 @@
         <div class="footer-title">روابط سريعة</div>
         <ul class="footer-links">
           <li><a href="index.html">الرئيسية</a></li>
-          <li><a href="login.html?role=teacher">دخول المدرسين</a></li>
-          <li><a href="login.html?role=admin">لوحة الإدارة</a></li>
+          <li><a href="login.html">تسجيل الدخول</a></li>
           <li><a href="privacy.html">سياسة الخصوصية</a></li>
           <li><a href="terms.html">شروط الاستخدام</a></li>
         </ul>
@@ -450,6 +449,8 @@
 <script src="config.js?v=7.4.2"></script>
 <script>
   let allAds = [];
+  const PAGE_SIZE = 8;
+  let visibleCount = PAGE_SIZE;
   let filteredAds = [];
   let activeType = '';
   let searchQuery = '';
@@ -534,17 +535,53 @@
     if (filteredAds.length === 0) {
       grid.style.display = 'none';
       empty.style.display = '';
+      // إزالة زر المزيد
+      document.getElementById('load-more-wrap')?.remove();
       return;
     }
 
     grid.style.display = '';
     empty.style.display = 'none';
-    grid.innerHTML = filteredAds.map(ad => buildTeacherCard(ad, ad.teachers)).join('');
-    filteredAds.forEach(ad => trackEvent('ad_card_view', {ad_id: ad.id, teacher_id: ad.teacher_id, page:'index.html'}));
+
+    // عرض أول PAGE_SIZE إعلانات فقط
+    const toShow = filteredAds.slice(0, visibleCount);
+    grid.innerHTML = toShow.map(ad => buildTeacherCard(ad, ad.teachers)).join('');
+    toShow.forEach(ad => trackEvent('ad_card_view', {ad_id: ad.id, teacher_id: ad.teacher_id, page:'index.html'}));
+
+    // زر عرض المزيد
+    let loadMoreWrap = document.getElementById('load-more-wrap');
+    if (!loadMoreWrap) {
+      loadMoreWrap = document.createElement('div');
+      loadMoreWrap.id = 'load-more-wrap';
+      loadMoreWrap.style.cssText = 'text-align:center;padding:24px 0 8px;display:flex;gap:12px;justify-content:center;flex-wrap:wrap';
+      grid.after(loadMoreWrap);
+    }
+    if (visibleCount < filteredAds.length) {
+      loadMoreWrap.innerHTML = `
+        <button onclick="showMoreAds()" class="btn btn-outline" style="padding:12px 28px;font-size:.95rem;border-radius:12px">
+          ⬇️ عرض المزيد (${filteredAds.length - visibleCount} إعلان متبقي)
+        </button>
+        <a href="search.html" class="btn btn-primary" style="padding:12px 28px;font-size:.95rem;border-radius:12px">
+          🔍 البحث المتقدم
+        </a>`;
+    } else {
+      loadMoreWrap.innerHTML = filteredAds.length > PAGE_SIZE
+        ? `<a href="search.html" class="btn btn-outline" style="padding:12px 28px;font-size:.95rem;border-radius:12px">🔍 بحث متقدم وفلترة</a>`
+        : '';
+    }
 
     if (searchQuery) title.textContent = `🔍 نتائج: "${searchQuery}"`;
     else if (activeType) title.textContent = `🎓 إعلانات ${activeType}`;
-    else title.textContent = '🎓 جميع الإعلانات';
+    else title.textContent = '🎓 أحدث الإعلانات';
+  }
+
+  function showMoreAds() {
+    visibleCount += PAGE_SIZE;
+    renderAds();
+  }
+
+  function resetVisible() {
+    visibleCount = PAGE_SIZE;
   }
 
   function applyFilters() {
@@ -565,6 +602,7 @@
     if (filterGrade) result = result.filter(ad => ad.grade === filterGrade);
 
     filteredAds = result;
+    resetVisible();
     sortAds(false);
     renderAds();
   }
@@ -579,17 +617,19 @@
 
   function applySearch() {
     searchQuery = document.getElementById('hero-search').value.trim();
-    const grade = document.getElementById('hero-grade').value;
-    if (grade) {
-      filterGrade = grade;
-      document.getElementById('filter-grade').value = grade;
-      document.getElementById('filters-bar').scrollIntoView({ behavior: 'smooth' });
+    const subject = document.getElementById('hero-subject').value;
+    const grade   = document.getElementById('hero-grade').value;
+
+    // إذا في بحث → انتقل لصفحة البحث المتقدم
+    if (searchQuery || grade || subject) {
+      const params = new URLSearchParams();
+      if (searchQuery) params.set('q', searchQuery);
+      if (subject)     params.set('subject', subject);
+      if (grade)       params.set('grade', grade);
+      window.location.href = `search.html?${params.toString()}`;
+      return;
     }
     applyFilters();
-    if (searchQuery || grade) {
-      document.getElementById('results-section')?.scrollIntoView({ behavior: 'smooth' });
-      document.querySelector('.results-section').scrollIntoView({ behavior: 'smooth' });
-    }
   }
 
   function setupFilters() {

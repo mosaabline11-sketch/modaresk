@@ -140,8 +140,8 @@
 
     <!-- Login Card -->
     <div class="login-card">
-      <!-- Role Tabs -->
-      <div class="role-tabs">
+      <!-- Tab الإدارة مخفي - يُفعَّل فقط بـ ?role=admin في الرابط -->
+      <div class="role-tabs" id="role-tabs" style="display:none">
         <button class="role-tab" id="tab-teacher" onclick="setRole('teacher')">👨‍🏫 دخول المدرس</button>
         <button class="role-tab" id="tab-admin" onclick="setRole('admin')">🔧 لوحة الإدارة</button>
       </div>
@@ -198,12 +198,15 @@
   let currentRole = 'teacher';
 
   document.addEventListener('DOMContentLoaded', async () => {
-    // Check URL param
     const params = new URLSearchParams(window.location.search);
     const role = params.get('role');
-    setRole(role === 'admin' ? 'admin' : 'teacher');
-
-    // If already logged in, redirect
+    // إظهار الـ tabs فقط لو الرابط يحتوي على ?role=admin
+    if (role === 'admin') {
+      document.getElementById('role-tabs').style.display = '';
+      setRole('admin');
+    } else {
+      setRole('teacher');
+    }
     if (await Auth.isAdmin()) { window.location.href = 'admin.html'; return; }
     if (Auth.isTeacher()) { window.location.href = 'dashboard.html'; return; }
   });
