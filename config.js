@@ -772,3 +772,29 @@ function confirmDialog(message, onConfirm) {
     if (e.target === overlay) overlay.remove();
   };
 }
+
+// ══════════════════════════════════════════
+// إخفاء عناصر الإدارة عن غير الإداريين
+// أضف data-admin-only لأي عنصر تريد إخفاءه
+// ══════════════════════════════════════════
+async function applyAdminVisibility() {
+  const els = document.querySelectorAll('[data-admin-only]');
+  if (!els.length) return;
+  // إخفاء فوري حتى يتم التحقق
+  els.forEach(el => el.style.display = 'none');
+  try {
+    const isAdm = await Auth.isAdmin();
+    els.forEach(el => {
+      el.style.display = isAdm ? '' : 'none';
+    });
+  } catch(e) {
+    els.forEach(el => el.style.display = 'none');
+  }
+}
+
+// تشغيل تلقائي عند تحميل الصفحة
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', applyAdminVisibility);
+} else {
+  applyAdminVisibility();
+}

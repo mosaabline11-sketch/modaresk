@@ -1,501 +1,321 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>البحث عن مدرس — مدرسك</title>
-  <meta name="description" content="ابحث عن مدرس خصوصي مناسب حسب المادة والصف ونوع الدرس. مدرسك — فهم أفضل .. مستقبل أفضل.">
-  <meta name="keywords" content="مدرسك, مدرس خصوصي, دروس خصوصية, بحث مدرس, مدرس أونلاين, مدرس حضوري">
-  <meta name="robots" content="index, follow">
-  <meta name="theme-color" content="#2563EB">
-  <link rel="canonical" href="https://mosaabline11-sketch.github.io/modaresk/search.html">
-  <meta property="og:locale" content="ar_AR">
-  <meta property="og:type" content="website">
-  <meta property="og:title" content="البحث عن مدرس — مدرسك">
-  <meta property="og:description" content="ابحث عن مدرس خصوصي مناسب حسب المادة والصف ونوع الدرس.">
-  <meta property="og:image" content="logo.png">
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800;900&family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="style.css?v=7.4.2">
-  <link rel="icon" type="image/png" href="logo.png">
-  <link rel="manifest" href="manifest.webmanifest">
-  <style>
-    /* ── Search Hero ── */
-    .search-hero {
-      background: linear-gradient(135deg, #0F172A 0%, #1E3A8A 60%, #1D4ED8 100%);
-      padding: 40px 0 56px;
-      color: white;
-      position: relative;
-      overflow: hidden;
-    }
-    .search-hero::before {
-      content: '';
-      position: absolute;
-      inset: -30%;
-      background: radial-gradient(circle at 70% 50%, rgba(96,165,250,.2), transparent 55%);
-      pointer-events: none;
-    }
-    .search-hero .container { position: relative; z-index: 1; }
-    .search-hero-brand {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      margin-bottom: 24px;
-    }
-    .search-hero-brand img { width: 48px; height: 48px; border-radius: 12px; }
-    .search-hero-brand span {
-      font-family: 'Cairo', sans-serif;
-      font-size: 1.4rem;
-      font-weight: 900;
-      color: white;
-    }
-    .search-hero h1 {
-      font-family: 'Cairo', sans-serif;
-      font-size: clamp(1.5rem, 4vw, 2.2rem);
-      font-weight: 900;
-      margin-bottom: 8px;
-      line-height: 1.3;
-    }
-    .search-hero p { color: #94A3B8; font-size: .95rem; margin-bottom: 28px; }
-
-    /* ── Search Box ── */
-    .search-box-card {
-      background: white;
-      border-radius: 18px;
-      padding: 20px 24px;
-      box-shadow: 0 8px 32px rgba(0,0,0,.2);
-    }
-    .search-inputs {
-      display: grid;
-      grid-template-columns: 1fr 1fr 1fr auto;
-      gap: 10px;
-      align-items: end;
-    }
-    .search-inputs .form-group { margin: 0; }
-    .search-inputs label {
-      font-size: .78rem;
-      font-weight: 700;
-      color: var(--text-secondary);
-      display: block;
-      margin-bottom: 5px;
-    }
-    .search-inputs input,
-    .search-inputs select {
-      padding: 10px 14px;
-      border: 1.5px solid var(--border);
-      border-radius: 10px;
-      font-family: 'Tajawal', sans-serif;
-      font-size: .9rem;
-      width: 100%;
-      background: var(--bg-light);
-      color: var(--text-primary);
-      outline: none;
-      transition: border-color .2s;
-    }
-    .search-inputs input:focus,
-    .search-inputs select:focus { border-color: var(--primary); background: white; }
-    .search-btn {
-      background: var(--primary);
-      color: white;
-      border: none;
-      border-radius: 10px;
-      padding: 10px 22px;
-      font-family: 'Tajawal', sans-serif;
-      font-size: .95rem;
-      font-weight: 700;
-      cursor: pointer;
-      white-space: nowrap;
-      transition: background .2s;
-      height: 44px;
-    }
-    .search-btn:hover { background: var(--primary-dark, #1D4ED8); }
-
-    /* ── Filters Bar ── */
-    .filters-section {
-      background: white;
-      border-bottom: 1px solid var(--border);
-      padding: 12px 0;
-      position: sticky;
-      top: 0;
-      z-index: 50;
-      box-shadow: 0 2px 8px rgba(0,0,0,.06);
-    }
-    .filters-inner {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      flex-wrap: wrap;
-    }
-    .filter-chip {
-      padding: 6px 14px;
-      border: 1.5px solid var(--border);
-      border-radius: 20px;
-      font-family: 'Tajawal', sans-serif;
-      font-size: .82rem;
-      font-weight: 600;
-      color: var(--text-secondary);
-      background: white;
-      cursor: pointer;
-      transition: all .2s;
-      white-space: nowrap;
-    }
-    .filter-chip:hover { border-color: var(--primary); color: var(--primary); }
-    .filter-chip.active { background: var(--primary); color: white; border-color: var(--primary); }
-    .filter-select-sm {
-      padding: 6px 10px;
-      border: 1.5px solid var(--border);
-      border-radius: 8px;
-      font-family: 'Tajawal', sans-serif;
-      font-size: .82rem;
-      color: var(--text-secondary);
-      background: white;
-      cursor: pointer;
-      outline: none;
-    }
-    .filter-select-sm:focus { border-color: var(--primary); }
-    .results-bar {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      margin-bottom: 20px;
-      flex-wrap: wrap;
-      gap: 8px;
-    }
-    .results-bar h2 {
-      font-family: 'Cairo', sans-serif;
-      font-size: 1.1rem;
-      font-weight: 800;
-    }
-    .results-count {
-      font-size: .85rem;
-      color: var(--text-muted);
-      background: var(--border-light);
-      padding: 4px 12px;
-      border-radius: 20px;
-    }
-
-    /* ── Pagination ── */
-    .pagination {
-      display: flex;
-      justify-content: center;
-      gap: 8px;
-      margin-top: 32px;
-      flex-wrap: wrap;
-    }
-    .page-btn {
-      min-width: 40px;
-      height: 40px;
-      border: 1.5px solid var(--border);
-      border-radius: 8px;
-      background: white;
-      font-family: 'Tajawal', sans-serif;
-      font-size: .9rem;
-      font-weight: 600;
-      color: var(--text-secondary);
-      cursor: pointer;
-      transition: all .2s;
-      padding: 0 12px;
-    }
-    .page-btn:hover { border-color: var(--primary); color: var(--primary); }
-    .page-btn.active { background: var(--primary); color: white; border-color: var(--primary); }
-    .page-btn:disabled { opacity: .4; cursor: not-allowed; }
-
-    @media(max-width: 768px) {
-      .search-inputs { grid-template-columns: 1fr 1fr; }
-      .search-inputs .search-btn-wrap { grid-column: 1/-1; }
-      .search-btn { width: 100%; }
-    }
-    @media(max-width: 480px) {
-      .search-inputs { grid-template-columns: 1fr; }
-      .search-hero { padding: 28px 0 44px; }
-    }
-  </style>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>البحث عن مدرس — مدرسك</title>
+<meta name="description" content="ابحث عن مدرس خصوصي مناسب حسب المادة والصف ونوع الدرس.">
+<meta name="robots" content="index,follow"><meta name="theme-color" content="#2563EB">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800;900&family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css?v=7.4.2">
+<link rel="icon" type="image/png" href="logo.png">
+<link rel="manifest" href="manifest.webmanifest">
+<style>
+.s-hero{background:linear-gradient(135deg,#0F172A 0%,#1E3A8A 60%,#1D4ED8 100%);padding:36px 0 52px;color:white;position:relative;overflow:hidden}
+.s-hero::before{content:'';position:absolute;inset:-30%;background:radial-gradient(circle at 70% 50%,rgba(96,165,250,.2),transparent 55%);pointer-events:none}
+.s-hero .container{position:relative;z-index:1}
+.s-brand{display:flex;align-items:center;gap:10px;margin-bottom:20px}
+.s-brand img{width:44px;height:44px;border-radius:10px}
+.s-brand span{font-family:'Cairo',sans-serif;font-size:1.25rem;font-weight:900;color:white}
+.s-hero h1{font-family:'Cairo',sans-serif;font-size:clamp(1.4rem,3.5vw,2rem);font-weight:900;margin-bottom:6px}
+.s-hero p{color:#94A3B8;font-size:.92rem;margin-bottom:22px}
+.s-box{background:white;border-radius:16px;padding:18px 20px;box-shadow:0 8px 32px rgba(0,0,0,.22)}
+.s-row1{display:grid;grid-template-columns:1fr auto;gap:10px;margin-bottom:12px}
+.s-inp{padding:10px 14px;border:1.5px solid #E2E8F0;border-radius:10px;font-family:'Tajawal',sans-serif;font-size:.92rem;width:100%;outline:none;transition:border-color .2s;color:#0F172A;background:#F8FAFC}
+.s-inp:focus{border-color:#2563EB;background:white}
+.s-btn{background:#2563EB;color:white;border:none;border-radius:10px;padding:10px 22px;font-family:'Tajawal',sans-serif;font-size:.95rem;font-weight:700;cursor:pointer;white-space:nowrap;height:44px;transition:background .2s}
+.s-btn:hover{background:#1D4ED8}
+.s-row2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+/* Grade multi-picker */
+.gp-wrap{position:relative}
+.gp-btn{width:100%;text-align:right;padding:9px 12px;border:1.5px solid #E2E8F0;border-radius:10px;background:#F8FAFC;font-family:'Tajawal',sans-serif;font-size:.88rem;cursor:pointer;display:flex;justify-content:space-between;align-items:center;color:#0F172A;transition:border-color .2s}
+.gp-btn.open,.gp-btn:hover{border-color:#2563EB}
+.gp-dd{display:none;position:absolute;top:calc(100% + 4px);right:0;left:0;background:white;border:1.5px solid #2563EB;border-radius:12px;box-shadow:0 8px 24px rgba(0,0,0,.14);z-index:300;max-height:290px;overflow-y:auto}
+.gp-dd.open{display:block}
+.gp-stage{padding:5px 12px 2px;font-size:.7rem;font-weight:800;color:#94A3B8;background:#FAFAFA;border-bottom:1px solid #F1F5F9;letter-spacing:.5px}
+.gp-opt{display:flex;align-items:center;gap:8px;padding:8px 14px;font-size:.85rem;cursor:pointer;transition:background .12s}
+.gp-opt:hover{background:#F1F5F9}
+.gp-opt.sel{background:#DBEAFE;font-weight:600;color:#1D4ED8}
+.gp-opt input{accent-color:#2563EB;width:15px;height:15px}
+.gp-clear{padding:7px 12px;font-size:.78rem;color:#DC2626;cursor:pointer;text-align:center;border-top:1px solid #F1F5F9;display:block;width:100%;background:none;border:none;font-family:'Tajawal',sans-serif}
+.gp-clear:hover{background:#FEF2F2}
+/* Filters bar */
+.f-bar{background:white;border-bottom:1px solid #E2E8F0;padding:10px 0;position:sticky;top:0;z-index:40;box-shadow:0 2px 8px rgba(0,0,0,.05)}
+.f-inner{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.f-chip{padding:5px 14px;border:1.5px solid #E2E8F0;border-radius:20px;font-family:'Tajawal',sans-serif;font-size:.82rem;font-weight:600;color:#475569;background:white;cursor:pointer;transition:all .15s;white-space:nowrap}
+.f-chip:hover{border-color:#2563EB;color:#2563EB}
+.f-chip.active{background:#2563EB;color:white;border-color:#2563EB}
+.f-sort{padding:5px 10px;border:1.5px solid #E2E8F0;border-radius:8px;font-family:'Tajawal',sans-serif;font-size:.82rem;outline:none;background:white;color:#475569}
+/* Results */
+.r-bar{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px;flex-wrap:wrap;gap:8px}
+.r-bar h2{font-family:'Cairo',sans-serif;font-size:1.05rem;font-weight:800}
+.r-count{font-size:.82rem;color:#94A3B8;background:#F1F5F9;padding:3px 12px;border-radius:20px}
+/* Pagination */
+.pag{display:flex;justify-content:center;gap:6px;margin-top:32px;flex-wrap:wrap}
+.pg-b{min-width:38px;height:38px;border:1.5px solid #E2E8F0;border-radius:8px;background:white;font-family:'Tajawal',sans-serif;font-size:.88rem;font-weight:600;color:#475569;cursor:pointer;transition:all .15s;padding:0 10px}
+.pg-b:hover{border-color:#2563EB;color:#2563EB}
+.pg-b.active{background:#2563EB;color:white;border-color:#2563EB}
+.pg-b:disabled{opacity:.4;cursor:not-allowed}
+@media(max-width:640px){.s-row2{grid-template-columns:1fr}.s-hero{padding:24px 0 40px}}
+</style>
 </head>
 <body>
 
-<!-- NAV -->
 <nav class="navbar">
   <div class="nav-container" style="max-width:1200px;margin:0 auto">
-    <a href="index.html" class="nav-brand">
-      <img src="logo.png" alt="مدرسك" class="site-logo"> مدرسك
-    </a>
+    <a href="index.html" class="nav-brand"><img src="logo.png" alt="مدرسك" class="site-logo"> مدرسك</a>
     <ul class="nav-links" id="nav-links">
       <li><a href="index.html">الرئيسية</a></li>
       <li><a href="search.html" class="active">البحث</a></li>
       <li><a href="join.html">انضم كمدرس</a></li>
     </ul>
-    <div class="nav-actions">
-      <a href="login.html" class="btn btn-outline btn-sm">تسجيل الدخول</a>
-    </div>
+    <div class="nav-actions"><a href="login.html" class="btn btn-outline btn-sm">تسجيل الدخول</a></div>
     <button class="nav-menu-btn" onclick="document.getElementById('nav-links').classList.toggle('open')">☰</button>
   </div>
 </nav>
 
-<!-- HERO + SEARCH BOX -->
-<section class="search-hero">
+<section class="s-hero">
   <div class="container">
-    <div class="search-hero-brand">
+    <div class="s-brand">
       <img src="logo.png" alt="مدرسك">
-      <span>مدرسك</span>
+      <span>مدرسك — فهم أفضل .. مستقبل أفضل</span>
     </div>
     <h1>🔍 ابحث عن مدرسك المثالي</h1>
-    <p>أكثر من <strong id="total-count" style="color:white">...</strong> مدرس متاح الآن — ابحث بالمادة والصف ونوع الدرس</p>
-    <div class="search-box-card">
-      <div class="search-inputs">
-        <div class="form-group">
-          <label>🔤 اسم المدرس أو الكلمة</label>
-          <input type="text" id="q" placeholder="مثال: رياضيات، أحمد..." autocomplete="off">
-        </div>
-        <div class="form-group">
-          <label>📚 المادة</label>
-          <select id="s-subject"><option value="">جميع المواد</option></select>
-        </div>
-        <div class="form-group">
-          <label>📗 الصف الدراسي</label>
-          <select id="s-grade"><option value="">جميع الصفوف</option></select>
-        </div>
-        <div class="search-btn-wrap">
-          <button class="search-btn" onclick="doSearch()">بحث 🔍</button>
+    <p id="hero-sub">جارٍ تحميل الإعلانات...</p>
+    <div class="s-box">
+      <div class="s-row1">
+        <input class="s-inp" type="text" id="q" placeholder="ابحث بالاسم، المادة، الوصف..." autocomplete="off">
+        <button class="s-btn" onclick="doSearch()">بحث 🔍</button>
+      </div>
+      <div class="s-row2">
+        <select class="s-inp" id="s-subject" onchange="doSearch()">
+          <option value="">📚 جميع المواد</option>
+        </select>
+        <div class="gp-wrap" id="gp-wrap">
+          <button type="button" class="gp-btn" id="gp-btn" onclick="toggleGP(event)">
+            <span id="gp-lbl">📗 جميع الصفوف</span>
+            <span style="font-size:.7rem;color:#94A3B8">▼</span>
+          </button>
+          <div class="gp-dd" id="gp-dd"></div>
         </div>
       </div>
     </div>
   </div>
 </section>
 
-<!-- STICKY FILTERS -->
-<div class="filters-section">
+<div class="f-bar">
   <div class="container">
-    <div class="filters-inner">
-      <span style="font-size:.82rem;font-weight:700;color:var(--text-secondary);white-space:nowrap">نوع الدرس:</span>
-      <button class="filter-chip active" data-type="" onclick="setType(this,'')">الكل</button>
-      <button class="filter-chip" data-type="online" onclick="setType(this,'online')">🖥️ أونلاين</button>
-      <button class="filter-chip" data-type="inperson" onclick="setType(this,'inperson')">🏫 حضوري</button>
-      <button class="filter-chip" data-type="both" onclick="setType(this,'both')">🔀 الاثنين</button>
-      <div style="margin-right:auto;display:flex;align-items:center;gap:8px">
-        <span style="font-size:.78rem;color:var(--text-muted)">ترتيب:</span>
-        <select class="filter-select-sm" id="sort-by" onchange="applySort()">
+    <div class="f-inner">
+      <span style="font-size:.78rem;font-weight:700;color:#94A3B8;white-space:nowrap">نوع الدرس:</span>
+      <button class="f-chip active" onclick="setType(this,'')">الكل</button>
+      <button class="f-chip" onclick="setType(this,'online')">🖥️ أونلاين</button>
+      <button class="f-chip" onclick="setType(this,'inperson')">🏫 حضوري</button>
+      <button class="f-chip" onclick="setType(this,'both')">🔀 الاثنين</button>
+      <div style="margin-right:auto;display:flex;align-items:center;gap:6px">
+        <span style="font-size:.78rem;color:#94A3B8">ترتيب:</span>
+        <select class="f-sort" id="sort-by" onchange="doSearch()">
           <option value="newest">الأحدث</option>
-          <option value="price-asc">السعر: الأقل</option>
-          <option value="price-desc">السعر: الأعلى</option>
+          <option value="price-asc">السعر ↑</option>
+          <option value="price-desc">السعر ↓</option>
         </select>
       </div>
     </div>
   </div>
 </div>
 
-<!-- RESULTS -->
 <main class="container" style="padding:28px 0 60px">
-  <div class="results-bar">
-    <h2 id="results-title">🎓 جميع الإعلانات</h2>
-    <span class="results-count" id="results-count">جارٍ التحميل...</span>
+  <div class="r-bar">
+    <h2 id="res-title">🎓 جميع الإعلانات</h2>
+    <span class="r-count" id="res-count">...</span>
   </div>
-
-  <!-- Loading -->
   <div id="s-loading" style="text-align:center;padding:60px 0">
-    <div class="spinner-lg" style="margin:0 auto 16px"></div>
-    <div style="color:var(--text-muted)">جارٍ تحميل الإعلانات...</div>
+    <div class="spinner-lg" style="margin:0 auto 14px"></div>
+    <div style="color:#94A3B8">جارٍ تحميل الإعلانات...</div>
   </div>
-
-  <!-- Grid -->
   <div id="s-grid" class="grid cards-grid" style="display:none"></div>
-
-  <!-- Empty -->
   <div id="s-empty" class="empty-state" style="display:none">
     <div class="empty-icon">🔍</div>
     <div class="empty-title">لا توجد نتائج</div>
-    <div class="empty-text">جرّب تغيير الكلمة أو الفلاتر للعثور على مدرس مناسب</div>
-    <button onclick="resetFilters()" class="btn btn-primary mt-16">عرض جميع الإعلانات</button>
+    <div class="empty-text">جرّب تعديل كلمة البحث أو الفلاتر</div>
+    <button onclick="resetAll()" class="btn btn-primary mt-16">عرض جميع الإعلانات</button>
   </div>
-
-  <!-- Pagination -->
-  <div class="pagination" id="pagination"></div>
+  <div class="pag" id="pag"></div>
 </main>
 
-<!-- FOOTER -->
-<footer class="footer">
-  <div class="container">
-    <div class="grid grid-3" style="gap:40px;margin-bottom:0">
-      <div>
-        <img src="logo.png" alt="مدرسك" class="footer-logo">
-        <div class="footer-brand">مدرسك</div>
-        <div class="footer-desc">منصة تربط الطلاب بأفضل المدرسين الخصوصيين في مختلف المواد والمراحل الدراسية.</div>
-      </div>
-      <div>
-        <div class="footer-title">روابط سريعة</div>
-        <ul class="footer-links">
-          <li><a href="index.html">الرئيسية</a></li>
-          <li><a href="search.html">البحث</a></li>
-          <li><a href="join.html">انضم كمدرس</a></li>
-          <li><a href="login.html">تسجيل الدخول</a></li>
-        </ul>
-      </div>
-      <div>
-        <div class="footer-title">معلومات قانونية</div>
-        <ul class="footer-links">
-          <li><a href="privacy.html">سياسة الخصوصية</a></li>
-          <li><a href="terms.html">شروط الاستخدام</a></li>
-          <li><a href="#" data-admin-contact data-message="مرحبًا، أريد الاستفسار عن منصة مدرسك">💬 واتساب الإدارة</a></li>
-        </ul>
-      </div>
-    </div>
-    <div class="footer-bottom">© 2026 مدرسك — جميع الحقوق محفوظة</div>
+<footer class="footer"><div class="container">
+  <div class="grid grid-3" style="gap:40px;margin-bottom:0">
+    <div><img src="logo.png" alt="مدرسك" class="footer-logo"><div class="footer-brand">مدرسك</div><div class="footer-desc">منصة تربط الطلاب بأفضل المدرسين الخصوصيين.</div></div>
+    <div><div class="footer-title">روابط سريعة</div><ul class="footer-links"><li><a href="index.html">الرئيسية</a></li><li><a href="search.html">البحث</a></li><li><a href="join.html">انضم كمدرس</a></li><li><a href="login.html">تسجيل الدخول</a></li></ul></div>
+    <div><div class="footer-title">قانوني</div><ul class="footer-links"><li><a href="privacy.html">سياسة الخصوصية</a></li><li><a href="terms.html">شروط الاستخدام</a></li><li><a href="#" data-admin-contact data-message="مرحبًا، أريد الاستفسار">💬 واتساب الإدارة</a></li></ul></div>
   </div>
-</footer>
+  <div class="footer-bottom">© 2026 مدرسك — جميع الحقوق محفوظة</div>
+</div></footer>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="config.js?v=7.4.2"></script>
 <script>
-const PAGE_SIZE = 12;
-let allAds = [], filtered = [], currentPage = 1;
-let activeType = '', searchQ = '', sortBy = 'newest';
+const PG=12;
+let allAds=[],filtered=[],curPage=1,activeType='';
+let selGrades=new Set();
 
+const STAGES={
+  'الابتدائي':['أول ابتدائي','ثاني ابتدائي','ثالث ابتدائي','رابع ابتدائي','خامس ابتدائي','سادس ابتدائي'],
+  'الإعدادي' :['أول إعدادي','ثاني إعدادي','ثالث إعدادي'],
+  'الثانوي'  :['أول ثانوي','ثاني ثانوي','ثالث ثانوي'],
+  'الجامعي'  :['المرحلة الجامعية'],
+  'أخرى'     :['أخرى / مختلطة'],
+};
+
+// ── Init ──
 document.addEventListener('DOMContentLoaded', async () => {
-  // Pre-fill from URL params (redirect from index.html search)
-  const params = new URLSearchParams(location.search);
-  if (params.get('q'))       { document.getElementById('q').value       = params.get('q'); searchQ = params.get('q'); }
-  if (params.get('subject')) { document.getElementById('s-subject').value = params.get('subject'); }
-  if (params.get('grade'))   { document.getElementById('s-grade').value   = params.get('grade'); }
+  const p   = new URLSearchParams(location.search);
+  const initQ   = p.get('q')       || '';
+  const initSub = p.get('subject') || '';
+  const initGrd = p.get('grade')   || '';
+
+  if (initGrd) selGrades.add(initGrd);
 
   await loadSubjectsSafe();
-  populateSubjectSelect('s-subject', document.getElementById('s-subject').value);
-  populateGradeSelect('s-grade', document.getElementById('s-grade').value);
+  populateSubjectSelect('s-subject', initSub);
+  buildGP();
+  if (initQ) document.getElementById('q').value = initQ;
 
-  // Enter key on search
-  document.getElementById('q').addEventListener('keydown', e => { if (e.key === 'Enter') doSearch(); });
+  document.getElementById('q').addEventListener('keydown', e=>{if(e.key==='Enter')doSearch();});
+  document.addEventListener('click', e=>{
+    if(!document.getElementById('gp-wrap').contains(e.target)) closeGP();
+  });
 
-  await loadAllAds();
+  await loadAds();
 });
 
-async function loadAllAds() {
-  try {
-    const { data, error } = await supabase
-      .from('ads')
-      .select('*, teachers(id,name,avatar_url,bio,whatsapp,facebook,phone,contact_methods,is_active,plan_type,subscription_status,subscription_end)')
-      .eq('status', 'active')
-      .order('created_at', { ascending: false });
+// ── Grade Picker ──
+function buildGP(){
+  const dd=document.getElementById('gp-dd');
+  dd.innerHTML=Object.entries(STAGES).map(([st,gs])=>
+    `<div class="gp-stage">${st}</div>`+
+    gs.map(g=>`<label class="gp-opt${selGrades.has(g)?' sel':''}">
+      <input type="checkbox" value="${g}" ${selGrades.has(g)?'checked':''} onchange="onGradeChk(this)">${g}
+    </label>`).join('')
+  ).join('')+`<button class="gp-clear" onclick="clearGrades();event.stopPropagation()">✕ مسح الاختيارات</button>`;
+  updateGPLabel();
+}
+function toggleGP(e){e.stopPropagation();const dd=document.getElementById('gp-dd'),btn=document.getElementById('gp-btn');const o=dd.classList.toggle('open');btn.classList.toggle('open',o);}
+function closeGP(){document.getElementById('gp-dd').classList.remove('open');document.getElementById('gp-btn').classList.remove('open');}
+function onGradeChk(cb){
+  cb.checked?selGrades.add(cb.value):selGrades.delete(cb.value);
+  cb.closest('.gp-opt').classList.toggle('sel',cb.checked);
+  updateGPLabel(); doSearch();
+}
+function updateGPLabel(){
+  const l=document.getElementById('gp-lbl');
+  if(!selGrades.size){l.textContent='📗 جميع الصفوف';return;}
+  if(selGrades.size===1){l.textContent='📗 '+[...selGrades][0];return;}
+  l.textContent=`📗 ${selGrades.size} صفوف مختارة`;
+}
+function clearGrades(){
+  selGrades.clear();
+  document.querySelectorAll('#gp-dd input').forEach(c=>{c.checked=false;c.closest('.gp-opt').classList.remove('sel');});
+  updateGPLabel(); doSearch();
+}
 
-    if (error) throw error;
-    allAds = (data || []).filter(ad => isSubscriptionActive(ad.teachers));
-    document.getElementById('total-count').textContent = allAds.length;
-    doSearch(false);
-  } catch (e) {
+// ── Load ──
+async function loadAds(){
+  try{
+    const{data,error}=await supabase.from('ads')
+      .select('*,teachers(id,name,avatar_url,bio,whatsapp,facebook,phone,contact_methods,is_active,plan_type,subscription_status,subscription_end)')
+      .eq('status','active').order('created_at',{ascending:false});
+    if(error)throw error;
+    allAds=(data||[]).filter(ad=>isSubscriptionActive(ad.teachers));
+    document.getElementById('hero-sub').textContent=
+      `${allAds.length} مدرس متاح الآن — ابحث بالمادة والصف ونوع الدرس`;
+    doSearch();
+  }catch(e){
     console.error(e);
-    document.getElementById('s-loading').innerHTML = '<div style="color:var(--danger);padding:40px;text-align:center">تعذّر تحميل البيانات. تأكد من الاتصال بالإنترنت.</div>';
+    document.getElementById('s-loading').innerHTML=
+      '<div style="color:#DC2626;padding:40px;text-align:center">تعذّر تحميل البيانات</div>';
   }
 }
 
-function doSearch(resetPage = true) {
-  searchQ    = document.getElementById('q').value.trim();
-  const subj = document.getElementById('s-subject').value;
-  const grade= document.getElementById('s-grade').value;
-  if (resetPage) currentPage = 1;
-
-  filtered = allAds.filter(ad => {
-    if (activeType && ad.lesson_type !== activeType) return false;
-    if (subj  && ad.subject !== subj) return false;
-    if (grade && ad.grade !== grade) return false;
-    if (searchQ) {
-      const q = searchQ.toLowerCase();
-      return (ad.subject||'').toLowerCase().includes(q) ||
-             (ad.grade||'').toLowerCase().includes(q) ||
-             (ad.description||'').toLowerCase().includes(q) ||
-             (ad.teachers?.name||'').toLowerCase().includes(q) ||
-             (ad.title||'').toLowerCase().includes(q);
-    }
+// ── Search ──
+function doSearch(){
+  curPage=1;
+  const q=(document.getElementById('q').value||'').trim().toLowerCase();
+  const sub=document.getElementById('s-subject').value;
+  const srt=document.getElementById('sort-by').value;
+  filtered=allAds.filter(ad=>{
+    if(activeType&&ad.lesson_type!==activeType)return false;
+    if(sub&&ad.subject!==sub)return false;
+    if(selGrades.size&&!selGrades.has(ad.grade))return false;
+    if(q)return(ad.subject||'').toLowerCase().includes(q)||
+                (ad.grade||'').toLowerCase().includes(q)||
+                (ad.description||'').toLowerCase().includes(q)||
+                ((ad.teachers?.name)||'').toLowerCase().includes(q)||
+                (ad.title||'').toLowerCase().includes(q);
     return true;
   });
-
-  applySort(false);
+  if(srt==='price-asc')filtered.sort((a,b)=>a.price-b.price);
+  else if(srt==='price-desc')filtered.sort((a,b)=>b.price-a.price);
+  else filtered.sort((a,b)=>new Date(b.created_at)-new Date(a.created_at));
   render();
 }
 
-function applySort(doRender = true) {
-  sortBy = document.getElementById('sort-by').value;
-  if (sortBy === 'price-asc')  filtered.sort((a,b) => a.price - b.price);
-  else if (sortBy === 'price-desc') filtered.sort((a,b) => b.price - a.price);
-  else filtered.sort((a,b) => new Date(b.created_at) - new Date(a.created_at));
-  if (doRender) render();
-}
-
-function setType(btn, type) {
-  activeType = type;
-  document.querySelectorAll('.filter-chip').forEach(b => b.classList.toggle('active', b === btn));
-  currentPage = 1;
-  doSearch(false);
-}
-
-function resetFilters() {
-  document.getElementById('q').value = '';
-  document.getElementById('s-subject').value = '';
-  document.getElementById('s-grade').value = '';
-  activeType = '';
-  searchQ = '';
-  document.querySelectorAll('.filter-chip').forEach((b,i) => b.classList.toggle('active', i===0));
+function setType(btn,type){
+  activeType=type;
+  document.querySelectorAll('.f-chip').forEach(b=>b.classList.toggle('active',b===btn));
   doSearch();
 }
 
-function render() {
-  const grid   = document.getElementById('s-grid');
-  const empty  = document.getElementById('s-empty');
-  const loading= document.getElementById('s-loading');
-  const count  = document.getElementById('results-count');
-  const title  = document.getElementById('results-title');
+function resetAll(){
+  document.getElementById('q').value='';
+  document.getElementById('s-subject').value='';
+  activeType=''; clearGrades();
+  document.querySelectorAll('.f-chip').forEach((b,i)=>b.classList.toggle('active',i===0));
+  doSearch();
+}
 
-  loading.style.display = 'none';
-
-  if (!filtered.length) {
-    grid.style.display = 'none';
-    empty.style.display = '';
-    document.getElementById('pagination').innerHTML = '';
-    count.textContent = '0 نتيجة';
+// ── Render ──
+function render(){
+  const grid=document.getElementById('s-grid'),
+        empty=document.getElementById('s-empty'),
+        load=document.getElementById('s-loading');
+  const q=(document.getElementById('q').value||'').trim();
+  load.style.display='none';
+  if(!filtered.length){
+    grid.style.display='none'; empty.style.display='';
+    document.getElementById('pag').innerHTML='';
+    document.getElementById('res-count').textContent='0 نتيجة';
+    document.getElementById('res-title').textContent='🔍 لا توجد نتائج';
     return;
   }
-
-  empty.style.display = 'none';
-  grid.style.display = '';
-
-  const totalPages = Math.ceil(filtered.length / PAGE_SIZE);
-  if (currentPage > totalPages) currentPage = totalPages;
-  const start = (currentPage - 1) * PAGE_SIZE;
-  const pageAds = filtered.slice(start, start + PAGE_SIZE);
-
-  grid.innerHTML = pageAds.map(ad => buildTeacherCard(ad, ad.teachers)).join('');
-  pageAds.forEach(ad => trackEvent('ad_card_view', { ad_id: ad.id, teacher_id: ad.teacher_id, page: 'search.html' }));
-
-  count.textContent = `${filtered.length} نتيجة`;
-  if (searchQ)   title.textContent = `🔍 نتائج: "${searchQ}"`;
-  else if (activeType) title.textContent = `🎓 ${lessonTypeLabel(activeType)}`;
-  else title.textContent = '🎓 جميع الإعلانات';
-
-  // Pagination
-  renderPagination(totalPages);
-  // Scroll to results on page change
-  if (currentPage > 1) grid.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  empty.style.display='none'; grid.style.display='';
+  const tot=Math.ceil(filtered.length/PG);
+  if(curPage>tot)curPage=tot;
+  const start=(curPage-1)*PG, pg=filtered.slice(start,start+PG);
+  grid.innerHTML=pg.map(ad=>buildTeacherCard(ad,ad.teachers)).join('');
+  pg.forEach(ad=>trackEvent('ad_card_view',{ad_id:ad.id,teacher_id:ad.teacher_id,page:'search.html'}));
+  document.getElementById('res-count').textContent=`${filtered.length} نتيجة`;
+  const parts=[];
+  if(q)parts.push(`"${q}"`);
+  if(document.getElementById('s-subject').value)parts.push(document.getElementById('s-subject').value);
+  if(selGrades.size)parts.push([...selGrades].join(' أو '));
+  if(activeType)parts.push(lessonTypeLabel(activeType));
+  document.getElementById('res-title').textContent=parts.length?`🔍 ${parts.join(' · ')}`:'🎓 جميع الإعلانات';
+  renderPag(tot);
+  if(curPage>1)window.scrollTo({top:document.getElementById('s-grid').offsetTop-120,behavior:'smooth'});
 }
 
-function renderPagination(total) {
-  const pg = document.getElementById('pagination');
-  if (total <= 1) { pg.innerHTML = ''; return; }
-
-  let html = `<button class="page-btn" onclick="goPage(${currentPage-1})" ${currentPage===1?'disabled':''}>→ السابق</button>`;
-  for (let i = 1; i <= total; i++) {
-    if (total > 7 && i > 3 && i < total-1 && Math.abs(i - currentPage) > 1) {
-      if (i === 4 || i === total-2) html += '<span style="padding:0 4px;color:var(--text-muted)">...</span>';
-      continue;
-    }
-    html += `<button class="page-btn ${i===currentPage?'active':''}" onclick="goPage(${i})">${i}</button>`;
+function renderPag(tot){
+  const p=document.getElementById('pag');
+  if(tot<=1){p.innerHTML='';return;}
+  let h=`<button class="pg-b" onclick="goPage(${curPage-1})" ${curPage===1?'disabled':''}>→</button>`;
+  for(let i=1;i<=tot;i++){
+    if(tot>7&&i>2&&i<tot-1&&Math.abs(i-curPage)>1){if(i===3||i===tot-2)h+='<span style="padding:0 4px;line-height:38px;color:#94A3B8">…</span>';continue;}
+    h+=`<button class="pg-b ${i===curPage?'active':''}" onclick="goPage(${i})">${i}</button>`;
   }
-  html += `<button class="page-btn" onclick="goPage(${currentPage+1})" ${currentPage===total?'disabled':''}>← التالي</button>`;
-  pg.innerHTML = html;
+  h+=`<button class="pg-b" onclick="goPage(${curPage+1})" ${curPage===tot?'disabled':''}>←</button>`;
+  p.innerHTML=h;
 }
-
-function goPage(n) {
-  const total = Math.ceil(filtered.length / PAGE_SIZE);
-  if (n < 1 || n > total) return;
-  currentPage = n;
-  render();
-}
+function goPage(n){const t=Math.ceil(filtered.length/PG);if(n<1||n>t)return;curPage=n;render();}
 </script>
 </body>
 </html>

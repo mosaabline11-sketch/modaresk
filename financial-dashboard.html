@@ -162,6 +162,10 @@ textarea.form-control { resize: vertical; min-height: 80px; }
   .stats-grid { grid-template-columns: 1fr; }
   .fnav { padding: 0 12px; }
 }
+/* Star rating */
+.star-btn{font-size:2rem;background:none;border:none;cursor:pointer;color:#D1D5DB;transition:color .15s;padding:2px}
+.star-btn.active,.star-btn:hover{color:#F59E0B}
+.analytics-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
 </style>
 </head>
 <body>
@@ -201,6 +205,11 @@ textarea.form-control { resize: vertical; min-height: 80px; }
   <button class="tab-btn" onclick="switchTab('leads')">🎯 العملاء المحتملين</button>
   <button class="tab-btn" onclick="switchTab('analytics')">📈 التحليلات</button>
   <button class="tab-btn" onclick="switchTab('teachers')">👨‍🏫 المدرسون</button>
+  <button class="tab-btn" onclick="switchTab('monthly')">📝 التقييم الشهري</button>
+  <div style="margin-right:auto;display:flex;gap:8px;padding:8px 0">
+    <button class="btn btn-sm btn-outline" onclick="exportExcel()" title="تحميل Excel">⬇️ Excel</button>
+    <button class="btn btn-sm" style="background:#FEE2E2;color:#DC2626;border:1px solid #FECACA" onclick="confirmResetAnalytics()" title="تصفير الإحصائيات">🔄 تصفير</button>
+  </div>
 </div>
 
 <!-- ═══════════ TAB: DASHBOARD ═══════════ -->
@@ -565,7 +574,81 @@ textarea.form-control { resize: vertical; min-height: 80px; }
   </div>
 </div>
 
-<!-- ═══════════ MODAL: TEACHER DETAIL ═══════════ -->
+<!-- ═══ TAB: MONTHLY REVIEW ═══ -->
+<div id="tab-monthly" class="tab-content">
+  <div class="section-header">
+    <h2>📝 التقييم الشهري</h2>
+    <div style="display:flex;gap:8px;align-items:center">
+      <select id="review-month-sel" class="form-control" style="width:180px" onchange="loadReview()">
+      </select>
+      <button class="btn btn-primary" onclick="saveReview()">💾 حفظ التقييم</button>
+    </div>
+  </div>
+
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px" id="review-grid">
+    <!-- Rating -->
+    <div class="chart-card">
+      <div class="chart-title">⭐ تقييم الشهر العام</div>
+      <div style="display:flex;gap:8px;margin-top:8px" id="star-row">
+        <button class="star-btn" data-v="1" onclick="setRating(1)">★</button>
+        <button class="star-btn" data-v="2" onclick="setRating(2)">★</button>
+        <button class="star-btn" data-v="3" onclick="setRating(3)">★</button>
+        <button class="star-btn" data-v="4" onclick="setRating(4)">★</button>
+        <button class="star-btn" data-v="5" onclick="setRating(5)">★</button>
+      </div>
+      <div id="rating-label" style="font-size:.85rem;color:var(--text-muted);margin-top:6px">لم يتم التقييم بعد</div>
+    </div>
+
+    <!-- Goals vs Actual -->
+    <div class="chart-card">
+      <div class="chart-title">🎯 الأهداف مقابل التحقق</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:8px">
+        <div class="form-group"><label class="form-label">هدف الإيرادات (ج)</label><input class="form-control" type="number" id="rev-goal" placeholder="0" min="0"></div>
+        <div class="form-group"><label class="form-label">الإيرادات الفعلية (ج)</label><input class="form-control" type="number" id="rev-actual" placeholder="0" min="0" readonly style="background:var(--border-light)"></div>
+        <div class="form-group"><label class="form-label">هدف عملاء جدد</label><input class="form-control" type="number" id="clients-goal" placeholder="0" min="0"></div>
+        <div class="form-group"><label class="form-label">عملاء جدد فعليًا</label><input class="form-control" type="number" id="clients-actual" placeholder="0" min="0" readonly style="background:var(--border-light)"></div>
+      </div>
+    </div>
+
+    <!-- Achievements -->
+    <div class="chart-card">
+      <div class="chart-title">✅ الإنجازات</div>
+      <textarea class="form-control" id="achievements" rows="4" placeholder="ما الذي حققته هذا الشهر؟ مثال: أضفت 3 مدرسين جدد، أطلقت تحديث جديد..."></textarea>
+    </div>
+
+    <!-- Challenges -->
+    <div class="chart-card">
+      <div class="chart-title">⚠️ التحديات والمشاكل</div>
+      <textarea class="form-control" id="challenges" rows="4" placeholder="ما التحديات التي واجهتها؟ وكيف تعاملت معها؟"></textarea>
+    </div>
+
+    <!-- Next goals -->
+    <div class="chart-card">
+      <div class="chart-title">🚀 أهداف الشهر القادم</div>
+      <textarea class="form-control" id="next-goals" rows="4" placeholder="ما أهدافك للشهر القادم؟ كن محددًا ومواعيد واضحة..."></textarea>
+    </div>
+
+    <!-- General notes -->
+    <div class="chart-card">
+      <div class="chart-title">📌 ملاحظات عامة</div>
+      <textarea class="form-control" id="general-notes" rows="4" placeholder="أفكار، ملاحظات، أشياء تريد تذكرها..."></textarea>
+    </div>
+
+    <!-- Auto summary from data -->
+    <div class="chart-card full" id="monthly-auto-summary">
+      <div class="chart-title">📊 ملخص الشهر التلقائي</div>
+      <div id="monthly-summary-content" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:12px;margin-top:8px"></div>
+    </div>
+
+    <!-- Previous reviews -->
+    <div class="chart-card full">
+      <div class="chart-title">📋 سجل التقييمات السابقة</div>
+      <div id="reviews-history"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ MODAL: TEACHER DETAIL ═══ -->
 <div class="modal-overlay" id="modal-teacher-detail">
   <div class="modal" style="max-width:720px">
     <div class="modal-head">
@@ -579,6 +662,7 @@ textarea.form-control { resize: vertical; min-height: 80px; }
   </div>
 </div>
 
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="config.js?v=7.4.2"></script>
 <script>
@@ -736,7 +820,10 @@ function openTeacherDetail(teacherId) {
 }
 
   populateMonthFilters();
+  populateMonthSel();
   await loadAll();
+  await loadAllReviews();
+  loadReview();
 });
 
 function autoSetEnd() {
@@ -1592,6 +1679,7 @@ function switchTab(name) {
   document.getElementById(`tab-${name}`).classList.add('active');
   event.currentTarget.classList.add('active');
   if (name === 'teachers') renderTeachersTab();
+  if (name === 'monthly')  { loadReview(); renderReviewsHistory(); }
 }
 
 // ══════════════════════════════════════════
@@ -1600,6 +1688,229 @@ function switchTab(name) {
 function esc(str) {
   if (!str) return '';
   return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+// ══════════════════════════════════════════
+// MONTHLY REVIEW
+// ══════════════════════════════════════════
+let currentRating = 0;
+let allReviews    = [];
+
+function populateMonthSel() {
+  const sel = document.getElementById('review-month-sel');
+  if (!sel) return;
+  const now = new Date();
+  sel.innerHTML = '';
+  for (let i = 0; i < 18; i++) {
+    const d   = new Date(now.getFullYear(), now.getMonth() - i, 1);
+    const val = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`;
+    const lbl = `${AR_MONTHS[d.getMonth()]} ${d.getFullYear()}`;
+    sel.innerHTML += `<option value="${val}">${lbl}</option>`;
+  }
+}
+
+async function loadReview() {
+  const ym  = document.getElementById('review-month-sel')?.value;
+  if (!ym) return;
+  const rev = allReviews.find(r => r.year_month === ym);
+  currentRating = rev?.rating || 0;
+  setRatingDisplay(currentRating);
+  document.getElementById('rev-goal').value        = rev?.revenue_goal    || '';
+  document.getElementById('clients-goal').value    = rev?.new_clients_goal || '';
+  document.getElementById('achievements').value    = rev?.achievements     || '';
+  document.getElementById('challenges').value      = rev?.challenges       || '';
+  document.getElementById('next-goals').value      = rev?.next_goals       || '';
+  document.getElementById('general-notes').value   = rev?.general_notes    || '';
+
+  // Auto-fill actuals from fin data
+  const monthSubs = ST.subs.filter(s => (s.created_at||'').startsWith(ym) && s.payment_status==='paid');
+  const revActual = monthSubs.reduce((a,s)=>a+ +(s.total_price||s.price),0);
+  const newActual = ST.subs.filter(s => (s.created_at||'').startsWith(ym) && s.client_type==='new').length;
+  document.getElementById('rev-actual').value     = revActual;
+  document.getElementById('clients-actual').value = newActual;
+
+  // Auto summary
+  renderMonthlySummary(ym, revActual, newActual);
+}
+
+function renderMonthlySummary(ym, revActual, newActual) {
+  const monthSubs = ST.subs.filter(s => (s.created_at||'').startsWith(ym));
+  const expM      = ST.expenses.filter(e => e.expense_date.startsWith(ym));
+  const totalExp  = expM.reduce((a,e)=>a+ +e.amount, 0);
+  const profit    = revActual - totalExp;
+  const expiredM  = ST.subs.filter(s => (s.end_date||'').startsWith(ym) && subStatus(s)==='expired').length;
+  const visits    = Object.values(ST.analytics.monthly||{}).filter((_,i)=>Object.keys(ST.analytics.monthly||{})[i]===ym).reduce((a,v)=>a+v.views,0);
+
+  document.getElementById('monthly-summary-content').innerHTML = [
+    { icon:'💰', label:'الإيرادات',   val: fmt(revActual), color:'var(--success)' },
+    { icon:'💸', label:'المصروفات',   val: fmt(totalExp),  color:'var(--danger)'  },
+    { icon:'📊', label:'صافي الربح',  val: fmt(profit),    color: profit>=0?'var(--success)':'var(--danger)' },
+    { icon:'👥', label:'اشتراكات',    val: fmtNum(monthSubs.length) },
+    { icon:'🆕', label:'عملاء جدد',   val: fmtNum(newActual) },
+    { icon:'❌', label:'انتهت',        val: fmtNum(expiredM), color:'var(--warning)' },
+    { icon:'👁️', label:'مشاهدات',     val: fmtNum(visits) },
+  ].map(c=>`<div class="stat-card" style="flex-direction:column;gap:4px;padding:12px">
+    <div style="font-size:1.3rem">${c.icon}</div>
+    <div style="font-size:.75rem;color:var(--text-muted)">${c.label}</div>
+    <div style="font-family:Cairo,sans-serif;font-weight:900;font-size:1.1rem;color:${c.color||'var(--text-primary)'}">${c.val}</div>
+  </div>`).join('');
+
+  // Reviews history
+  renderReviewsHistory();
+}
+
+function renderReviewsHistory() {
+  const el = document.getElementById('reviews-history');
+  if (!el) return;
+  if (!allReviews.length) { el.innerHTML='<div style="color:var(--text-muted);padding:12px;font-size:.88rem">لا توجد تقييمات محفوظة بعد</div>'; return; }
+  el.innerHTML=`<table style="width:100%;font-size:.83rem;border-collapse:collapse"><thead><tr style="background:var(--border-light)">
+    <th style="padding:8px 12px;text-align:right">الشهر</th><th>التقييم</th><th>الإيرادات</th><th>العملاء</th><th>إجراء</th>
+  </tr></thead><tbody>
+    ${allReviews.map(r=>`<tr style="border-top:1px solid var(--border-light)">
+      <td style="padding:8px 12px;font-weight:700">${r.year_month}</td>
+      <td>${'★'.repeat(r.rating||0)}<span style="color:#D1D5DB">${'★'.repeat(5-(r.rating||0))}</span></td>
+      <td style="color:var(--success)">${fmt(r.revenue_actual||0)}</td>
+      <td>${fmtNum(r.new_clients_actual||0)}</td>
+      <td><button class="btn btn-sm btn-outline" onclick="jumpToReview('${r.year_month}')">عرض</button></td>
+    </tr>`).join('')}
+  </tbody></table>`;
+}
+
+function jumpToReview(ym) {
+  document.getElementById('review-month-sel').value = ym;
+  loadReview();
+  document.getElementById('review-grid').scrollIntoView({ behavior:'smooth' });
+}
+
+async function loadAllReviews() {
+  try {
+    const { data } = await supabase.from('fin_monthly_reviews').select('*').order('year_month', { ascending: false });
+    allReviews = data || [];
+    renderReviewsHistory();
+  } catch(e) { console.warn('reviews load error', e); }
+}
+
+async function saveReview() {
+  const ym = document.getElementById('review-month-sel')?.value;
+  if (!ym) return;
+  const payload = {
+    year_month:         ym,
+    rating:             currentRating || null,
+    revenue_goal:       parseFloat(document.getElementById('rev-goal').value)    || 0,
+    revenue_actual:     parseFloat(document.getElementById('rev-actual').value)  || 0,
+    new_clients_goal:   parseInt(document.getElementById('clients-goal').value)  || 0,
+    new_clients_actual: parseInt(document.getElementById('clients-actual').value)|| 0,
+    achievements:       document.getElementById('achievements').value.trim(),
+    challenges:         document.getElementById('challenges').value.trim(),
+    next_goals:         document.getElementById('next-goals').value.trim(),
+    general_notes:      document.getElementById('general-notes').value.trim(),
+  };
+  const existing = allReviews.find(r => r.year_month === ym);
+  if (existing) {
+    await supabase.from('fin_monthly_reviews').update(payload).eq('id', existing.id);
+  } else {
+    await supabase.from('fin_monthly_reviews').insert(payload);
+  }
+  await loadAllReviews();
+  showToast('✅ تم حفظ التقييم الشهري!', 'success');
+}
+
+function setRating(n) { currentRating = n; setRatingDisplay(n); }
+function setRatingDisplay(n) {
+  document.querySelectorAll('.star-btn').forEach((b,i) => b.classList.toggle('active', i < n));
+  const labels = ['','ضعيف 😔','مقبول 😐','جيد 🙂','جيد جدًا 😊','ممتاز 🌟'];
+  document.getElementById('rating-label').textContent = n ? labels[n] : 'لم يتم التقييم بعد';
+}
+
+// ══════════════════════════════════════════
+// EXCEL EXPORT
+// ══════════════════════════════════════════
+function exportExcel() {
+  if (typeof XLSX === 'undefined') { alert('مكتبة Excel لم تُحمَّل بعد، انتظر ثانية وحاول مجددًا'); return; }
+  const wb = XLSX.utils.book_new();
+
+  // Sheet 1: Subscriptions
+  const subData = ST.subs.map(s => ({
+    'اسم المدرس':     s.teacher_name,
+    'الهاتف':         s.phone||'',
+    'المادة':         s.subject||'',
+    'الصف':           s.grade||'',
+    'نوع الباقة':     PLAN_LBL[s.plan_type]||s.plan_type,
+    'السعر الأساسي':  +s.price,
+    'سعر الإضافات':   +s.addons_price||0,
+    'الإجمالي':       +(s.total_price||s.price),
+    'تاريخ البداية':  s.start_date||'',
+    'تاريخ النهاية':  s.end_date||'',
+    'حالة الاشتراك':  subStatus(s),
+    'حالة الدفع':     PAY_LBL[s.payment_status]||s.payment_status,
+    'طريقة الدفع':    PAY_LBL[s.payment_method]||s.payment_method,
+    'مصدر العميل':    SRC_LBL[s.client_source]||s.client_source,
+    'نوع العميل':     CLIENT_LBL[s.client_type]||s.client_type,
+    'ملاحظات':        s.notes||'',
+  }));
+  XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(subData), 'الاشتراكات');
+
+  // Sheet 2: Expenses
+  const expData = ST.expenses.map(e => ({
+    'التاريخ':    e.expense_date,
+    'النوع':      EXP_LBL[e.expense_type]||e.expense_type,
+    'المبلغ':     +e.amount,
+    'ملاحظات':   e.notes||'',
+  }));
+  XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(expData), 'المصروفات');
+
+  // Sheet 3: Leads
+  const leadData = ST.leads.map(l => ({
+    'الاسم':        l.name,
+    'الهاتف':       l.phone||'',
+    'المادة':       l.subject||'',
+    'الصف':         l.grade||'',
+    'المصدر':       SRC_LBL[l.source]||l.source,
+    'الحالة':       LEAD_LBL[l.status]||l.status,
+    'آخر تواصل':   l.last_contact||'',
+    'ملاحظات':     l.notes||'',
+  }));
+  XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(leadData), 'العملاء المحتملين');
+
+  // Sheet 4: Monthly Summary
+  const now = new Date();
+  const summaryData = [];
+  for (let i=0; i<12; i++) {
+    const d   = new Date(now.getFullYear(), now.getMonth()-i, 1);
+    const ym  = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`;
+    const rev = ST.subs.filter(s=>(s.created_at||'').startsWith(ym)&&s.payment_status==='paid').reduce((a,s)=>a+ +(s.total_price||s.price),0);
+    const exp = ST.expenses.filter(e=>e.expense_date.startsWith(ym)).reduce((a,e)=>a+ +e.amount,0);
+    const newC= ST.subs.filter(s=>(s.created_at||'').startsWith(ym)&&s.client_type==='new').length;
+    summaryData.push({ 'الشهر':ym, 'الإيرادات':rev, 'المصروفات':exp, 'صافي الربح':rev-exp, 'عملاء جدد':newC });
+  }
+  XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(summaryData), 'ملخص شهري');
+
+  const fname = `مدرسك_إدارة_مالية_${new Date().toISOString().slice(0,10)}.xlsx`;
+  XLSX.writeFile(wb, fname);
+  showToast('✅ تم تحميل ملف Excel!', 'success');
+}
+
+// ══════════════════════════════════════════
+// RESET ANALYTICS
+// ══════════════════════════════════════════
+async function confirmResetAnalytics() {
+  const msg = 'تحذير: سيتم حذف جميع بيانات الإحصائيات (المشاهدات، الضغطات، الزيارات) نهائيًا.\n\nاكتب "تصفير" للتأكيد:';
+  const confirm = prompt(msg);
+  if (!confirm || confirm.trim() !== 'تصفير') {
+    if (confirm !== null) showToast('❌ تم الإلغاء — اكتب "تصفير" بالضبط', 'error');
+    return;
+  }
+  try {
+    const { error } = await supabase.from('analytics_events').delete().neq('id', '00000000-0000-0000-0000-000000000000');
+    if (error) throw error;
+    ST.analytics = { byTeacher:{}, byAd:{}, monthly:{}, total:0, uniqueSessions:0 };
+    renderDashboard();
+    renderAnalytics();
+    showToast('✅ تم تصفير جميع الإحصائيات', 'success');
+  } catch(e) {
+    console.error(e);
+    showToast('❌ فشل التصفير: ' + e.message, 'error');
+  }
 }
 
 // Close modals on overlay click

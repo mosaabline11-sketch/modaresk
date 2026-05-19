@@ -495,6 +495,10 @@
     } else if (admin) {
       authEl.innerHTML = `<a href="admin.html" class="btn btn-primary btn-sm">🔧 الإدارة</a>`;
     }
+    // إخفاء روابط الإدارة من غير الإداريين
+    document.querySelectorAll('[data-admin-only]').forEach(el => {
+      el.style.display = admin ? '' : 'none';
+    });
   }
 
   async function loadAds() {
