@@ -32,7 +32,7 @@
 .gp-btn.open,.gp-btn:hover{border-color:#2563EB}
 .gp-dd{display:none;position:absolute;top:calc(100% + 4px);right:0;left:0;background:white;border:1.5px solid #2563EB;border-radius:12px;box-shadow:0 8px 24px rgba(0,0,0,.14);z-index:300;max-height:290px;overflow-y:auto}
 .gp-dd.open{display:block}
-.gp-stage{padding:5px 12px 2px;font-size:.7rem;font-weight:800;color:#94A3B8;background:#FAFAFA;border-bottom:1px solid #F1F5F9;letter-spacing:.5px}
+.gp-stage{padding:5px 12px 2px;font-size:.7rem;font-weight:800;color:#475569;background:#FAFAFA;border-bottom:1px solid #F1F5F9;letter-spacing:.5px}
 .gp-opt{display:flex;align-items:center;gap:8px;padding:8px 14px;font-size:.85rem;cursor:pointer;transition:background .12s}
 .gp-opt:hover{background:#F1F5F9}
 .gp-opt.sel{background:#DBEAFE;font-weight:600;color:#1D4ED8}
@@ -323,15 +323,28 @@ function doSearch(){
   const q=(document.getElementById('q').value||'').trim().toLowerCase();
   const sub=document.getElementById('s-subject').value;
   const srt=document.getElementById('sort-by').value;
-  filtered=allAds.filter(ad=>{
-    if(activeType&&ad.lesson_type!==activeType)return false;
-    if(sub&&ad.subject!==sub)return false;
-    if(selGrades.size&&!selGrades.has(ad.grade))return false;
-    if(q)return(ad.subject||'').toLowerCase().includes(q)||
-                (ad.grade||'').toLowerCase().includes(q)||
-                (ad.description||'').toLowerCase().includes(q)||
-                ((ad.teachers?.name)||'').toLowerCase().includes(q)||
-                (ad.title||'').toLowerCase().includes(q);
+  filtered = allAds.filter(ad => {
+    // فلترة حسب نوع الدرس
+    if (activeType && ad.lesson_type !== activeType) return false;
+    // فلترة حسب المادة
+    if (sub && ad.subject !== sub) return false;
+    // فلترة حسب الصف/المرحلة: قد يكون لدى الإعلان عدة فصول مفصولة بفاصلة (عربية أو إنجليزية)
+    if (selGrades.size) {
+      const adGrades = String(ad.grade || '')
+        .split(/[,،]/)
+        .map(g => g.trim())
+        .filter(Boolean);
+      const match = [...selGrades].some(g => adGrades.includes(g));
+      if (!match) return false;
+    }
+    // فلترة نص البحث
+    if (q) {
+      return (ad.subject || '').toLowerCase().includes(q) ||
+             (ad.grade   || '').toLowerCase().includes(q) ||
+             (ad.description || '').toLowerCase().includes(q) ||
+             ((ad.teachers?.name) || '').toLowerCase().includes(q) ||
+             (ad.title || '').toLowerCase().includes(q);
+    }
     return true;
   });
   if(srt==='price-asc')filtered.sort((a,b)=>a.price-b.price);

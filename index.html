@@ -687,7 +687,16 @@
 
     if (activeType) result = result.filter(ad => ad.lesson_type === activeType);
     if (filterSubject) result = result.filter(ad => ad.subject === filterSubject);
-    if (filterGrade) result = result.filter(ad => ad.grade === filterGrade);
+    if (filterGrade) {
+      result = result.filter(ad => {
+        // قد يتضمن حقل الصف عدة فصول مفصولة بفواصل (عربية أو إنجليزية)
+        const adGrades = String(ad.grade || '')
+          .split(/[,،]/)
+          .map(g => g.trim())
+          .filter(Boolean);
+        return adGrades.includes(filterGrade);
+      });
+    }
 
     filteredAds = result;
     resetVisible();

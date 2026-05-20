@@ -348,11 +348,32 @@
   });
 
   async function loadTeacherData() {
-    const { data } = await supabase
-      .from('teachers')
-      .select('name, bio, avatar_url, whatsapp, facebook, phone, contact_methods, ads_limit, is_active, plan_type, subscription_start, subscription_end, subscription_status, allow_basic_stats, allow_advanced_stats, allow_unlimited_edits, allow_fast_support, custom_features, points')
-      .eq('id', teacher.id)
-      .single();
+    // تحميل بيانات المدرس مع التعامل مع غياب عمود النقاط
+    let data;
+    try {
+      const res = await supabase
+        .from('teachers')
+        .select('name, bio, avatar_url, whatsapp, facebook, phone, contact_methods, ads_limit, is_active, plan_type, subscription_start, subscription_end, subscription_status, allow_basic_stats, allow_advanced_stats, allow_unlimited_edits, allow_fast_support, custom_features, points')
+        .eq('id', teacher.id)
+        .single();
+      if (res.error) throw res.error;
+      data = res.data;
+    } catch (err) {
+      // إذا كان الخطأ بسبب عدم وجود عمود النقاط، نعيد الاستعلام بدون الحقل
+      const msg = String(err?.message || '');
+      if (/points/i.test(msg)) {
+        const res2 = await supabase
+          .from('teachers')
+          .select('name, bio, avatar_url, whatsapp, facebook, phone, contact_methods, ads_limit, is_active, plan_type, subscription_start, subscription_end, subscription_status, allow_basic_stats, allow_advanced_stats, allow_unlimited_edits, allow_fast_support, custom_features')
+          .eq('id', teacher.id)
+          .single();
+        data = res2.data;
+        data.points = 0;
+      } else {
+        console.error('loadTeacherData error', err);
+        return;
+      }
+    }
 
     if (data) {
       document.getElementById('p-name').value = data.name || '';
@@ -368,12 +389,11 @@
       Auth.setTeacherSession({ ...teacher, name: data.name || teacher.name });
       document.getElementById('subscription-banner').innerHTML = subscriptionBannerHtml(teacher);
       renderFeatures();
-      // تحديث عرض النقاط
-      if (typeof data.points !== 'undefined') {
-        teacher.points = data.points;
-        const ptsEl = document.getElementById('teacher-points');
-        if (ptsEl) ptsEl.textContent = data.points;
-      }
+      // تعيين النقاط وعرضها
+      const ptsVal = typeof data.points === 'number' ? data.points : 0;
+      teacher.points = ptsVal;
+      const ptsEl = document.getElementById('teacher-points');
+      if (ptsEl) ptsEl.textContent = ptsVal;
       await loadTeacherStats();
     }
   }
@@ -581,8 +601,17 @@
       showToast(isEdit ? 'تم تعديل الإعلان ✅' : 'تم إضافة الإعلان وهو في انتظار المراجعة ⏳', 'success');
       await loadAds();
     } catch (err) {
-      document.getElementById('modal-error').textContent = err.message;
-      document.getElementById('modal-error').style.display = 'block';
+      // معالجة خطأ RLS بحيث يُعلم المستخدم بضرورة تحديث سياسات الأمان في Supabase
+      const errMsg = String(err?.message || '');
+      let friendly = errMsg;
+      if (/row[- ]level security/i.test(errMsg) || /violates.*security policy/i.test(errMsg)) {
+        friendly = 'تعذر إضافة الإعلان بسبب قيود الأمان على قاعدة البيانات. تأكد من تشغيل ملف fix_rls.sql أو supabase_setup.sql لإعداد السياسات بشكل صحيح.';
+      }
+      const errEl = document.getElementById('modal-error');
+      if (errEl) {
+        errEl.textContent = friendly;
+        errEl.style.display = 'block';
+      }
     } finally {
       btn.disabled = false;
       btn.textContent = isEdit ? 'حفظ التعديلات' : 'نشر الإعلان';
@@ -800,7 +829,12 @@
       }
       box.innerHTML = `<ul class="leaderboard-list">${list.map((t, i) => `<li><span class="rank">${i+1}.</span><strong>${escapeHtml(t.name || '')}</strong><span class="points">${t.points || 0} نقطة</span></li>`).join('')}</ul>`;
     } catch (e) {
-      box.innerHTML = `<div class="alert alert-danger">تعذّر تحميل لوحة الشرف: ${escapeHtml(e.message)}</div>`;
+      let msg = 'تعذّر تحميل لوحة الشرف.';
+      // إذا لم يكن عمود النقاط موجودًا في جدول المدرسين
+      if (String(e?.message || '').includes('points')) {
+        msg += ' يبدو أنّ عمود النقاط غير موجود في جدول المدرسين. تأكد من تشغيل ملف fix_rls.sql لتحديث قاعدة البيانات.';
+      }
+      box.innerHTML = `<div class="alert alert-danger">${escapeHtml(msg)}</div>`;
     }
   }
 
@@ -831,7 +865,11 @@
         </div>`;
       }).join('');
     } catch (e) {
-      box.innerHTML = `<div class="alert alert-danger">تعذّر تحميل الإشعارات: ${escapeHtml(e.message)}</div>`;
+      let msg = 'تعذّر تحميل الإشعارات.';
+      if (String(e?.message || '').includes('notifications')) {
+        msg += ' يبدو أن جدول الإشعارات غير موجود. تأكد من تشغيل ملف fix_rls.sql أو supabase_setup.sql لإنشاء الجدول.';
+      }
+      box.innerHTML = `<div class="alert alert-danger">${escapeHtml(msg)}</div>`;
     }
   }
 

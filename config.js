@@ -44,8 +44,25 @@ function getAdGrades(ad = {}) {
   return list.length ? list : (ad.grade ? [ad.grade] : []);
 }
 function gradeDisplay(ad = {}) {
-  const list = getAdGrades(ad);
-  return list.length ? list.join("، ") : (ad.grade || "—");
+  // استخرج قائمة الفصول من الحقل grades (إن وُجد) أو من الحقل grade كنص مفصول بفواصل
+  let list = getAdGrades(ad);
+  if (!list.length && ad.grade) {
+    list = String(ad.grade || '')
+      .split(/[,،]/)
+      .map(g => g.trim())
+      .filter(Boolean);
+  }
+  // إذا كانت جميع الفصول المختارة تغطي مرحلة كاملة، أظهر اسم المرحلة بدل تعداد الفصول
+  if (list.length) {
+    for (const key of Object.keys(GRADE_SECTIONS)) {
+      const sec = GRADE_SECTIONS[key];
+      if (sec.grades.length === list.length && sec.grades.every(g => list.includes(g))) {
+        return sec.label + ' كاملة';
+      }
+    }
+    return list.join("، ");
+  }
+  return ad.grade || "—";
 }
 function validateSameGradeSection(grades = []) {
   const clean = [...new Set((grades || []).map(g => String(g || "").trim()).filter(Boolean))];
