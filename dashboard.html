@@ -86,6 +86,14 @@
     .mini-stat-num { font-family: 'Cairo', sans-serif; font-size: 1.6rem; font-weight: 800; }
     .mini-stat-label { font-size: 0.8rem; color: var(--text-muted); margin-top: 2px; }
     @media (max-width: 480px) { .mini-stats { grid-template-columns: 1fr; } }
+
+    /* نقاط المدرس */
+    .points-text { font-size: 0.8rem; opacity: 0.9; margin-top: 6px; }
+    /* قائمة لوحة الشرف */
+    .leaderboard-list { list-style: none; padding: 0; margin: 0; }
+    .leaderboard-list li { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 6px 0; border-bottom: 1px solid var(--border); font-size: 0.9rem; }
+    .leaderboard-list li span.rank { width: 24px; color: var(--text-secondary); text-align: center; }
+    .leaderboard-list li span.points { white-space: nowrap; color: var(--primary); font-weight: 700; }
   </style>
 </head>
 <body>
@@ -114,6 +122,8 @@
       <div class="welcome-sub">هذه لوحة تحكم حسابك في منصة مدرسك</div>
       <div class="limit-text" id="limit-text"></div>
       <div class="limit-bar-wrapper" style="max-width:200px"><div class="limit-bar" id="limit-bar" style="width:0%"></div></div>
+      <!-- نقاط المدرس -->
+      <div class="points-text">نقاطك: <span id="teacher-points">0</span></div>
     </div>
     <a href="teacher.html?id=" id="view-profile-btn" class="btn btn-white" style="color:var(--primary)">
       👁 عرض ملفي
@@ -127,6 +137,8 @@
     <button class="dash-tab" onclick="switchTab('stats')">📊 الإحصائيات</button>
     <button class="dash-tab" onclick="switchTab('features')">💎 مميزات الباقة</button>
     <button class="dash-tab" onclick="switchTab('profile')">👤 الملف الشخصي</button>
+    <button class="dash-tab" onclick="switchTab('leaderboard')">🏆 لوحة الشرف</button>
+    <button class="dash-tab" onclick="switchTab('notifications')">🔔 إشعارات</button>
   </div>
 
   <!-- ── Ads Tab ── -->
@@ -212,6 +224,22 @@
         </div>
         <button type="submit" class="btn btn-primary btn-lg" id="profile-save-btn">💾 حفظ التغييرات</button>
       </form>
+    </div>
+  </div>
+
+  <!-- ── Leaderboard Tab ── -->
+  <div class="dash-pane" id="tab-leaderboard">
+    <div class="profile-form-card">
+      <h3 style="font-family:'Cairo',sans-serif;font-weight:700;margin-bottom:16px">🏆 لوحة الشرف</h3>
+      <div id="leaderboard-content"><div class="loading-spinner"><div class="spinner-lg"></div></div></div>
+    </div>
+  </div>
+
+  <!-- ── Notifications Tab ── -->
+  <div class="dash-pane" id="tab-notifications">
+    <div class="profile-form-card">
+      <h3 style="font-family:'Cairo',sans-serif;font-weight:700;margin-bottom:16px">🔔 إشعارات</h3>
+      <div id="notifications-content"><div class="loading-spinner"><div class="spinner-lg"></div></div></div>
     </div>
   </div>
 
@@ -322,7 +350,7 @@
   async function loadTeacherData() {
     const { data } = await supabase
       .from('teachers')
-      .select('name, bio, avatar_url, whatsapp, facebook, phone, contact_methods, ads_limit, is_active, plan_type, subscription_start, subscription_end, subscription_status, allow_basic_stats, allow_advanced_stats, allow_unlimited_edits, allow_fast_support, custom_features')
+      .select('name, bio, avatar_url, whatsapp, facebook, phone, contact_methods, ads_limit, is_active, plan_type, subscription_start, subscription_end, subscription_status, allow_basic_stats, allow_advanced_stats, allow_unlimited_edits, allow_fast_support, custom_features, points')
       .eq('id', teacher.id)
       .single();
 
@@ -340,6 +368,12 @@
       Auth.setTeacherSession({ ...teacher, name: data.name || teacher.name });
       document.getElementById('subscription-banner').innerHTML = subscriptionBannerHtml(teacher);
       renderFeatures();
+      // تحديث عرض النقاط
+      if (typeof data.points !== 'undefined') {
+        teacher.points = data.points;
+        const ptsEl = document.getElementById('teacher-points');
+        if (ptsEl) ptsEl.textContent = data.points;
+      }
       await loadTeacherStats();
     }
   }
@@ -533,7 +567,16 @@
       }
 
       if (error) throw error;
-
+      // منح نقاط للمدرس عند إنشاء إعلان جديد ومتكامل
+      if (!isEdit && typeof incrementTeacherPoints === 'function') {
+        let bonus = 5; // نقاط أساسية لإضافة إعلان
+        const desc = (payload.description || '').trim();
+        if (desc.length >= 100) bonus += 5;    // وصف مطول
+        if (payload.main_image_url) bonus += 3; // صورة رئيسية
+        const galleryCount = Array.isArray(payload.gallery_images) ? payload.gallery_images.length : 0;
+        bonus += galleryCount * 1; // نقطة لكل صورة إضافية
+        try { await incrementTeacherPoints(teacher.id, bonus); } catch (_) {}
+      }
       closeModal('ad-modal');
       showToast(isEdit ? 'تم تعديل الإعلان ✅' : 'تم إضافة الإعلان وهو في انتظار المراجعة ⏳', 'success');
       await loadAds();
@@ -595,11 +638,15 @@
   }
 
   function switchTab(tab) {
-    const tabs = ['ads','stats','features','profile'];
-    document.querySelectorAll('.dash-tab').forEach((t, i) => t.classList.toggle('active', tabs[i] === tab));
-    tabs.forEach(x => document.getElementById(`tab-${x}`)?.classList.toggle('active', x === tab));
+    // جميع علامات التبويب المتاحة، ترتبط بترتيب أزرار .dash-tab
+    const tabs = ['ads','stats','features','profile','leaderboard','notifications'];
+    const tabButtons = document.querySelectorAll('.dash-tab');
+    tabButtons.forEach((btn, idx) => btn.classList.toggle('active', tabs[idx] === tab));
+    tabs.forEach(name => document.getElementById(`tab-${name}`)?.classList.toggle('active', name === tab));
     if (tab === 'stats') loadTeacherStats();
-    if (tab === 'features') renderFeatures();
+    else if (tab === 'features') renderFeatures();
+    else if (tab === 'leaderboard') loadLeaderboard();
+    else if (tab === 'notifications') loadTeacherNotifications();
   }
 
   function renderFeatures() {
@@ -731,6 +778,61 @@
       </div>
       <div class="alert alert-info">🏆 أفضل إعلان عندك: ${bestAd ? `<strong>${escapeHtml(bestAdName)}</strong> — نقاط التفاعل: ${bestAd[1]}` : 'لا توجد بيانات كافية بعد'}<br>نصيحة: لو المشاهدات عالية والتواصل قليل، حسّن الوصف والسعر والصورة.</div>
     </div>`;
+  }
+
+  // ── تحميل لوحة الشرف لأفضل المدرسين ──
+  async function loadLeaderboard() {
+    const box = document.getElementById('leaderboard-content');
+    if (!box) return;
+    box.innerHTML = '<div class="loading-spinner"><div class="spinner-lg"></div></div>';
+    try {
+      const { data, error } = await supabase
+        .from('teachers')
+        .select('name, points')
+        .order('points', { ascending: false })
+        .order('created_at', { ascending: true })
+        .limit(10);
+      if (error) throw error;
+      const list = data || [];
+      if (!list.length) {
+        box.innerHTML = '<div class="empty-text">لا توجد بيانات بعد.</div>';
+        return;
+      }
+      box.innerHTML = `<ul class="leaderboard-list">${list.map((t, i) => `<li><span class="rank">${i+1}.</span><strong>${escapeHtml(t.name || '')}</strong><span class="points">${t.points || 0} نقطة</span></li>`).join('')}</ul>`;
+    } catch (e) {
+      box.innerHTML = `<div class="alert alert-danger">تعذّر تحميل لوحة الشرف: ${escapeHtml(e.message)}</div>`;
+    }
+  }
+
+  // ── تحميل إشعارات المدرس ──
+  async function loadTeacherNotifications() {
+    const box = document.getElementById('notifications-content');
+    if (!box) return;
+    box.innerHTML = '<div class="loading-spinner"><div class="spinner-lg"></div></div>';
+    try {
+      // إشعارات موجهة للمدرسين أو للجميع
+      const { data, error } = await supabase
+        .from('notifications')
+        .select('*')
+        .or('target.eq.teachers,target.eq.all')
+        .order('created_at', { ascending: false });
+      if (error) throw error;
+      const notes = data || [];
+      if (!notes.length) {
+        box.innerHTML = '<div class="empty-text">لا توجد إشعارات بعد.</div>';
+        return;
+      }
+      box.innerHTML = notes.map(n => {
+        const date = new Date(n.created_at).toLocaleDateString('ar-EG', { year:'numeric', month:'short', day:'numeric' });
+        const title = n.title ? `<strong>${escapeHtml(n.title)}</strong><br>` : '';
+        return `<div class="notification-item" style="margin-bottom:16px;border-bottom:1px solid var(--border);padding-bottom:12px">
+          <div style="font-size:.8rem;color:var(--text-secondary)">${date}</div>
+          <div style="margin-top:4px">${title}${escapeHtml(n.message)}</div>
+        </div>`;
+      }).join('');
+    } catch (e) {
+      box.innerHTML = `<div class="alert alert-danger">تعذّر تحميل الإشعارات: ${escapeHtml(e.message)}</div>`;
+    }
   }
 
   function parsePosition(value = '50% 50%') {

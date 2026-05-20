@@ -46,6 +46,21 @@
 .f-chip:hover{border-color:#2563EB;color:#2563EB}
 .f-chip.active{background:#2563EB;color:white;border-color:#2563EB}
 .f-sort{padding:5px 10px;border:1.5px solid #E2E8F0;border-radius:8px;font-family:'Tajawal',sans-serif;font-size:.82rem;outline:none;background:white;color:#475569}
+
+/* Voice search button */
+.mic-btn {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  right: 10px;
+  background: none;
+  border: none;
+  font-size: 1.3rem;
+  cursor: pointer;
+  color: #94A3B8;
+  transition: color .2s;
+}
+.mic-btn:hover { color: #2563EB; }
 /* Results */
 .r-bar{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px;flex-wrap:wrap;gap:8px}
 .r-bar h2{font-family:'Cairo',sans-serif;font-size:1.05rem;font-weight:800}
@@ -84,7 +99,11 @@
     <p id="hero-sub">جارٍ تحميل الإعلانات...</p>
     <div class="s-box">
       <div class="s-row1">
-        <input class="s-inp" type="text" id="q" placeholder="ابحث بالاسم، المادة، الوصف..." autocomplete="off">
+        <div style="position:relative;">
+          <input class="s-inp" type="text" id="q" placeholder="ابحث بالاسم، المادة، الوصف..." autocomplete="off" list="search-suggestions">
+          <datalist id="search-suggestions"></datalist>
+          <button type="button" class="mic-btn" id="voice-btn" title="بحث صوتي" onclick="startVoiceSearch()">🎤</button>
+        </div>
         <button class="s-btn" onclick="doSearch()">بحث 🔍</button>
       </div>
       <div class="s-row2">
@@ -186,7 +205,69 @@ document.addEventListener('DOMContentLoaded', async () => {
   });
 
   await loadAds();
+
+  // إعداد البحث الصوتي والاقتراحات
+  setupSearchEnhancements();
 });
+
+// ── تحسينات البحث: البحث الصوتي والاقتراحات الذكية ──
+function setupSearchEnhancements() {
+  // تحميل أسماء المعلمين مرة واحدة
+  (async () => {
+    try {
+      await loadTeacherNames();
+    } catch (_) {}
+  })();
+  const input = document.getElementById('q');
+  if (input) {
+    input.addEventListener('input', () => updateSearchSuggestions(input.value));
+  }
+}
+
+function updateSearchSuggestions(value) {
+  const list = document.getElementById('search-suggestions');
+  if (!list) return;
+  const val = String(value || '').trim().toLowerCase();
+  if (!val) { list.innerHTML = ''; return; }
+  const all = [...SUBJECTS_CACHE, ...TEACHER_NAMES_CACHE];
+  const matches = all.filter(x => x && x.toLowerCase().includes(val)).slice(0, 6);
+  list.innerHTML = matches.map(m => `<option value="${escapeHtml(m)}"></option>`).join('');
+}
+
+// البحث الصوتي
+let voiceRecognizer = null;
+function startVoiceSearch() {
+  // تحقق من دعم المتصفح لـ SpeechRecognition
+  const SpeechRec = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if (!SpeechRec) {
+    showToast('متصفحك لا يدعم البحث الصوتي', 'warning');
+    return;
+  }
+  if (!voiceRecognizer) {
+    voiceRecognizer = new SpeechRec();
+    voiceRecognizer.lang = 'ar-SA';
+    voiceRecognizer.interimResults = false;
+    voiceRecognizer.maxAlternatives = 1;
+    voiceRecognizer.onresult = (event) => {
+      const transcript = event.results[0][0].transcript;
+      const input = document.getElementById('q');
+      if (input) {
+        input.value = transcript;
+        updateSearchSuggestions(transcript);
+        doSearch();
+      }
+    };
+    voiceRecognizer.onerror = (e) => {
+      console.warn('voice error', e.error);
+      showToast('حدث خطأ أثناء التعرف على الصوت', 'danger');
+    };
+  }
+  try {
+    voiceRecognizer.start();
+  } catch (_) {
+    // تجاهل إذا كان recognizer قيد التشغيل بالفعل
+  }
+}
 
 // ── Grade Picker ──
 function buildGP(){

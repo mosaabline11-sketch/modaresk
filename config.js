@@ -88,6 +88,18 @@ function getSelectedGrades(containerId) {
 const DEFAULT_SUBJECTS = ["رياضيات", "لغة عربية", "لغة إنجليزية", "علوم", "دراسات اجتماعية", "فيزياء", "كيمياء", "أحياء", "تاريخ", "جغرافيا", "فرنسي", "حاسب آلي", "أخرى"];
 let SUBJECTS_CACHE = [...DEFAULT_SUBJECTS];
 
+// أسماء المدرسين: تُحمّل مرة واحدة عند الحاجة لتقديم اقتراحات بحث
+let TEACHER_NAMES_CACHE = [];
+async function loadTeacherNames() {
+  try {
+    const { data, error } = await supabase.from('teachers').select('name');
+    if (!error && data && data.length) {
+      TEACHER_NAMES_CACHE = data.map(t => t.name).filter(Boolean);
+    }
+  } catch (_) {}
+  return TEACHER_NAMES_CACHE;
+}
+
 function escapeHtml(str = "") {
   return String(str).replace(/[&<>"']/g, ch => ({ "&":"&amp;", "<":"&lt;", ">":"&gt;", "\"":"&quot;", "'":"&#39;" }[ch]));
 }
@@ -379,6 +391,7 @@ function getSessionId() {
 async function trackEvent(eventType, payload = {}) {
   try {
     if (!window.supabase || !eventType) return;
+    // إدراج حدث التحليلات في Supabase
     await window.supabase.from('analytics_events').insert({
       event_type: eventType,
       teacher_id: payload.teacher_id || null,
@@ -388,7 +401,24 @@ async function trackEvent(eventType, payload = {}) {
       session_id: getSessionId(),   // ← الزائر الفريد
       meta:       payload.meta || {}
     });
-  } catch (e) { console.warn('analytics skipped:', e.message); }
+    // تحديث نقاط المدرس بناءً على نوع الحدث
+    if (payload.teacher_id) {
+      // جدول تعيين النقاط حسب نوع الحدث: يعطي نقاط مختلفة للتفاعل
+      const AWARD_POINTS = {
+        ad_card_view: 1,        // مشاهدة بطاقة الإعلان
+        ad_detail_view: 2,      // فتح صفحة التفاصيل
+        whatsapp_click: 4,      // ضغط واتساب
+        facebook_click: 3,      // ضغط فيسبوك
+        phone_click: 5          // الاتصال الهاتفي
+      };
+      const delta = AWARD_POINTS[eventType] || 0;
+      if (delta > 0) {
+        try { await incrementTeacherPoints(payload.teacher_id, delta); } catch (_) {}
+      }
+    }
+  } catch (e) {
+    console.warn('analytics skipped:', e.message);
+  }
 }
 
 
@@ -717,6 +747,22 @@ function timeAgo(dateStr) {
   if (hours > 0) return `منذ ${hours} ساعة`;
   if (mins > 0) return `منذ ${mins} دقيقة`;
   return "الآن";
+}
+
+// ── Points Helpers ──
+// يعمل على زيادة نقاط المدرس عند حدوث تفاعل (عرض بطاقة، ضغط على واتساب، إلخ)
+// تُخزَّن نقاط المدرس في عمود "points" في جدول teachers
+async function incrementTeacherPoints(teacherId, delta = 1) {
+  if (!window.supabase || !teacherId) return;
+  try {
+    const { data: current, error: err1 } = await window.supabase.from('teachers').select('points').eq('id', teacherId).maybeSingle();
+    // إذا حدث خطأ في جلب النقاط الحالية، نتابع دون تحديث
+    if (err1) return;
+    const newPoints = (current?.points || 0) + Number(delta || 0);
+    await window.supabase.from('teachers').update({ points: newPoints }).eq('id', teacherId);
+  } catch (_) {
+    // نتجاهل الخطأ حتى لا نؤثر على تدفق التطبيق
+  }
 }
 
 // ── Build Teacher Card HTML ──

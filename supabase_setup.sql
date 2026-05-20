@@ -26,6 +26,8 @@ CREATE TABLE IF NOT EXISTS teachers (
   allow_unlimited_edits BOOLEAN NOT NULL DEFAULT FALSE,
   allow_fast_support BOOLEAN NOT NULL DEFAULT FALSE,
   custom_features TEXT,
+  -- نقاط المدرس: تُستخدم لعرض لوحة الشرف ومنح المكافآت بناءً على عدد الضغطات على الإعلانات
+  points        INTEGER NOT NULL DEFAULT 0,
   created_at    TIMESTAMPTZ DEFAULT NOW(),
   updated_at    TIMESTAMPTZ DEFAULT NOW()
 );
@@ -72,6 +74,32 @@ CREATE TABLE IF NOT EXISTS site_settings (
   value JSONB NOT NULL DEFAULT '{}'::jsonb,
   updated_at TIMESTAMPTZ DEFAULT NOW()
 );
+
+-- جدول الإشعارات الموجهة: يسمح للإدارة بإرسال رسائل للمدرسين أو الطلاب
+CREATE TABLE IF NOT EXISTS notifications (
+  id         UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  target     TEXT NOT NULL,           -- "teachers", "students", أو "all"
+  title      TEXT,
+  message    TEXT NOT NULL,
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- تفعيل RLS للإشعارات بحيث يمكن للجميع القراءة، لكن الإداري فقط يضيف
+ALTER TABLE notifications ENABLE ROW LEVEL SECURITY;
+
+-- سياسات الوصول للإشعارات
+DROP POLICY IF EXISTS "notify_select_all" ON notifications;
+DROP POLICY IF EXISTS "notify_insert_admin" ON notifications;
+
+-- السماح للكل بقراءة الإشعارات
+CREATE POLICY "notify_select_all" ON notifications FOR SELECT TO anon USING (true);
+
+-- السماح للمستخدم المسجل (الذي يمتلك دور إداري) بإضافة إشعارات
+-- سيتم التحقق من الدور عبر ملفات التوصيف profiles
+CREATE POLICY "notify_insert_admin" ON notifications
+  FOR INSERT TO authenticated
+  USING (EXISTS (SELECT 1 FROM profiles p WHERE p.user_id = auth.uid() AND p.role = 'admin'))
+  WITH CHECK (EXISTS (SELECT 1 FROM profiles p WHERE p.user_id = auth.uid() AND p.role = 'admin'));
 
 
 ALTER TABLE teachers ADD COLUMN IF NOT EXISTS phone TEXT;

@@ -136,6 +136,8 @@
     <div class="sidebar-section-title">إدارة</div>
     <ul class="sidebar-nav">
       <li><a href="#" onclick="openAddTeacherModal(); return false;"><span class="icon">➕</span> إضافة مدرس</a></li>
+      <!-- رابط للإشعارات الموجهة -->
+      <li><a href="#" onclick="return showPane('pane-notifications', this)"><span class="icon">🔔</span> الإشعارات</a></li>
     </ul>
   </aside>
 
@@ -174,6 +176,9 @@
       <div class="admin-header">
         <h1>📈 إحصائيات المنصة</h1>
         <p>زيارات الموقع، ضغطات التواصل، وأفضل المدرسين حسب التفاعل.</p>
+        <div style="margin-top:8px">
+          <button class="btn btn-secondary btn-sm" onclick="exportAnalytics()">⬇️ تصدير البيانات</button>
+        </div>
       </div>
       <div id="admin-analytics-content"><div class="loading-spinner" style="padding:30px"><div class="spinner-lg"></div></div></div>
     </div>
@@ -293,6 +298,52 @@
         </div>
         <div id="subjects-list" style="padding:20px;display:flex;gap:10px;flex-wrap:wrap"></div>
         <div class="form-hint" style="padding:0 20px 20px">لو لم يظهر جدول المواد، شغّل ملف <code>supabase_setup.sql</code> الجديد في Supabase.</div>
+      </div>
+    </div>
+
+    <!-- ── Notifications Pane ── -->
+    <div class="admin-pane" id="pane-notifications">
+      <div class="admin-header">
+        <h1>🔔 الإشعارات</h1>
+        <p>أرسل تنبيهات أو إعلانات موجهة للمدرسين أو الجميع.</p>
+      </div>
+      <!-- Form to create a new notification -->
+      <div class="panel">
+        <div class="panel-header">
+          <span class="panel-title">📝 إنشاء إشعار جديد</span>
+        </div>
+        <div style="padding:20px">
+          <form id="notification-form" onsubmit="sendNotification(event)" style="display:grid;gap:16px">
+            <div class="form-group">
+              <label class="form-label">الهدف</label>
+              <select id="n-target" class="form-control form-select">
+                <option value="teachers" selected>المدرسين فقط</option>
+                <option value="all">الكل</option>
+                <option value="students">الطلاب</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">العنوان</label>
+              <input type="text" id="n-title" class="form-control" placeholder="عنوان مختصر للإشعار (اختياري)">
+            </div>
+            <div class="form-group">
+              <label class="form-label">الرسالة<span class="required">*</span></label>
+              <textarea id="n-message" class="form-control" rows="3" required placeholder="نص الإشعار"></textarea>
+            </div>
+            <div style="text-align:right">
+              <button type="submit" class="btn btn-primary">إرسال الإشعار</button>
+            </div>
+          </form>
+        </div>
+      </div>
+      <!-- List previous notifications -->
+      <div class="panel mt-16">
+        <div class="panel-header">
+          <span class="panel-title">📄 الإشعارات السابقة</span>
+        </div>
+        <div id="notifications-list" style="padding:20px">
+          <div class="loading-spinner" style="padding:30px"><div class="spinner-lg"></div></div>
+        </div>
       </div>
     </div>
 
@@ -1162,9 +1213,10 @@
     const box = document.getElementById('admin-analytics-content');
     if (!box) return;
     try {
-      const [{data: events}, {data: teachers}] = await Promise.all([
+      const [{data: events}, {data: teachers}, {data: top}] = await Promise.all([
         supabase.from('analytics_events').select('*, teachers(name), ads(title, subject)').order('created_at', {ascending:false}).limit(3000),
-        supabase.from('teachers').select('id,name,plan_type,subscription_end,subscription_status,is_active')
+        supabase.from('teachers').select('id,name,plan_type,subscription_end,subscription_status,is_active'),
+        supabase.from('teachers').select('name, points').order('points', { ascending: false }).order('created_at', { ascending: true }).limit(10)
       ]);
       const ev = events || [];
       const count = type => ev.filter(e => e.event_type === type).length;
@@ -1189,6 +1241,11 @@
         </div>
         <div class="panel mt-16"><div class="panel-header"><span class="panel-title">🏆 أفضل مدرس حسب التفاعل</span></div>
           <div style="padding:20px;font-size:1.05rem">${bestTeacher ? `<strong>${escapeHtml(bestTeacher.name)}</strong> — نقاط التفاعل: ${best[1]}` : 'لا توجد بيانات كافية بعد'}</div>
+        </div>
+        <div class="panel mt-16"><div class="panel-header"><span class="panel-title">🏆 لوحة الشرف للمدرسين</span></div>
+          <div style="padding:20px">
+            ${top && top.length ? `<ul style="list-style:none;padding:0;margin:0">${top.map((t,i)=>`<li style=\"display:flex;justify-content:space-between;align-items:center;padding:4px 0;border-bottom:1px solid var(--border)\"><span>${i+1}.</span><strong>${escapeHtml(t.name || '')}</strong><span>${t.points || 0} نقطة</span></li>`).join('')}</ul>` : '<div class="empty-text">لا توجد بيانات للوحة الشرف بعد.</div>'}
+          </div>
         </div>
         <div class="panel mt-16"><div class="panel-header"><span class="panel-title">آخر التفاعلات</span></div>
           <div class="table-wrapper"><table class="table"><thead><tr><th>الحدث</th><th>المدرس</th><th>الإعلان</th><th>الوقت</th></tr></thead><tbody>
@@ -1236,6 +1293,93 @@
     });
   }
 
+  // ── تصدير إحصائيات المنصة إلى CSV ──
+  async function exportAnalytics() {
+    try {
+      // احصل على جميع الأحداث مع اسم المدرس وعنوان الإعلان
+      const { data, error } = await supabase
+        .from('analytics_events')
+        .select('event_type, page, created_at, teachers(name), ads(title)')
+        .order('created_at', { ascending: true })
+        .limit(5000);
+      if (error) throw error;
+      const events = data || [];
+      // هيكلة البيانات
+      const rows = [];
+      rows.push(['event_type','teacher','ad','page','created_at']);
+      events.forEach(ev => {
+        const teacherName = ev.teachers?.name || '';
+        const adTitle = ev.ads?.title || '';
+        rows.push([ev.event_type, teacherName, adTitle, ev.page || '', ev.created_at || '']);
+      });
+      // تحويل إلى CSV
+      const csv = rows.map(r => r.map(v => '"' + String(v).replace(/"/g, '""') + '"').join(',')).join('\n');
+      const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `analytics_${new Date().toISOString().slice(0,10)}.csv`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    } catch (e) {
+      showToast(`خطأ أثناء تصدير البيانات: ${e.message}`, 'danger');
+    }
+  }
+
+  // ── تحميل وعرض الإشعارات ──
+  async function loadNotifications() {
+    const list = document.getElementById('notifications-list');
+    if (!list) return;
+    list.innerHTML = '<div class="loading-spinner" style="padding:30px"><div class="spinner-lg"></div></div>';
+    try {
+      const { data, error } = await supabase
+        .from('notifications')
+        .select('*')
+        .order('created_at', { ascending: false });
+      if (error) throw error;
+      const notes = data || [];
+      if (!notes.length) {
+        list.innerHTML = '<div class="empty-text">لا توجد إشعارات بعد.</div>';
+        return;
+      }
+      list.innerHTML = notes.map(n => {
+        const date = new Date(n.created_at).toLocaleDateString('ar-EG', { year: 'numeric', month:'short', day:'numeric' });
+        const title = n.title ? `<strong>${escapeHtml(n.title)}</strong><br>` : '';
+        const target = n.target === 'teachers' ? 'المدرسين' : (n.target === 'students' ? 'الطلاب' : 'الكل');
+        return `<div class="notification-item" style="margin-bottom:16px;border-bottom:1px solid var(--border);padding-bottom:12px">
+          <div style="font-size:.8rem;color:var(--text-secondary)">${date} — إلى: ${target}</div>
+          <div style="margin-top:4px">${title}${escapeHtml(n.message)}</div>
+        </div>`;
+      }).join('');
+    } catch (e) {
+      list.innerHTML = `<div class="error-banner">❌ تعذّر تحميل الإشعارات: ${escapeHtml(e.message)}</div>`;
+    }
+  }
+
+  // ── إرسال إشعار جديد ──
+  async function sendNotification(e) {
+    e.preventDefault();
+    const target = document.getElementById('n-target')?.value || 'teachers';
+    const title = document.getElementById('n-title')?.value || '';
+    const message = document.getElementById('n-message')?.value || '';
+    if (!message.trim()) {
+      showToast('يجب كتابة نص الإشعار', 'warning');
+      return;
+    }
+    try {
+      const { error } = await supabase.from('notifications').insert({ target, title: title.trim() || null, message: message.trim() });
+      if (error) throw error;
+      document.getElementById('n-message').value = '';
+      document.getElementById('n-title').value = '';
+      showToast('تم إرسال الإشعار ✅', 'success');
+      await loadNotifications();
+    } catch (err) {
+      showToast(`خطأ في إرسال الإشعار: ${err.message}`, 'danger');
+    }
+  }
+
   // ── Navigation ──
   function showPane(paneId, linkEl) {
     document.querySelectorAll('.admin-pane').forEach(p => p.classList.remove('active'));
@@ -1243,6 +1387,7 @@
     document.querySelectorAll('.admin-sidebar .sidebar-nav a').forEach(a => a.classList.remove('active'));
     if (linkEl) linkEl.classList.add('active');
     if (paneId === 'pane-analytics') loadAdminAnalytics();
+    if (paneId === 'pane-notifications') loadNotifications();
     return false;
   }
 

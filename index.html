@@ -26,6 +26,25 @@
   <link rel="stylesheet" href="style.css?v=7.4.2">
   <link rel="icon" type="image/png" href="logo.png">
   <link rel="manifest" href="manifest.webmanifest">
+
+  <!-- أسلوب خاص للبحث الصوتي -->
+  <style>
+    .mic-btn {
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      right: 0.5rem;
+      background: none;
+      border: none;
+      font-size: 1.3rem;
+      cursor: pointer;
+      color: #94A3B8;
+      transition: color .2s;
+    }
+    .mic-btn:hover {
+      color: var(--primary);
+    }
+  </style>
   <style>
     /* ── Hero Section ── */
     .hero {
@@ -294,7 +313,11 @@
         <div class="search-row">
           <div class="search-main">
             <span class="sicon">🔍</span>
-            <input type="text" id="hero-search" class="form-control" placeholder="ابحث بالاسم، المادة، الوصف..." autocomplete="off">
+            <div style="position:relative; width:100%;">
+              <input type="text" id="hero-search" class="form-control" placeholder="ابحث بالاسم، المادة، الوصف..." autocomplete="off" list="hero-suggestions">
+              <datalist id="hero-suggestions"></datalist>
+              <button type="button" class="mic-btn" id="hero-voice-btn" title="بحث صوتي" onclick="startHeroVoiceSearch()">🎤</button>
+            </div>
           </div>
           <select id="hero-subject" class="form-control form-select"><option value="">جميع المواد</option></select>
           <select id="hero-grade" class="form-control form-select"><option value="">جميع الصفوف</option></select>
@@ -471,7 +494,61 @@
     await loadAds();
     setupFilters();
     animateStats();
+
+    // إعداد البحث الصوتي والاقتراحات في الصفحة الرئيسية
+    setupHeroSearchEnhancements();
   });
+
+  // ── تحسينات البحث في الصفحة الرئيسية ──
+  function setupHeroSearchEnhancements() {
+    // تحميل أسماء المدرسين لتقديم اقتراحات ذكية
+    (async () => {
+      try { await loadTeacherNames(); } catch (_) {}
+    })();
+    const input = document.getElementById('hero-search');
+    if (input) {
+      input.addEventListener('input', () => updateHeroSuggestions(input.value));
+    }
+  }
+
+  function updateHeroSuggestions(val) {
+    const list = document.getElementById('hero-suggestions');
+    if (!list) return;
+    const v = String(val || '').trim().toLowerCase();
+    if (!v) { list.innerHTML = ''; return; }
+    const all = [...SUBJECTS_CACHE, ...TEACHER_NAMES_CACHE];
+    const matches = all.filter(x => x && x.toLowerCase().includes(v)).slice(0, 6);
+    list.innerHTML = matches.map(m => `<option value="${escapeHtml(m)}"></option>`).join('');
+  }
+
+  let heroVoiceRec = null;
+  function startHeroVoiceSearch() {
+    const SpeechRec = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if (!SpeechRec) {
+      showToast('متصفحك لا يدعم البحث الصوتي', 'warning');
+      return;
+    }
+    if (!heroVoiceRec) {
+      heroVoiceRec = new SpeechRec();
+      heroVoiceRec.lang = 'ar-SA';
+      heroVoiceRec.interimResults = false;
+      heroVoiceRec.maxAlternatives = 1;
+      heroVoiceRec.onresult = (e) => {
+        const transcript = e.results[0][0].transcript;
+        const inp = document.getElementById('hero-search');
+        if (inp) {
+          inp.value = transcript;
+          updateHeroSuggestions(transcript);
+          applySearch();
+        }
+      };
+      heroVoiceRec.onerror = (e) => {
+        console.warn('voice error', e.error);
+        showToast('حدث خطأ أثناء التعرف على الصوت', 'danger');
+      };
+    }
+    try { heroVoiceRec.start(); } catch (_) {}
+  }
 
   async function applySiteLaunchSettings() {
     const visible = await isLaunchBannerVisible();
