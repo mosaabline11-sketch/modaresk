@@ -121,6 +121,26 @@ function bindAdminContactLinks() {
 }
 window.addEventListener('DOMContentLoaded', bindAdminContactLinks);
 
+function bindLogoFallbacks() {
+  document.querySelectorAll('img[src$="logo.png"]').forEach(img => {
+    if (img.dataset.logoFallbackBound) return;
+    img.dataset.logoFallbackBound = '1';
+    img.addEventListener('error', () => {
+      img.style.display = 'none';
+      const brand = img.closest('.nav-brand, .fnav-brand, .s-brand');
+      if (brand && !brand.querySelector('.logo-text-fallback')) {
+        const fallback = document.createElement('span');
+        fallback.className = 'logo-text-fallback';
+        fallback.textContent = CONFIG.APP_NAME || 'مدرسك';
+        fallback.style.fontWeight = '800';
+        fallback.style.color = 'inherit';
+        brand.prepend(fallback);
+      }
+    }, { once: true });
+  });
+}
+window.addEventListener('DOMContentLoaded', bindLogoFallbacks);
+
 
 async function loadSubjectsSafe() {
   try {
@@ -466,8 +486,11 @@ function eventTypeLabel(type = '') {
 }
 
 function trackedContactHref(href, eventType, adId, teacherId) {
-  const safeHref = escapeHtml(href);
-  return `${safeHref}" onclick="trackEvent('${eventType}', {ad_id:'${escapeHtml(adId || '')}', teacher_id:'${escapeHtml(teacherId || '')}'});`;
+  const safeHref = escapeAttr(href || "#");
+  const safeEvent = escapeAttr(eventType || "");
+  const safeAd = escapeAttr(adId || "");
+  const safeTeacher = escapeAttr(teacherId || "");
+  return `href="${safeHref}" onclick="trackEvent('${safeEvent}', {ad_id:'${safeAd}', teacher_id:'${safeTeacher}'});"`;
 }
 
 // ── Initialize Supabase ──

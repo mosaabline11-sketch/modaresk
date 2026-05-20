@@ -292,6 +292,10 @@
       <div class="search-card">
         <h3>🎯 فلتر المدرسين</h3>
         <div class="search-row">
+          <div class="search-main">
+            <span class="sicon">🔍</span>
+            <input type="text" id="hero-search" class="form-control" placeholder="ابحث بالاسم، المادة، الوصف..." autocomplete="off">
+          </div>
           <select id="hero-subject" class="form-control form-select"><option value="">جميع المواد</option></select>
           <select id="hero-grade" class="form-control form-select"><option value="">جميع الصفوف</option></select>
           <button class="btn btn-primary" onclick="applySearch()">
@@ -459,7 +463,7 @@
 
   // ── On Load ──
   document.addEventListener('DOMContentLoaded', async () => {
-    updateNavAuth();
+    await updateNavAuth();
     trackEvent('site_visit', {page:'index.html'});
     await applyGlobalLaunchVisibility();
     await loadSubjectsSafe();
@@ -479,11 +483,14 @@
     }
   }
 
-  function updateNavAuth() {
+  async function updateNavAuth() {
     const teacher = Auth.getTeacherSession();
-    const admin = Auth.getAdminSession();
+    let admin = null;
+    try { admin = await Auth.getAdminSession(); } catch (_) { admin = null; }
     const authEl = document.getElementById('nav-auth');
     const teacherLink = document.getElementById('nav-teacher-link');
+    if (!authEl) return;
+    if (teacherLink) teacherLink.style.display = 'none';
 
     if (teacher) {
       authEl.innerHTML = `
@@ -491,7 +498,7 @@
           <span style="font-size:0.9rem;color:var(--text-secondary)">${teacher.name}</span>
           <a href="dashboard.html" class="btn btn-primary btn-sm">لوحتي</a>
         </div>`;
-      teacherLink.style.display = '';
+      if (teacherLink) teacherLink.style.display = '';
     } else if (admin) {
       authEl.innerHTML = `<a href="admin.html" class="btn btn-primary btn-sm">🔧 الإدارة</a>`;
     }
@@ -620,7 +627,8 @@
   }
 
   function applySearch() {
-    searchQuery = document.getElementById('hero-search').value.trim();
+    const searchInput = document.getElementById('hero-search');
+    searchQuery = searchInput ? searchInput.value.trim() : '';
     const subject = document.getElementById('hero-subject').value;
     const grade   = document.getElementById('hero-grade').value;
 
@@ -658,7 +666,7 @@
     });
 
     // Search on Enter
-    document.getElementById('hero-search').addEventListener('keydown', (e) => {
+    document.getElementById('hero-search')?.addEventListener('keydown', (e) => {
       if (e.key === 'Enter') applySearch();
     });
   }
