@@ -456,6 +456,20 @@ textarea.form-control { resize: vertical; min-height: 100px; }
 .footer-links a:hover { color: white; }
 .footer-bottom { border-top: 1px solid rgba(255,255,255,0.1); margin-top: 32px; padding-top: 20px; text-align: center; font-size: 0.85rem; }
 
+/*
+ * تصحيح عرض عنصر اختيار الصفوف في صفحة البحث
+ * عند استخدام مربع اختيار متعدد للصفوف (Grade Picker) داخل
+ * الشبكة ذات العمودين (.s-row2)، يجب أن يمتد العنصر الحاوي
+ * (.gp-wrap) لملء كامل عرض العمود. بدون هذا النمط يمكن أن
+ * يحتفظ العنصر بعرض ثابت مما يترك فراغًا بجانبه. هذا التعديل
+ * يضمن أن .gp-wrap يتوسع وينكمش حسب الحاجة لإصلاح مشكلة
+ * التصميم التي ظهرت في لقطة الشاشة.
+ */
+.s-row2 .gp-wrap {
+  width: 100%;
+  min-width: 0;
+}
+
 /* ── Animations ── */
 @keyframes spin { to { transform: rotate(360deg); } }
 @keyframes skeleton { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }

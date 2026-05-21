@@ -22,7 +22,7 @@
   <title>لوحة الإدارة - مدرسك</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800;900&family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="style.css?v=7.4.2">
+  <link rel="stylesheet" href="style.css?v=7.5.0">
   <link rel="icon" type="image/png" href="logo.png">
   <link rel="manifest" href="manifest.webmanifest">
   <style>
@@ -1340,10 +1340,18 @@
     confirmDialog('سيتم حذف جميع سجلات الإحصائيات وإعادة نقاط جميع المدرسين إلى الصفر. هل أنت متأكد؟', async () => {
       try {
         // حذف جميع الأحداث من جدول analytics_events
-        const { error: err1 } = await supabase.from('analytics_events').delete().neq('id', '');
+        // لا تسمح مكتبة Supabase بإجراء حذف بدون فلتر، لذا نستخدم
+        // شرطًا يضمن مطابقة جميع الصفوف تقريبًا باستثناء قيمة غير موجودة
+        const { error: err1 } = await supabase
+          .from('analytics_events')
+          .delete()
+          .neq('id', '00000000-0000-0000-0000-000000000000');
         if (err1) throw err1;
         // إعادة تعيين نقاط المدرسين إلى 0
-        const { error: err2 } = await supabase.from('teachers').update({ points: 0 }).neq('id', '');
+        const { error: err2 } = await supabase
+          .from('teachers')
+          .update({ points: 0 })
+          .neq('id', '00000000-0000-0000-0000-000000000000');
         if (err2) throw err2;
         showToast('تم مسح جميع الإحصائيات وإعادة تعيين النقاط ✅', 'success');
         await loadAdminAnalytics();

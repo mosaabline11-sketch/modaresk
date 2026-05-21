@@ -1894,22 +1894,33 @@ function exportExcel() {
 // RESET ANALYTICS
 // ══════════════════════════════════════════
 async function confirmResetAnalytics() {
-  const msg = 'تحذير: سيتم حذف جميع بيانات الإحصائيات (المشاهدات، الضغطات، الزيارات) نهائيًا.\n\nاكتب "تصفير" للتأكيد:';
-  const confirm = prompt(msg);
-  if (!confirm || confirm.trim() !== 'تصفير') {
-    if (confirm !== null) showToast('❌ تم الإلغاء — اكتب "تصفير" بالضبط', 'error');
+  // تحذير قبل حذف جميع سجلات الإحصائيات
+  const ok = window.confirm('تحذير: سيتم حذف جميع بيانات الإحصائيات (المشاهدات، الضغطات، الزيارات) نهائيًا.\n\nهل أنت متأكد أنك تريد الاستمرار؟');
+  if (!ok) {
+    showToast('❌ تم الإلغاء', 'error');
     return;
   }
   try {
-    const { error } = await supabase.from('analytics_events').delete().neq('id', '00000000-0000-0000-0000-000000000000');
-    if (error) throw error;
+    // حذف جميع سجلات الأحداث من analytics_events
+    const { error: err1 } = await supabase
+      .from('analytics_events')
+      .delete()
+      .neq('id', '00000000-0000-0000-0000-000000000000');
+    if (err1) throw err1;
+    // إعادة تعيين النقاط لجميع المدرسين إلى صفر
+    const { error: err2 } = await supabase
+      .from('teachers')
+      .update({ points: 0 })
+      .neq('id', '00000000-0000-0000-0000-000000000000');
+    if (err2) throw err2;
+    // إعادة تعيين الإحصائيات في الواجهة
     ST.analytics = { byTeacher:{}, byAd:{}, monthly:{}, total:0, uniqueSessions:0 };
     renderDashboard();
     renderAnalytics();
-    showToast('✅ تم تصفير جميع الإحصائيات', 'success');
+    showToast('✅ تم مسح جميع الإحصائيات وإعادة تعيين النقاط', 'success');
   } catch(e) {
     console.error(e);
-    showToast('❌ فشل التصفير: ' + e.message, 'error');
+    showToast('❌ فشل مسح الإحصائيات: ' + e.message, 'error');
   }
 }
 
