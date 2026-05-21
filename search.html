@@ -39,6 +39,8 @@
 .gp-opt input{accent-color:#2563EB;width:15px;height:15px}
 .gp-clear{padding:7px 12px;font-size:.78rem;color:#DC2626;cursor:pointer;text-align:center;border-top:1px solid #F1F5F9;display:block;width:100%;background:none;border:none;font-family:'Tajawal',sans-serif}
 .gp-clear:hover{background:#FEF2F2}
+/* إصلاح عرض صندوق اختيار الفصول داخل صف الفلاتر */
+.s-row2 .gp-wrap{width:100%;min-width:0;}
 /* Filters bar */
 .f-bar{background:white;border-bottom:1px solid #E2E8F0;padding:10px 0;position:sticky;top:0;z-index:40;box-shadow:0 2px 8px rgba(0,0,0,.05)}
 .f-inner{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
@@ -171,11 +173,49 @@
 </div></footer>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="config.js?v=7.4.2"></script>
+<script src="config.js?v=7.5.0"></script>
 <script>
 const PG=12;
 let allAds=[],filtered=[],curPage=1,activeType='';
 let selGrades=new Set();
+
+// ── Approximate (Fuzzy) Search Helpers ──
+// حساب مسافة ليفنشتاين البسيطة بين كلمتين
+function levenshtein(a, b) {
+  a = String(a || '').toLowerCase();
+  b = String(b || '').toLowerCase();
+  const matrix = Array.from({ length: a.length + 1 }, (_, i) => Array(b.length + 1).fill(0));
+  for (let i = 0; i <= a.length; i++) matrix[i][0] = i;
+  for (let j = 0; j <= b.length; j++) matrix[0][j] = j;
+  for (let i = 1; i <= a.length; i++) {
+    for (let j = 1; j <= b.length; j++) {
+      const cost = a[i - 1] === b[j - 1] ? 0 : 1;
+      matrix[i][j] = Math.min(
+        matrix[i - 1][j] + 1,
+        matrix[i][j - 1] + 1,
+        matrix[i - 1][j - 1] + cost
+      );
+    }
+  }
+  return matrix[a.length][b.length];
+}
+
+// هل يتطابق النص تقريبًا مع الكلمة (يشمل الأخطاء البسيطة)
+function fuzzyMatch(token, text) {
+  if (!token || !text) return false;
+  const t = String(token).toLowerCase();
+  const s = String(text).toLowerCase();
+  if (s.includes(t)) return true;
+  // قسّم النص إلى كلمات وجرب مسافة ليفنشتاين مع كل كلمة
+  const words = s.split(/\s+|,|،/).filter(Boolean);
+  for (const w of words) {
+    // إذا كانت الكلمة قصيرة جدًا، تجاهل المطابقة التقريبية
+    if (w.length <= 2 || t.length <= 2) continue;
+    const d = levenshtein(t, w);
+    if (d <= 1) return true;
+  }
+  return false;
+}
 
 const STAGES={
   'الابتدائي':['أول ابتدائي','ثاني ابتدائي','ثالث ابتدائي','رابع ابتدائي','خامس ابتدائي','سادس ابتدائي'],
@@ -334,16 +374,21 @@ function doSearch(){
         .split(/[,،]/)
         .map(g => g.trim())
         .filter(Boolean);
-      const match = [...selGrades].some(g => adGrades.includes(g));
-      if (!match) return false;
+      const matchGrade = [...selGrades].some(g => adGrades.includes(g));
+      if (!matchGrade) return false;
     }
-    // فلترة نص البحث
+    // فلترة نص البحث باستخدام مطابقة تقريبية للكلمات
     if (q) {
-      return (ad.subject || '').toLowerCase().includes(q) ||
-             (ad.grade   || '').toLowerCase().includes(q) ||
-             (ad.description || '').toLowerCase().includes(q) ||
-             ((ad.teachers?.name) || '').toLowerCase().includes(q) ||
-             (ad.title || '').toLowerCase().includes(q);
+      const tokens = q.split(/\s+/).filter(Boolean);
+      // يجب أن يطابق كل جزء من النص على الأقل أحد حقول الإعلان
+      for (const token of tokens) {
+        const matched = fuzzyMatch(token, ad.subject) ||
+                        fuzzyMatch(token, ad.grade)   ||
+                        fuzzyMatch(token, ad.description) ||
+                        fuzzyMatch(token, ad.teachers?.name) ||
+                        fuzzyMatch(token, ad.title);
+        if (!matched) return false;
+      }
     }
     return true;
   });

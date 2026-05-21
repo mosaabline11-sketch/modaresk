@@ -420,15 +420,31 @@ async function trackEvent(eventType, payload = {}) {
     });
     // تحديث نقاط المدرس بناءً على نوع الحدث
     if (payload.teacher_id) {
-      // جدول تعيين النقاط حسب نوع الحدث: يعطي نقاط مختلفة للتفاعل
-      const AWARD_POINTS = {
+      /*
+       * نقاط التفاعل مخصّصة عبر إعدادات الموقع
+       * بدلاً من جدول ثابت داخل الكود، يمكن للإدارة تعديل النقاط لكل نوع حدث
+       * استخدم getPointValue(eventType) لاسترجاع القيمة المعرّفة في site_settings
+       * وإن لم توجد قيمة، يرجع إلى الجدول الافتراضي بالأسفل
+       */
+      const DEFAULT_POINTS = {
         ad_card_view: 1,        // مشاهدة بطاقة الإعلان
         ad_detail_view: 2,      // فتح صفحة التفاصيل
         whatsapp_click: 4,      // ضغط واتساب
         facebook_click: 3,      // ضغط فيسبوك
         phone_click: 5          // الاتصال الهاتفي
       };
-      const delta = AWARD_POINTS[eventType] || 0;
+      async function getPointValue(type) {
+        // جلب إعداد مخصص للنقاط، وإلا الرجوع للقيمة الافتراضية
+        try {
+          const key = `points_${type}`;
+          const val = await getSiteSetting(key, null);
+          const n = Number(val);
+          return isNaN(n) ? (DEFAULT_POINTS[type] || 0) : n;
+        } catch (_) {
+          return DEFAULT_POINTS[type] || 0;
+        }
+      }
+      const delta = await getPointValue(eventType);
       if (delta > 0) {
         try { await incrementTeacherPoints(payload.teacher_id, delta); } catch (_) {}
       }

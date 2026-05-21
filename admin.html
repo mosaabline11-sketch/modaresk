@@ -176,7 +176,8 @@
       <div class="admin-header">
         <h1>📈 إحصائيات المنصة</h1>
         <p>زيارات الموقع، ضغطات التواصل، وأفضل المدرسين حسب التفاعل.</p>
-        <div style="margin-top:8px">
+        <div style="margin-top:8px;display:flex;gap:8px;flex-wrap:wrap">
+          <button class="btn btn-danger btn-sm" onclick="clearAnalytics()">🗑 مسح الإحصائيات</button>
           <button class="btn btn-secondary btn-sm" onclick="exportAnalytics()">⬇️ تصدير البيانات</button>
         </div>
       </div>
@@ -207,6 +208,47 @@
             <a href="index.html" target="_blank" class="btn btn-ghost">معاينة الموقع</a>
           </div>
           <div id="settings-save-note" class="form-hint"></div>
+        </div>
+      </div>
+
+      <!-- لوحة إعداد نقاط التفاعل -->
+      <div class="panel" style="margin-top:24px">
+        <div class="panel-header">
+          <span class="panel-title">🎯 نقاط التفاعل</span>
+        </div>
+        <div style="padding:22px">
+          <p style="font-size:.86rem;margin-bottom:12px;color:var(--text-secondary)">حدد عدد النقاط الممنوحة لكل نوع من أنواع التفاعل. ستُستخدم هذه القيم عند احتساب نقاط المدرسين.</p>
+          <div class="table-wrapper" style="overflow-x:auto">
+            <table class="table">
+              <thead><tr><th>نوع الحدث</th><th>النقاط</th></tr></thead>
+              <tbody>
+                <tr>
+                  <td>مشاهدة بطاقة الإعلان</td>
+                  <td><input type="number" id="points-ad_card_view" min="0" class="form-control" style="max-width:120px" value="1"></td>
+                </tr>
+                <tr>
+                  <td>فتح صفحة التفاصيل</td>
+                  <td><input type="number" id="points-ad_detail_view" min="0" class="form-control" style="max-width:120px" value="2"></td>
+                </tr>
+                <tr>
+                  <td>ضغط واتساب</td>
+                  <td><input type="number" id="points-whatsapp_click" min="0" class="form-control" style="max-width:120px" value="4"></td>
+                </tr>
+                <tr>
+                  <td>ضغط فيسبوك</td>
+                  <td><input type="number" id="points-facebook_click" min="0" class="form-control" style="max-width:120px" value="3"></td>
+                </tr>
+                <tr>
+                  <td>الاتصال الهاتفي</td>
+                  <td><input type="number" id="points-phone_click" min="0" class="form-control" style="max-width:120px" value="5"></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <div style="margin-top:16px;display:flex;gap:10px;flex-wrap:wrap">
+            <button class="btn btn-primary btn-sm" onclick="savePointsSettings()">💾 حفظ النقاط</button>
+            <span id="points-save-note" class="form-hint"></span>
+          </div>
         </div>
       </div>
     </div>
@@ -319,7 +361,7 @@
               <select id="n-target" class="form-control form-select">
                 <option value="teachers" selected>المدرسين فقط</option>
                 <option value="all">الكل</option>
-                <option value="students">الطلاب</option>
+                <!-- تم إزالة إشعارات الطلاب -->
               </select>
             </div>
             <div class="form-group">
@@ -548,7 +590,7 @@
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="config.js?v=7.4.2"></script>
+<script src="config.js?v=7.5.0"></script>
 <script>
   let allTeachers = [];
   let allAds = [];
@@ -638,10 +680,12 @@
             <td>${escapeHtml(ad.teachers?.name || '—')}</td>
             <td>${escapeHtml(ad.subject || '—')}</td>
             <td style="font-size:0.82rem;color:var(--text-muted)">${timeAgo(ad.created_at)}</td>
-            <td>
+        <td>
               <div class="table-actions">
                 <button class="btn btn-success btn-sm" onclick="changeAdStatus('${ad.id}','active')">✅ قبول</button>
                 <button class="btn btn-danger btn-sm" onclick="changeAdStatus('${ad.id}','rejected')">❌ رفض</button>
+                <!-- زر معاينة الإعلان في وضع المراجعة -->
+                <a class="btn btn-ghost btn-sm" href="teacher.html?ad=${ad.id}&preview=1" target="_blank" title="معاينة">👁</a>
               </div>
             </td>
           </tr>`).join('')}
@@ -731,6 +775,8 @@
               ${t.is_active ? '⛔' : '✅'}
             </button>
             <button class="btn btn-danger btn-sm" onclick="deleteTeacher('${t.id}', '${t.name.replace(/'/g,"\\'")}')">🗑</button>
+            <!-- زر لإرسال رسالة خاصة إلى المدرس -->
+            <button class="btn btn-secondary btn-sm" onclick="promptDirectMessage('${t.id}', '${t.name.replace(/'/g,"\\'")}')" title="رسالة خاصة">✉️</button>
           </div>
         </td>
       </tr>
@@ -817,7 +863,8 @@
             ${ad.status !== 'active'   ? `<button class="btn btn-success btn-sm" onclick="changeAdStatus('${ad.id}','active')">✅</button>` : ''}
             ${ad.status !== 'rejected' ? `<button class="btn btn-danger btn-sm" onclick="changeAdStatus('${ad.id}','rejected')">❌</button>` : ''}
             ${ad.status !== 'pending'  ? `<button class="btn btn-warning btn-sm" onclick="changeAdStatus('${ad.id}','pending')">⏳</button>` : ''}
-            <a class="btn btn-ghost btn-sm" href="teacher.html?ad=${ad.id}" target="_blank">👁</a>
+            <!-- عرض معاينة الإعلان: عند عدم كونه نشطًا نضيف &preview=1 -->
+            <a class="btn btn-ghost btn-sm" href="teacher.html?ad=${ad.id}${ad.status !== 'active' ? '&preview=1' : ''}" target="_blank">👁</a>
             <button class="btn btn-outline btn-sm" onclick="openEditAdModal('${ad.id}')">✏️</button>
             <button class="btn btn-danger btn-sm" onclick="deleteAd('${ad.id}')">🗑</button>
           </div>
@@ -901,6 +948,39 @@
         showToast(`خطأ: ${e.message}`, 'danger');
       }
     });
+  }
+
+  // ── تعديل نقاط المدرس ──
+  async function adjustTeacherPoints(teacherId, delta) {
+    try {
+      await incrementTeacherPoints(teacherId, delta);
+      showToast('تم تحديث نقاط المدرس ✅', 'success');
+      // إعادة تحميل لوحة الإحصائيات للتحديث
+      await loadAdminAnalytics();
+    } catch (e) {
+      showToast(`خطأ: ${e.message}`, 'danger');
+    }
+  }
+
+  // ── إرسال رسالة خاصة لمدرس ──
+  async function promptDirectMessage(teacherId, teacherName) {
+    const msg = prompt(`اكتب رسالتك للمدرس ${teacherName}:`);
+    if (!msg || !msg.trim()) return;
+    try {
+      const { error } = await supabase.from('notifications').insert({
+        target: 'teacher',
+        teacher_id: teacherId,
+        title: null,
+        message: msg.trim(),
+        meta: { teacher_id: teacherId }
+      });
+      if (error) throw error;
+      showToast('تم إرسال الرسالة الخاصة ✅', 'success');
+      // تحديث قائمة الإشعارات إن كانت مفتوحة
+      await loadNotifications();
+    } catch (e) {
+      showToast(`خطأ: ${e.message}`, 'danger');
+    }
   }
 
   // ── Add Teacher Modal ──
@@ -1192,6 +1272,9 @@
     const input = document.getElementById('setting-launch-visible');
     if (!input) return;
     input.checked = await isLaunchBannerVisible();
+
+    // بعد تحميل حالة إظهار رسالة الانطلاق، قم بتحميل قيم نقاط التفاعل
+    await loadPointsSettings();
   }
 
   async function saveSiteSettings() {
@@ -1206,6 +1289,68 @@
       if (note) note.textContent = `خطأ: ${e.message}`;
       showToast(`خطأ في حفظ الإعدادات: ${e.message}`, 'danger');
     }
+  }
+
+  // ── نقاط التفاعل: تحميل القيم الحالية ──
+  async function loadPointsSettings() {
+    const types = ['ad_card_view','ad_detail_view','whatsapp_click','facebook_click','phone_click'];
+    for (const t of types) {
+      const input = document.getElementById(`points-${t}`);
+      if (!input) continue;
+      try {
+        const val = await getSiteSetting(`points_${t}`, null);
+        if (val !== null && val !== undefined) {
+          const n = Number(val);
+          if (!isNaN(n)) input.value = n;
+        }
+      } catch (_) {}
+    }
+  }
+
+  // ── نقاط التفاعل: حفظ القيم الجديدة ──
+  async function savePointsSettings() {
+    const note = document.getElementById('points-save-note');
+    const types = [
+      { key:'ad_card_view',    label:'مشاهدة بطاقة الإعلان' },
+      { key:'ad_detail_view',  label:'فتح صفحة التفاصيل' },
+      { key:'whatsapp_click',  label:'ضغط واتساب' },
+      { key:'facebook_click',  label:'ضغط فيسبوك' },
+      { key:'phone_click',     label:'الاتصال الهاتفي' }
+    ];
+    try {
+      for (const t of types) {
+        const input = document.getElementById(`points-${t.key}`);
+        if (!input) continue;
+        const val = Number(input.value);
+        if (!isNaN(val)) {
+          await setSiteSetting(`points_${t.key}`, val);
+        }
+      }
+      if (note) note.textContent = 'تم الحفظ: تم تحديث نقاط التفاعل حسب اختيارك.';
+      showToast('تم حفظ نقاط التفاعل ✅', 'success');
+    } catch (e) {
+      if (note) note.textContent = `خطأ: ${e.message}`;
+      showToast(`خطأ في حفظ نقاط التفاعل: ${e.message}`, 'danger');
+    }
+  }
+
+  // ── مسح الإحصائيات ──
+  async function clearAnalytics() {
+    // تأكيد قبل حذف كافة البيانات
+    confirmDialog('سيتم حذف جميع سجلات الإحصائيات وإعادة نقاط جميع المدرسين إلى الصفر. هل أنت متأكد؟', async () => {
+      try {
+        // حذف جميع الأحداث من جدول analytics_events
+        const { error: err1 } = await supabase.from('analytics_events').delete().neq('id', '');
+        if (err1) throw err1;
+        // إعادة تعيين نقاط المدرسين إلى 0
+        const { error: err2 } = await supabase.from('teachers').update({ points: 0 }).neq('id', '');
+        if (err2) throw err2;
+        showToast('تم مسح جميع الإحصائيات وإعادة تعيين النقاط ✅', 'success');
+        await loadAdminAnalytics();
+      } catch (e) {
+        showToast(`خطأ أثناء مسح الإحصائيات: ${e.message}`, 'danger');
+      }
+    });
   }
 
   // ── Admin Analytics ──
@@ -1228,6 +1373,8 @@
       const bestTeacher = best ? (teachers || []).find(t => t.id === best[0]) : null;
       const soon = (teachers || []).filter(t => { const d = daysUntil(t.subscription_end); return isSubscriptionActive(t) && d !== null && d <= 5; }).length;
       const expired = (teachers || []).filter(t => !isSubscriptionActive(t)).length;
+      // قسم نقاط المدرسين مع إمكانية تعديل النقاط
+      const teacherPointsHtml = `<div class="panel mt-16"><div class="panel-header"><span class="panel-title">📋 نقاط المدرسين</span></div><div style="padding:20px"><table class="table"><thead><tr><th>المدرس</th><th>النقاط الحالية</th><th>تعديل</th></tr></thead><tbody>${(teachers || []).map(t => `<tr><td>${escapeHtml(t.name || '')}</td><td id="tp-${t.id}">${t.points || 0}</td><td><div class="table-actions"><button class="btn btn-success btn-sm" onclick="adjustTeacherPoints('${t.id}',1)">+1</button><button class="btn btn-danger btn-sm" onclick="adjustTeacherPoints('${t.id}',-1)">-1</button></div></td></tr>`).join('')}</tbody></table></div></div>`;
       box.innerHTML = `
         <div class="stats-dashboard">
           <div class="stat-mini-card"><div class="num">${views}</div><div class="lbl">عدد زوار الموقع</div></div>
@@ -1251,7 +1398,8 @@
           <div class="table-wrapper"><table class="table"><thead><tr><th>الحدث</th><th>المدرس</th><th>الإعلان</th><th>الوقت</th></tr></thead><tbody>
             ${ev.slice(0,20).map(e => `<tr><td>${escapeHtml(eventTypeLabel(e.event_type))}</td><td>${escapeHtml(e.teachers?.name || '—')}</td><td>${escapeHtml(e.ads?.title || e.ads?.subject || '—')}</td><td>${timeAgo(e.created_at)}</td></tr>`).join('')}
           </tbody></table></div>
-        </div>`;
+        </div>
+        ${teacherPointsHtml}`;
     } catch(e) {
       box.innerHTML = `<div class="error-banner">❌ تعذّر تحميل الإحصائيات: ${escapeHtml(e.message)} — تأكد من تشغيل supabase_setup.sql الجديد.</div>`;
     }
@@ -1347,10 +1495,17 @@
       list.innerHTML = notes.map(n => {
         const date = new Date(n.created_at).toLocaleDateString('ar-EG', { year: 'numeric', month:'short', day:'numeric' });
         const title = n.title ? `<strong>${escapeHtml(n.title)}</strong><br>` : '';
-        const target = n.target === 'teachers' ? 'المدرسين' : (n.target === 'students' ? 'الطلاب' : 'الكل');
+        let target;
+        if (n.target === 'teachers') target = 'المدرسين';
+        else if (n.target === 'students') target = 'الطلاب';
+        else if (n.target === 'teacher') target = 'مدرس محدد';
+        else target = 'الكل';
         return `<div class="notification-item" style="margin-bottom:16px;border-bottom:1px solid var(--border);padding-bottom:12px">
           <div style="font-size:.8rem;color:var(--text-secondary)">${date} — إلى: ${target}</div>
           <div style="margin-top:4px">${title}${escapeHtml(n.message)}</div>
+          <div style="margin-top:8px">
+            <button class="btn btn-danger btn-sm" onclick="deleteNotification('${n.id}')">🗑 حذف</button>
+          </div>
         </div>`;
       }).join('');
     } catch (e) {
@@ -1378,6 +1533,21 @@
     } catch (err) {
       showToast(`خطأ في إرسال الإشعار: ${err.message}`, 'danger');
     }
+  }
+
+  // ── حذف إشعار ──
+  async function deleteNotification(noteId) {
+    // تأكيد قبل الحذف
+    confirmDialog('هل تريد حذف هذا الإشعار؟', async () => {
+      try {
+        const { error } = await supabase.from('notifications').delete().eq('id', noteId);
+        if (error) throw error;
+        showToast('تم حذف الإشعار ✅', 'success');
+        await loadNotifications();
+      } catch (err) {
+        showToast(`خطأ: ${err.message}`, 'danger');
+      }
+    });
   }
 
   // ── Navigation ──

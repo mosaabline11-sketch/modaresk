@@ -52,7 +52,7 @@
 </main>
 <footer class="footer" style="margin-top:0"><div class="container"><div class="footer-bottom" style="border-top:none;margin-top:0">© 2026 مدرسك — جميع الحقوق محفوظة · <a href="privacy.html">سياسة الخصوصية</a> · <a href="terms.html">شروط الاستخدام</a></div></div></footer>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="config.js?v=7.4.2"></script>
+<script src="config.js?v=7.5.0"></script>
 <script>
   document.addEventListener('DOMContentLoaded', async () => {
     const params = new URLSearchParams(location.search);
@@ -74,14 +74,32 @@
 
   async function loadAdDetails(adId){
     try{
-      const {data: ad, error}=await supabase
+      // allow preview of pending ads when the URL contains a preview query parameter
+      const params = new URLSearchParams(location.search);
+      const preview = params.has('preview');
+      let query = supabase
         .from('ads')
         .select('*, teachers(id, name, bio, avatar_url, whatsapp, facebook, phone, contact_methods, is_active, plan_type, subscription_status, subscription_end)')
-        .eq('id', adId)
-        .eq('status','active')
-        .single();
-      if(error || !ad || !isSubscriptionActive(ad.teachers)) return showNotFound();
-      trackEvent('ad_detail_view', {ad_id: ad.id, teacher_id: ad.teacher_id, page:'teacher.html'});
+        .eq('id', adId);
+      // limit to active ads unless preview mode is enabled
+      if (!preview) query = query.eq('status','active');
+      const { data: ad, error } = await query.single();
+      // if not found or not active (and not preview), show not found
+      if (error || !ad || (!preview && !isSubscriptionActive(ad.teachers))) return showNotFound();
+      // only record a view once per ad per user using localStorage
+      try {
+        const key = 'mdrsk_viewed_ads';
+        let viewed = [];
+        try { viewed = JSON.parse(localStorage.getItem(key) || '[]'); } catch (_) { viewed = []; }
+        if (!viewed.includes(ad.id)) {
+          trackEvent('ad_detail_view', {ad_id: ad.id, teacher_id: ad.teacher_id, page:'teacher.html'});
+          viewed.push(ad.id);
+          localStorage.setItem(key, JSON.stringify(viewed));
+        }
+      } catch (_) {
+        // fallback: still track the event if localStorage is unavailable
+        trackEvent('ad_detail_view', {ad_id: ad.id, teacher_id: ad.teacher_id, page:'teacher.html'});
+      }
       renderAd(ad);
     }catch(e){console.error(e);showNotFound();}
   }
