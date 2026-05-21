@@ -7,7 +7,7 @@
 <meta name="robots" content="index,follow"><meta name="theme-color" content="#2563EB">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800;900&family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css?v=7.5.0">
+<link rel="stylesheet" href="style.css?v=7.5.1">
 <link rel="icon" type="image/png" href="logo.png">
 <link rel="manifest" href="manifest.webmanifest">
 <style>
@@ -25,10 +25,11 @@
 .s-inp:focus{border-color:#2563EB;background:white}
 .s-btn{background:#2563EB;color:white;border:none;border-radius:10px;padding:10px 22px;font-family:'Tajawal',sans-serif;font-size:.95rem;font-weight:700;cursor:pointer;white-space:nowrap;height:44px;transition:background .2s}
 .s-btn:hover{background:#1D4ED8}
-.s-row2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.s-row2{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:10px;width:100%;align-items:stretch}
+.s-row2>.s-inp,.s-row2>.gp-wrap{width:100%!important;min-width:0!important;max-width:none!important;box-sizing:border-box}
 /* Grade multi-picker */
-.gp-wrap{position:relative}
-.gp-btn{width:100%;text-align:right;padding:9px 12px;border:1.5px solid #E2E8F0;border-radius:10px;background:#F8FAFC;font-family:'Tajawal',sans-serif;font-size:.88rem;cursor:pointer;display:flex;justify-content:space-between;align-items:center;color:#0F172A;transition:border-color .2s}
+.gp-wrap{position:relative;display:block}
+.gp-btn{width:100%!important;min-width:0;max-width:none;box-sizing:border-box;height:44px;text-align:right;padding:9px 12px;border:1.5px solid #E2E8F0;border-radius:10px;background:#F8FAFC;font-family:'Tajawal',sans-serif;font-size:.88rem;cursor:pointer;display:flex;justify-content:space-between;align-items:center;color:#0F172A;transition:border-color .2s}
 .gp-btn.open,.gp-btn:hover{border-color:#2563EB}
 .gp-dd{display:none;position:absolute;top:calc(100% + 4px);right:0;left:0;background:white;border:1.5px solid #2563EB;border-radius:12px;box-shadow:0 8px 24px rgba(0,0,0,.14);z-index:300;max-height:290px;overflow-y:auto}
 .gp-dd.open{display:block}
@@ -39,8 +40,6 @@
 .gp-opt input{accent-color:#2563EB;width:15px;height:15px}
 .gp-clear{padding:7px 12px;font-size:.78rem;color:#DC2626;cursor:pointer;text-align:center;border-top:1px solid #F1F5F9;display:block;width:100%;background:none;border:none;font-family:'Tajawal',sans-serif}
 .gp-clear:hover{background:#FEF2F2}
-/* إصلاح عرض صندوق اختيار الفصول داخل صف الفلاتر */
-.s-row2 .gp-wrap{width:100%;min-width:0;}
 /* Filters bar */
 .f-bar{background:white;border-bottom:1px solid #E2E8F0;padding:10px 0;position:sticky;top:0;z-index:40;box-shadow:0 2px 8px rgba(0,0,0,.05)}
 .f-inner{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
@@ -180,7 +179,6 @@ let allAds=[],filtered=[],curPage=1,activeType='';
 let selGrades=new Set();
 
 // ── Approximate (Fuzzy) Search Helpers ──
-// حساب مسافة ليفنشتاين البسيطة بين كلمتين
 function levenshtein(a, b) {
   a = String(a || '').toLowerCase();
   b = String(b || '').toLowerCase();
@@ -190,29 +188,20 @@ function levenshtein(a, b) {
   for (let i = 1; i <= a.length; i++) {
     for (let j = 1; j <= b.length; j++) {
       const cost = a[i - 1] === b[j - 1] ? 0 : 1;
-      matrix[i][j] = Math.min(
-        matrix[i - 1][j] + 1,
-        matrix[i][j - 1] + 1,
-        matrix[i - 1][j - 1] + cost
-      );
+      matrix[i][j] = Math.min(matrix[i - 1][j] + 1, matrix[i][j - 1] + 1, matrix[i - 1][j - 1] + cost);
     }
   }
   return matrix[a.length][b.length];
 }
-
-// هل يتطابق النص تقريبًا مع الكلمة (يشمل الأخطاء البسيطة)
 function fuzzyMatch(token, text) {
   if (!token || !text) return false;
   const t = String(token).toLowerCase();
   const s = String(text).toLowerCase();
   if (s.includes(t)) return true;
-  // قسّم النص إلى كلمات وجرب مسافة ليفنشتاين مع كل كلمة
   const words = s.split(/\s+|,|،/).filter(Boolean);
   for (const w of words) {
-    // إذا كانت الكلمة قصيرة جدًا، تجاهل المطابقة التقريبية
     if (w.length <= 2 || t.length <= 2) continue;
-    const d = levenshtein(t, w);
-    if (d <= 1) return true;
+    if (levenshtein(t, w) <= 1) return true;
   }
   return false;
 }
@@ -374,16 +363,15 @@ function doSearch(){
         .split(/[,،]/)
         .map(g => g.trim())
         .filter(Boolean);
-      const matchGrade = [...selGrades].some(g => adGrades.includes(g));
-      if (!matchGrade) return false;
+      const match = [...selGrades].some(g => adGrades.includes(g));
+      if (!match) return false;
     }
-    // فلترة نص البحث باستخدام مطابقة تقريبية للكلمات
+    // فلترة نص البحث باستخدام مطابقة تقريبية لكل كلمة
     if (q) {
       const tokens = q.split(/\s+/).filter(Boolean);
-      // يجب أن يطابق كل جزء من النص على الأقل أحد حقول الإعلان
       for (const token of tokens) {
         const matched = fuzzyMatch(token, ad.subject) ||
-                        fuzzyMatch(token, ad.grade)   ||
+                        fuzzyMatch(token, ad.grade) ||
                         fuzzyMatch(token, ad.description) ||
                         fuzzyMatch(token, ad.teachers?.name) ||
                         fuzzyMatch(token, ad.title);
