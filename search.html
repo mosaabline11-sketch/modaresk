@@ -34,7 +34,7 @@
 .gp-dd{display:none;position:absolute;top:calc(100% + 4px);right:0;left:0;background:white;border:1.5px solid #2563EB;border-radius:12px;box-shadow:0 8px 24px rgba(0,0,0,.14);z-index:300;max-height:290px;overflow-y:auto}
 .gp-dd.open{display:block}
 .gp-stage{padding:5px 12px 2px;font-size:.7rem;font-weight:800;color:#475569;background:#FAFAFA;border-bottom:1px solid #F1F5F9;letter-spacing:.5px}
-.gp-opt{display:flex;align-items:center;gap:8px;padding:8px 14px;font-size:.85rem;cursor:pointer;transition:background .12s}
+.gp-opt{display:flex;align-items:center;gap:8px;padding:8px 14px;font-size:.85rem;cursor:pointer;transition:background .12s;color:#0F172A}
 .gp-opt:hover{background:#F1F5F9}
 .gp-opt.sel{background:#DBEAFE;font-weight:600;color:#1D4ED8}
 .gp-opt input{accent-color:#2563EB;width:15px;height:15px}
@@ -304,7 +304,7 @@ function buildGP(){
   dd.innerHTML=Object.entries(STAGES).map(([st,gs])=>
     `<div class="gp-stage">${st}</div>`+
     gs.map(g=>`<label class="gp-opt${selGrades.has(g)?' sel':''}">
-      <input type="checkbox" value="${g}" ${selGrades.has(g)?'checked':''} onchange="onGradeChk(this)">${g}
+      <input type="checkbox" value="${g}" ${selGrades.has(g)?'checked':''} onchange="onGradeChk(this)"><span style="flex:1;min-width:0">${g}</span>
     </label>`).join('')
   ).join('')+`<button class="gp-clear" onclick="clearGrades();event.stopPropagation()">✕ مسح الاختيارات</button>`;
   updateGPLabel();

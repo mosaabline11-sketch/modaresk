@@ -819,6 +819,12 @@ function openTeacherDetail(teacherId) {
   document.getElementById('modal-teacher-detail').classList.add('open');
 }
 
+  // Expose local functions to global scope for HTML onclick/onchange attributes
+  window.onTeacherSelect   = onTeacherSelect;
+  window.onPlanChange      = onPlanChange;
+  window.recalcTotal       = recalcTotal;
+  window.openTeacherDetail = openTeacherDetail;
+
   populateMonthFilters();
   populateMonthSel();
   await loadAll();

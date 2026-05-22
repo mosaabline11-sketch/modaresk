@@ -1145,10 +1145,14 @@
       const newGalleryInput = document.getElementById('ea-gallery-images');
       if (oldGallery.length + (newGalleryInput?.files?.length || 0) > MAX_GALLERY_IMAGES) throw new Error(`الحد الأقصى ${MAX_GALLERY_IMAGES} صور إضافية للإعلان الواحد.`);
       const uploadedGallery = await uploadMultipleImagesInput('ea-gallery-images', folder, MAX_GALLERY_IMAGES - oldGallery.length);
+      const eaSelectedGrades = getSelectedGrades('ea-grades-box');
+      if (!eaSelectedGrades.length) throw new Error('يرجى اختيار فصل دراسي واحد على الأقل');
       const { error } = await supabase.from('ads').update({
         title:       document.getElementById('ea-title').value.trim(),
         subject:     document.getElementById('ea-subject').value,
-        grade:       document.getElementById('ea-grade').value,
+        grade:       eaSelectedGrades.join('، '),
+        grades:      eaSelectedGrades,
+        grade_section: eaSelectedGrades.length ? (function(){ for(const[k,s] of Object.entries(GRADE_SECTIONS)){if(s.grades.includes(eaSelectedGrades[0]))return k;}return'';}()) : '',
         price:       parseFloat(document.getElementById('ea-price').value),
         lesson_type: document.getElementById('ea-lesson-type').value,
         description: document.getElementById('ea-description').value.trim(),
