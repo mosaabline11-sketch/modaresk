@@ -31,7 +31,7 @@
 .gp-wrap{position:relative;display:block}
 .gp-btn{width:100%!important;min-width:0;max-width:none;box-sizing:border-box;height:44px;text-align:right;padding:9px 12px;border:1.5px solid #E2E8F0;border-radius:10px;background:#F8FAFC;font-family:'Tajawal',sans-serif;font-size:.88rem;cursor:pointer;display:flex;justify-content:space-between;align-items:center;color:#0F172A;transition:border-color .2s}
 .gp-btn.open,.gp-btn:hover{border-color:#2563EB}
-.gp-dd{display:none;position:absolute;top:calc(100% + 4px);right:0;left:0;background:white;border:1.5px solid #2563EB;border-radius:12px;box-shadow:0 8px 24px rgba(0,0,0,.14);z-index:300;max-height:290px;overflow-y:auto;color:#0F172A}
+.gp-dd{display:none;position:absolute;top:calc(100% + 4px);right:0;left:0;background:white;border:1.5px solid #2563EB;border-radius:12px;box-shadow:0 8px 24px rgba(0,0,0,.14);z-index:500;max-height:260px;overflow-y:auto;color:#0F172A}
 .gp-dd.open{display:block}
 .gp-stage{padding:5px 12px 2px;font-size:.7rem;font-weight:800;color:#475569;background:#FAFAFA;border-bottom:1px solid #F1F5F9;letter-spacing:.5px}
 .gp-opt{display:flex;align-items:center;gap:8px;padding:8px 14px;font-size:.85rem;cursor:pointer;transition:background .12s;color:#0F172A}
@@ -210,8 +210,6 @@ const STAGES={
   'الابتدائي':['أول ابتدائي','ثاني ابتدائي','ثالث ابتدائي','رابع ابتدائي','خامس ابتدائي','سادس ابتدائي'],
   'الإعدادي' :['أول إعدادي','ثاني إعدادي','ثالث إعدادي'],
   'الثانوي'  :['أول ثانوي','ثاني ثانوي','ثالث ثانوي'],
-  'الجامعي'  :['المرحلة الجامعية'],
-  'أخرى'     :['أخرى / مختلطة'],
 };
 
 // ── Init ──
