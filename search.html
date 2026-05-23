@@ -1,446 +1,926 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="ar" dir="rtl">
-<head>
-<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>البحث عن مدرس — مدرسك</title>
-<meta name="description" content="ابحث عن مدرس خصوصي مناسب حسب المادة والصف ونوع الدرس.">
-<meta name="robots" content="index,follow"><meta name="theme-color" content="#2563EB">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800;900&family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css?v=7.5.1">
-<link rel="icon" type="image/png" href="logo.png">
-<link rel="manifest" href="manifest.webmanifest">
-<style>
-.s-hero{background:linear-gradient(135deg,#0F172A 0%,#1E3A8A 60%,#1D4ED8 100%);padding:36px 0 52px;color:white;position:relative;z-index:50}
-.s-hero::before{content:'';position:absolute;inset:-30%;background:radial-gradient(circle at 70% 50%,rgba(96,165,250,.2),transparent 55%);pointer-events:none}
-.s-hero .container{position:relative;z-index:1}
-.s-brand{display:flex;align-items:center;gap:10px;margin-bottom:20px}
-.s-brand img{width:44px;height:44px;border-radius:10px}
-.s-brand span{font-family:'Cairo',sans-serif;font-size:1.25rem;font-weight:900;color:white}
-.s-hero h1{font-family:'Cairo',sans-serif;font-size:clamp(1.4rem,3.5vw,2rem);font-weight:900;margin-bottom:6px}
-.s-hero p{color:#94A3B8;font-size:.92rem;margin-bottom:22px}
-.s-box{background:white;border-radius:16px;padding:18px 20px;box-shadow:0 8px 32px rgba(0,0,0,.22)}
-.s-row1{display:grid;grid-template-columns:1fr auto;gap:10px;margin-bottom:12px}
-.s-inp{padding:10px 14px;border:1.5px solid #E2E8F0;border-radius:10px;font-family:'Tajawal',sans-serif;font-size:.92rem;width:100%;outline:none;transition:border-color .2s;color:#0F172A;background:#F8FAFC}
-.s-inp:focus{border-color:#2563EB;background:white}
-.s-btn{background:#2563EB;color:white;border:none;border-radius:10px;padding:10px 22px;font-family:'Tajawal',sans-serif;font-size:.95rem;font-weight:700;cursor:pointer;white-space:nowrap;height:44px;transition:background .2s}
-.s-btn:hover{background:#1D4ED8}
-.s-row2{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:10px;width:100%;align-items:stretch}
-.s-row2>.s-inp,.s-row2>.gp-wrap{width:100%!important;min-width:0!important;max-width:none!important;box-sizing:border-box}
-/* Grade multi-picker */
-.gp-wrap{position:relative;display:block}
-.gp-btn{width:100%!important;min-width:0;max-width:none;box-sizing:border-box;height:44px;text-align:right;padding:9px 12px;border:1.5px solid #E2E8F0;border-radius:10px;background:#F8FAFC;font-family:'Tajawal',sans-serif;font-size:.88rem;cursor:pointer;display:flex;justify-content:space-between;align-items:center;color:#0F172A;transition:border-color .2s}
-.gp-btn.open,.gp-btn:hover{border-color:#2563EB}
-.gp-dd{display:none;position:absolute;top:calc(100% + 4px);right:0;left:0;background:white;border:1.5px solid #2563EB;border-radius:12px;box-shadow:0 8px 24px rgba(0,0,0,.14);z-index:300;max-height:260px;overflow-y:auto;color:#0F172A}
-.gp-dd.open{display:block}
-.gp-stage{padding:5px 12px 2px;font-size:.7rem;font-weight:800;color:#475569;background:#FAFAFA;border-bottom:1px solid #F1F5F9;letter-spacing:.5px}
-.gp-opt{display:flex;align-items:center;gap:8px;padding:8px 14px;font-size:.85rem;cursor:pointer;transition:background .12s;color:#0F172A}
-.gp-opt:hover{background:#F1F5F9}
-.gp-opt.sel{background:#DBEAFE;font-weight:600;color:#1D4ED8}
-.gp-opt input{accent-color:#2563EB;width:15px;height:15px}
-.gp-clear{padding:7px 12px;font-size:.78rem;color:#DC2626;cursor:pointer;text-align:center;border-top:1px solid #F1F5F9;display:block;width:100%;background:none;border:none;font-family:'Tajawal',sans-serif}
-.gp-clear:hover{background:#FEF2F2}
-/* Filters bar */
-.f-bar{background:white;border-bottom:1px solid #E2E8F0;padding:10px 0;position:sticky;top:0;z-index:30;box-shadow:0 2px 8px rgba(0,0,0,.05)}
-.f-inner{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
-.f-chip{padding:5px 14px;border:1.5px solid #E2E8F0;border-radius:20px;font-family:'Tajawal',sans-serif;font-size:.82rem;font-weight:600;color:#475569;background:white;cursor:pointer;transition:all .15s;white-space:nowrap}
-.f-chip:hover{border-color:#2563EB;color:#2563EB}
-.f-chip.active{background:#2563EB;color:white;border-color:#2563EB}
-.f-sort{padding:5px 10px;border:1.5px solid #E2E8F0;border-radius:8px;font-family:'Tajawal',sans-serif;font-size:.82rem;outline:none;background:white;color:#475569}
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1.0" />
+    <title>البحث عن مدرس — مدرسك</title>
+    <meta
+      name="description"
+      content="ابحث عن مدرس خصوصي مناسب حسب المادة والصف ونوع الدرس."
+    />
+    <meta name="robots" content="index,follow" />
+    <meta name="theme-color" content="#2563EB" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800;900&family=Cairo:wght@400;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="style.css?v=7.5.1" />
+    <link rel="icon" type="image/png" href="logo.png" />
+    <link rel="manifest" href="manifest.webmanifest" />
+    <style>
+      .s-hero {
+        background: linear-gradient(
+          135deg,
+          #0f172a 0%,
+          #1e3a8a 60%,
+          #1d4ed8 100%
+        );
+        padding: 36px 0 52px;
+        color: white;
+        position: relative;
+        z-index: 50;
+      }
+      .s-hero::before {
+        content: "";
+        position: absolute;
+        inset: -30%;
+        background: radial-gradient(
+          circle at 70% 50%,
+          rgba(96, 165, 250, 0.2),
+          transparent 55%
+        );
+        pointer-events: none;
+      }
+      .s-hero .container {
+        position: relative;
+        z-index: 1;
+      }
+      .s-brand {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin-bottom: 20px;
+      }
+      .s-brand img {
+        width: 44px;
+        height: 44px;
+        border-radius: 10px;
+      }
+      .s-brand span {
+        font-family: "Cairo", sans-serif;
+        font-size: 1.25rem;
+        font-weight: 900;
+        color: white;
+      }
+      .s-hero h1 {
+        font-family: "Cairo", sans-serif;
+        font-size: clamp(1.4rem, 3.5vw, 2rem);
+        font-weight: 900;
+        margin-bottom: 6px;
+      }
+      .s-hero p {
+        color: #94a3b8;
+        font-size: 0.92rem;
+        margin-bottom: 22px;
+      }
+      .s-box {
+        background: white;
+        border-radius: 16px;
+        padding: 18px 20px;
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.22);
+      }
+      .s-row1 {
+        display: grid;
+        grid-template-columns: 1fr auto;
+        gap: 10px;
+        margin-bottom: 12px;
+      }
+      .s-inp {
+        padding: 10px 14px;
+        border: 1.5px solid #e2e8f0;
+        border-radius: 10px;
+        font-family: "Tajawal", sans-serif;
+        font-size: 0.92rem;
+        width: 100%;
+        outline: none;
+        transition: border-color 0.2s;
+        color: #0f172a;
+        background: #f8fafc;
+      }
+      .s-inp:focus {
+        border-color: #2563eb;
+        background: white;
+      }
+      .s-btn {
+        background: #2563eb;
+        color: white;
+        border: none;
+        border-radius: 10px;
+        padding: 10px 22px;
+        font-family: "Tajawal", sans-serif;
+        font-size: 0.95rem;
+        font-weight: 700;
+        cursor: pointer;
+        white-space: nowrap;
+        height: 44px;
+        transition: background 0.2s;
+      }
+      .s-btn:hover {
+        background: #1d4ed8;
+      }
+      .s-row2 {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+        gap: 10px;
+        width: 100%;
+        align-items: stretch;
+      }
+      .s-row2 > .s-inp,
+      .s-row2 > .gp-wrap {
+        width: 100% !important;
+        min-width: 0 !important;
+        max-width: none !important;
+        box-sizing: border-box;
+      }
+      /* Grade multi-picker */
+      .gp-wrap {
+        position: relative;
+        display: block;
+      }
+      .gp-btn {
+        width: 100% !important;
+        min-width: 0;
+        max-width: none;
+        box-sizing: border-box;
+        height: 44px;
+        text-align: right;
+        padding: 9px 12px;
+        border: 1.5px solid #e2e8f0;
+        border-radius: 10px;
+        background: #f8fafc;
+        font-family: "Tajawal", sans-serif;
+        font-size: 0.88rem;
+        cursor: pointer;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        color: #0f172a;
+        transition: border-color 0.2s;
+      }
+      .gp-btn.open,
+      .gp-btn:hover {
+        border-color: #2563eb;
+      }
+      .gp-dd {
+        display: none;
+        position: absolute;
+        top: calc(100% + 4px);
+        right: 0;
+        left: 0;
+        background: white;
+        border: 1.5px solid #2563eb;
+        border-radius: 12px;
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.14);
+        z-index: 300;
+        max-height: 260px;
+        overflow-y: auto;
+        color: #0f172a;
+      color:#0F172A;}
+      .gp-dd.open {
+        display: block;
+      }
+      .gp-stage {
+        padding: 5px 12px 2px;
+        font-size: 0.7rem;
+        font-weight: 800;
+        color: #475569;
+        background: #fafafa;
+        border-bottom: 1px solid #f1f5f9;
+        letter-spacing: 0.5px;
+      }
+      .gp-opt {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 8px 14px;
+        font-size: 0.85rem;
+        cursor: pointer;
+        transition: background 0.12s;
+        color: #0f172a;
+      color:#0F172A;}
+      .gp-opt:hover {
+        background: #f1f5f9;
+      }
+      .gp-opt.sel {
+        background: #dbeafe;
+        font-weight: 600;
+        color: #1d4ed8;
+      }
+      .gp-opt input {
+        accent-color: #2563eb;
+        width: 15px;
+        height: 15px;
+      }
+      .gp-clear {
+        padding: 7px 12px;
+        font-size: 0.78rem;
+        color: #dc2626;
+        cursor: pointer;
+        text-align: center;
+        border-top: 1px solid #f1f5f9;
+        display: block;
+        width: 100%;
+        background: none;
+        border: none;
+        font-family: "Tajawal", sans-serif;
+      }
+      .gp-clear:hover {
+        background: #fef2f2;
+      }
+      /* Filters bar */
+      .f-bar {
+        background: white;
+        border-bottom: 1px solid #e2e8f0;
+        padding: 10px 0;
+        position: sticky;
+        top: 0;
+        z-index: 30;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+      }
+      .f-inner {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        flex-wrap: wrap;
+      }
+      .f-chip {
+        padding: 5px 14px;
+        border: 1.5px solid #e2e8f0;
+        border-radius: 20px;
+        font-family: "Tajawal", sans-serif;
+        font-size: 0.82rem;
+        font-weight: 600;
+        color: #475569;
+        background: white;
+        cursor: pointer;
+        transition: all 0.15s;
+        white-space: nowrap;
+      }
+      .f-chip:hover {
+        border-color: #2563eb;
+        color: #2563eb;
+      }
+      .f-chip.active {
+        background: #2563eb;
+        color: white;
+        border-color: #2563eb;
+      }
+      .f-sort {
+        padding: 5px 10px;
+        border: 1.5px solid #e2e8f0;
+        border-radius: 8px;
+        font-family: "Tajawal", sans-serif;
+        font-size: 0.82rem;
+        outline: none;
+        background: white;
+        color: #475569;
+      }
 
-/* Voice search button */
-.mic-btn {
-  position: absolute;
-  top: 50%;
-  transform: translateY(-50%);
-  right: 10px;
-  background: none;
-  border: none;
-  font-size: 1.3rem;
-  cursor: pointer;
-  color: #94A3B8;
-  transition: color .2s;
-}
-.mic-btn:hover { color: #2563EB; }
-/* Results */
-.r-bar{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px;flex-wrap:wrap;gap:8px}
-.r-bar h2{font-family:'Cairo',sans-serif;font-size:1.05rem;font-weight:800}
-.r-count{font-size:.82rem;color:#94A3B8;background:#F1F5F9;padding:3px 12px;border-radius:20px}
-/* Pagination */
-.pag{display:flex;justify-content:center;gap:6px;margin-top:32px;flex-wrap:wrap}
-.pg-b{min-width:38px;height:38px;border:1.5px solid #E2E8F0;border-radius:8px;background:white;font-family:'Tajawal',sans-serif;font-size:.88rem;font-weight:600;color:#475569;cursor:pointer;transition:all .15s;padding:0 10px}
-.pg-b:hover{border-color:#2563EB;color:#2563EB}
-.pg-b.active{background:#2563EB;color:white;border-color:#2563EB}
-.pg-b:disabled{opacity:.4;cursor:not-allowed}
-@media(max-width:640px){.s-row2{grid-template-columns:1fr}.s-hero{padding:24px 0 40px}}
-</style>
-</head>
-<body>
-
-<nav class="navbar">
-  <div class="nav-container" style="max-width:1200px;margin:0 auto">
-    <a href="index.html" class="nav-brand"><img src="logo.png" alt="مدرسك" class="site-logo"> مدرسك</a>
-    <ul class="nav-links" id="nav-links">
-      <li><a href="index.html">الرئيسية</a></li>
-      <li><a href="search.html" class="active">البحث</a></li>
-      <li><a href="join.html">انضم كمدرس</a></li>
-    </ul>
-    <div class="nav-actions"><a href="login.html" class="btn btn-outline btn-sm">تسجيل الدخول</a></div>
-    <button class="nav-menu-btn" onclick="document.getElementById('nav-links').classList.toggle('open')">☰</button>
-  </div>
-</nav>
-
-<section class="s-hero">
-  <div class="container">
-    <div class="s-brand">
-      <img src="logo.png" alt="مدرسك">
-      <span>مدرسك — فهم أفضل .. مستقبل أفضل</span>
-    </div>
-    <h1>🔍 ابحث عن مدرسك المثالي</h1>
-    <p id="hero-sub">جارٍ تحميل الإعلانات...</p>
-    <div class="s-box">
-      <div class="s-row1">
-        <div style="position:relative;">
-          <input class="s-inp" type="text" id="q" placeholder="ابحث بالاسم، المادة، الوصف..." autocomplete="off" list="search-suggestions">
-          <datalist id="search-suggestions"></datalist>
-          <button type="button" class="mic-btn" id="voice-btn" title="بحث صوتي" onclick="startVoiceSearch()">🎤</button>
+      /* Voice search button */
+      .mic-btn {
+        position: absolute;
+        top: 50%;
+        transform: translateY(-50%);
+        right: 10px;
+        background: none;
+        border: none;
+        font-size: 1.3rem;
+        cursor: pointer;
+        color: #94a3b8;
+        transition: color 0.2s;
+      }
+      .mic-btn:hover {
+        color: #2563eb;
+      }
+      /* Results */
+      .r-bar {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 18px;
+        flex-wrap: wrap;
+        gap: 8px;
+      }
+      .r-bar h2 {
+        font-family: "Cairo", sans-serif;
+        font-size: 1.05rem;
+        font-weight: 800;
+      }
+      .r-count {
+        font-size: 0.82rem;
+        color: #94a3b8;
+        background: #f1f5f9;
+        padding: 3px 12px;
+        border-radius: 20px;
+      }
+      /* Pagination */
+      .pag {
+        display: flex;
+        justify-content: center;
+        gap: 6px;
+        margin-top: 32px;
+        flex-wrap: wrap;
+      }
+      .pg-b {
+        min-width: 38px;
+        height: 38px;
+        border: 1.5px solid #e2e8f0;
+        border-radius: 8px;
+        background: white;
+        font-family: "Tajawal", sans-serif;
+        font-size: 0.88rem;
+        font-weight: 600;
+        color: #475569;
+        cursor: pointer;
+        transition: all 0.15s;
+        padding: 0 10px;
+      }
+      .pg-b:hover {
+        border-color: #2563eb;
+        color: #2563eb;
+      }
+      .pg-b.active {
+        background: #2563eb;
+        color: white;
+        border-color: #2563eb;
+      }
+      .pg-b:disabled {
+        opacity: 0.4;
+        cursor: not-allowed;
+      }
+      @media (max-width: 640px) {
+        .s-row2 {
+          grid-template-columns: 1fr;
+        }
+        .s-hero {
+          padding: 24px 0 40px;
+        z-index:50;}
+      }
+    </style>
+  </head>
+  <body>
+    <nav class="navbar">
+      <div class="nav-container" style="max-width: 1200px; margin: 0 auto">
+        <a href="index.html" class="nav-brand"
+          ><img src="logo.png" alt="مدرسك" class="site-logo" /> مدرسك</a
+        >
+        <ul class="nav-links" id="nav-links">
+          <li><a href="index.html">الرئيسية</a></li>
+          <li><a href="search.html" class="active">البحث</a></li>
+          <li><a href="join.html">انضم كمدرس</a></li>
+        </ul>
+        <div class="nav-actions">
+          <a href="login.html" class="btn btn-outline btn-sm">تسجيل الدخول</a>
         </div>
-        <button class="s-btn" onclick="doSearch()">بحث 🔍</button>
+        <button
+          class="nav-menu-btn"
+          onclick="
+            document.getElementById('nav-links').classList.toggle('open')
+          "
+        >
+          ☰
+        </button>
       </div>
-      <div class="s-row2">
-        <select class="s-inp" id="s-subject" onchange="doSearch()">
-          <option value="">📚 جميع المواد</option>
-        </select>
-        <div class="gp-wrap" id="gp-wrap">
-          <button type="button" class="gp-btn" id="gp-btn" onclick="toggleGP(event)">
-            <span id="gp-lbl">📗 جميع الصفوف</span>
-            <span style="font-size:.7rem;color:#94A3B8">▼</span>
+    </nav>
+
+    <section class="s-hero">
+      <div class="container">
+        <div class="s-brand">
+          <img src="logo.png" alt="مدرسك" />
+          <span>مدرسك — فهم أفضل .. مستقبل أفضل</span>
+        </div>
+        <h1>🔍 ابحث عن مدرسك المثالي</h1>
+        <p id="hero-sub">جارٍ تحميل الإعلانات...</p>
+        <div class="s-box">
+          <div class="s-row1">
+            <div style="position: relative">
+              <input
+                class="s-inp"
+                type="text"
+                id="q"
+                placeholder="ابحث بالاسم، المادة، الوصف..."
+                autocomplete="off"
+                list="search-suggestions"
+              />
+              <datalist id="search-suggestions"></datalist>
+              <button
+                type="button"
+                class="mic-btn"
+                id="voice-btn"
+                title="بحث صوتي"
+                onclick="startVoiceSearch()"
+              >
+                🎤
+              </button>
+            </div>
+            <button class="s-btn" onclick="doSearch()">بحث 🔍</button>
+          </div>
+          <div class="s-row2">
+            <select class="s-inp" id="s-subject" onchange="doSearch()">
+              <option value="">📚 جميع المواد</option>
+            </select>
+            <div class="gp-wrap" id="gp-wrap">
+              <button
+                type="button"
+                class="gp-btn"
+                id="gp-btn"
+                onclick="toggleGP(event)"
+              >
+                <span id="gp-lbl">📗 جميع الصفوف</span>
+                <span style="font-size: 0.7rem; color: #94a3b8">▼</span>
+              </button>
+              <div class="gp-dd" id="gp-dd"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <div class="f-bar">
+      <div class="container">
+        <div class="f-inner">
+          <span
+            style="
+              font-size: 0.78rem;
+              font-weight: 700;
+              color: #94a3b8;
+              white-space: nowrap;
+            "
+            >نوع الدرس:</span
+          >
+          <button class="f-chip active" onclick="setType(this, '')">
+            الكل
           </button>
-          <div class="gp-dd" id="gp-dd"></div>
+          <button class="f-chip" onclick="setType(this, 'online')">
+            🖥️ أونلاين
+          </button>
+          <button class="f-chip" onclick="setType(this, 'inperson')">
+            🏫 حضوري
+          </button>
+          <button class="f-chip" onclick="setType(this, 'both')">
+            🔀 الاثنين
+          </button>
+          <div
+            style="
+              margin-right: auto;
+              display: flex;
+              align-items: center;
+              gap: 6px;
+            "
+          >
+            <span style="font-size: 0.78rem; color: #94a3b8">ترتيب:</span>
+            <select class="f-sort" id="sort-by" onchange="doSearch()">
+              <option value="newest">الأحدث</option>
+              <option value="price-asc">السعر ↑</option>
+              <option value="price-desc">السعر ↓</option>
+            </select>
+          </div>
         </div>
       </div>
     </div>
-  </div>
-</section>
 
-<div class="f-bar">
-  <div class="container">
-    <div class="f-inner">
-      <span style="font-size:.78rem;font-weight:700;color:#94A3B8;white-space:nowrap">نوع الدرس:</span>
-      <button class="f-chip active" onclick="setType(this,'')">الكل</button>
-      <button class="f-chip" onclick="setType(this,'online')">🖥️ أونلاين</button>
-      <button class="f-chip" onclick="setType(this,'inperson')">🏫 حضوري</button>
-      <button class="f-chip" onclick="setType(this,'both')">🔀 الاثنين</button>
-      <div style="margin-right:auto;display:flex;align-items:center;gap:6px">
-        <span style="font-size:.78rem;color:#94A3B8">ترتيب:</span>
-        <select class="f-sort" id="sort-by" onchange="doSearch()">
-          <option value="newest">الأحدث</option>
-          <option value="price-asc">السعر ↑</option>
-          <option value="price-desc">السعر ↓</option>
-        </select>
+    <main class="container" style="padding: 28px 0 60px">
+      <div class="r-bar">
+        <h2 id="res-title">🎓 جميع الإعلانات</h2>
+        <span class="r-count" id="res-count">...</span>
       </div>
-    </div>
-  </div>
-</div>
+      <div id="s-loading" style="text-align: center; padding: 60px 0">
+        <div class="spinner-lg" style="margin: 0 auto 14px"></div>
+        <div style="color: #94a3b8">جارٍ تحميل الإعلانات...</div>
+      </div>
+      <div id="s-grid" class="grid cards-grid" style="display:none;justify-content:start"></div>
+      <div id="s-empty" class="empty-state" style="display: none">
+        <div class="empty-icon">🔍</div>
+        <div class="empty-title">لا توجد نتائج</div>
+        <div class="empty-text">جرّب تعديل كلمة البحث أو الفلاتر</div>
+        <button onclick="resetAll()" class="btn btn-primary mt-16">
+          عرض جميع الإعلانات
+        </button>
+      </div>
+      <div class="pag" id="pag"></div>
+    </main>
 
-<main class="container" style="padding:28px 0 60px">
-  <div class="r-bar">
-    <h2 id="res-title">🎓 جميع الإعلانات</h2>
-    <span class="r-count" id="res-count">...</span>
-  </div>
-  <div id="s-loading" style="text-align:center;padding:60px 0">
-    <div class="spinner-lg" style="margin:0 auto 14px"></div>
-    <div style="color:#94A3B8">جارٍ تحميل الإعلانات...</div>
-  </div>
-  <div id="s-grid" class="grid cards-grid" style="display:none"></div>
-  <div id="s-empty" class="empty-state" style="display:none">
-    <div class="empty-icon">🔍</div>
-    <div class="empty-title">لا توجد نتائج</div>
-    <div class="empty-text">جرّب تعديل كلمة البحث أو الفلاتر</div>
-    <button onclick="resetAll()" class="btn btn-primary mt-16">عرض جميع الإعلانات</button>
-  </div>
-  <div class="pag" id="pag"></div>
-</main>
+    <footer class="footer">
+      <div class="container">
+        <div class="grid grid-3" style="gap: 40px; margin-bottom: 0">
+          <div>
+            <img src="logo.png" alt="مدرسك" class="footer-logo" />
+            <div class="footer-brand">مدرسك</div>
+            <div class="footer-desc">
+              منصة تربط الطلاب بأفضل المدرسين الخصوصيين.
+            </div>
+          </div>
+          <div>
+            <div class="footer-title">روابط سريعة</div>
+            <ul class="footer-links">
+              <li><a href="index.html">الرئيسية</a></li>
+              <li><a href="search.html">البحث</a></li>
+              <li><a href="join.html">انضم كمدرس</a></li>
+              <li><a href="login.html">تسجيل الدخول</a></li>
+            </ul>
+          </div>
+          <div>
+            <div class="footer-title">قانوني</div>
+            <ul class="footer-links">
+              <li><a href="privacy.html">سياسة الخصوصية</a></li>
+              <li><a href="terms.html">شروط الاستخدام</a></li>
+              <li>
+                <a
+                  href="#"
+                  data-admin-contact
+                  data-message="مرحبًا، أريد الاستفسار"
+                  >💬 واتساب الإدارة</a
+                >
+              </li>
+            </ul>
+          </div>
+        </div>
+        <div class="footer-bottom">© 2026 مدرسك — جميع الحقوق محفوظة</div>
+      </div>
+    </footer>
 
-<footer class="footer"><div class="container">
-  <div class="grid grid-3" style="gap:40px;margin-bottom:0">
-    <div><img src="logo.png" alt="مدرسك" class="footer-logo"><div class="footer-brand">مدرسك</div><div class="footer-desc">منصة تربط الطلاب بأفضل المدرسين الخصوصيين.</div></div>
-    <div><div class="footer-title">روابط سريعة</div><ul class="footer-links"><li><a href="index.html">الرئيسية</a></li><li><a href="search.html">البحث</a></li><li><a href="join.html">انضم كمدرس</a></li><li><a href="login.html">تسجيل الدخول</a></li></ul></div>
-    <div><div class="footer-title">قانوني</div><ul class="footer-links"><li><a href="privacy.html">سياسة الخصوصية</a></li><li><a href="terms.html">شروط الاستخدام</a></li><li><a href="#" data-admin-contact data-message="مرحبًا، أريد الاستفسار">💬 واتساب الإدارة</a></li></ul></div>
-  </div>
-  <div class="footer-bottom">© 2026 مدرسك — جميع الحقوق محفوظة</div>
-</div></footer>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="config.js?v=7.5.0"></script>
+    <script>
+      const PG = 12;
+      let allAds = [],
+        filtered = [],
+        curPage = 1,
+        activeType = "";
+      let selGrades = new Set();
 
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="config.js?v=7.5.0"></script>
-<script>
-const PG=12;
-let allAds=[],filtered=[],curPage=1,activeType='';
-let selGrades=new Set();
+      // ── Approximate (Fuzzy) Search Helpers ──
+      function levenshtein(a, b) {
+        a = String(a || "").toLowerCase();
+        b = String(b || "").toLowerCase();
+        const matrix = Array.from({ length: a.length + 1 }, (_, i) =>
+          Array(b.length + 1).fill(0),
+        );
+        for (let i = 0; i <= a.length; i++) matrix[i][0] = i;
+        for (let j = 0; j <= b.length; j++) matrix[0][j] = j;
+        for (let i = 1; i <= a.length; i++) {
+          for (let j = 1; j <= b.length; j++) {
+            const cost = a[i - 1] === b[j - 1] ? 0 : 1;
+            matrix[i][j] = Math.min(
+              matrix[i - 1][j] + 1,
+              matrix[i][j - 1] + 1,
+              matrix[i - 1][j - 1] + cost,
+            );
+          }
+        }
+        return matrix[a.length][b.length];
+      }
+      function fuzzyMatch(token, text) {
+        if (!token || !text) return false;
+        const t = String(token).toLowerCase();
+        const s = String(text).toLowerCase();
+        if (s.includes(t)) return true;
+        const words = s.split(/\s+|,|،/).filter(Boolean);
+        for (const w of words) {
+          if (w.length <= 2 || t.length <= 2) continue;
+          if (levenshtein(t, w) <= 1) return true;
+        }
+        return false;
+      }
 
-// ── Approximate (Fuzzy) Search Helpers ──
-function levenshtein(a, b) {
-  a = String(a || '').toLowerCase();
-  b = String(b || '').toLowerCase();
-  const matrix = Array.from({ length: a.length + 1 }, (_, i) => Array(b.length + 1).fill(0));
-  for (let i = 0; i <= a.length; i++) matrix[i][0] = i;
-  for (let j = 0; j <= b.length; j++) matrix[0][j] = j;
-  for (let i = 1; i <= a.length; i++) {
-    for (let j = 1; j <= b.length; j++) {
-      const cost = a[i - 1] === b[j - 1] ? 0 : 1;
-      matrix[i][j] = Math.min(matrix[i - 1][j] + 1, matrix[i][j - 1] + 1, matrix[i - 1][j - 1] + cost);
-    }
-  }
-  return matrix[a.length][b.length];
-}
-function fuzzyMatch(token, text) {
-  if (!token || !text) return false;
-  const t = String(token).toLowerCase();
-  const s = String(text).toLowerCase();
-  if (s.includes(t)) return true;
-  const words = s.split(/\s+|,|،/).filter(Boolean);
-  for (const w of words) {
-    if (w.length <= 2 || t.length <= 2) continue;
-    if (levenshtein(t, w) <= 1) return true;
-  }
-  return false;
-}
+      const STAGES = {
+        الابتدائي: [
+          "أول ابتدائي",
+          "ثاني ابتدائي",
+          "ثالث ابتدائي",
+          "رابع ابتدائي",
+          "خامس ابتدائي",
+          "سادس ابتدائي",
+        ],
+        الإعدادي: ["أول إعدادي", "ثاني إعدادي", "ثالث إعدادي"],
+        الثانوي: ["أول ثانوي", "ثاني ثانوي", "ثالث ثانوي"],
+      };
 
-const STAGES={
-  'الابتدائي':['أول ابتدائي','ثاني ابتدائي','ثالث ابتدائي','رابع ابتدائي','خامس ابتدائي','سادس ابتدائي'],
-  'الإعدادي' :['أول إعدادي','ثاني إعدادي','ثالث إعدادي'],
-  'الثانوي'  :['أول ثانوي','ثاني ثانوي','ثالث ثانوي'],
-};
+      // ── Init ──
+      document.addEventListener("DOMContentLoaded", async () => {
+        const p = new URLSearchParams(location.search);
+        const initQ = p.get("q") || "";
+        const initSub = p.get("subject") || "";
+        const initGrd = p.get("grade") || "";
 
-// ── Init ──
-document.addEventListener('DOMContentLoaded', async () => {
-  const p   = new URLSearchParams(location.search);
-  const initQ   = p.get('q')       || '';
-  const initSub = p.get('subject') || '';
-  const initGrd = p.get('grade')   || '';
+        if (initGrd) selGrades.add(initGrd);
 
-  if (initGrd) selGrades.add(initGrd);
+        await loadSubjectsSafe();
+        populateSubjectSelect("s-subject", initSub);
+        buildGP();
+        if (initQ) document.getElementById("q").value = initQ;
 
-  await loadSubjectsSafe();
-  populateSubjectSelect('s-subject', initSub);
-  buildGP();
-  if (initQ) document.getElementById('q').value = initQ;
+        document.getElementById("q").addEventListener("keydown", (e) => {
+          if (e.key === "Enter") doSearch();
+        });
+        document.addEventListener("click", (e) => {
+          if (!document.getElementById("gp-wrap").contains(e.target)) closeGP();
+        });
 
-  document.getElementById('q').addEventListener('keydown', e=>{if(e.key==='Enter')doSearch();});
-  document.addEventListener('click', e=>{
-    if(!document.getElementById('gp-wrap').contains(e.target)) closeGP();
-  });
+        await loadAds();
 
-  await loadAds();
+        // إعداد البحث الصوتي والاقتراحات
+        setupSearchEnhancements();
+      });
 
-  // إعداد البحث الصوتي والاقتراحات
-  setupSearchEnhancements();
-});
+      // ── تحسينات البحث: البحث الصوتي والاقتراحات الذكية ──
+      function setupSearchEnhancements() {
+        // تحميل أسماء المعلمين مرة واحدة
+        (async () => {
+          try {
+            await loadTeacherNames();
+          } catch (_) {}
+        })();
+        const input = document.getElementById("q");
+        if (input) {
+          input.addEventListener("input", () =>
+            updateSearchSuggestions(input.value),
+          );
+        }
+      }
 
-// ── تحسينات البحث: البحث الصوتي والاقتراحات الذكية ──
-function setupSearchEnhancements() {
-  // تحميل أسماء المعلمين مرة واحدة
-  (async () => {
-    try {
-      await loadTeacherNames();
-    } catch (_) {}
-  })();
-  const input = document.getElementById('q');
-  if (input) {
-    input.addEventListener('input', () => updateSearchSuggestions(input.value));
-  }
-}
+      function updateSearchSuggestions(value) {
+        const list = document.getElementById("search-suggestions");
+        if (!list) return;
+        const val = String(value || "")
+          .trim()
+          .toLowerCase();
+        if (!val) {
+          list.innerHTML = "";
+          return;
+        }
+        const all = [...SUBJECTS_CACHE, ...TEACHER_NAMES_CACHE];
+        const matches = all
+          .filter((x) => x && x.toLowerCase().includes(val))
+          .slice(0, 6);
+        list.innerHTML = matches
+          .map((m) => `<option value="${escapeHtml(m)}"></option>`)
+          .join("");
+      }
 
-function updateSearchSuggestions(value) {
-  const list = document.getElementById('search-suggestions');
-  if (!list) return;
-  const val = String(value || '').trim().toLowerCase();
-  if (!val) { list.innerHTML = ''; return; }
-  const all = [...SUBJECTS_CACHE, ...TEACHER_NAMES_CACHE];
-  const matches = all.filter(x => x && x.toLowerCase().includes(val)).slice(0, 6);
-  list.innerHTML = matches.map(m => `<option value="${escapeHtml(m)}"></option>`).join('');
-}
+      // البحث الصوتي
+      let voiceRecognizer = null;
+      function startVoiceSearch() {
+        // تحقق من دعم المتصفح لـ SpeechRecognition
+        const SpeechRec =
+          window.SpeechRecognition || window.webkitSpeechRecognition;
+        if (!SpeechRec) {
+          showToast("متصفحك لا يدعم البحث الصوتي", "warning");
+          return;
+        }
+        if (!voiceRecognizer) {
+          voiceRecognizer = new SpeechRec();
+          voiceRecognizer.lang = "ar-SA";
+          voiceRecognizer.interimResults = false;
+          voiceRecognizer.maxAlternatives = 1;
+          voiceRecognizer.onresult = (event) => {
+            const transcript = event.results[0][0].transcript;
+            const input = document.getElementById("q");
+            if (input) {
+              input.value = transcript;
+              updateSearchSuggestions(transcript);
+              doSearch();
+            }
+          };
+          voiceRecognizer.onerror = (e) => {
+            console.warn("voice error", e.error);
+            showToast("حدث خطأ أثناء التعرف على الصوت", "danger");
+          };
+        }
+        try {
+          voiceRecognizer.start();
+        } catch (_) {
+          // تجاهل إذا كان recognizer قيد التشغيل بالفعل
+        }
+      }
 
-// البحث الصوتي
-let voiceRecognizer = null;
-function startVoiceSearch() {
-  // تحقق من دعم المتصفح لـ SpeechRecognition
-  const SpeechRec = window.SpeechRecognition || window.webkitSpeechRecognition;
-  if (!SpeechRec) {
-    showToast('متصفحك لا يدعم البحث الصوتي', 'warning');
-    return;
-  }
-  if (!voiceRecognizer) {
-    voiceRecognizer = new SpeechRec();
-    voiceRecognizer.lang = 'ar-SA';
-    voiceRecognizer.interimResults = false;
-    voiceRecognizer.maxAlternatives = 1;
-    voiceRecognizer.onresult = (event) => {
-      const transcript = event.results[0][0].transcript;
-      const input = document.getElementById('q');
-      if (input) {
-        input.value = transcript;
-        updateSearchSuggestions(transcript);
+      // ── Grade Picker ──
+      function buildGP() {
+        const dd = document.getElementById("gp-dd");
+        dd.innerHTML =
+          Object.entries(STAGES)
+            .map(
+              ([st, gs]) =>
+                `<div class="gp-stage">${st}</div>` +
+                gs
+                  .map(
+                    (
+                      g,
+                    ) => `<label class="gp-opt${selGrades.has(g) ? " sel" : ""}">
+      <input type="checkbox" value="${g}" ${selGrades.has(g) ? "checked" : ""} onchange="onGradeChk(this)"><span style="flex:1;min-width:0">${g}</span>
+    </label>`,
+                  )
+                  .join(""),
+            )
+            .join("") +
+          `<button class="gp-clear" onclick="clearGrades();event.stopPropagation()">✕ مسح الاختيارات</button>`;
+        updateGPLabel();
+      }
+      function toggleGP(e) {
+        e.stopPropagation();
+        const dd = document.getElementById("gp-dd"),
+          btn = document.getElementById("gp-btn");
+        const o = dd.classList.toggle("open");
+        btn.classList.toggle("open", o);
+      }
+      function closeGP() {
+        document.getElementById("gp-dd").classList.remove("open");
+        document.getElementById("gp-btn").classList.remove("open");
+      }
+      function onGradeChk(cb) {
+        cb.checked ? selGrades.add(cb.value) : selGrades.delete(cb.value);
+        cb.closest(".gp-opt").classList.toggle("sel", cb.checked);
+        updateGPLabel();
         doSearch();
       }
-    };
-    voiceRecognizer.onerror = (e) => {
-      console.warn('voice error', e.error);
-      showToast('حدث خطأ أثناء التعرف على الصوت', 'danger');
-    };
-  }
-  try {
-    voiceRecognizer.start();
-  } catch (_) {
-    // تجاهل إذا كان recognizer قيد التشغيل بالفعل
-  }
-}
-
-// ── Grade Picker ──
-function buildGP(){
-  const dd=document.getElementById('gp-dd');
-  dd.innerHTML=Object.entries(STAGES).map(([st,gs])=>
-    `<div class="gp-stage">${st}</div>`+
-    gs.map(g=>`<label class="gp-opt${selGrades.has(g)?' sel':''}">
-      <input type="checkbox" value="${g}" ${selGrades.has(g)?'checked':''} onchange="onGradeChk(this)"><span style="flex:1;min-width:0">${g}</span>
-    </label>`).join('')
-  ).join('')+`<button class="gp-clear" onclick="clearGrades();event.stopPropagation()">✕ مسح الاختيارات</button>`;
-  updateGPLabel();
-}
-function toggleGP(e){e.stopPropagation();const dd=document.getElementById('gp-dd'),btn=document.getElementById('gp-btn');const o=dd.classList.toggle('open');btn.classList.toggle('open',o);}
-function closeGP(){document.getElementById('gp-dd').classList.remove('open');document.getElementById('gp-btn').classList.remove('open');}
-function onGradeChk(cb){
-  cb.checked?selGrades.add(cb.value):selGrades.delete(cb.value);
-  cb.closest('.gp-opt').classList.toggle('sel',cb.checked);
-  updateGPLabel(); doSearch();
-}
-function updateGPLabel(){
-  const l=document.getElementById('gp-lbl');
-  if(!selGrades.size){l.textContent='📗 جميع الصفوف';return;}
-  if(selGrades.size===1){l.textContent='📗 '+[...selGrades][0];return;}
-  l.textContent=`📗 ${selGrades.size} صفوف مختارة`;
-}
-function clearGrades(){
-  selGrades.clear();
-  document.querySelectorAll('#gp-dd input').forEach(c=>{c.checked=false;c.closest('.gp-opt').classList.remove('sel');});
-  updateGPLabel(); doSearch();
-}
-
-// ── Load ──
-async function loadAds(){
-  try{
-    const{data,error}=await supabase.from('ads')
-      .select('*,teachers(id,name,avatar_url,bio,whatsapp,facebook,phone,contact_methods,is_active,plan_type,subscription_status,subscription_end)')
-      .eq('status','active').order('created_at',{ascending:false});
-    if(error)throw error;
-    allAds=(data||[]).filter(ad=>isSubscriptionActive(ad.teachers));
-    document.getElementById('hero-sub').textContent=
-      `${allAds.length} مدرس متاح الآن — ابحث بالمادة والصف ونوع الدرس`;
-    doSearch();
-  }catch(e){
-    console.error(e);
-    document.getElementById('s-loading').innerHTML=
-      '<div style="color:#DC2626;padding:40px;text-align:center">تعذّر تحميل البيانات</div>';
-  }
-}
-
-// ── Search ──
-function doSearch(){
-  curPage=1;
-  const q=(document.getElementById('q').value||'').trim().toLowerCase();
-  const sub=document.getElementById('s-subject').value;
-  const srt=document.getElementById('sort-by').value;
-  filtered = allAds.filter(ad => {
-    // فلترة حسب نوع الدرس
-    if (activeType && ad.lesson_type !== activeType) return false;
-    // فلترة حسب المادة
-    if (sub && ad.subject !== sub) return false;
-    // فلترة حسب الصف/المرحلة: قد يكون لدى الإعلان عدة فصول مفصولة بفاصلة (عربية أو إنجليزية)
-    if (selGrades.size) {
-      const adGrades = String(ad.grade || '')
-        .split(/[,،]/)
-        .map(g => g.trim())
-        .filter(Boolean);
-      const match = [...selGrades].some(g => adGrades.includes(g));
-      if (!match) return false;
-    }
-    // فلترة نص البحث باستخدام مطابقة تقريبية لكل كلمة
-    if (q) {
-      const tokens = q.split(/\s+/).filter(Boolean);
-      for (const token of tokens) {
-        const matched = fuzzyMatch(token, ad.subject) ||
-                        fuzzyMatch(token, ad.grade) ||
-                        fuzzyMatch(token, ad.description) ||
-                        fuzzyMatch(token, ad.teachers?.name) ||
-                        fuzzyMatch(token, ad.title);
-        if (!matched) return false;
+      function updateGPLabel() {
+        const l = document.getElementById("gp-lbl");
+        if (!selGrades.size) {
+          l.textContent = "📗 جميع الصفوف";
+          return;
+        }
+        if (selGrades.size === 1) {
+          l.textContent = "📗 " + [...selGrades][0];
+          return;
+        }
+        l.textContent = `📗 ${selGrades.size} صفوف مختارة`;
       }
-    }
-    return true;
-  });
-  if(srt==='price-asc')filtered.sort((a,b)=>a.price-b.price);
-  else if(srt==='price-desc')filtered.sort((a,b)=>b.price-a.price);
-  else filtered.sort((a,b)=>new Date(b.created_at)-new Date(a.created_at));
-  render();
-}
+      function clearGrades() {
+        selGrades.clear();
+        document.querySelectorAll("#gp-dd input").forEach((c) => {
+          c.checked = false;
+          c.closest(".gp-opt").classList.remove("sel");
+        });
+        updateGPLabel();
+        doSearch();
+      }
 
-function setType(btn,type){
-  activeType=type;
-  document.querySelectorAll('.f-chip').forEach(b=>b.classList.toggle('active',b===btn));
-  doSearch();
-}
+      // ── Load ──
+      async function loadAds() {
+        try {
+          const { data, error } = await supabase
+            .from("ads")
+            .select(
+              "*,teachers(id,name,avatar_url,bio,whatsapp,facebook,phone,contact_methods,is_active,plan_type,subscription_status,subscription_end)",
+            )
+            .eq("status", "active")
+            .order("created_at", { ascending: false });
+          if (error) throw error;
+          allAds = (data || []).filter((ad) =>
+            isSubscriptionActive(ad.teachers),
+          );
+          document.getElementById("hero-sub").textContent =
+            `${allAds.length} إعلان متاح الآن — ابحث بالمادة والصف ونوع الدرس`;
+          doSearch();
+        } catch (e) {
+          console.error(e);
+          document.getElementById("s-loading").innerHTML =
+            '<div style="color:#DC2626;padding:40px;text-align:center">تعذّر تحميل البيانات</div>';
+        }
+      }
 
-function resetAll(){
-  document.getElementById('q').value='';
-  document.getElementById('s-subject').value='';
-  activeType=''; clearGrades();
-  document.querySelectorAll('.f-chip').forEach((b,i)=>b.classList.toggle('active',i===0));
-  doSearch();
-}
+      // ── Search ──
+      function doSearch() {
+        curPage = 1;
+        const q = (document.getElementById("q").value || "")
+          .trim()
+          .toLowerCase();
+        const sub = document.getElementById("s-subject").value;
+        const srt = document.getElementById("sort-by").value;
+        filtered = allAds.filter((ad) => {
+          // فلترة حسب نوع الدرس
+          if (activeType && ad.lesson_type !== activeType) return false;
+          // فلترة حسب المادة
+          if (sub && ad.subject !== sub) return false;
+          // فلترة حسب الصف/المرحلة: قد يكون لدى الإعلان عدة فصول مفصولة بفاصلة (عربية أو إنجليزية)
+          if (selGrades.size) {
+            const adGrades = String(ad.grade || "")
+              .split(/[,،]/)
+              .map((g) => g.trim())
+              .filter(Boolean);
+            const match = [...selGrades].some((g) => adGrades.includes(g));
+            if (!match) return false;
+          }
+          // فلترة نص البحث باستخدام مطابقة تقريبية لكل كلمة
+          if (q) {
+            const tokens = q.split(/\s+/).filter(Boolean);
+            for (const token of tokens) {
+              const matched =
+                fuzzyMatch(token, ad.subject) ||
+                fuzzyMatch(token, ad.grade) ||
+                fuzzyMatch(token, ad.description) ||
+                fuzzyMatch(token, ad.teachers?.name) ||
+                fuzzyMatch(token, ad.title);
+              if (!matched) return false;
+            }
+          }
+          return true;
+        });
+        if (srt === "price-asc") filtered.sort((a, b) => a.price - b.price);
+        else if (srt === "price-desc")
+          filtered.sort((a, b) => b.price - a.price);
+        else
+          filtered.sort(
+            (a, b) => new Date(b.created_at) - new Date(a.created_at),
+          );
+        render();
+      }
 
-// ── Render ──
-function render(){
-  const grid=document.getElementById('s-grid'),
-        empty=document.getElementById('s-empty'),
-        load=document.getElementById('s-loading');
-  const q=(document.getElementById('q').value||'').trim();
-  load.style.display='none';
-  if(!filtered.length){
-    grid.style.display='none'; empty.style.display='';
-    document.getElementById('pag').innerHTML='';
-    document.getElementById('res-count').textContent='0 نتيجة';
-    document.getElementById('res-title').textContent='🔍 لا توجد نتائج';
-    return;
-  }
-  empty.style.display='none'; grid.style.display='';
-  const tot=Math.ceil(filtered.length/PG);
-  if(curPage>tot)curPage=tot;
-  const start=(curPage-1)*PG, pg=filtered.slice(start,start+PG);
-  grid.innerHTML=pg.map(ad=>buildTeacherCard(ad,ad.teachers)).join('');
-  pg.forEach(ad=>trackEvent('ad_card_view',{ad_id:ad.id,teacher_id:ad.teacher_id,page:'search.html'}));
-  document.getElementById('res-count').textContent=`${filtered.length} نتيجة`;
-  const parts=[];
-  if(q)parts.push(`"${q}"`);
-  if(document.getElementById('s-subject').value)parts.push(document.getElementById('s-subject').value);
-  if(selGrades.size)parts.push([...selGrades].join(' أو '));
-  if(activeType)parts.push(lessonTypeLabel(activeType));
-  document.getElementById('res-title').textContent=parts.length?`🔍 ${parts.join(' · ')}`:'🎓 جميع الإعلانات';
-  renderPag(tot);
-  if(curPage>1)window.scrollTo({top:document.getElementById('s-grid').offsetTop-120,behavior:'smooth'});
-}
+      function setType(btn, type) {
+        activeType = type;
+        document
+          .querySelectorAll(".f-chip")
+          .forEach((b) => b.classList.toggle("active", b === btn));
+        doSearch();
+      }
 
-function renderPag(tot){
-  const p=document.getElementById('pag');
-  if(tot<=1){p.innerHTML='';return;}
-  let h=`<button class="pg-b" onclick="goPage(${curPage-1})" ${curPage===1?'disabled':''}>→</button>`;
-  for(let i=1;i<=tot;i++){
-    if(tot>7&&i>2&&i<tot-1&&Math.abs(i-curPage)>1){if(i===3||i===tot-2)h+='<span style="padding:0 4px;line-height:38px;color:#94A3B8">…</span>';continue;}
-    h+=`<button class="pg-b ${i===curPage?'active':''}" onclick="goPage(${i})">${i}</button>`;
-  }
-  h+=`<button class="pg-b" onclick="goPage(${curPage+1})" ${curPage===tot?'disabled':''}>←</button>`;
-  p.innerHTML=h;
-}
-function goPage(n){const t=Math.ceil(filtered.length/PG);if(n<1||n>t)return;curPage=n;render();}
-</script>
-</body>
+      function resetAll() {
+        document.getElementById("q").value = "";
+        document.getElementById("s-subject").value = "";
+        activeType = "";
+        clearGrades();
+        document
+          .querySelectorAll(".f-chip")
+          .forEach((b, i) => b.classList.toggle("active", i === 0));
+        doSearch();
+      }
+
+      // ── Render ──
+      function render() {
+        const grid = document.getElementById("s-grid"),
+          empty = document.getElementById("s-empty"),
+          load = document.getElementById("s-loading");
+        const q = (document.getElementById("q").value || "").trim();
+        load.style.display = "none";
+        if (!filtered.length) {
+          grid.style.display = "none";
+          empty.style.display = "";
+          document.getElementById("pag").innerHTML = "";
+          document.getElementById("res-count").textContent = "0 نتيجة";
+          document.getElementById("res-title").textContent = "🔍 لا توجد نتائج";
+          return;
+        }
+        empty.style.display = "none";
+        grid.style.display = "";
+        const tot = Math.ceil(filtered.length / PG);
+        if (curPage > tot) curPage = tot;
+        const start = (curPage - 1) * PG,
+          pg = filtered.slice(start, start + PG);
+        grid.innerHTML = pg
+          .map((ad) => buildTeacherCard(ad, ad.teachers))
+          .join("");
+        pg.forEach((ad) =>
+          trackEvent("ad_card_view", {
+            ad_id: ad.id,
+            teacher_id: ad.teacher_id,
+            page: "search.html",
+          }),
+        );
+        document.getElementById("res-count").textContent =
+          `${filtered.length} نتيجة`;
+        const parts = [];
+        if (q) parts.push(`"${q}"`);
+        if (document.getElementById("s-subject").value)
+          parts.push(document.getElementById("s-subject").value);
+        if (selGrades.size) parts.push([...selGrades].join(" أو "));
+        if (activeType) parts.push(lessonTypeLabel(activeType));
+        document.getElementById("res-title").textContent = parts.length
+          ? `🔍 ${parts.join(" · ")}`
+          : "🎓 جميع الإعلانات";
+        renderPag(tot);
+        if (curPage > 1)
+          window.scrollTo({
+            top: document.getElementById("s-grid").offsetTop - 120,
+            behavior: "smooth",
+          });
+      }
+
+      function renderPag(tot) {
+        const p = document.getElementById("pag");
+        if (tot <= 1) {
+          p.innerHTML = "";
+          return;
+        }
+        let h = `<button class="pg-b" onclick="goPage(${curPage - 1})" ${curPage === 1 ? "disabled" : ""}>→</button>`;
+        for (let i = 1; i <= tot; i++) {
+          if (tot > 7 && i > 2 && i < tot - 1 && Math.abs(i - curPage) > 1) {
+            if (i === 3 || i === tot - 2)
+              h +=
+                '<span style="padding:0 4px;line-height:38px;color:#94A3B8">…</span>';
+            continue;
+          }
+          h += `<button class="pg-b ${i === curPage ? "active" : ""}" onclick="goPage(${i})">${i}</button>`;
+        }
+        h += `<button class="pg-b" onclick="goPage(${curPage + 1})" ${curPage === tot ? "disabled" : ""}>←</button>`;
+        p.innerHTML = h;
+      }
+      function goPage(n) {
+        const t = Math.ceil(filtered.length / PG);
+        if (n < 1 || n > t) return;
+        curPage = n;
+        render();
+      }
+    </script>
+  </body>
 </html>

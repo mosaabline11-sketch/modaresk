@@ -396,13 +396,23 @@ function lockedFeatureHtml(title, requiredPlan = 'باقة أعلى') {
 // يُولَّد مرة واحدة لكل جلسة متصفح ويُحفظ في sessionStorage
 function getSessionId() {
   const KEY = 'mdrsk_sid';
-  let sid = sessionStorage.getItem(KEY);
-  if (!sid) {
-    sid = ([1e7]+-1e3+-4e3+-8e3+-1e11).replace(/[018]/g, c =>
-      (c ^ crypto.getRandomValues(new Uint8Array(1))[0] & 15 >> c / 4).toString(16));
-    sessionStorage.setItem(KEY, sid);
+  const KEY_EXP = 'mdrsk_sid_exp';
+  try {
+    const exp = parseInt(localStorage.getItem(KEY_EXP) || '0');
+    const now = Date.now();
+    let sid = localStorage.getItem(KEY);
+    // رينيو كل 24 ساعة فقط — نفس الجهاز لا يُعدّ زائرًا جديدًا خلال نفس اليوم
+    if (!sid || now > exp) {
+      sid = ([1e7]+-1e3+-4e3+-8e3+-1e11).replace(/[018]/g, c =>
+        (c ^ crypto.getRandomValues(new Uint8Array(1))[0] & 15 >> c / 4).toString(16));
+      localStorage.setItem(KEY, sid);
+      localStorage.setItem(KEY_EXP, String(now + 86400000)); // 24h
+    }
+    return sid;
+  } catch (_) {
+    // fallback لو localStorage محجوب
+    return 'anon_' + Math.random().toString(36).slice(2);
   }
-  return sid;
 }
 
 async function trackEvent(eventType, payload = {}) {
