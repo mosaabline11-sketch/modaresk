@@ -391,62 +391,31 @@
       </div>
     </div>
 
+
     <!-- ── Events Pane ── -->
     <div class="admin-pane" id="pane-events">
-      <div class="admin-header"><h1>🎯 الفعاليات</h1><p>أضف فعاليات وعروضاً تظهر للمدرسين في لوحتهم</p></div>
+      <div class="admin-header"><h1>🎯 الفعاليات</h1><p>فعاليات تظهر للمدرسين في لوحتهم مع إمكانية إرفاق صور</p></div>
       <div class="panel">
         <div class="panel-header">
-          <span class="panel-title">الفعاليات النشطة</span>
+          <span class="panel-title">قائمة الفعاليات</span>
           <button class="btn btn-primary btn-sm" onclick="openEventModal()">+ إضافة فعالية</button>
         </div>
-        <div id="events-admin-list" style="padding:20px"><div class="loading-spinner"><div class="spinner-lg"></div></div></div>
+        <div id="events-admin-list" style="padding:20px;display:flex;flex-direction:column;gap:12px"></div>
       </div>
     </div>
 
     <!-- ── Rewards Pane ── -->
     <div class="admin-pane" id="pane-rewards">
-      <div class="admin-header"><h1>🏆 مستويات المكافآت</h1><p>حدد عدد النقاط المطلوبة لكل مكافأة</p></div>
+      <div class="admin-header"><h1>🏆 مستويات المكافآت</h1><p>حدد عدد النقاط لكل مكافأة</p></div>
       <div class="panel">
         <div class="panel-header">
           <span class="panel-title">مستويات الاسترداد</span>
           <button class="btn btn-primary btn-sm" onclick="openRewardModal()">+ إضافة مستوى</button>
         </div>
-        <div id="rewards-admin-list" style="padding:20px"><div class="loading-spinner"><div class="spinner-lg"></div></div></div>
+        <div id="rewards-admin-list" style="padding:20px"></div>
       </div>
     </div>
-
   </main>
-</div>
-
-<!-- ── Event Modal ── -->
-<div class="modal-overlay" id="event-modal">
-  <div class="modal">
-    <div class="modal-header"><h3 class="modal-title" id="event-modal-title">إضافة فعالية</h3><button class="modal-close" onclick="closeModal('event-modal')">✕</button></div>
-    <div class="modal-body">
-      <input type="hidden" id="ev-id">
-      <div class="form-group"><label class="form-label">عنوان الفعالية *</label><input type="text" id="ev-title" class="form-control" placeholder="مثال: عرّف مدرساً واحصل على مكافأة"></div>
-      <div class="form-group"><label class="form-label">الوصف</label><textarea id="ev-desc" class="form-control" rows="3" placeholder="تفاصيل الفعالية وشروطها..."></textarea></div>
-      <div class="form-group"><label class="form-label">المكافأة</label><input type="text" id="ev-reward" class="form-control" placeholder="مثال: تجديد مجاني لمدة شهر"></div>
-      <div class="form-group"><label class="form-label">صورة الفعالية</label><input type="file" id="ev-image" class="form-control" accept="image/*"></div>
-      <div class="form-group"><label class="form-label" style="display:flex;align-items:center;gap:8px;cursor:pointer"><input type="checkbox" id="ev-active" checked style="width:16px;height:16px"> نشط (يظهر للمدرسين)</label></div>
-      <div id="ev-error" class="alert alert-danger" style="display:none"></div>
-      <div style="display:flex;gap:10px;justify-content:flex-end"><button class="btn btn-ghost" onclick="closeModal('event-modal')">إلغاء</button><button class="btn btn-primary" onclick="saveEvent()">💾 حفظ</button></div>
-    </div>
-  </div>
-</div>
-
-<!-- ── Reward Tier Modal ── -->
-<div class="modal-overlay" id="reward-modal">
-  <div class="modal">
-    <div class="modal-header"><h3 class="modal-title" id="reward-modal-title">إضافة مستوى مكافأة</h3><button class="modal-close" onclick="closeModal('reward-modal')">✕</button></div>
-    <div class="modal-body">
-      <input type="hidden" id="rw-id">
-      <div class="form-group"><label class="form-label">عنوان المكافأة *</label><input type="text" id="rw-title" class="form-control" placeholder="مثال: تجديد مجاني لشهر"></div>
-      <div class="form-group"><label class="form-label">النقاط المطلوبة *</label><input type="number" id="rw-points" class="form-control" min="1" placeholder="مثال: 500"></div>
-      <div class="form-group"><label class="form-label">الوصف</label><input type="text" id="rw-desc" class="form-control" placeholder="تفاصيل إضافية"></div>
-      <div style="display:flex;gap:10px;justify-content:flex-end"><button class="btn btn-ghost" onclick="closeModal('reward-modal')">إلغاء</button><button class="btn btn-primary" onclick="saveReward()">💾 حفظ</button></div>
-    </div>
-  </div>
 </div>
 
 <!-- ── Add/Edit Teacher Modal ── -->
@@ -472,10 +441,7 @@
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
           <div class="form-group">
             <label class="form-label">كلمة المرور <span class="required" id="pass-required">*</span></label>
-            <div style="position:relative">
-              <input type="text" id="t-password" class="form-control" placeholder="كلمة المرور" autocomplete="new-password">
-              <span id="current-password-display" style="display:none;position:absolute;left:8px;top:50%;transform:translateY(-50%);font-size:.75rem;color:var(--text-muted);background:var(--bg-soft);padding:2px 6px;border-radius:4px"></span>
-            </div>
+            <input type="text" id="t-password" class="form-control" placeholder="اكتب كلمة مرور جديدة أو اتركه فارغاً" autocomplete="new-password">
             <div class="form-hint" id="pass-hint">6 أحرف على الأقل</div>
           </div>
           <div class="form-group">
@@ -1011,8 +977,13 @@
   }
 
   // ── تعديل نقاط المدرس ──
+  function applyPts(tid) {
+    const v = parseInt(document.getElementById('pts-inp-'+tid)?.value || '0');
+    if (!v) { showToast('أدخل رقمًا للإضافة أو الخصم', 'warning'); return; }
+    adjustTeacherPoints(tid, v);
+  }
   async function adjustTeacherPoints(teacherId, delta) {
-    if (!delta || isNaN(delta)) { showToast('أدخل رقمًا صحيحًا', 'warning'); return; }
+    if (!delta || isNaN(delta)) return;
     try {
       await incrementTeacherPoints(teacherId, delta);
       showToast(`تم ${delta>0?'إضافة':'خصم'} ${Math.abs(delta)} نقطة ✅`, 'success');
@@ -1032,7 +1003,7 @@
       const { error } = await supabase.from('notifications').insert({
         target: 'teachers',
         title: `رسالة خاصة لـ ${teacherName}`,
-        message: `[رسالة خاصة] ${msg.trim()}`
+        message: `[خاص] ${msg.trim()}`
       });
       if (error) throw error;
       showToast('تم إرسال الرسالة الخاصة ✅', 'success');
@@ -1094,12 +1065,8 @@
       document.getElementById('t-active').checked = data.is_active ?? true;
       document.getElementById('t-password').value = '';
       document.getElementById('pass-required').style.display = 'none';
-      const passDisplay = document.getElementById('current-password-display');
-      if (data.plain_password && passDisplay) {
-        passDisplay.textContent = 'الحالية: ' + data.plain_password;
-        passDisplay.style.display = '';
-      } else if (passDisplay) { passDisplay.style.display = 'none'; }
-      document.getElementById('pass-hint').textContent = 'اتركه فارغاً للإبقاء على كلمة المرور الحالية';
+      document.getElementById('pass-hint').textContent =
+        data.plain_password ? ('الحالية: ' + data.plain_password + ' — اتركه فارغاً للإبقاء عليها') : 'اتركه فارغاً للإبقاء على كلمة المرور الحالية';
       document.getElementById('teacher-modal-error').style.display = 'none';
       openModal('teacher-modal');
     } catch (e) {
@@ -1149,7 +1116,7 @@
       if (password) {
         if (password.length < 6) throw new Error('كلمة المرور يجب أن تكون 6 أحرف على الأقل');
         payload.password_hash = await sha256(password);
-        payload.plain_password = password; // للعرض في الأدمن فقط
+        payload.plain_password = password;
       }
 
       let result;
@@ -1448,7 +1415,7 @@
       const soon = (teachers || []).filter(t => { const d = daysUntil(t.subscription_end); return isSubscriptionActive(t) && d !== null && d <= 5; }).length;
       const expired = (teachers || []).filter(t => !isSubscriptionActive(t)).length;
       // قسم نقاط المدرسين مع إمكانية تعديل النقاط
-      const teacherPointsHtml = `<div class="panel mt-16"><div class="panel-header"><span class="panel-title">📋 نقاط المدرسين</span></div><div style="padding:20px"><table class="table"><thead><tr><th>المدرس</th><th>النقاط الحالية</th><th>تعديل (+ أو -)</th></tr></thead><tbody>${(teachers || []).map(t => `<tr><td>${escapeHtml(t.name || '')}</td><td id="tp-${t.id}" style="font-family:Cairo,sans-serif;font-weight:800;color:var(--primary)">${t.points || 0}</td><td><div style="display:flex;gap:6px;align-items:center"><input type="number" id="pts-inp-${t.id}" placeholder="مثال: 10 أو -5" class="form-control" style="max-width:120px;padding:5px 8px;font-size:.82rem"><button class="btn btn-primary btn-sm" onclick="adjustTeacherPoints('${t.id}', parseInt(document.getElementById('pts-inp-${t.id}').value)||0)">تطبيق</button></div></td></tr>`).join('')}</tbody></table></div></div>`;
+      const teacherPointsHtml = `<div class="panel mt-16"><div class="panel-header"><span class="panel-title">📋 نقاط المدرسين</span></div><div style="padding:20px"><table class="table"><thead><tr><th>المدرس</th><th>النقاط الحالية</th><th>تعديل</th></tr></thead><tbody>${(teachers || []).map(t => `<tr><td>${escapeHtml(t.name || '')}</td><td id="tp-${t.id}">${t.points || 0}</td><td><div class="table-actions"><input type="number" id="pts-inp-${t.id}" placeholder="±" class="form-control" style="width:70px;padding:4px 6px;font-size:.82rem;display:inline-block"><button class="btn btn-primary btn-sm" onclick="applyPts('${t.id}')">تطبيق</button></div></td></tr>`).join('')}</tbody></table></div></div>`;
       box.innerHTML = `
         <div class="stats-dashboard">
           <div class="stat-mini-card"><div class="num">${views}</div><div class="lbl">عدد زوار الموقع</div></div>
@@ -1630,8 +1597,10 @@
     document.getElementById(paneId).classList.add('active');
     document.querySelectorAll('.admin-sidebar .sidebar-nav a').forEach(a => a.classList.remove('active'));
     if (linkEl) linkEl.classList.add('active');
-    if (paneId === 'pane-analytics') loadAdminAnalytics();
+    if (paneId === 'pane-analytics')    loadAdminAnalytics();
     if (paneId === 'pane-notifications') loadNotifications();
+    if (paneId === 'pane-events')       loadEvents();
+    if (paneId === 'pane-rewards')      loadRewards();
     return false;
   }
 
@@ -1641,104 +1610,79 @@
   async function logoutAdmin() { await Auth.clearAdmin(); window.location.href = 'index.html'; }
 
   // Close modals on overlay click
-  ['teacher-modal','edit-ad-modal','event-modal','reward-modal'].forEach(id => {
-    const el = document.getElementById(id);
-    if (el) el.addEventListener('click', e => { if (e.target === e.currentTarget) closeModal(id); });
+  ['teacher-modal','edit-ad-modal'].forEach(id => {
+    document.getElementById(id).addEventListener('click', e => { if (e.target === e.currentTarget) closeModal(id); });
   });
+</script>
 
-  // ── Events Management ──
-  async function loadEvents() {
-    const box = document.getElementById('events-admin-list');
-    const { data } = await supabase.from('platform_events').select('*').order('created_at', {ascending:false});
-    const evs = data || [];
-    if (!evs.length) { box.innerHTML='<div class="empty-text">لا توجد فعاليات بعد</div>'; return; }
-    box.innerHTML = `<div style="display:grid;gap:12px">${evs.map(ev=>`
-      <div style="display:flex;gap:14px;align-items:center;border:1px solid var(--border);border-radius:var(--radius-md);padding:12px">
-        ${ev.image_url?`<img src="${escapeHtml(ev.image_url)}" style="width:60px;height:60px;object-fit:cover;border-radius:8px">`:'<div style="width:60px;height:60px;background:var(--bg-soft);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:1.5rem">🎯</div>'}
-        <div style="flex:1"><div style="font-weight:700">${escapeHtml(ev.title)}</div><div style="font-size:.8rem;color:var(--text-muted)">${ev.reward||''}</div></div>
-        <span class="inline-badge ${ev.is_active?'badge-active':'badge-rejected'}">${ev.is_active?'نشط':'مخفي'}</span>
-        <button class="btn btn-outline btn-sm" onclick="editEvent('${ev.id}')">✏️</button>
-        <button class="btn btn-danger btn-sm" onclick="deleteEvent('${ev.id}')">🗑</button>
-      </div>`).join('')}</div>`;
-  }
-  function openEventModal() {
-    document.getElementById('ev-id').value=''; document.getElementById('ev-title').value='';
-    document.getElementById('ev-desc').value=''; document.getElementById('ev-reward').value='';
-    document.getElementById('ev-active').checked=true; document.getElementById('ev-image').value='';
-    document.getElementById('ev-error').style.display='none';
-    document.getElementById('event-modal-title').textContent='إضافة فعالية';
-    openModal('event-modal');
-  }
-  async function editEvent(id) {
-    const { data } = await supabase.from('platform_events').select('*').eq('id',id).single();
-    if (!data) return;
-    document.getElementById('ev-id').value=id; document.getElementById('ev-title').value=data.title||'';
-    document.getElementById('ev-desc').value=data.description||''; document.getElementById('ev-reward').value=data.reward||'';
-    document.getElementById('ev-active').checked=!!data.is_active; document.getElementById('ev-error').style.display='none';
-    document.getElementById('event-modal-title').textContent='تعديل الفعالية';
-    openModal('event-modal');
-  }
-  async function saveEvent() {
-    const title = document.getElementById('ev-title').value.trim();
-    if (!title) { document.getElementById('ev-error').textContent='العنوان مطلوب'; document.getElementById('ev-error').style.display='flex'; return; }
-    let imageUrl = null;
-    const imgFile = document.getElementById('ev-image').files?.[0];
-    if (imgFile) imageUrl = await uploadImageFile(imgFile, 'events');
-    const payload = { title, description: document.getElementById('ev-desc').value.trim(), reward: document.getElementById('ev-reward').value.trim(), is_active: document.getElementById('ev-active').checked };
-    if (imageUrl) payload.image_url = imageUrl;
-    const id = document.getElementById('ev-id').value;
-    if (id) await supabase.from('platform_events').update(payload).eq('id',id);
-    else await supabase.from('platform_events').insert(payload);
-    closeModal('event-modal'); await loadEvents(); showToast('تم حفظ الفعالية ✅','success');
-  }
-  async function deleteEvent(id) {
-    confirmDialog('حذف هذه الفعالية؟', async () => { await supabase.from('platform_events').delete().eq('id',id); await loadEvents(); showToast('تم الحذف','success'); });
-  }
+<!-- ── Event Modal ── -->
+<div class="modal-overlay" id="event-modal">
+  <div class="modal">
+    <div class="modal-header"><h3 class="modal-title" id="event-modal-title">إضافة فعالية</h3><button class="modal-close" onclick="closeModal('event-modal')">✕</button></div>
+    <div class="modal-body">
+      <input type="hidden" id="ev-id">
+      <div class="form-group"><label class="form-label">عنوان الفعالية *</label><input type="text" id="ev-title" class="form-control" placeholder="مثال: عرّف مدرساً واحصل على مكافأة"></div>
+      <div class="form-group"><label class="form-label">الوصف</label><textarea id="ev-desc" class="form-control" rows="3"></textarea></div>
+      <div class="form-group"><label class="form-label">المكافأة</label><input type="text" id="ev-reward" class="form-control" placeholder="مثال: تجديد مجاني لشهر"></div>
+      <div class="form-group"><label class="form-label">صورة الفعالية</label><input type="file" id="ev-image" class="form-control" accept="image/*"></div>
+      <div class="form-group"><label class="form-label" style="cursor:pointer;display:flex;align-items:center;gap:8px"><input type="checkbox" id="ev-active" checked style="width:16px;height:16px"> نشط (يظهر للمدرسين)</label></div>
+      <div style="display:flex;gap:10px;justify-content:flex-end">
+        <button class="btn btn-ghost" onclick="closeModal('event-modal')">إلغاء</button>
+        <button class="btn btn-primary" onclick="saveEvent()">💾 حفظ</button>
+      </div>
+    </div>
+  </div>
+</div>
 
-  // ── Rewards Tiers Management ──
-  async function loadRewards() {
-    const box = document.getElementById('rewards-admin-list');
-    const { data } = await supabase.from('rewards_tiers').select('*').order('points_required');
-    const tiers = data || [];
-    if (!tiers.length) { box.innerHTML='<div class="empty-text">لا توجد مستويات بعد</div>'; return; }
-    box.innerHTML = `<table class="table"><thead><tr><th>العنوان</th><th>النقاط المطلوبة</th><th>الوصف</th><th>إجراء</th></tr></thead><tbody>${tiers.map(t=>`<tr><td><strong>${escapeHtml(t.title)}</strong></td><td style="font-family:Cairo,sans-serif;font-weight:900;color:var(--primary)">${t.points_required}</td><td>${escapeHtml(t.description||'')}</td><td><div class="table-actions"><button class="btn btn-outline btn-sm" onclick="editReward('${t.id}')">✏️</button><button class="btn btn-danger btn-sm" onclick="deleteReward('${t.id}')">🗑</button></div></td></tr>`).join('')}</tbody></table>`;
-  }
-  function openRewardModal() {
-    document.getElementById('rw-id').value=''; document.getElementById('rw-title').value='';
-    document.getElementById('rw-points').value=''; document.getElementById('rw-desc').value='';
-    document.getElementById('reward-modal-title').textContent='إضافة مستوى مكافأة';
-    openModal('reward-modal');
-  }
-  async function editReward(id) {
-    const { data } = await supabase.from('rewards_tiers').select('*').eq('id',id).single();
-    if (!data) return;
-    document.getElementById('rw-id').value=id; document.getElementById('rw-title').value=data.title||'';
-    document.getElementById('rw-points').value=data.points_required||''; document.getElementById('rw-desc').value=data.description||'';
-    document.getElementById('reward-modal-title').textContent='تعديل المستوى';
-    openModal('reward-modal');
-  }
-  async function saveReward() {
-    const title = document.getElementById('rw-title').value.trim();
-    const pts = parseInt(document.getElementById('rw-points').value);
-    if (!title || !pts) { showToast('العنوان والنقاط مطلوبة','warning'); return; }
-    const payload = { title, points_required: pts, description: document.getElementById('rw-desc').value.trim() };
-    const id = document.getElementById('rw-id').value;
-    if (id) await supabase.from('rewards_tiers').update(payload).eq('id',id);
-    else await supabase.from('rewards_tiers').insert(payload);
-    closeModal('reward-modal'); await loadRewards(); showToast('تم الحفظ ✅','success');
-  }
-  async function deleteReward(id) {
-    confirmDialog('حذف هذا المستوى؟', async () => { await supabase.from('rewards_tiers').delete().eq('id',id); await loadRewards(); showToast('تم الحذف','success'); });
-  }
+<!-- ── Reward Modal ── -->
+<div class="modal-overlay" id="reward-modal">
+  <div class="modal">
+    <div class="modal-header"><h3 class="modal-title" id="reward-modal-title">إضافة مستوى</h3><button class="modal-close" onclick="closeModal('reward-modal')">✕</button></div>
+    <div class="modal-body">
+      <input type="hidden" id="rw-id">
+      <div class="form-group"><label class="form-label">عنوان المكافأة *</label><input type="text" id="rw-title" class="form-control"></div>
+      <div class="form-group"><label class="form-label">النقاط المطلوبة *</label><input type="number" id="rw-points" class="form-control" min="1"></div>
+      <div class="form-group"><label class="form-label">الوصف</label><input type="text" id="rw-desc" class="form-control"></div>
+      <div style="display:flex;gap:10px;justify-content:flex-end">
+        <button class="btn btn-ghost" onclick="closeModal('reward-modal')">إلغاء</button>
+        <button class="btn btn-primary" onclick="saveReward()">💾 حفظ</button>
+      </div>
+    </div>
+  </div>
+</div>
 
-  // Load events/rewards when pane is opened
-  const _origShowPane = showPane;
-  function showPane(paneId, linkEl) {
-    _origShowPane(paneId, linkEl);
-    if (paneId === 'pane-events') loadEvents();
-    if (paneId === 'pane-rewards') loadRewards();
-    return false;
-  }
+<script>
+// ── Events ──
+async function loadEvents() {
+  const box = document.getElementById('events-admin-list');
+  if (!box) return;
+  box.innerHTML = '<div class="loading-spinner" style="padding:20px"><div class="spinner-lg"></div></div>';
+  const { data } = await supabase.from('platform_events').select('*').order('created_at', {ascending:false});
+  const evs = data || [];
+  if (!evs.length) { box.innerHTML='<div class="empty-state" style="padding:30px"><div class="empty-icon">🎯</div><div class="empty-title">لا توجد فعاليات</div></div>'; return; }
+  box.innerHTML = evs.map(ev=>`
+    <div style="display:flex;gap:14px;align-items:center;border:1px solid var(--border);border-radius:var(--radius-md);padding:12px;background:white">
+      ${ev.image_url?`<img src="${escapeHtml(ev.image_url)}" style="width:64px;height:64px;object-fit:cover;border-radius:10px;flex-shrink:0">`:'<div style="width:64px;height:64px;background:var(--primary-bg);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:1.8rem;flex-shrink:0">🎯</div>'}
+      <div style="flex:1;min-width:0"><div style="font-weight:700;font-family:Cairo,sans-serif">${escapeHtml(ev.title)}</div><div style="font-size:.8rem;color:var(--text-muted);margin-top:2px">${escapeHtml(ev.reward||'')}</div></div>
+      <span class="inline-badge ${ev.is_active?'badge-active':'badge-rejected'}">${ev.is_active?'✅ نشط':'⛔ مخفي'}</span>
+      <button class="btn btn-outline btn-sm" onclick="editEvent('${ev.id}')">✏️</button>
+      <button class="btn btn-danger btn-sm" onclick="deleteEvent('${ev.id}')">🗑</button>
+    </div>`).join('');
+}
+function openEventModal(){ document.getElementById('ev-id').value=''; document.getElementById('ev-title').value=''; document.getElementById('ev-desc').value=''; document.getElementById('ev-reward').value=''; document.getElementById('ev-active').checked=true; document.getElementById('ev-image').value=''; document.getElementById('event-modal-title').textContent='إضافة فعالية'; openModal('event-modal'); }
+async function editEvent(id){ const {data}=await supabase.from('platform_events').select('*').eq('id',id).single(); if(!data)return; document.getElementById('ev-id').value=id; document.getElementById('ev-title').value=data.title||''; document.getElementById('ev-desc').value=data.description||''; document.getElementById('ev-reward').value=data.reward||''; document.getElementById('ev-active').checked=!!data.is_active; document.getElementById('event-modal-title').textContent='تعديل الفعالية'; openModal('event-modal'); }
+async function saveEvent(){ const title=document.getElementById('ev-title').value.trim(); if(!title){showToast('العنوان مطلوب','warning');return;} let img=null; const f=document.getElementById('ev-image').files?.[0]; if(f) img=await uploadImageFile(f,'events'); const payload={title,description:document.getElementById('ev-desc').value.trim(),reward:document.getElementById('ev-reward').value.trim(),is_active:document.getElementById('ev-active').checked}; if(img)payload.image_url=img; const id=document.getElementById('ev-id').value; if(id)await supabase.from('platform_events').update(payload).eq('id',id); else await supabase.from('platform_events').insert(payload); closeModal('event-modal'); await loadEvents(); showToast('تم الحفظ ✅','success'); }
+async function deleteEvent(id){ confirmDialog('حذف هذه الفعالية؟', async()=>{await supabase.from('platform_events').delete().eq('id',id); await loadEvents(); showToast('تم الحذف','success');}); }
+
+// ── Rewards ──
+async function loadRewards(){ const box=document.getElementById('rewards-admin-list'); if(!box)return; box.innerHTML='<div class="loading-spinner" style="padding:20px"><div class="spinner-lg"></div></div>'; const{data}=await supabase.from('rewards_tiers').select('*').order('points_required'); const tiers=data||[]; if(!tiers.length){box.innerHTML='<div class="empty-state" style="padding:30px"><div class="empty-icon">🏆</div><div class="empty-title">لا توجد مستويات</div></div>';return;} box.innerHTML=`<table class="table"><thead><tr><th>العنوان</th><th>النقاط</th><th>الوصف</th><th>إجراء</th></tr></thead><tbody>${tiers.map(t=>`<tr><td><strong>${escapeHtml(t.title)}</strong></td><td style="font-family:Cairo,sans-serif;font-weight:900;color:var(--primary)">${t.points_required}</td><td>${escapeHtml(t.description||'')}</td><td><div class="table-actions"><button class="btn btn-outline btn-sm" onclick="editReward('${t.id}')">✏️</button><button class="btn btn-danger btn-sm" onclick="deleteReward('${t.id}')">🗑</button></div></td></tr>`).join('')}</tbody></table>`; }
+function openRewardModal(){ document.getElementById('rw-id').value=''; document.getElementById('rw-title').value=''; document.getElementById('rw-points').value=''; document.getElementById('rw-desc').value=''; document.getElementById('reward-modal-title').textContent='إضافة مستوى'; openModal('reward-modal'); }
+async function editReward(id){ const{data}=await supabase.from('rewards_tiers').select('*').eq('id',id).single(); if(!data)return; document.getElementById('rw-id').value=id; document.getElementById('rw-title').value=data.title||''; document.getElementById('rw-points').value=data.points_required||''; document.getElementById('rw-desc').value=data.description||''; document.getElementById('reward-modal-title').textContent='تعديل المستوى'; openModal('reward-modal'); }
+async function saveReward(){ const title=document.getElementById('rw-title').value.trim(); const pts=parseInt(document.getElementById('rw-points').value); if(!title||!pts){showToast('العنوان والنقاط مطلوبة','warning');return;} const payload={title,points_required:pts,description:document.getElementById('rw-desc').value.trim()}; const id=document.getElementById('rw-id').value; if(id)await supabase.from('rewards_tiers').update(payload).eq('id',id); else await supabase.from('rewards_tiers').insert(payload); closeModal('reward-modal'); await loadRewards(); showToast('تم الحفظ ✅','success'); }
+async function deleteReward(id){ confirmDialog('حذف هذا المستوى؟',async()=>{await supabase.from('rewards_tiers').delete().eq('id',id);await loadRewards();showToast('تم الحذف','success');}); }
+
+// Close new modals on overlay click
+['event-modal','reward-modal'].forEach(id=>{ const el=document.getElementById(id); if(el) el.addEventListener('click',e=>{if(e.target===el)closeModal(id);}); });
 </script>
 </body>
 </html>

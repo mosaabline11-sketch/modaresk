@@ -325,7 +325,7 @@ textarea.form-control { resize: vertical; min-height: 100px; }
 .grid-2 { grid-template-columns: repeat(2, 1fr); }
 .grid-3 { grid-template-columns: repeat(3, 1fr); }
 .grid-4 { grid-template-columns: repeat(4, 1fr); }
-.cards-grid { grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); }
+.cards-grid { grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); justify-content: start; }
 
 /* ── Table ── */
 .table-wrapper { overflow-x: auto; border-radius: var(--radius-md); border: 1px solid var(--border); }
