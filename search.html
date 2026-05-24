@@ -176,7 +176,7 @@
         max-height: 260px;
         overflow-y: auto;
         color: #0f172a;
-      color:#0F172A;}
+      }
       .gp-dd.open {
         display: block;
       }
@@ -198,7 +198,7 @@
         cursor: pointer;
         transition: background 0.12s;
         color: #0f172a;
-      color:#0F172A;}
+      }
       .gp-opt:hover {
         background: #f1f5f9;
       }
@@ -357,6 +357,15 @@
           padding: 24px 0 40px;
         z-index:50;}
       }
+
+      /* ── إصلاح الفراغ الأيسر في نتائج البحث ── */
+      #s-grid.cards-grid {
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)) !important;
+        justify-content: unset !important;
+      }
+      /* gp-opt color fix */
+      .gp-opt { color: #0F172A !important; }
+      .gp-dd  { color: #0F172A !important; }
     </style>
   </head>
   <body>
@@ -489,7 +498,7 @@
         <div class="spinner-lg" style="margin: 0 auto 14px"></div>
         <div style="color: #94a3b8">جارٍ تحميل الإعلانات...</div>
       </div>
-      <div id="s-grid" class="grid cards-grid" style="display:none;justify-content:start"></div>
+      <div id="s-grid" class="grid cards-grid" style="display: none"></div>
       <div id="s-empty" class="empty-state" style="display: none">
         <div class="empty-icon">🔍</div>
         <div class="empty-title">لا توجد نتائج</div>
