@@ -358,42 +358,62 @@
         z-index:50;}
       }
 
+      
       /* ═══════════════════════════════════════════════
-         إصلاح المساحة الفارغة على اليسار في RTL
-         الحل: تحويل cards-grid من Grid إلى Flexbox
-         في Flexbox لا توجد أعمدة فارغة في آخر صف
-         ═══════════════════════════════════════════════ */
+         FIX RTL LEFT SPACE + RESPONSIVE CARDS
+      ═══════════════════════════════════════════════ */
+
+      html,
+      body {
+        overflow-x: hidden;
+        width: 100%;
+      }
+
+      * {
+        max-width: 100%;
+      }
+
       #s-grid.cards-grid {
         display: flex !important;
         flex-wrap: wrap !important;
         gap: 24px !important;
-        grid-template-columns: unset !important;
+        width: 100% !important;
         align-items: stretch !important;
-      }
-      #s-grid.cards-grid > .teacher-card {
-        flex: 0 0 calc(33.33% - 16px) !important;
-        min-width: 300px !important;
-        max-width: calc(33.33% - 16px) !important;
+        justify-content: flex-start !important;
         box-sizing: border-box !important;
       }
-      /* على الشاشات المتوسطة: عمودين */
+
+      #s-grid.cards-grid > .teacher-card {
+        flex: 1 1 calc(33.333% - 24px) !important;
+        max-width: calc(33.333% - 16px) !important;
+        min-width: 0 !important;
+        width: auto !important;
+        box-sizing: border-box !important;
+      }
+
       @media (max-width: 900px) {
         #s-grid.cards-grid > .teacher-card {
-          flex: 0 0 calc(50% - 12px) !important;
+          flex: 1 1 calc(50% - 24px) !important;
           max-width: calc(50% - 12px) !important;
         }
       }
-      /* على الموبايل: عمود واحد */
+
       @media (max-width: 560px) {
+        #s-grid.cards-grid {
+          gap: 16px !important;
+        }
+
         #s-grid.cards-grid > .teacher-card {
-          flex: 0 0 100% !important;
+          flex: 1 1 100% !important;
           max-width: 100% !important;
         }
       }
+
       /* .gp-opt color fix */
       .gp-opt { color: #0F172A !important; }
       .gp-dd  { color: #0F172A !important; }
     </style>
+
   </head>
   <body>
     <nav class="navbar">

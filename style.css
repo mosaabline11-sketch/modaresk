@@ -44,6 +44,11 @@
 /* ── Reset ── */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 html { scroll-behavior: smooth; }
+html,
+body {
+  overflow-x: hidden;
+  width: 100%;
+}
 body {
   font-family: 'Tajawal', sans-serif;
   background: var(--bg-light);
@@ -316,7 +321,13 @@ textarea.form-control { resize: vertical; min-height: 100px; }
 .section { padding: 60px 0; }
 .section-title { font-size: 1.8rem; font-weight: 800; color: var(--text-primary); margin-bottom: 8px; }
 .section-sub { font-size: 1rem; color: var(--text-secondary); margin-bottom: 36px; }
-.container { max-width: 1200px; margin: 0 auto; padding: 0 24px; }
+.container {
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding-inline: 24px;
+  box-sizing: border-box;
+}
 .container-sm { max-width: 540px; margin: 0 auto; padding: 0 24px; }
 .container-md { max-width: 780px; margin: 0 auto; padding: 0 24px; }
 
@@ -325,7 +336,11 @@ textarea.form-control { resize: vertical; min-height: 100px; }
 .grid-2 { grid-template-columns: repeat(2, 1fr); }
 .grid-3 { grid-template-columns: repeat(3, 1fr); }
 .grid-4 { grid-template-columns: repeat(4, 1fr); }
-.cards-grid { grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); }
+.cards-grid {
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  width: 100%;
+  overflow: hidden;
+}
 
 /* ── Table ── */
 .table-wrapper { overflow-x: auto; border-radius: var(--radius-md); border: 1px solid var(--border); }
