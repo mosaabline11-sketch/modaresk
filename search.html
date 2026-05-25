@@ -358,12 +358,39 @@
         z-index:50;}
       }
 
-      /* ── إصلاح الفراغ الأيسر في نتائج البحث ── */
+      /* ═══════════════════════════════════════════════
+         إصلاح المساحة الفارغة على اليسار في RTL
+         الحل: تحويل cards-grid من Grid إلى Flexbox
+         في Flexbox لا توجد أعمدة فارغة في آخر صف
+         ═══════════════════════════════════════════════ */
       #s-grid.cards-grid {
-        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)) !important;
-        justify-content: unset !important;
+        display: flex !important;
+        flex-wrap: wrap !important;
+        gap: 24px !important;
+        grid-template-columns: unset !important;
+        align-items: stretch !important;
       }
-      /* gp-opt color fix */
+      #s-grid.cards-grid > .teacher-card {
+        flex: 0 0 calc(33.33% - 16px) !important;
+        min-width: 300px !important;
+        max-width: calc(33.33% - 16px) !important;
+        box-sizing: border-box !important;
+      }
+      /* على الشاشات المتوسطة: عمودين */
+      @media (max-width: 900px) {
+        #s-grid.cards-grid > .teacher-card {
+          flex: 0 0 calc(50% - 12px) !important;
+          max-width: calc(50% - 12px) !important;
+        }
+      }
+      /* على الموبايل: عمود واحد */
+      @media (max-width: 560px) {
+        #s-grid.cards-grid > .teacher-card {
+          flex: 0 0 100% !important;
+          max-width: 100% !important;
+        }
+      }
+      /* .gp-opt color fix */
       .gp-opt { color: #0F172A !important; }
       .gp-dd  { color: #0F172A !important; }
     </style>
