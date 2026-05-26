@@ -238,9 +238,9 @@
 
   <!-- ── Notifications Tab ── -->
   <div class="dash-pane" id="tab-notifications">
-    <div class="profile-form-card">
+    <div class="profile-form-card" style="overflow-x:hidden">
       <h3 style="font-family:'Cairo',sans-serif;font-weight:700;margin-bottom:16px">🔔 إشعارات</h3>
-      <div id="notifications-content"><div class="loading-spinner"><div class="spinner-lg"></div></div></div>
+      <div id="notifications-content" style="overflow-x:hidden;overflow-wrap:anywhere;word-break:break-word"><div class="loading-spinner"><div class="spinner-lg"></div></div></div>
     </div>
   </div>
 
@@ -700,7 +700,7 @@
 
   function switchTab(tab) {
     // جميع علامات التبويب المتاحة، ترتبط بترتيب أزرار .dash-tab
-    const tabs = ['ads','stats','features','profile','leaderboard','notifications'];
+    const tabs = ['ads','stats','features','profile','leaderboard','notifications','events'];
     const tabButtons = document.querySelectorAll('.dash-tab');
     tabButtons.forEach((btn, idx) => btn.classList.toggle('active', tabs[idx] === tab));
     tabs.forEach(name => document.getElementById(`tab-${name}`)?.classList.toggle('active', name === tab));
@@ -892,9 +892,9 @@
       box.innerHTML = notes.map(n => {
         const date = new Date(n.created_at).toLocaleDateString('ar-EG', { year:'numeric', month:'short', day:'numeric' });
         const title = n.title ? `<strong>${escapeHtml(n.title)}</strong><br>` : '';
-        return `<div class="notification-item" style="margin-bottom:16px;border-bottom:1px solid var(--border);padding-bottom:12px">
+        return `<div class="notification-item" style="margin-bottom:16px;border-bottom:1px solid var(--border);padding-bottom:12px;overflow-wrap:anywhere;word-break:break-word">
           <div style="font-size:.8rem;color:var(--text-secondary)">${date}</div>
-          <div style="margin-top:4px">${title}${escapeHtml(n.message)}</div>
+          <div style="margin-top:4px;overflow-wrap:anywhere;word-break:break-word">${title}${escapeHtml(n.message)}</div>
         </div>`;
       }).join('');
     } catch (e) {
