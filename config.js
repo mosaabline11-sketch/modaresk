@@ -415,50 +415,202 @@ function getSessionId() {
   }
 }
 
+// ══════════════════════════════════════════════════════════════
+// نظام مكافحة الاحتيال في النقاط — AntiSpam
+// يحمي من: Refresh، الضغط المتكرر، التجميع غير المحدود
+// ══════════════════════════════════════════════════════════════
+const AntiSpam = {
+
+  // ── الحد الأقصى للنقاط يوميًا لكل مدرس ──
+  DAILY_MAX_POINTS: 30,
+
+  // ── قواعد كل نوع حدث ──
+  // maxPerDay  : أقصى عدد مرات يُحتسب هذا الحدث يوميًا (بنفس الإعلان)
+  // cooldownSec: فترة الانتظار بين كل تفاعلَين من نفس النوع (ثانية)
+  EVENT_RULES: {
+    ad_card_view:        { maxPerDay: 3,  cooldownSec: 45  },
+    ad_detail_view:      { maxPerDay: 3,  cooldownSec: 30  },
+    whatsapp_click:      { maxPerDay: 1,  cooldownSec: 90  },
+    facebook_click:      { maxPerDay: 1,  cooldownSec: 90  },
+    phone_click:         { maxPerDay: 1,  cooldownSec: 90  },
+    site_visit:          { maxPerDay: 1,  cooldownSec: 3600 },
+    admin_contact_click: { maxPerDay: 2,  cooldownSec: 180  },
+  },
+
+  // الأنواع التي تتعلق بإعلان محدد (تُفصل بـ ad_id)
+  AD_EVENTS: new Set(['ad_card_view','ad_detail_view','whatsapp_click','facebook_click','phone_click']),
+
+  // ────────────────────────────────────────
+  _today() { return new Date().toISOString().slice(0, 10); },
+
+  // مفتاح localStorage : mdrsk_as_{date}_{8 chars of teacherId}
+  _key(tid) { return `mdrsk_as_${this._today()}_${String(tid||'').slice(0,8)}`; },
+
+  _load(tid) {
+    try {
+      const raw = localStorage.getItem(this._key(tid));
+      if (!raw) return { pts: 0, ev: {} };
+      const obj = JSON.parse(raw);
+      return (obj && typeof obj === 'object') ? obj : { pts: 0, ev: {} };
+    } catch (_) { return { pts: 0, ev: {} }; }
+  },
+
+  _save(tid, state) {
+    try { localStorage.setItem(this._key(tid), JSON.stringify(state)); } catch (_) {}
+  },
+
+  /**
+   * هل يُسمح بتسجيل هذا الحدث الآن؟
+   * يعيد: { insertDB: bool, awardPts: bool }
+   *
+   * insertDB  true  → أدرج الحدث في analytics_events
+   * awardPts  true  → احسب النقاط للمدرس
+   *
+   * المنطق:
+   *   1. Cooldown لم ينتهِ → block الكل (anti-refresh / anti-bot)
+   *   2. تجاوز حد اليوم أو نقاط اليوم → أدرج للإحصاء فقط، لا نقاط
+   *   3. طبيعي → أدرج + نقاط
+   */
+  check(eventType, teacherId, adId) {
+    const rules = this.EVENT_RULES[eventType];
+
+    // نوع غير معروف → اسمح بالإدراج فقط بدون نقاط
+    if (!rules) return { insertDB: true, awardPts: false };
+
+    // لا يوجد معلم → اسمح للتحليلات بدون نقاط
+    if (!teacherId) return { insertDB: true, awardPts: false };
+
+    const state = this._load(teacherId);
+    const now   = Date.now();
+
+    // بناء مفتاح الحدث (نفصل بـ adId لضمانات أقوى)
+    const evKey = (this.AD_EVENTS.has(eventType) && adId)
+      ? `${eventType}|${adId}`
+      : eventType;
+
+    const rec = state.ev[evKey] || { n: 0, t: 0 };
+
+    // ── 1. Cooldown: إذا كان أقل من الفترة المسموحة → حجب كلي ──
+    if (rec.t > 0 && (now - rec.t) / 1000 < rules.cooldownSec) {
+      return { insertDB: false, awardPts: false };
+    }
+
+    // ── 2. هل تجاوز العدد اليومي أو سقف النقاط؟ ──
+    const countMaxed  = rec.n >= rules.maxPerDay;
+    const ptsDepleted = state.pts >= this.DAILY_MAX_POINTS;
+
+    // ── تحديث السجل (دائمًا، لتجديد وقت آخر تفاعل) ──
+    rec.n = countMaxed ? rec.n : rec.n + 1;
+    rec.t = now;
+    state.ev[evKey] = rec;
+    this._save(teacherId, state);
+
+    return {
+      insertDB: true,                                       // سجّل الحدث دائمًا
+      awardPts: !countMaxed && !ptsDepleted,               // النقاط فقط إذا ضمن الحدود
+    };
+  },
+
+  // سجّل النقاط محليًا لمراقبة سقف اليوم
+  trackLocalPts(tid, pts) {
+    if (!tid || !pts) return;
+    const state = this._load(tid);
+    state.pts = Math.min((state.pts || 0) + pts, this.DAILY_MAX_POINTS + 50); // هامش أمان
+    this._save(tid, state);
+  },
+
+  // أزل مفاتيح أقدم من يومين لتنظيف localStorage
+  cleanup() {
+    try {
+      const today     = this._today();
+      const yesterday = new Date(Date.now() - 86400000).toISOString().slice(0,10);
+      const toRemove  = [];
+      for (let i = 0; i < localStorage.length; i++) {
+        const k = localStorage.key(i);
+        if (k && k.startsWith('mdrsk_as_')) {
+          const d = k.slice(9, 19); // yyyy-mm-dd
+          if (d !== today && d !== yesterday) toRemove.push(k);
+        }
+      }
+      toRemove.forEach(k => localStorage.removeItem(k));
+    } catch (_) {}
+  },
+};
+
+// تنظيف تلقائي عند تحميل الصفحة
+try { AntiSpam.cleanup(); } catch (_) {}
+
+// ── قيم النقاط الافتراضية (يُمكن تجاوزها من site_settings) ──
+const DEFAULT_POINTS = {
+  ad_card_view:   1,
+  ad_detail_view: 2,
+  whatsapp_click: 4,
+  facebook_click: 3,
+  phone_click:    5,
+};
+
+// ── cache لإعدادات النقاط حتى لا نستدعي Supabase في كل حدث ──
+const _pointsCache = { loaded: false, data: {}, loadedAt: 0 };
+
+async function _getPointsConfig() {
+  const MAX_CACHE_AGE = 5 * 60 * 1000; // 5 دقائق
+  if (_pointsCache.loaded && Date.now() - _pointsCache.loadedAt < MAX_CACHE_AGE) {
+    return _pointsCache.data;
+  }
+  const types = Object.keys(DEFAULT_POINTS);
+  const result = {};
+  try {
+    for (const t of types) {
+      const val = await getSiteSetting(`points_${t}`, null);
+      const n   = Number(val);
+      result[t] = isNaN(n) ? DEFAULT_POINTS[t] : n;
+    }
+  } catch (_) {
+    Object.assign(result, DEFAULT_POINTS);
+  }
+  _pointsCache.data     = result;
+  _pointsCache.loaded   = true;
+  _pointsCache.loadedAt = Date.now();
+  return result;
+}
+
+// ── trackEvent المحمي بنظام AntiSpam ──
 async function trackEvent(eventType, payload = {}) {
   try {
     if (!window.supabase || !eventType) return;
-    // إدراج حدث التحليلات في Supabase
+
+    const teacherId = payload.teacher_id || null;
+    const adId      = payload.ad_id      || null;
+
+    // ── فحص AntiSpam قبل أي عملية ──
+    const verdict = AntiSpam.check(eventType, teacherId, adId);
+
+    // إذا رفض الإدراج كليًا (cooldown لم ينتهِ) → توقف
+    if (!verdict.insertDB) return;
+
+    // ── إدراج الحدث في analytics_events ──
     await window.supabase.from('analytics_events').insert({
       event_type: eventType,
-      teacher_id: payload.teacher_id || null,
-      ad_id:      payload.ad_id      || null,
+      teacher_id: teacherId,
+      ad_id:      adId,
       page:       payload.page || location.pathname.split('/').pop() || 'index.html',
       user_agent: navigator.userAgent,
-      session_id: getSessionId(),   // ← الزائر الفريد
-      meta:       payload.meta || {}
+      session_id: getSessionId(),
+      meta:       payload.meta || {},
     });
-    // تحديث نقاط المدرس بناءً على نوع الحدث
-    if (payload.teacher_id) {
-      /*
-       * نقاط التفاعل مخصّصة عبر إعدادات الموقع
-       * بدلاً من جدول ثابت داخل الكود، يمكن للإدارة تعديل النقاط لكل نوع حدث
-       * استخدم getPointValue(eventType) لاسترجاع القيمة المعرّفة في site_settings
-       * وإن لم توجد قيمة، يرجع إلى الجدول الافتراضي بالأسفل
-       */
-      const DEFAULT_POINTS = {
-        ad_card_view: 1,        // مشاهدة بطاقة الإعلان
-        ad_detail_view: 2,      // فتح صفحة التفاصيل
-        whatsapp_click: 4,      // ضغط واتساب
-        facebook_click: 3,      // ضغط فيسبوك
-        phone_click: 5          // الاتصال الهاتفي
-      };
-      async function getPointValue(type) {
-        // جلب إعداد مخصص للنقاط، وإلا الرجوع للقيمة الافتراضية
-        try {
-          const key = `points_${type}`;
-          const val = await getSiteSetting(key, null);
-          const n = Number(val);
-          return isNaN(n) ? (DEFAULT_POINTS[type] || 0) : n;
-        } catch (_) {
-          return DEFAULT_POINTS[type] || 0;
+
+    // ── إضافة النقاط فقط إذا أجازها AntiSpam ──
+    if (verdict.awardPts && teacherId) {
+      try {
+        const cfg   = await _getPointsConfig();
+        const delta = cfg[eventType] || 0;
+        if (delta > 0) {
+          AntiSpam.trackLocalPts(teacherId, delta); // تسجيل محلي لمراقبة الحد اليومي
+          await incrementTeacherPoints(teacherId, delta);
         }
-      }
-      const delta = await getPointValue(eventType);
-      if (delta > 0) {
-        try { await incrementTeacherPoints(payload.teacher_id, delta); } catch (_) {}
-      }
+      } catch (_) {}
     }
+
   } catch (e) {
     console.warn('analytics skipped:', e.message);
   }
