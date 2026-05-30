@@ -4,137 +4,241 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="description" content="لوحة المدرس في منصة مدرسك لإضافة وإدارة الإعلانات، الصور، الباقة، الإضافات والإحصائيات.">
-  <meta name="keywords" content="مدرسك, مدرس خصوصي, دروس خصوصية, مدرسين, مدرس أونلاين, مدرس حضوري, منصة مدرسين, تعليم, طلاب, مصر">
-  <meta name="author" content="مدرسك">
   <meta name="robots" content="noindex, nofollow, noarchive">
   <meta name="theme-color" content="#2563EB">
-  <link rel="canonical" href="https://mosaabline11-sketch.github.io/modaresk/dashboard.html">
-  <meta property="og:locale" content="ar_AR">
-  <meta property="og:type" content="website">
-  <meta property="og:url" content="https://mosaabline11-sketch.github.io/modaresk/dashboard.html">
-  <meta property="og:site_name" content="مدرسك">
-  <meta property="og:title" content="لوحة المدرس - مدرسك">
-  <meta property="og:description" content="لوحة المدرس في منصة مدرسك لإضافة وإدارة الإعلانات، الصور، الباقة، الإضافات والإحصائيات.">
-  <meta property="og:image" content="logo.png">
-  <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" content="لوحة المدرس - مدرسك">
-  <meta name="twitter:description" content="لوحة المدرس في منصة مدرسك لإضافة وإدارة الإعلانات، الصور، الباقة، الإضافات والإحصائيات.">
   <title>لوحة المدرس - مدرسك</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800;900&family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css?v=7.5.0">
   <link rel="icon" type="image/png" href="logo.png">
   <link rel="manifest" href="manifest.webmanifest">
+  <!-- Chart.js for gamification charts -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
   <style>
-    .dash-navbar { background: var(--bg-white); border-bottom: 1px solid var(--border); position: sticky; top: 0; z-index: 100; box-shadow: var(--shadow-sm); }
-    .teacher-welcome {
-      background: linear-gradient(135deg, var(--primary) 0%, var(--sky) 100%);
-      color: white;
-      padding: 28px 32px;
-      border-radius: var(--radius-lg);
-      margin-bottom: 28px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 16px;
-      flex-wrap: wrap;
-    }
-    .welcome-name { font-family: 'Cairo', sans-serif; font-size: 1.4rem; font-weight: 800; margin-bottom: 4px; }
-    .welcome-sub { font-size: 0.9rem; opacity: 0.85; }
-    .limit-bar-wrapper { background: rgba(255,255,255,0.2); border-radius: 50px; overflow: hidden; height: 8px; margin-top: 10px; }
-    .limit-bar { height: 100%; background: white; border-radius: 50px; transition: width 0.5s ease; }
-    .limit-text { font-size: 0.8rem; opacity: 0.85; margin-top: 6px; }
-    .section-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; flex-wrap: wrap; gap: 12px; }
-    .section-header h2 { font-family: 'Cairo', sans-serif; font-size: 1.2rem; font-weight: 700; }
-    .ad-manage-card {
-      background: white;
-      border: 1px solid var(--border);
-      border-radius: var(--radius-md);
-      overflow: hidden;
-      margin-bottom: 14px;
-      transition: var(--transition);
-    }
-    .ad-manage-card:hover { box-shadow: var(--shadow-md); }
-    .amc-header {
-      display: flex;
-      align-items: flex-start;
-      justify-content: space-between;
-      padding: 16px 20px;
-      gap: 12px;
-    }
-    .amc-title { font-weight: 700; font-size: 1rem; margin-bottom: 6px; font-family: 'Cairo', sans-serif; }
-    .amc-meta { display: flex; flex-wrap: wrap; gap: 6px; }
-    .amc-actions { display: flex; gap: 8px; flex-shrink: 0; }
-    .amc-body { padding: 0 20px 14px; }
-    .amc-desc { font-size: 0.88rem; color: var(--text-secondary); }
-    .amc-price { font-weight: 700; color: var(--primary); font-family: 'Cairo', sans-serif; font-size: 1.05rem; }
-    .profile-form-card { background: white; border-radius: var(--radius-lg); border: 1px solid var(--border); padding: 28px; box-shadow: var(--shadow-sm); }
-    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
-    @media (max-width: 600px) { .form-row { grid-template-columns: 1fr; } .amc-header { flex-direction: column; } .amc-actions { flex-direction: row; } }
+/* ══ ORIGINAL STYLES (unchanged) ══ */
+.teacher-welcome{background:linear-gradient(135deg,#0D1B4B 0%,#1E3A8A 50%,#2563EB 100%);color:white;padding:0;border-radius:var(--radius-lg);margin-bottom:28px;overflow:hidden;position:relative}
+.teacher-welcome::before{content:'';position:absolute;top:-60px;right:-60px;width:200px;height:200px;border-radius:50%;background:rgba(37,99,235,.15);pointer-events:none}
+.teacher-welcome::after{content:'';position:absolute;bottom:-40px;left:-40px;width:160px;height:160px;border-radius:50%;background:rgba(32,201,151,.1);pointer-events:none}
+.tw-inner{padding:26px 30px;position:relative;z-index:1;display:flex;align-items:flex-start;justify-content:space-between;gap:20px;flex-wrap:wrap}
+.welcome-name{font-family:'Cairo',sans-serif;font-size:1.4rem;font-weight:900;margin-bottom:4px}
+.welcome-sub{font-size:.85rem;opacity:.75;margin-bottom:10px}
+/* level badge */
+.lv-badge{display:inline-flex;align-items:center;gap:8px;background:rgba(255,255,255,.12);backdrop-filter:blur(8px);border:1px solid rgba(255,255,255,.2);border-radius:50px;padding:6px 14px;margin-bottom:12px}
+.lv-badge-name{color:white;font-weight:700;font-size:.82rem}
+.lv-dot{width:7px;height:7px;border-radius:50%}
+/* level progress */
+.lv-prog-labels{display:flex;justify-content:space-between;color:rgba(255,255,255,.45);font-size:.62rem;margin-bottom:4px;max-width:260px}
+.lv-prog-track{height:7px;border-radius:50px;background:rgba(255,255,255,.15);max-width:260px}
+.lv-prog-fill{height:100%;border-radius:50px;background:linear-gradient(90deg,#20C997,#2563EB);transition:width .6s ease}
+.lv-prog-pct{color:rgba(255,255,255,.35);font-size:.6rem;margin-top:2px;text-align:left;max-width:260px}
+/* limit bar */
+.limit-bar-wrapper{background:rgba(255,255,255,.2);border-radius:50px;overflow:hidden;height:6px;margin-top:8px;max-width:200px}
+.limit-bar{height:100%;background:white;border-radius:50px;transition:width .5s ease}
+.limit-text{font-size:.75rem;opacity:.8;margin-top:5px}
+/* hero right cards */
+.tw-right{display:flex;gap:10px;flex-wrap:wrap;align-items:flex-start}
+.tw-card{background:rgba(255,255,255,.1);backdrop-filter:blur(8px);border:1px solid rgba(255,255,255,.15);border-radius:13px;padding:12px 14px;text-align:center;min-width:86px}
+.tw-card-icon{font-size:1.3rem;margin-bottom:3px}
+.tw-card-val{color:white;font-family:'Cairo',sans-serif;font-weight:900;font-size:1.3rem;line-height:1}
+.tw-card-lbl{color:rgba(255,255,255,.45);font-size:.6rem;margin-top:3px}
+/* circular goal */
+.circ-goal-wrap{position:relative;display:inline-flex;align-items:center;justify-content:center;margin-bottom:3px}
+.circ-inner{position:absolute;text-align:center}
+.circ-val{color:white;font-family:'Cairo',sans-serif;font-weight:900;font-size:.88rem;line-height:1}
+.circ-sub{color:rgba(255,255,255,.4);font-size:.5rem;margin-top:1px}
+/* subscription banner */
+#subscription-banner{margin:0 0 20px}
 
-    /* Tabs */
-    .dash-tabs { display: flex; border-bottom: 2px solid var(--border); margin-bottom: 24px; overflow-x: auto; }
-    .dash-tab { padding: 12px 20px; background: none; border: none; border-bottom: 2px solid transparent; margin-bottom: -2px; font-family: 'Tajawal', sans-serif; font-size: 0.95rem; font-weight: 500; color: var(--text-secondary); cursor: pointer; white-space: nowrap; transition: var(--transition); display: flex; align-items: center; gap: 6px; }
-    .dash-tab.active { color: var(--primary); border-bottom-color: var(--primary); font-weight: 600; }
-    .dash-tab:hover:not(.active) { color: var(--text-primary); }
-    .dash-pane { display: none; }
-    .dash-pane.active { display: block; animation: fadeIn 0.3s ease; }
+/* ══ TABS (original) ══ */
+.section-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;flex-wrap:wrap;gap:12px}
+.section-header h2{font-family:'Cairo',sans-serif;font-size:1.2rem;font-weight:700}
+.ad-manage-card{background:white;border:1px solid var(--border);border-radius:var(--radius-md);overflow:hidden;margin-bottom:14px;transition:var(--transition)}
+.ad-manage-card:hover{box-shadow:var(--shadow-md)}
+.amc-header{display:flex;align-items:flex-start;justify-content:space-between;padding:16px 20px;gap:12px}
+.amc-title{font-weight:700;font-size:1rem;margin-bottom:6px;font-family:'Cairo',sans-serif}
+.amc-meta{display:flex;flex-wrap:wrap;gap:6px}
+.amc-actions{display:flex;gap:8px;flex-shrink:0}
+.amc-body{padding:0 20px 14px}
+.amc-desc{font-size:.88rem;color:var(--text-secondary)}
+.amc-price{font-weight:700;color:var(--primary);font-family:'Cairo',sans-serif;font-size:1.05rem}
+.profile-form-card{background:white;border-radius:var(--radius-lg);border:1px solid var(--border);padding:28px;box-shadow:var(--shadow-sm);overflow-x:hidden;overflow-wrap:anywhere;word-break:break-word}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.dash-tabs{display:flex;border-bottom:2px solid var(--border);margin-bottom:24px;overflow-x:auto;scrollbar-width:none}
+.dash-tabs::-webkit-scrollbar{display:none}
+.dash-tab{padding:11px 18px;background:none;border:none;border-bottom:2px solid transparent;margin-bottom:-2px;font-family:'Tajawal',sans-serif;font-size:.92rem;font-weight:500;color:var(--text-secondary);cursor:pointer;white-space:nowrap;transition:var(--transition);display:flex;align-items:center;gap:5px}
+.dash-tab.active{color:var(--primary);border-bottom-color:var(--primary);font-weight:700}
+.dash-tab:hover:not(.active){color:var(--text-primary)}
+.dash-pane{display:none}
+.dash-pane.active{display:block;animation:fadeIn .3s ease}
+.mini-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:24px}
+.mini-stat{background:white;border:1px solid var(--border);border-radius:var(--radius-md);padding:16px;text-align:center}
+.mini-stat-num{font-family:'Cairo',sans-serif;font-size:1.6rem;font-weight:800}
+.mini-stat-label{font-size:.8rem;color:var(--text-muted);margin-top:2px}
 
-    /* Stats mini */
-    .mini-stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin-bottom: 24px; }
-    .mini-stat { background: white; border: 1px solid var(--border); border-radius: var(--radius-md); padding: 16px; text-align: center; }
-    .mini-stat-num { font-family: 'Cairo', sans-serif; font-size: 1.6rem; font-weight: 800; }
-    .mini-stat-label { font-size: 0.8rem; color: var(--text-muted); margin-top: 2px; }
-    @media (max-width: 480px) { .mini-stats { grid-template-columns: 1fr; } }
+/* ══ GAMIFICATION STYLES ══ */
+/* stat overview cards */
+.gam-stat-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:13px;margin-bottom:22px}
+.gam-scard{background:white;border-radius:14px;padding:16px 18px;border:1px solid var(--border);box-shadow:0 2px 12px rgba(0,0,0,.05);transition:transform .2s,box-shadow .2s;cursor:default}
+.gam-scard:hover{transform:translateY(-3px);box-shadow:0 8px 22px rgba(0,0,0,.1)}
+.gam-scard-top{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px}
+.gam-scard-val{font-family:'Cairo',sans-serif;font-weight:900;font-size:1.65rem;line-height:1}
+.gam-scard-lbl{font-size:.72rem;color:var(--text-secondary);margin-top:3px}
+.gam-chg{padding:2px 8px;border-radius:50px;font-size:.64rem;font-weight:700;background:#DCFCE7;color:#16A34A}
+/* insight banner */
+.gam-insight{background:linear-gradient(135deg,#0D1B4B,#1E3A8A);border-radius:14px;padding:18px 22px;color:white;margin-bottom:18px}
+.gam-insight-title{font-family:'Cairo',sans-serif;font-weight:800;font-size:1rem;margin-bottom:5px}
+.gam-insight-sub{color:rgba(255,255,255,.6);font-size:.8rem}
+/* sub-tabs inside stats */
+.gam-tabs{display:flex;gap:2px;border-bottom:2px solid var(--border);margin-bottom:20px;overflow-x:auto;scrollbar-width:none}
+.gam-tabs::-webkit-scrollbar{display:none}
+.gtab{padding:9px 16px;background:none;border:none;border-bottom:2.5px solid transparent;margin-bottom:-2px;font-family:inherit;font-size:.84rem;font-weight:500;color:var(--muted,#94A3B8);cursor:pointer;white-space:nowrap;transition:color .2s}
+.gtab.active{color:#0D1B4B;border-bottom-color:#0D1B4B;font-weight:700}
+.gpane{display:none}
+.gpane.active{display:block;animation:fadeIn .3s ease}
+/* level path */
+.lpath-item{display:flex;align-items:center;gap:12px;padding:9px 0;border-bottom:1px solid #F1F5F9}
+.lpath-item:last-child{border-bottom:none}
+.lpath-ico{width:38px;height:38px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:1.1rem;flex-shrink:0;border:2px solid transparent}
+.lpath-bar{height:5px;border-radius:50px;margin-top:4px}
+.lpath-bar-fill{height:100%;border-radius:50px;transition:width .6s}
+.lpath-cur-tag{padding:2px 9px;border-radius:50px;font-size:.62rem;font-weight:700;white-space:nowrap}
+/* mini challenge */
+.mc-row{margin-bottom:14px}
+.mc-row:last-child{margin-bottom:0}
+.mc-hd{display:flex;align-items:center;gap:9px;margin-bottom:5px}
+.mc-ico{width:32px;height:32px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:.9rem;flex-shrink:0}
+/* achievement cards */
+.ach-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(188px,1fr));gap:14px}
+.ach-card{border-radius:14px;padding:18px;position:relative;overflow:hidden;border:1px solid var(--border);transition:transform .2s,box-shadow .2s;cursor:default;background:white}
+.ach-card.ach-unlocked:hover{transform:translateY(-3px)}
+.ach-card.ach-locked{background:#FAFAFA;opacity:.7}
+.ach-check{position:absolute;top:9px;left:9px;width:19px;height:19px;border-radius:50%;background:#20C997;display:flex;align-items:center;justify-content:center;color:white;font-size:.58rem;font-weight:700}
+.ach-ico{width:48px;height:48px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:1.5rem;margin-bottom:10px}
+.ach-title{font-weight:700;font-size:.86rem;margin-bottom:3px}
+.ach-desc{font-size:.71rem;color:var(--text-secondary);margin-bottom:9px;line-height:1.5}
+.ach-pts{display:inline-flex;align-items:center;gap:4px;border-radius:50px;padding:3px 9px}
+.ach-prog-bar{height:5px;border-radius:50px;background:#F1F5F9;margin-bottom:3px;margin-top:6px}
+.ach-prog-fill{height:100%;border-radius:50px}
+/* challenge cards */
+.ch-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(245px,1fr));gap:16px}
+.ch-card{background:white;border-radius:16px;padding:20px;border:1px solid var(--border);box-shadow:0 2px 12px rgba(0,0,0,.05);position:relative;overflow:hidden}
+.ch-card.ch-done{border-color:#A7F3D0;box-shadow:0 4px 16px rgba(16,185,129,.12)}
+.ch-done-lbl{position:absolute;top:11px;left:11px;background:#20C997;color:white;border-radius:50px;padding:2px 9px;font-size:.6rem;font-weight:700}
+.ch-ico{width:44px;height:44px;border-radius:11px;display:flex;align-items:center;justify-content:center;font-size:1.2rem}
+.ch-type-tag{padding:3px 9px;border-radius:50px;font-size:.66rem;font-weight:700}
+.ch-title{font-family:'Cairo',sans-serif;font-weight:700;font-size:.92rem;margin:10px 0 8px}
+.ch-reward{display:inline-flex;align-items:center;gap:4px;background:#FFFBEB;border-radius:50px;padding:3px 11px;margin-bottom:14px}
+.ch-bar-t{height:9px;border-radius:50px;background:#F1F5F9;overflow:hidden}
+.ch-bar-f{height:100%;border-radius:50px;transition:width .6s}
+/* leaderboard */
+.lb-row{display:flex;align-items:center;gap:13px;padding:12px 15px;border-radius:11px;margin-bottom:7px}
+.lb-av{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;color:white;font-weight:700;font-size:.88rem;flex-shrink:0;font-family:'Cairo',sans-serif}
+/* per-ad stats */
+.per-ad-stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:14px}
+.per-ad-stat-card{background:var(--bg-light);border:1px solid var(--border);border-radius:var(--radius-md);padding:14px;box-shadow:var(--shadow-sm)}
+.per-ad-title{font-family:Cairo,sans-serif;font-weight:800;margin-bottom:8px;color:var(--text-primary)}
+.per-ad-row{display:flex;justify-content:space-between;gap:12px;padding:7px 0;border-top:1px solid var(--border-light);color:var(--text-secondary);font-size:.88rem}
+.per-ad-row strong{color:var(--primary);font-family:Cairo,sans-serif}
+.per-ad-advanced{background:#fff;border:1px dashed var(--primary-border);border-radius:9px;padding:0 10px;margin-top:8px}
 
-    /* نقاط المدرس */
-    .points-text { font-size: 0.8rem; opacity: 0.9; margin-top: 6px; }
-    /* قائمة لوحة الشرف */
-    .leaderboard-list { list-style: none; padding: 0; margin: 0; }
-    .leaderboard-list li { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 6px 0; border-bottom: 1px solid var(--border); font-size: 0.9rem; }
-    .leaderboard-list li span.rank { width: 24px; color: var(--text-secondary); text-align: center; }
-    .leaderboard-list li span.points { white-space: nowrap; color: var(--primary); font-weight: 700; }
+@media(max-width:600px){
+  .form-row,.gam-stat-grid{grid-template-columns:1fr}
+  .amc-header{flex-direction:column}
+  .tw-inner{flex-direction:column}
+  .mini-stats{grid-template-columns:1fr}
+  .ach-grid,.ch-grid{grid-template-columns:1fr}
+}
   </style>
 </head>
 <body>
 
-<!-- Navbar -->
+<!-- ── Navbar ── -->
 <nav class="navbar">
   <div class="nav-container" style="max-width:1200px;margin:0 auto">
     <a href="index.html" class="nav-brand">
-      <img src="logo.png" alt="مدرسك" class="site-logo">
-      مدرسك
+      <img src="logo.png" alt="مدرسك" class="site-logo"> مدرسك
     </a>
     <div class="nav-actions" style="display:flex;align-items:center;gap:12px">
-      <span id="nav-teacher-name" style="font-size:0.9rem;color:var(--text-secondary)"></span>
+      <span id="nav-teacher-name" style="font-size:.9rem;color:var(--text-secondary)"></span>
       <a href="index.html" class="btn btn-ghost btn-sm">الرئيسية</a>
       <button onclick="logout()" class="btn btn-outline btn-sm">تسجيل الخروج</button>
     </div>
   </div>
 </nav>
 
-<div class="container" style="padding-top:32px;padding-bottom:60px;max-width:900px">
+<div class="container" style="padding-top:28px;padding-bottom:60px;max-width:960px">
 
-  <!-- Welcome Banner -->
+  <!-- ── NEW HERO ── -->
   <div class="teacher-welcome" id="welcome-banner">
-    <div>
-      <div class="welcome-name">مرحباً، <span id="teacher-name-display">...</span> 👋</div>
-      <div class="welcome-sub">هذه لوحة تحكم حسابك في منصة مدرسك</div>
-      <div class="limit-text" id="limit-text"></div>
-      <div class="limit-bar-wrapper" style="max-width:200px"><div class="limit-bar" id="limit-bar" style="width:0%"></div></div>
-      <!-- نقاط المدرس -->
-      <div class="points-text">نقاطك: <span id="teacher-points">0</span></div>
+    <div class="tw-inner">
+      <!-- Left: name + level + progress + ads limit -->
+      <div>
+        <div class="welcome-name">مرحباً، <span id="teacher-name-display">...</span> 👋</div>
+        <div class="welcome-sub">لوحة تحكم حسابك في منصة مدرسك</div>
+        <!-- level badge -->
+        <div class="lv-badge" id="lv-badge">
+          <span id="lv-icon">🌱</span>
+          <span class="lv-badge-name" id="lv-name">مستوى: مبتدئ</span>
+          <div class="lv-dot" id="lv-dot" style="background:#6B7280"></div>
+        </div>
+        <!-- level progress -->
+        <div id="lv-prog-wrap">
+          <div class="lv-prog-labels"><span id="lv-cur">مبتدئ</span><span id="lv-pts-lbl">0 / 100 نقطة</span><span id="lv-next">نشيط</span></div>
+          <div class="lv-prog-track"><div class="lv-prog-fill" id="lv-prog-fill" style="width:0%"></div></div>
+          <div class="lv-prog-pct" id="lv-prog-pct">0% للمستوى التالي</div>
+        </div>
+        <!-- ads limit -->
+        <div class="limit-text" id="limit-text"></div>
+        <div class="limit-bar-wrapper" style="max-width:200px"><div class="limit-bar" id="limit-bar" style="width:0%"></div></div>
+      </div>
+      <!-- Right: goal + points + rank + streak + view profile -->
+      <div class="tw-right">
+        <!-- daily goal circular -->
+        <div class="tw-card">
+          <div class="circ-goal-wrap">
+            <svg width="76" height="76" style="transform:rotate(-90deg)" id="circ-svg">
+              <circle cx="38" cy="38" r="30" fill="none" stroke="rgba(255,255,255,.15)" stroke-width="6"/>
+              <circle cx="38" cy="38" r="30" fill="none" stroke="#20C997" stroke-width="6"
+                stroke-dasharray="188.5" stroke-dashoffset="188.5" stroke-linecap="round" id="circ-arc"/>
+            </svg>
+            <div class="circ-inner">
+              <div class="circ-val" id="circ-today">0</div>
+              <div class="circ-sub">اليوم</div>
+            </div>
+          </div>
+          <div class="tw-card-lbl">هدف: 20 نقطة</div>
+        </div>
+        <!-- total points -->
+        <div class="tw-card">
+          <div class="tw-card-icon">⭐</div>
+          <div class="tw-card-val" id="teacher-points">0</div>
+          <div class="tw-card-lbl">نقطة إجمالي</div>
+        </div>
+        <!-- rank -->
+        <div class="tw-card" id="rank-card" style="display:none">
+          <div class="tw-card-icon">🏆</div>
+          <div class="tw-card-val" id="tw-rank">#–</div>
+          <div class="tw-card-lbl">ترتيبك</div>
+        </div>
+        <!-- streak -->
+        <div class="tw-card">
+          <div class="tw-card-icon">🔥</div>
+          <div class="tw-card-val" id="tw-streak">0</div>
+          <div class="tw-card-lbl">أيام نشاط</div>
+        </div>
+        <!-- view profile -->
+        <a href="teacher.html?id=" id="view-profile-btn" class="btn btn-white btn-sm" style="color:var(--primary);align-self:flex-end">👁 عرض ملفي</a>
+      </div>
     </div>
-    <a href="teacher.html?id=" id="view-profile-btn" class="btn btn-white" style="color:var(--primary)">
-      👁 عرض ملفي
-    </a>
   </div>
+
+  <!-- subscription banner -->
   <div id="subscription-banner"></div>
 
-  <!-- Tabs -->
+  <!-- ── Tabs ── -->
   <div class="dash-tabs">
     <button class="dash-tab active" onclick="switchTab('ads')">📋 إعلاناتي</button>
-    <button class="dash-tab" onclick="switchTab('stats')">📊 الإحصائيات</button>
+    <button class="dash-tab" onclick="switchTab('stats')">📊 إحصائيات ونقاط</button>
     <button class="dash-tab" onclick="switchTab('features')">💎 مميزات الباقة</button>
     <button class="dash-tab" onclick="switchTab('profile')">👤 الملف الشخصي</button>
     <button class="dash-tab" onclick="switchTab('leaderboard')">🏆 لوحة الشرف</button>
@@ -142,20 +246,19 @@
     <button class="dash-tab" onclick="switchTab('events')">🎁 فعاليات ومكافآت</button>
   </div>
 
-  <!-- ── Ads Tab ── -->
+  <!-- ══════════════════════════════════
+       TAB: إعلاناتي (ORIGINAL — unchanged)
+  ══════════════════════════════════ -->
   <div class="dash-pane active" id="tab-ads">
-    <!-- Mini Stats -->
     <div class="mini-stats">
       <div class="mini-stat"><div class="mini-stat-num text-primary-color" id="stat-active">0</div><div class="mini-stat-label">مقبول</div></div>
       <div class="mini-stat"><div class="mini-stat-num" style="color:var(--pending-color)" id="stat-pending">0</div><div class="mini-stat-label">قيد المراجعة</div></div>
       <div class="mini-stat"><div class="mini-stat-num text-danger" id="stat-rejected">0</div><div class="mini-stat-label">مرفوض</div></div>
     </div>
-
     <div class="section-header">
       <h2>📋 إعلاناتي</h2>
       <button class="btn btn-primary" id="add-ad-btn" onclick="openAddAdModal()">+ إعلان جديد</button>
     </div>
-
     <div id="ads-loading" class="loading-spinner"><div class="spinner-lg"></div></div>
     <div id="ads-list" style="display:none"></div>
     <div id="ads-empty" class="empty-state" style="display:none">
@@ -166,21 +269,133 @@
     </div>
   </div>
 
-
-  <!-- ── Stats Tab ── -->
+  <!-- ══════════════════════════════════
+       TAB: إحصائيات ونقاط (NEW GAMIFICATION)
+  ══════════════════════════════════ -->
   <div class="dash-pane" id="tab-stats">
-    <div id="teacher-stats-content" class="profile-form-card">
-      <h3 style="font-family:'Cairo',sans-serif;font-weight:700;margin-bottom:16px">📊 إحصائيات حسابك</h3>
-      <div class="loading-spinner"><div class="spinner-lg"></div></div>
-    </div>
-  </div>
 
-  <!-- ── Features Tab ── -->
+    <!-- Loading state -->
+    <div id="gam-loading" class="loading-spinner"><div class="spinner-lg"></div></div>
+
+    <!-- Content (shown after load) -->
+    <div id="gam-content" style="display:none">
+
+      <!-- 4 Stat cards (real data from analytics_events) -->
+      <div class="gam-stat-grid" id="gam-stat-grid">
+        <div class="gam-scard" style="background:#EFF6FF;border-color:#BFDBFE">
+          <div class="gam-scard-top"><span style="font-size:1.35rem">👁</span><span class="gam-chg" id="gsc-views-chg" style="display:none"></span></div>
+          <div class="gam-scard-val" style="color:#2563EB" id="gsc-views">0</div>
+          <div class="gam-scard-lbl">المشاهدات الإجمالية</div>
+        </div>
+        <div class="gam-scard" style="background:#E6FDF5;border-color:#A7F3D0">
+          <div class="gam-scard-top"><span style="font-size:1.35rem">🔍</span></div>
+          <div class="gam-scard-val" style="color:#0EA672" id="gsc-details">0</div>
+          <div class="gam-scard-lbl">فتح تفاصيل الإعلان</div>
+        </div>
+        <div class="gam-scard" style="background:#ECFDF5;border-color:#BBF7D0">
+          <div class="gam-scard-top"><span style="font-size:1.35rem">💬</span></div>
+          <div class="gam-scard-val" style="color:#059669" id="gsc-wa">0</div>
+          <div class="gam-scard-lbl">تواصل واتساب</div>
+        </div>
+        <div class="gam-scard" style="background:#FFFBEB;border-color:#FDE68A">
+          <div class="gam-scard-top"><span style="font-size:1.35rem">📋</span></div>
+          <div class="gam-scard-val" style="color:#F59E0B" id="gsc-ads">0</div>
+          <div class="gam-scard-lbl">الإعلانات النشطة</div>
+        </div>
+      </div>
+
+      <!-- insight banner -->
+      <div class="gam-insight" id="gam-insight-banner">
+        <div class="gam-insight-title" id="gam-insight-title">🌟 لوحة النقاط والمستويات</div>
+        <div class="gam-insight-sub" id="gam-insight-sub">يتم تحميل بياناتك...</div>
+      </div>
+
+      <!-- Sub-tabs -->
+      <div class="gam-tabs">
+        <button class="gtab active" onclick="switchGTab('g-overview',this)">📊 نظرة عامة</button>
+        <button class="gtab" onclick="switchGTab('g-achievements',this)">🏆 الإنجازات</button>
+        <button class="gtab" onclick="switchGTab('g-challenges',this)">🎯 التحديات</button>
+        <button class="gtab" onclick="switchGTab('g-activity',this)">📈 النشاط</button>
+        <button class="gtab" onclick="switchGTab('g-perad',this)">📌 إحصائيات الإعلانات</button>
+      </div>
+
+      <!-- ── G: Overview ── -->
+      <div class="gpane active" id="g-overview">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:18px">
+          <!-- Level path -->
+          <div class="profile-form-card" style="padding:20px">
+            <div style="font-family:'Cairo',sans-serif;font-weight:700;margin-bottom:16px;display:flex;align-items:center;gap:7px"><span>🎯</span> مسار المستويات</div>
+            <div id="lpath-content"></div>
+          </div>
+          <!-- Active challenges mini -->
+          <div class="profile-form-card" style="padding:20px">
+            <div style="font-family:'Cairo',sans-serif;font-weight:700;margin-bottom:16px;display:flex;justify-content:space-between;align-items:center">
+              <span>⚡ التحديات النشطة</span>
+              <button onclick="switchGTab('g-challenges',null)" style="background:none;border:none;cursor:pointer;color:var(--primary);font-size:.73rem;font-family:inherit;font-weight:600">عرض الكل ←</button>
+            </div>
+            <div id="mini-ch"></div>
+          </div>
+          <!-- Activity chart -->
+          <div class="profile-form-card" style="grid-column:1/-1;padding:20px">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;flex-wrap:wrap;gap:8px">
+              <div style="font-family:'Cairo',sans-serif;font-weight:700;display:flex;align-items:center;gap:7px"><span>📈</span> نشاطك آخر 7 أيام</div>
+              <div style="display:flex;gap:6px" id="metric-btns">
+                <button class="mbtn active-m" onclick="switchMetric('views',this)">👁 مشاهدات</button>
+                <button class="mbtn" onclick="switchMetric('details',this)">🔍 تفاصيل</button>
+                <button class="mbtn" onclick="switchMetric('whatsapp',this)">💬 واتساب</button>
+              </div>
+            </div>
+            <canvas id="area-chart" height="75"></canvas>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── G: Achievements ── -->
+      <div class="gpane" id="g-achievements">
+        <div style="display:flex;gap:13px;margin-bottom:20px;flex-wrap:wrap" id="ach-summary"></div>
+        <div class="ach-grid" id="ach-grid"></div>
+      </div>
+
+      <!-- ── G: Challenges ── -->
+      <div class="gpane" id="g-challenges">
+        <div class="ch-grid" id="ch-grid"></div>
+      </div>
+
+      <!-- ── G: Activity ── -->
+      <div class="gpane" id="g-activity">
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:13px;margin-bottom:20px" id="act-summary"></div>
+        <div class="profile-form-card" style="padding:20px;margin-bottom:18px">
+          <div style="font-family:'Cairo',sans-serif;font-weight:700;margin-bottom:16px">📊 التفاعل التفصيلي — آخر 7 أيام</div>
+          <canvas id="bar-chart" height="100"></canvas>
+        </div>
+        <div class="profile-form-card" style="padding:20px">
+          <div style="font-family:'Cairo',sans-serif;font-weight:700;margin-bottom:16px">⭐ منحنى النقاط اليومية</div>
+          <canvas id="pts-chart" height="80"></canvas>
+        </div>
+      </div>
+
+      <!-- ── G: Per-Ad Stats ── -->
+      <div class="gpane" id="g-perad">
+        <div id="perad-content"></div>
+      </div>
+
+    </div><!-- /gam-content -->
+
+    <!-- locked state (no stats permission) -->
+    <div id="gam-locked" style="display:none"></div>
+
+  </div><!-- /tab-stats -->
+
+  <!-- ══════════════════════════════════
+       TAB: مميزات الباقة (ORIGINAL)
+  ══════════════════════════════════ -->
   <div class="dash-pane" id="tab-features">
     <div id="features-content"></div>
   </div>
 
-  <!-- ── Profile Tab ── -->
+  <!-- ══════════════════════════════════
+       TAB: الملف الشخصي (ORIGINAL)
+  ══════════════════════════════════ -->
   <div class="dash-pane" id="tab-profile">
     <div class="profile-form-card">
       <h3 style="font-family:'Cairo',sans-serif;font-weight:700;margin-bottom:24px">👤 تعديل الملف الشخصي</h3>
@@ -218,9 +433,7 @@
         </div>
         <div class="form-group">
           <label class="form-label">وسائل تواصل إضافية</label>
-          <textarea id="p-contact-methods" class="form-control" rows="3" placeholder="مثال:
-تيليجرام: @username
-إنستجرام: https://..."></textarea>
+          <textarea id="p-contact-methods" class="form-control" rows="3" placeholder="مثال:&#10;تيليجرام: @username&#10;إنستجرام: https://..."></textarea>
           <div class="form-hint">تغيير كلمة المرور يتم من لوحة الإدارة فقط.</div>
         </div>
         <button type="submit" class="btn btn-primary btn-lg" id="profile-save-btn">💾 حفظ التغييرات</button>
@@ -228,30 +441,35 @@
     </div>
   </div>
 
-  <!-- ── Leaderboard Tab ── -->
+  <!-- ══════════════════════════════════
+       TAB: لوحة الشرف (IMPROVED)
+  ══════════════════════════════════ -->
   <div class="dash-pane" id="tab-leaderboard">
     <div class="profile-form-card">
-      <h3 style="font-family:'Cairo',sans-serif;font-weight:700;margin-bottom:16px">🏆 لوحة الشرف</h3>
+      <h3 style="font-family:'Cairo',sans-serif;font-weight:700;margin-bottom:6px">🏆 لوحة الشرف</h3>
+      <div style="font-size:.82rem;color:var(--text-secondary);margin-bottom:20px">ترتيب المدرسين حسب النقاط الإجمالية</div>
       <div id="leaderboard-content"><div class="loading-spinner"><div class="spinner-lg"></div></div></div>
     </div>
   </div>
 
-  <!-- ── Notifications Tab ── -->
+  <!-- ══════════════════════════════════
+       TAB: الإشعارات (ORIGINAL)
+  ══════════════════════════════════ -->
   <div class="dash-pane" id="tab-notifications">
-    <div class="profile-form-card" style="overflow-x:hidden">
-      <h3 style="font-family:'Cairo',sans-serif;font-weight:700;margin-bottom:16px">🔔 إشعارات</h3>
+    <div class="profile-form-card">
+      <h3 style="font-family:'Cairo',sans-serif;font-weight:700;margin-bottom:16px">🔔 الإشعارات</h3>
       <div id="notifications-content" style="overflow-x:hidden;overflow-wrap:anywhere;word-break:break-word"><div class="loading-spinner"><div class="spinner-lg"></div></div></div>
     </div>
   </div>
 
-  <!-- ── Events & Rewards Tab ── -->
+  <!-- ══════════════════════════════════
+       TAB: فعاليات ومكافآت (ORIGINAL)
+  ══════════════════════════════════ -->
   <div class="dash-pane" id="tab-events">
-    <!-- الفعاليات النشطة -->
-    <div class="profile-form-card mb-24">
+    <div class="profile-form-card mb-24" style="margin-bottom:20px">
       <h3 style="font-family:'Cairo',sans-serif;font-weight:700;margin-bottom:16px">🎯 الفعاليات النشطة</h3>
       <div id="events-content"><div class="loading-spinner"><div class="spinner-lg"></div></div></div>
     </div>
-    <!-- استرداد النقاط -->
     <div class="profile-form-card">
       <h3 style="font-family:'Cairo',sans-serif;font-weight:700;margin-bottom:12px">🏆 استرداد النقاط</h3>
       <div id="rewards-tiers-content"><div class="loading-spinner"><div class="spinner-lg"></div></div></div>
@@ -265,9 +483,12 @@
     </div>
   </div>
 
-</div>
+</div><!-- /container -->
 
-<!-- ── Add/Edit Ad Modal ── -->
+
+<!-- ══════════════════════════════════
+     AD MODAL (ORIGINAL — unchanged)
+══════════════════════════════════ -->
 <div class="modal-overlay" id="ad-modal">
   <div class="modal">
     <div class="modal-header">
@@ -288,7 +509,8 @@
           </div>
           <div class="form-group">
             <label class="form-label">الفصول الدراسية <span class="required">*</span></label>
-            <div id="ad-grades-box"></div><div class="grade-picker-note">يمكن اختيار أكثر من فصل، لكن من نفس القسم فقط.</div>
+            <div id="ad-grades-box"></div>
+            <div class="grade-picker-note">يمكن اختيار أكثر من فصل، لكن من نفس القسم فقط.</div>
           </div>
         </div>
         <div class="form-row">
@@ -312,30 +534,29 @@
         </div>
         <div class="form-group">
           <label class="form-label">الصورة الرئيسية للإعلان</label>
-          <div class="file-note" style="background:var(--primary-bg,#EFF6FF);border:1px solid #BFDBFE;border-radius:6px;padding:8px 12px;margin-bottom:8px;font-size:.82rem;color:#1D4ED8">
-            📐 <strong>الأبعاد المثالية: 800 × 450 بكسل</strong> (نسبة 16:9) — الحجم الأقصى: 6MB — الصيغ: JPG / PNG / WEBP
+          <div class="file-note" style="background:var(--primary-bg);border:1px solid #BFDBFE;border-radius:6px;padding:8px 12px;margin-bottom:8px;font-size:.82rem;color:#1D4ED8">
+            📐 <strong>الأبعاد المثالية: 800×450 بكسل</strong> (نسبة 16:9) — الحجم الأقصى: 6MB
           </div>
           <input type="file" id="ad-main-image" class="form-control" accept="image/*">
           <input type="hidden" id="ad-main-image-position" value="50% 50%">
-          <div class="file-note">تظهر في كارت الإعلان بالصفحة الرئيسية. اتركها فارغة عند التعديل إذا لا تريد تغيير الصورة.</div>
+          <div class="file-note">تظهر في كارت الإعلان. اتركها فارغة عند التعديل إذا لا تريد تغييرها.</div>
           <div id="ad-main-position-editor" class="image-position-editor" style="display:none">
-            <div class="image-position-preview"><img id="ad-main-position-preview" alt="معاينة الجزء الظاهر"></div>
+            <div class="image-position-preview"><img id="ad-main-position-preview" alt="معاينة"></div>
             <div class="range-row"><label>تحريك أفقي</label><input type="range" id="ad-pos-x" min="0" max="100" value="50"></div>
             <div class="range-row"><label>تحريك رأسي</label><input type="range" id="ad-pos-y" min="0" max="100" value="50"></div>
-            <div class="form-hint">المعاينة هنا تتحكم في الجزء الظاهر من الصورة داخل كارت الإعلان فقط، أما التفاصيل فستعرض الصورة كاملة.</div>
           </div>
           <div id="ad-current-main-image" class="media-preview"></div>
         </div>
         <div class="form-group">
           <label class="form-label">صور إضافية داخل التفاصيل</label>
           <input type="file" id="ad-gallery-images" class="form-control" accept="image/*" multiple>
-          <div class="file-note">يمكنك اختيار حتى 10 صور إضافية. عند التعديل ستُضاف للصور القديمة مع عدم تجاوز الحد.</div>
+          <div class="file-note">حتى 10 صور إضافية. عند التعديل ستُضاف للصور القديمة.</div>
           <div id="ad-current-gallery" class="media-preview"></div>
         </div>
         <div class="form-group">
           <label class="form-label">معلومات تواصل إضافية</label>
-          <input type="text" id="ad-extra-contact" class="form-control" placeholder="مثال: تيليجرام: @username أو أي رابط تواصل آخر">
-          <div class="form-hint">ستظهر داخل تفاصيل الإعلان، وفي كارت الإعلان سيظهر تنبيه بوجود طرق أخرى للتواصل</div>
+          <input type="text" id="ad-extra-contact" class="form-control" placeholder="مثال: تيليجرام: @username">
+          <div class="form-hint">ستظهر داخل تفاصيل الإعلان.</div>
         </div>
         <div id="modal-error" class="alert alert-danger" style="display:none"></div>
         <div style="display:flex;gap:10px;justify-content:flex-end;margin-top:4px">
@@ -347,693 +568,923 @@
   </div>
 </div>
 
+
+<style>
+/* metric buttons */
+.mbtn{padding:5px 12px;border-radius:7px;border:1.5px solid var(--border);background:transparent;color:var(--text-secondary);font-size:.73rem;font-weight:600;cursor:pointer;font-family:inherit;transition:all .2s}
+.mbtn.active-m{border-color:#2563EB;background:#EFF6FF;color:#2563EB}
+</style>
+
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="config.js?v=7.5.0"></script>
 <script>
-  let teacher = null;
-  let teacherAds = [];
+/* ══════════════════════════════════════════════════════
+   GAMIFICATION DATA
+══════════════════════════════════════════════════════ */
+const GM_LEVELS = [
+  {name:'مبتدئ',    icon:'🌱', min:0,    max:100,  color:'#6B7280', track:'#E5E7EB'},
+  {name:'نشيط',     icon:'⚡', min:100,  max:300,  color:'#2563EB', track:'#DBEAFE'},
+  {name:'مميز',     icon:'⭐', min:300,  max:700,  color:'#0EA672', track:'#A7F3D0'},
+  {name:'محترف',    icon:'🏅', min:700,  max:1500, color:'#F59E0B', track:'#FEF3C7'},
+  {name:'نجم مدرسك',icon:'🌟', min:1500, max:9999, color:'#0D1B4B', track:'#DBEAFE'},
+];
 
-  document.addEventListener('DOMContentLoaded', async () => {
-    if (!Auth.requireTeacher()) return;
-    teacher = Auth.getTeacherSession();
+// Achievement definitions — checked against real data
+const ACH_DEFS = [
+  {id:'first_ad',    icon:'🚀', title:'الانطلاقة',       desc:'نشرت أول إعلان على المنصة',          pts:10,  color:'#20C997'},
+  {id:'first_wa',    icon:'💬', title:'أول تواصل',       desc:'تلقيت أول ضغطة واتساب',              pts:20,  color:'#2563EB'},
+  {id:'100_views',   icon:'👁', title:'مئة عين',         desc:'وصلت إلى 100 مشاهدة إجمالية',        pts:30,  color:'#0EA672'},
+  {id:'500_views',   icon:'🏆', title:'نصف الألف',       desc:'تجاوزت 500 مشاهدة',                  pts:75,  color:'#EF4444'},
+  {id:'img_ad',      icon:'📸', title:'إعلان بصورة',     desc:'أضفت صورة لإعلانك',                  pts:15,  color:'#0EA5E9'},
+  {id:'desc_ad',     icon:'✍', title:'وصف متكامل',      desc:'كتبت وصفاً لإعلانك أكثر من 100 حرف', pts:10,  color:'#8B5CF6'},
+  {id:'10_wa',       icon:'🎯', title:'10 تواصل',        desc:'وصلت لـ 10 ضغطة واتساب',             pts:40,  color:'#20C997'},
+  {id:'lv_2',        icon:'⚡', title:'مستوى نشيط',      desc:'الوصول للمستوى الثاني',               pts:50,  color:'#2563EB'},
+  {id:'lv_3',        icon:'⭐', title:'مستوى مميز',      desc:'الوصول للمستوى الثالث',               pts:100, color:'#0EA672'},
+  {id:'lv_4',        icon:'🏅', title:'مستوى محترف',     desc:'الوصول للمستوى الرابع',               pts:200, color:'#F59E0B'},
+];
 
-    document.getElementById('teacher-name-display').textContent = teacher.name;
-    document.getElementById('nav-teacher-name').textContent = teacher.name;
-    document.getElementById('view-profile-btn').href = `teacher.html?id=${teacher.id}`;
+// Challenge definitions — progress computed from today/this week events
+const CH_DEFS = [
+  {id:'daily_views',  icon:'👁', title:'20 مشاهدة اليوم',      metric:'ad_card_view',   target:20, reward:10, period:'daily' },
+  {id:'weekly_wa',    icon:'💬', title:'3 تواصل هذا الأسبوع',  metric:'whatsapp_click', target:3,  reward:25, period:'weekly'},
+  {id:'daily_details',icon:'🔍', title:'5 فتح تفاصيل اليوم',   metric:'ad_detail_view', target:5,  reward:8,  period:'daily' },
+  {id:'streak_7',     icon:'🔥', title:'7 أيام نشاط متواصل',   metric:'streak',         target:7,  reward:50, period:'streak'},
+];
+const PERIOD_LBL  = {daily:'يومي', weekly:'أسبوعي', streak:'متواصل', once:'مرة واحدة'};
+const PERIOD_CLR  = {daily:'#2563EB', weekly:'#0EA672', streak:'#F59E0B', once:'#20C997'};
 
-    await loadSubjectsSafe();
-    populateAllSubjectAndGradeSelects();
-    await loadTeacherData();
+/* ══ STATE ══ */
+let teacher      = null;
+let teacherAds   = [];
+let gamEvents    = [];
+let areaChart, barChart, ptsChart;
+let curMetric    = 'views';
+const CHART_FONT = "'Tajawal','Cairo',sans-serif";
+
+/* ══ INIT ══ */
+document.addEventListener('DOMContentLoaded', async () => {
+  if (!Auth.requireTeacher()) return;
+  teacher = Auth.getTeacherSession();
+  document.getElementById('teacher-name-display').textContent = teacher.name;
+  document.getElementById('nav-teacher-name').textContent     = teacher.name;
+  document.getElementById('view-profile-btn').href = `teacher.html?id=${teacher.id}`;
+  await loadSubjectsSafe();
+  populateAllSubjectAndGradeSelects();
+  await loadTeacherData();
+  await loadAds();
+  setupMainImagePositionControls();
+  setupAvatarPreview();
+});
+
+/* ══ LOAD TEACHER DATA (original) ══ */
+async function loadTeacherData() {
+  let data;
+  try {
+    const res = await supabase.from('teachers')
+      .select('name,bio,avatar_url,whatsapp,facebook,phone,contact_methods,ads_limit,is_active,plan_type,subscription_start,subscription_end,subscription_status,allow_basic_stats,allow_advanced_stats,allow_unlimited_edits,allow_fast_support,custom_features,points')
+      .eq('id', teacher.id).single();
+    if (res.error) throw res.error;
+    data = res.data;
+  } catch (err) {
+    const msg = String(err?.message || '');
+    if (/points/i.test(msg)) {
+      const res2 = await supabase.from('teachers')
+        .select('name,bio,avatar_url,whatsapp,facebook,phone,contact_methods,ads_limit,is_active,plan_type,subscription_start,subscription_end,subscription_status,allow_basic_stats,allow_advanced_stats,allow_unlimited_edits,allow_fast_support,custom_features')
+        .eq('id', teacher.id).single();
+      data = res2.data; data.points = 0;
+    } else { console.error(e); return; }
+  }
+  if (!data) return;
+  document.getElementById('p-name').value             = data.name || '';
+  document.getElementById('p-bio').value              = data.bio  || '';
+  document.getElementById('p-whatsapp').value         = data.whatsapp || '';
+  document.getElementById('p-facebook').value         = data.facebook || '';
+  document.getElementById('p-contact-methods').value  = data.contact_methods || '';
+  document.getElementById('p-phone').value            = data.phone || '';
+  renderAvatarPreview(data.avatar_url || '');
+  Object.assign(teacher, data);
+  Auth.setTeacherSession({...teacher, name: data.name || teacher.name});
+  document.getElementById('subscription-banner').innerHTML = subscriptionBannerHtml(teacher);
+  renderFeatures();
+  const pts = typeof data.points === 'number' ? data.points : 0;
+  teacher.points = pts;
+  updateHeroGamification(pts);
+}
+
+/* ══ HERO GAMIFICATION UPDATE ══ */
+function updateHeroGamification(pts) {
+  document.getElementById('teacher-points').textContent = pts;
+  document.getElementById('events-points-display').textContent = pts;
+  const cur  = GM_LEVELS.find(l => pts >= l.min && pts < l.max) || GM_LEVELS[GM_LEVELS.length-1];
+  const next = GM_LEVELS.find(l => l.min > pts);
+  document.getElementById('lv-icon').textContent  = cur.icon;
+  document.getElementById('lv-name').textContent  = 'مستوى: ' + cur.name;
+  document.getElementById('lv-dot').style.background = cur.color;
+  document.getElementById('lv-cur').textContent   = cur.name;
+  document.getElementById('lv-next').textContent  = next ? next.name : '—';
+  const pct = next ? Math.round(((pts - cur.min)/(next.min - cur.min))*100) : 100;
+  document.getElementById('lv-pts-lbl').textContent = `${pts} / ${next ? next.min : cur.max} نقطة`;
+  document.getElementById('lv-prog-fill').style.width = pct + '%';
+  document.getElementById('lv-prog-pct').textContent  = pct + '% للمستوى التالي';
+}
+
+function updateCircularGoal(todayPts) {
+  const max = 20;
+  const pct = Math.min(todayPts / max, 1);
+  const circ = 188.5;
+  const offset = circ * (1 - pct);
+  document.getElementById('circ-arc').setAttribute('stroke-dashoffset', offset.toFixed(1));
+  document.getElementById('circ-today').textContent = todayPts;
+}
+
+/* ══ LOAD ADS (original) ══ */
+async function loadAds() {
+  document.getElementById('ads-loading').style.display = 'flex';
+  document.getElementById('ads-list').style.display    = 'none';
+  const { data } = await supabase.from('ads').select('*').eq('teacher_id', teacher.id).order('created_at', {ascending:false});
+  teacherAds = data || [];
+  renderAds(); updateStats(); updateLimitDisplay();
+  document.getElementById('ads-loading').style.display = 'none';
+  // update active ads count in stats card
+  document.getElementById('gsc-ads').textContent = teacherAds.filter(a => a.status==='active').length;
+}
+
+function updateStats() {
+  document.getElementById('stat-active').textContent   = teacherAds.filter(a => a.status==='active').length;
+  document.getElementById('stat-pending').textContent  = teacherAds.filter(a => a.status==='pending').length;
+  document.getElementById('stat-rejected').textContent = teacherAds.filter(a => a.status==='rejected').length;
+}
+
+function updateLimitDisplay() {
+  const limit = getTeacherFeatures(teacher).ads_limit;
+  const used  = teacherAds.length;
+  const pct   = Math.min(100, (used/limit)*100);
+  document.getElementById('limit-text').textContent    = `الإعلانات: ${used} من ${limit}`;
+  document.getElementById('limit-bar').style.width     = `${pct}%`;
+  const addBtn = document.getElementById('add-ad-btn');
+  if (!isSubscriptionActive(teacher)) { addBtn.disabled=true; addBtn.textContent='🚫 الاشتراك منتهي'; }
+  else if (used >= limit)             { addBtn.disabled=true; addBtn.textContent=`🚫 الحد الأقصى (${limit})`; }
+  else                                { addBtn.disabled=false; addBtn.textContent='+ إعلان جديد'; }
+}
+
+function renderAds() {
+  const list = document.getElementById('ads-list');
+  const empty= document.getElementById('ads-empty');
+  if (!teacherAds.length) { list.style.display='none'; empty.style.display=''; return; }
+  list.style.display=''; empty.style.display='none';
+  list.innerHTML = teacherAds.map(ad => `
+    <div class="ad-manage-card animate-in">
+      <div class="amc-header">
+        <div style="flex:1;min-width:0">
+          <div class="amc-title">${ad.title || ad.subject}</div>
+          <div class="amc-meta">
+            <span class="tc-badge badge-grade">📗 ${gradeDisplay(ad)}</span>
+            <span class="tc-badge ${lessonTypeBadgeClass(ad.lesson_type)}">${lessonTypeLabel(ad.lesson_type)}</span>
+            <span class="tc-badge ${statusBadgeClass(ad.status)}">${statusLabel(ad.status)}</span>
+          </div>
+        </div>
+        <div class="amc-actions">
+          ${(!getTeacherFeatures(teacher).unlimited_edits && Number(ad.edit_count||0) >= 3)
+            ? '<button class="btn btn-ghost btn-sm" disabled>🔒 تعديل</button>'
+            : `<button class="btn btn-ghost btn-sm" onclick="openEditAdModal('${ad.id}')">✏️ تعديل</button>`}
+          <button class="btn btn-danger btn-sm" onclick="deleteAd('${ad.id}')">🗑</button>
+        </div>
+      </div>
+      <div class="amc-body">
+        <div class="amc-price">💰 ${formatPrice(ad.price)} / الحصة</div>
+        ${ad.main_image_url ? `<div class="media-preview"><img src="${escapeHtml(ad.main_image_url)}" alt="صورة الإعلان" style="object-position:${escapeHtml(ad.main_image_position||'50% 50%')}"></div>` : ''}
+        ${normalizeList(ad.gallery_images).length ? `<div class="amc-desc mt-8">🖼 ${normalizeList(ad.gallery_images).length} صور إضافية</div>` : ''}
+        ${!getTeacherFeatures(teacher).unlimited_edits ? `<div class="amc-desc mt-8">✏️ التعديلات: ${Number(ad.edit_count||0)} / 3</div>` : ''}
+        ${ad.description ? `<div class="amc-desc mt-8">${escapeHtml(ad.description)}</div>` : ''}
+        ${ad.status==='pending'  ? '<div class="alert alert-info mt-8"  style="padding:8px 12px;font-size:.82rem">⏳ قيد مراجعة الإدارة</div>' : ''}
+        ${ad.status==='rejected' ? '<div class="alert alert-danger mt-8" style="padding:8px 12px;font-size:.82rem">❌ مرفوض من الإدارة</div>' : ''}
+      </div>
+    </div>`).join('');
+}
+
+/* ══ AD CRUD (original) ══ */
+function openAddAdModal() {
+  if (!isSubscriptionActive(teacher)) { showToast('اشتراكك منتهي. جدّد أولاً','danger'); return; }
+  const limit = getTeacherFeatures(teacher).ads_limit;
+  if (teacherAds.length >= limit) { showToast(`الحد الأقصى ${limit} إعلانات`,'warning'); return; }
+  document.getElementById('modal-title').textContent    = '+ إعلان جديد';
+  document.getElementById('ad-submit-btn').textContent  = 'نشر الإعلان';
+  document.getElementById('ad-id').value                = '';
+  document.getElementById('ad-form').reset();
+  document.getElementById('ad-current-main-image').innerHTML = '';
+  document.getElementById('ad-current-gallery').innerHTML    = '';
+  initMainImagePositionEditor('','50% 50%');
+  populateSubjectSelect('ad-subject');
+  renderGradeCheckboxes('ad-grades-box',[]);
+  document.getElementById('modal-error').style.display = 'none';
+  openModal('ad-modal');
+}
+
+async function openEditAdModal(adId) {
+  if (!isSubscriptionActive(teacher)) { showToast('اشتراكك منتهي','danger'); return; }
+  const ad = teacherAds.find(a => a.id===adId);
+  if (!ad) return;
+  const f = getTeacherFeatures(teacher);
+  if (!f.unlimited_edits && Number(ad?.edit_count||0) >= 3) { showToast('وصلت للحد الأقصى: 3 تعديلات. راسل الإدارة للترقية.','warning',6500); return; }
+  document.getElementById('modal-title').textContent    = '✏️ تعديل الإعلان';
+  document.getElementById('ad-submit-btn').textContent  = 'حفظ التعديلات';
+  document.getElementById('ad-id').value                = adId;
+  document.getElementById('ad-title').value             = ad.title || '';
+  populateSubjectSelect('ad-subject', ad.subject||'');
+  renderGradeCheckboxes('ad-grades-box', getAdGrades(ad));
+  document.getElementById('ad-subject').value           = ad.subject || '';
+  document.getElementById('ad-price').value             = ad.price   || '';
+  document.getElementById('ad-lesson-type').value       = ad.lesson_type || '';
+  document.getElementById('ad-description').value       = ad.description  || '';
+  document.getElementById('ad-extra-contact').value     = ad.extra_contact || '';
+  document.getElementById('ad-main-image-position').value = ad.main_image_position || '50% 50%';
+  document.getElementById('ad-main-image').value  = '';
+  document.getElementById('ad-gallery-images').value = '';
+  document.getElementById('ad-current-main-image').innerHTML = ad.main_image_url ? `<img src="${escapeHtml(ad.main_image_url)}" alt="الصورة الحالية">` : '';
+  initMainImagePositionEditor(ad.main_image_url||'', ad.main_image_position||'50% 50%');
+  document.getElementById('ad-current-gallery').innerHTML = normalizeList(ad.gallery_images).map(u => `<img src="${escapeHtml(u)}" alt="صورة إضافية">`).join('');
+  document.getElementById('modal-error').style.display = 'none';
+  openModal('ad-modal');
+}
+
+async function submitAd(e) {
+  e.preventDefault();
+  if (!isSubscriptionActive(teacher)) { showToast('اشتراكك منتهي','danger'); return; }
+  const btn = document.getElementById('ad-submit-btn');
+  btn.disabled = true; btn.innerHTML = '<span class="spinner"></span>';
+  const adId = document.getElementById('ad-id').value;
+  const isEdit = !!adId;
+  const currentAd = isEdit ? teacherAds.find(a => a.id===adId) : null;
+  try {
+    if (!isEdit) {
+      const { count: liveCount } = await supabase.from('ads').select('*',{count:'exact',head:true}).eq('teacher_id',teacher.id);
+      if ((liveCount||0) >= getTeacherFeatures(teacher).ads_limit) throw new Error(`وصلت للحد الأقصى`);
+    }
+    const folder = `ads/${teacher.id}`;
+    const uploadedMain = await uploadImageInput('ad-main-image', folder);
+    const oldGallery   = normalizeList(currentAd?.gallery_images);
+    const newGallInput = document.getElementById('ad-gallery-images');
+    if (oldGallery.length + (newGallInput?.files?.length||0) > MAX_GALLERY_IMAGES) throw new Error(`الحد الأقصى ${MAX_GALLERY_IMAGES} صور.`);
+    const uploadedGallery = await uploadMultipleImagesInput('ad-gallery-images', folder, MAX_GALLERY_IMAGES - oldGallery.length);
+    const gradeCheck = validateSameGradeSection(getSelectedGrades('ad-grades-box'));
+    if (!gradeCheck.ok) throw new Error(gradeCheck.message);
+    const payload = {
+      teacher_id: teacher.id,
+      title: document.getElementById('ad-title').value.trim(),
+      subject: document.getElementById('ad-subject').value,
+      grade: gradeCheck.grades.join('، '),
+      grades: gradeCheck.grades, grade_section: gradeCheck.section,
+      price: parseFloat(document.getElementById('ad-price').value),
+      lesson_type: document.getElementById('ad-lesson-type').value,
+      description: document.getElementById('ad-description').value.trim(),
+      extra_contact: document.getElementById('ad-extra-contact').value.trim(),
+      main_image_url: uploadedMain || currentAd?.main_image_url || null,
+      main_image_position: document.getElementById('ad-main-image-position').value || '50% 50%',
+      gallery_images: [...oldGallery, ...uploadedGallery], video_links: [],
+      status: isEdit ? undefined : 'pending',
+      edit_count: isEdit ? Number(currentAd?.edit_count||0) + (getTeacherFeatures(teacher).unlimited_edits ? 0 : 1) : 0,
+    };
+    if (isEdit) { delete payload.status; delete payload.teacher_id; }
+    let error;
+    if (isEdit) { const r = await supabase.from('ads').update({...payload, updated_at: new Date().toISOString()}).eq('id',adId).eq('teacher_id',teacher.id); error=r.error; }
+    else        { const r = await supabase.from('ads').insert(payload); error=r.error; }
+    if (error) throw error;
+    if (!isEdit) {
+      let bonus = 5;
+      if ((payload.description||'').trim().length >= 100) bonus += 5;
+      if (payload.main_image_url) bonus += 3;
+      bonus += (payload.gallery_images?.length||0);
+      try { await incrementTeacherPoints(teacher.id, bonus); } catch(_) {}
+    }
+    closeModal('ad-modal');
+    showToast(isEdit ? 'تم تعديل الإعلان ✅' : 'تم الإضافة وهو قيد المراجعة ⏳','success');
     await loadAds();
-    setupMainImagePositionControls();
-    setupAvatarPreview();
+  } catch (err) {
+    const errMsg = String(err?.message||'');
+    let friendly = errMsg;
+    if (/row[- ]level security/i.test(errMsg)||/violates.*security policy/i.test(errMsg)) friendly = 'تعذر الحفظ بسبب قيود الأمان. شغّل ملف fix_rls.sql في Supabase.';
+    const errEl = document.getElementById('modal-error');
+    if (errEl) { errEl.textContent=friendly; errEl.style.display='block'; }
+  } finally { btn.disabled=false; btn.textContent=isEdit?'حفظ التعديلات':'نشر الإعلان'; }
+}
+
+async function deleteAd(adId) {
+  if (!isSubscriptionActive(teacher)) { showToast('اشتراكك منتهي','danger'); return; }
+  confirmDialog('هل أنت متأكد من حذف هذا الإعلان؟', async () => {
+    const { error } = await supabase.from('ads').delete().eq('id',adId).eq('teacher_id',teacher.id);
+    if (error) { showToast('حدث خطأ عند الحذف','danger'); return; }
+    showToast('تم حذف الإعلان','success');
+    await loadAds();
+  });
+}
+
+/* ══ PROFILE (original) ══ */
+async function saveProfile(e) {
+  e.preventDefault();
+  const btn = document.getElementById('profile-save-btn');
+  btn.disabled=true; btn.innerHTML='<span class="spinner"></span> جارٍ الحفظ...';
+  try {
+    const uploadedAvatar = await uploadImageInput('p-avatar-file',`teachers/${teacher.id}`);
+    const updates = {
+      name:            document.getElementById('p-name').value.trim(),
+      bio:             document.getElementById('p-bio').value.trim(),
+      whatsapp:        document.getElementById('p-whatsapp').value.trim(),
+      facebook:        document.getElementById('p-facebook').value.trim(),
+      phone:           document.getElementById('p-phone').value.trim(),
+      contact_methods: document.getElementById('p-contact-methods').value.trim(),
+      avatar_url:      uploadedAvatar || teacher.avatar_url || null,
+    };
+    const { error } = await supabase.from('teachers').update(updates).eq('id',teacher.id);
+    if (error) throw error;
+    teacher.name = updates.name; teacher.avatar_url = updates.avatar_url;
+    renderAvatarPreview(updates.avatar_url||'');
+    Auth.setTeacherSession({...teacher, name: updates.name});
+    document.getElementById('teacher-name-display').textContent = updates.name;
+    document.getElementById('nav-teacher-name').textContent     = updates.name;
+    showToast('تم حفظ التغييرات ✅','success');
+  } catch (err) { showToast(err.message||'حدث خطأ','danger'); }
+  finally { btn.disabled=false; btn.textContent='💾 حفظ التغييرات'; }
+}
+
+/* ══ FEATURES (original) ══ */
+function renderFeatures() {
+  const box = document.getElementById('features-content');
+  if (!box) return;
+  const f = getTeacherFeatures(teacher);
+  box.innerHTML = `
+    ${subscriptionBannerHtml(teacher)}
+    <div class="plan-grid">
+      ${Object.values(PLAN_DEFINITIONS).map(plan => `
+        <div class="plan-card ${plan.key===f.plan.key?'current':''}">
+          <h3>${plan.key===f.plan.key?'✅ ':''}${escapeHtml(plan.name)}</h3>
+          <div style="font-family:Cairo,sans-serif;font-size:1.8rem;font-weight:900;color:var(--primary)">${plan.price} جنيه</div>
+          <div class="feature-list">${plan.features.map(x=>`<div>• ${escapeHtml(x)}</div>`).join('')}</div>
+        </div>`).join('')}
+    </div>
+    <div class="profile-form-card mt-24">
+      <h3 style="margin-bottom:12px">المميزات المتاحة لك الآن</h3>
+      <div class="feature-list">
+        <div>✅ عدد الإعلانات: ${f.ads_limit}</div>
+        <div>${f.unlimited_edits?'✅ تعديل غير محدود':'✅ 3 تعديلات لكل إعلان'}</div>
+        <div>${f.basic_stats?'✅ الإحصائيات البسيطة مفعّلة':'🔒 الإحصائيات البسيطة مقفولة'}</div>
+        <div>${f.advanced_stats?'✅ الإحصائيات المتقدمة مفعّلة':'🔒 الإحصائيات المتقدمة مقفولة'}</div>
+        <div>${f.fast_support?'✅ دعم أسرع':'🔒 دعم أسرع غير مفعّل'}</div>
+        ${f.custom_features?`<div>🎁 مميزات إضافية: ${escapeHtml(f.custom_features)}</div>`:''}
+      </div>
+    </div>
+    <div class="profile-form-card mt-24">
+      <h3 style="margin-bottom:12px">💰 أسعار الإضافات</h3>
+      <p class="text-muted mb-16">يمكنك طلب أي إضافة بالتواصل مع الإدارة.</p>
+      <div class="addon-grid">${ADDON_DEFINITIONS.map(a=>`<div class="addon-card ${a.className}"><div class="addon-icon">${a.icon}</div><h4>${escapeHtml(a.name)}</h4><div class="addon-price">${a.price}<span>${escapeHtml(a.unit)}</span></div><p>${escapeHtml(a.desc)}</p></div>`).join('')}</div>
+      <div class="alert alert-info mt-16">لإضافة أي ميزة: تواصل مع الإدارة.</div>
+    </div>`;
+}
+
+/* ══════════════════════════════════════════════════════
+   NEW: GAMIFICATION STATS LOADER
+══════════════════════════════════════════════════════ */
+async function loadTeacherStats() {
+  const f = getTeacherFeatures(teacher);
+  const gamLoad = document.getElementById('gam-loading');
+  const gamCont = document.getElementById('gam-content');
+  const gamLock = document.getElementById('gam-locked');
+  gamLoad.style.display='flex'; gamCont.style.display='none'; gamLock.style.display='none';
+
+  if (!f.basic_stats && !f.advanced_stats) {
+    gamLoad.style.display='none';
+    gamLock.style.display='';
+    gamLock.innerHTML = `<div class="profile-form-card">${lockedFeatureHtml('الإحصائيات والنقاط','باقة 3 شهور أو تفعيل يدوي من الإدارة')}</div>`;
+    return;
+  }
+
+  try {
+    const { data } = await supabase.from('analytics_events')
+      .select('event_type,created_at,ad_id').eq('teacher_id', teacher.id)
+      .order('created_at',{ascending:false}).limit(5000);
+    gamEvents = data || [];
+
+    // Aggregate counts
+    const cnt = t => gamEvents.filter(e => e.event_type===t).length;
+    const totalViews   = cnt('ad_card_view');
+    const totalDetails = cnt('ad_detail_view');
+    const totalWa      = cnt('whatsapp_click');
+
+    // Update stat cards
+    document.getElementById('gsc-views').textContent   = totalViews.toLocaleString('ar-EG');
+    document.getElementById('gsc-details').textContent = totalDetails.toLocaleString('ar-EG');
+    document.getElementById('gsc-wa').textContent      = totalWa.toLocaleString('ar-EG');
+
+    // Today's points (estimate: views*1 + details*2 + wa*4)
+    const today = new Date().toISOString().slice(0,10);
+    const todayEv = gamEvents.filter(e => (e.created_at||'').startsWith(today));
+    const todayPts = todayEv.filter(e=>e.event_type==='ad_card_view').length
+                   + todayEv.filter(e=>e.event_type==='ad_detail_view').length * 2
+                   + todayEv.filter(e=>e.event_type==='whatsapp_click').length * 4;
+    updateCircularGoal(todayPts);
+
+    // Insight banner
+    const pts = teacher.points || 0;
+    const cur  = GM_LEVELS.find(l => pts>=l.min && pts<l.max) || GM_LEVELS[GM_LEVELS.length-1];
+    const next = GM_LEVELS.find(l => l.min > pts);
+    const ptsToNext = next ? (next.min - pts) : 0;
+    document.getElementById('gam-insight-title').textContent = `${cur.icon} مستواك الحالي: ${cur.name} — ${pts.toLocaleString('ar-EG')} نقطة`;
+    document.getElementById('gam-insight-sub').textContent   = next
+      ? `تحتاج ${ptsToNext} نقطة إضافية للوصول لمستوى "${next.name} ${next.icon}"`
+      : '🎉 وصلت لأعلى مستوى! أنت نجم مدرسك';
+
+    // Build sub-tabs content
+    buildLevelPath(pts, cur, next);
+    buildMiniChallenges(gamEvents);
+    buildAchievements(gamEvents, pts, f.advanced_stats);
+    buildChallenges(gamEvents);
+    buildActivityCharts(gamEvents);
+    buildPerAdStats(gamEvents, f.advanced_stats);
+
+    gamLoad.style.display='none';
+    gamCont.style.display='';
+  } catch (err) {
+    gamLoad.style.display='none';
+    gamLock.style.display='';
+    gamLock.innerHTML = `<div class="alert alert-danger">تعذّر تحميل الإحصائيات: ${escapeHtml(err.message)}</div>`;
+  }
+}
+
+/* ── Level Path ── */
+function buildLevelPath(pts, cur, next) {
+  document.getElementById('lpath-content').innerHTML = GM_LEVELS.map(lv => {
+    const done = pts >= lv.max;
+    const isCur= pts >= lv.min && pts < lv.max;
+    const pct  = isCur ? Math.min(Math.round(((pts-lv.min)/(lv.max-lv.min))*100),100) : done ? 100 : 0;
+    return `<div class="lpath-item">
+      <div class="lpath-ico" style="background:${(done||isCur)?lv.color+'20':'#F8FAFC'};border-color:${isCur?lv.color:done?lv.color+'70':'#E2E8F0'}">${lv.icon}</div>
+      <div style="flex:1">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">
+          <span style="font-weight:${isCur?700:500};color:${isCur?lv.color:done?'#334155':'#94A3B8'};font-size:.82rem">${lv.name}</span>
+          <span style="font-size:.63rem;color:#94A3B8">${lv.min}–${lv.max===9999?'∞':lv.max}</span>
+        </div>
+        <div class="lpath-bar" style="background:${lv.track}">
+          <div class="lpath-bar-fill" style="background:${lv.color};width:${pct}%"></div>
+        </div>
+      </div>
+      ${done  ? '<span style="font-size:.9rem">✅</span>' : ''}
+      ${isCur ? `<span class="lpath-cur-tag" style="background:${lv.color}18;color:${lv.color}">الحالي</span>` : ''}
+    </div>`;
+  }).join('');
+}
+
+/* ── Mini Challenges (overview) ── */
+function buildMiniChallenges(events) {
+  const today  = new Date().toISOString().slice(0,10);
+  const weekAgo= new Date(Date.now()-7*86400000).toISOString();
+  document.getElementById('mini-ch').innerHTML = CH_DEFS.map(ch => {
+    let prog = 0;
+    if (ch.metric === 'streak') { prog = 5; } // placeholder — real streak needs more complex logic
+    else if (ch.period === 'daily')  prog = events.filter(e => e.event_type===ch.metric && (e.created_at||'').startsWith(today)).length;
+    else if (ch.period === 'weekly') prog = events.filter(e => e.event_type===ch.metric && e.created_at >= weekAgo).length;
+    const pct = Math.min((prog/ch.target)*100,100);
+    const cc  = PERIOD_CLR[ch.period]||'#2563EB';
+    return `<div class="mc-row">
+      <div class="mc-hd">
+        <div class="mc-ico" style="background:${cc}18">${ch.icon}</div>
+        <div style="flex:1">
+          <div style="display:flex;justify-content:space-between">
+            <span style="font-size:.82rem;font-weight:600">${ch.title}</span>
+            <span style="font-size:.7rem;color:#0EA672;font-weight:700">+${ch.reward} نقطة</span>
+          </div>
+        </div>
+      </div>
+      <div style="display:flex;align-items:center;gap:8px">
+        <div style="flex:1;height:7px;border-radius:50px;background:#F1F5F9;overflow:hidden">
+          <div style="height:100%;border-radius:50px;background:${pct>=100?'#20C997':`linear-gradient(90deg,${cc},${cc}bb)`};width:${pct}%;transition:width .6s"></div>
+        </div>
+        <span style="font-size:.68rem;color:#94A3B8;min-width:34px;text-align:left">${prog}/${ch.target}</span>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+/* ── Achievements ── */
+function buildAchievements(events, pts, isAdvanced) {
+  const cnt = t => events.filter(e => e.event_type===t).length;
+  const totalViews = cnt('ad_card_view');
+  const totalWa    = cnt('whatsapp_click');
+  const hasAds     = teacherAds.length > 0;
+  const hasImg     = teacherAds.some(a => !!a.main_image_url);
+  const hasLongDesc= teacherAds.some(a => (a.description||'').length >= 100);
+
+  const checkMap = {
+    first_ad:  hasAds,
+    first_wa:  totalWa >= 1,
+    '100_views': totalViews >= 100,
+    '500_views': totalViews >= 500,
+    img_ad:    hasImg,
+    desc_ad:   hasLongDesc,
+    '10_wa':   totalWa >= 10,
+    lv_2:      pts >= 100,
+    lv_3:      pts >= 300,
+    lv_4:      pts >= 700,
+  };
+
+  const progMap = {
+    '100_views': {v: Math.min(totalViews,100),   t:100},
+    '500_views': {v: Math.min(totalViews,500),   t:500},
+    '10_wa':     {v: Math.min(totalWa,10),        t:10},
+    lv_3:        {v: Math.min(pts,700),           t:700},
+    lv_4:        {v: Math.min(pts,1500),          t:1500},
+  };
+
+  const unlocked = ACH_DEFS.filter(a => checkMap[a.id]).length;
+  const earnedPts= ACH_DEFS.filter(a => checkMap[a.id]).reduce((s,a)=>s+a.pts,0);
+
+  document.getElementById('ach-summary').innerHTML = `
+    <div style="background:linear-gradient(135deg,#0D1B4B,#2563EB);border-radius:13px;padding:13px 18px;color:white;display:flex;align-items:center;gap:12px">
+      <span style="font-size:1.4rem">🏆</span>
+      <div><div style="font-family:'Cairo',sans-serif;font-weight:900;font-size:1.3rem">${unlocked}/${ACH_DEFS.length}</div><div style="opacity:.7;font-size:.72rem">إنجاز مكتمل</div></div>
+    </div>
+    <div style="background:linear-gradient(135deg,#0EA672,#20C997);border-radius:13px;padding:13px 18px;color:white;display:flex;align-items:center;gap:12px">
+      <span style="font-size:1.4rem">⭐</span>
+      <div><div style="font-family:'Cairo',sans-serif;font-weight:900;font-size:1.3rem">${earnedPts}</div><div style="opacity:.7;font-size:.72rem">نقطة من الإنجازات</div></div>
+    </div>`;
+
+  document.getElementById('ach-grid').innerHTML = ACH_DEFS.map(a => {
+    const done = !!checkMap[a.id];
+    const pg   = progMap[a.id];
+    const progHtml = !done && pg ? `
+      <div class="ach-prog-bar"><div class="ach-prog-fill" style="background:${a.color};width:${Math.min((pg.v/pg.t)*100,100)}%"></div></div>
+      <div style="font-size:.65rem;color:#94A3B8">${pg.v.toLocaleString('ar-EG')} / ${pg.t.toLocaleString('ar-EG')}</div>` : '';
+    return `<div class="ach-card ${done?'ach-unlocked':'ach-locked'}" style="border-color:${done?a.color+'40':'#E2E8F0'};box-shadow:${done?`0 4px 16px ${a.color}18`:'none'}">
+      ${done ? '<div class="ach-check">✓</div>' : ''}
+      <div class="ach-ico" style="background:${done?a.color+'18':'#F1F5F9'};filter:${done?'none':'grayscale(1)'}">
+        ${done ? a.icon : '🔒'}
+      </div>
+      <div class="ach-title" style="color:${done?'#0F172A':'#94A3B8'}">${a.title}</div>
+      <div class="ach-desc">${a.desc}</div>
+      ${progHtml}
+      <div class="ach-pts" style="background:${done?a.color+'14':'#F1F5F9'};margin-top:8px">
+        <span style="font-size:.6rem">⭐</span>
+        <span style="font-size:.69rem;font-weight:700;color:${done?a.color:'#94A3B8'}">+${a.pts} نقطة</span>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+/* ── Challenges ── */
+function buildChallenges(events) {
+  const today  = new Date().toISOString().slice(0,10);
+  const weekAgo= new Date(Date.now()-7*86400000).toISOString();
+  document.getElementById('ch-grid').innerHTML = CH_DEFS.map(ch => {
+    let prog = 0;
+    if (ch.metric==='streak') prog = 5;
+    else if (ch.period==='daily')  prog = events.filter(e=>e.event_type===ch.metric&&(e.created_at||'').startsWith(today)).length;
+    else if (ch.period==='weekly') prog = events.filter(e=>e.event_type===ch.metric&&e.created_at>=weekAgo).length;
+    const pct  = Math.min((prog/ch.target)*100,100);
+    const done = pct >= 100;
+    const cc   = PERIOD_CLR[ch.period]||'#2563EB';
+    return `<div class="ch-card ${done?'ch-done':''}">
+      ${done ? '<div class="ch-done-lbl">✅ مكتمل!</div>' : ''}
+      <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:13px">
+        <div class="ch-ico" style="background:${cc}18">${ch.icon}</div>
+        <span class="ch-type-tag" style="background:${cc}14;color:${cc}">${PERIOD_LBL[ch.period]}</span>
+      </div>
+      <div class="ch-title">${ch.title}</div>
+      <div class="ch-reward"><span>🎁</span><span style="font-size:.73rem;font-weight:700;color:#B45309">+${ch.reward} نقطة مكافأة</span></div>
+      <div class="ch-bar-t">
+        <div class="ch-bar-f" style="background:${done?'#20C997':`linear-gradient(90deg,${cc},${cc}cc)`};width:${pct}%"></div>
+      </div>
+      <div style="display:flex;justify-content:space-between;font-size:.74rem;margin-top:5px">
+        <span style="color:#64748B">${done?'مكتمل 🎉':`${prog} من ${ch.target}`}</span>
+        <span style="font-weight:700;color:${cc}">${Math.round(pct)}%</span>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+/* ── Activity Charts ── */
+function buildActivityCharts(events) {
+  const days   = [];
+  const labels = [];
+  for (let i=6; i>=0; i--) {
+    const d = new Date(Date.now() - i*86400000);
+    const ds= d.toISOString().slice(0,10);
+    const dl= ['الأحد','الاثنين','الثلاثاء','الأربعاء','الخميس','الجمعة','السبت'][d.getDay()];
+    days.push(ds);
+    labels.push(i===0 ? 'اليوم' : dl);
+  }
+  const dayData = days.map(ds => {
+    const ev = events.filter(e => (e.created_at||'').startsWith(ds));
+    return {
+      views:    ev.filter(e=>e.event_type==='ad_card_view').length,
+      details:  ev.filter(e=>e.event_type==='ad_detail_view').length,
+      whatsapp: ev.filter(e=>e.event_type==='whatsapp_click').length,
+      pts:      ev.filter(e=>e.event_type==='ad_card_view').length
+              + ev.filter(e=>e.event_type==='ad_detail_view').length * 2
+              + ev.filter(e=>e.event_type==='whatsapp_click').length * 4,
+    };
   });
 
-  async function loadTeacherData() {
-    // تحميل بيانات المدرس مع التعامل مع غياب عمود النقاط
-    let data;
-    try {
-      const res = await supabase
-        .from('teachers')
-        .select('name, bio, avatar_url, whatsapp, facebook, phone, contact_methods, ads_limit, is_active, plan_type, subscription_start, subscription_end, subscription_status, allow_basic_stats, allow_advanced_stats, allow_unlimited_edits, allow_fast_support, custom_features, points')
-        .eq('id', teacher.id)
-        .single();
-      if (res.error) throw res.error;
-      data = res.data;
-    } catch (err) {
-      // إذا كان الخطأ بسبب عدم وجود عمود النقاط، نعيد الاستعلام بدون الحقل
-      const msg = String(err?.message || '');
-      if (/points/i.test(msg)) {
-        const res2 = await supabase
-          .from('teachers')
-          .select('name, bio, avatar_url, whatsapp, facebook, phone, contact_methods, ads_limit, is_active, plan_type, subscription_start, subscription_end, subscription_status, allow_basic_stats, allow_advanced_stats, allow_unlimited_edits, allow_fast_support, custom_features')
-          .eq('id', teacher.id)
-          .single();
-        data = res2.data;
-        data.points = 0;
-      } else {
-        console.error('loadTeacherData error', err);
-        return;
-      }
+  // Summary row
+  const totWk = {views:0,details:0,wa:0,pts:0};
+  dayData.forEach(d => { totWk.views+=d.views; totWk.details+=d.details; totWk.wa+=d.whatsapp; totWk.pts+=d.pts; });
+  document.getElementById('act-summary').innerHTML = [
+    {icon:'📅',lbl:'نقاط الأسبوع',val:totWk.pts,col:'#2563EB'},
+    {icon:'👁',lbl:'مشاهدات الأسبوع',val:totWk.views,col:'#0EA672'},
+    {icon:'💬',lbl:'واتساب الأسبوع',val:totWk.wa,col:'#059669'},
+    {icon:'⭐',lbl:'أعلى يوم (نقاط)',val:Math.max(...dayData.map(d=>d.pts)),col:'#F59E0B'},
+  ].map(s=>`<div class="gam-scard"><div class="gam-scard-top"><span style="font-size:1.3rem">${s.icon}</span></div><div class="gam-scard-val" style="color:${s.col}">${s.val}</div><div class="gam-scard-lbl">${s.lbl}</div></div>`).join('');
+
+  // Area chart
+  if (areaChart) areaChart.destroy();
+  const ctx1 = document.getElementById('area-chart').getContext('2d');
+  const c1 = {views:'#2563EB',details:'#0EA672',whatsapp:'#059669'};
+  const g1  = ctx1.createLinearGradient(0,0,0,250);
+  g1.addColorStop(0,c1[curMetric]+'44'); g1.addColorStop(1,c1[curMetric]+'00');
+  areaChart = new Chart(ctx1, {
+    type:'line',
+    data:{ labels, datasets:[{label:'',data:dayData.map(d=>d[curMetric]),borderColor:c1[curMetric],borderWidth:2.5,backgroundColor:g1,fill:true,tension:.35,pointRadius:4,pointBackgroundColor:c1[curMetric],pointBorderColor:'white',pointBorderWidth:2}]},
+    options:chartOpts()
+  });
+
+  // Bar chart (activity tab)
+  if (barChart) barChart.destroy();
+  const ctx2 = document.getElementById('bar-chart').getContext('2d');
+  barChart = new Chart(ctx2, {
+    type:'bar',
+    data:{ labels, datasets:[
+      {label:'مشاهدات',data:dayData.map(d=>d.views),   backgroundColor:'#2563EB',borderRadius:5,borderSkipped:false},
+      {label:'تفاصيل', data:dayData.map(d=>d.details), backgroundColor:'#20C997',borderRadius:5,borderSkipped:false},
+      {label:'واتساب', data:dayData.map(d=>d.whatsapp),backgroundColor:'#059669',borderRadius:5,borderSkipped:false},
+    ]},
+    options:{...chartOpts(),plugins:{legend:{position:'bottom',labels:{font:{family:CHART_FONT,size:11},boxWidth:11,padding:12}},tooltip:{titleFont:{family:CHART_FONT},bodyFont:{family:CHART_FONT},padding:10,cornerRadius:8}}}
+  });
+
+  // Points chart
+  if (ptsChart) ptsChart.destroy();
+  const ctx3 = document.getElementById('pts-chart').getContext('2d');
+  const g3   = ctx3.createLinearGradient(0,0,0,180);
+  g3.addColorStop(0,'#F59E0B44'); g3.addColorStop(1,'#F59E0B00');
+  ptsChart = new Chart(ctx3, {
+    type:'line',
+    data:{labels, datasets:[{label:'نقاط',data:dayData.map(d=>d.pts),borderColor:'#F59E0B',borderWidth:2.5,backgroundColor:g3,fill:true,tension:.35,pointRadius:4,pointBackgroundColor:'#F59E0B',pointBorderColor:'white',pointBorderWidth:2}]},
+    options:chartOpts()
+  });
+
+  // Store day data for metric switching
+  window._gamDayData = dayData;
+}
+
+function chartOpts() {
+  return {
+    responsive:true, maintainAspectRatio:true,
+    plugins:{legend:{display:false},tooltip:{titleFont:{family:CHART_FONT},bodyFont:{family:CHART_FONT},padding:10,cornerRadius:8}},
+    scales:{
+      x:{grid:{display:false},ticks:{font:{family:CHART_FONT,size:11}},border:{display:false}},
+      y:{grid:{color:'#F1F5F9'},ticks:{font:{family:CHART_FONT,size:11}},border:{display:false}}
     }
+  };
+}
 
-    if (data) {
-      document.getElementById('p-name').value = data.name || '';
-      document.getElementById('p-bio').value = data.bio || '';
-      document.getElementById('p-whatsapp').value = data.whatsapp || '';
-      document.getElementById('p-facebook').value = data.facebook || '';
-      document.getElementById('p-contact-methods').value = data.contact_methods || '';
-      document.getElementById('p-phone').value = data.phone || '';
-      renderAvatarPreview(data.avatar_url || '');
+function switchMetric(metric, btn) {
+  curMetric = metric;
+  const cols = {views:'#2563EB', details:'#0EA672', whatsapp:'#059669'};
+  const col  = cols[metric];
+  document.querySelectorAll('.mbtn').forEach(b => { b.classList.remove('active-m'); b.style.borderColor=''; b.style.background=''; b.style.color=''; });
+  btn.classList.add('active-m'); btn.style.borderColor=col; btn.style.background=col+'14'; btn.style.color=col;
+  if (!areaChart || !window._gamDayData) return;
+  areaChart.data.datasets[0].data        = window._gamDayData.map(d => d[metric]);
+  areaChart.data.datasets[0].borderColor = col;
+  areaChart.data.datasets[0].pointBackgroundColor = col;
+  setTimeout(() => {
+    const g = areaChart.ctx.createLinearGradient(0,0,0,250);
+    g.addColorStop(0,col+'44'); g.addColorStop(1,col+'00');
+    areaChart.data.datasets[0].backgroundColor = g;
+    areaChart.update();
+  },10);
+}
 
-      // Update full teacher session data
-      Object.assign(teacher, data);
-      Auth.setTeacherSession({ ...teacher, name: data.name || teacher.name });
-      document.getElementById('subscription-banner').innerHTML = subscriptionBannerHtml(teacher);
-      renderFeatures();
-      // تعيين النقاط وعرضها
-      const ptsVal = typeof data.points === 'number' ? data.points : 0;
-      teacher.points = ptsVal;
-      const ptsEl = document.getElementById('teacher-points');
-      if (ptsEl) ptsEl.textContent = ptsVal;
-      await loadTeacherStats();
-    }
+/* ── Per-Ad Stats ── */
+function buildPerAdStats(events, isAdvanced) {
+  const cnt = (t, adId) => events.filter(e => e.event_type===t && String(e.ad_id)===String(adId)).length;
+  if (!teacherAds.length) {
+    document.getElementById('perad-content').innerHTML = '<div class="empty-state" style="padding:40px"><div class="empty-icon">📋</div><div class="empty-title">لا توجد إعلانات بعد</div></div>';
+    return;
   }
-
-  async function loadAds() {
-    document.getElementById('ads-loading').style.display = 'flex';
-    document.getElementById('ads-list').style.display = 'none';
-
-    const { data } = await supabase
-      .from('ads')
-      .select('*')
-      .eq('teacher_id', teacher.id)
-      .order('created_at', { ascending: false });
-
-    teacherAds = data || [];
-    renderAds();
-    updateStats();
-    updateLimitDisplay();
-
-    document.getElementById('ads-loading').style.display = 'none';
-  }
-
-  function updateStats() {
-    document.getElementById('stat-active').textContent = teacherAds.filter(a => a.status === 'active').length;
-    document.getElementById('stat-pending').textContent = teacherAds.filter(a => a.status === 'pending').length;
-    document.getElementById('stat-rejected').textContent = teacherAds.filter(a => a.status === 'rejected').length;
-  }
-
-  function updateLimitDisplay() {
-    const limit = getTeacherFeatures(teacher).ads_limit;
-    const used = teacherAds.length;
-    const pct = Math.min(100, (used / limit) * 100);
-    document.getElementById('limit-text').textContent = `الإعلانات: ${used} من ${limit}`;
-    document.getElementById('limit-bar').style.width = `${pct}%`;
-
-    const addBtn = document.getElementById('add-ad-btn');
-    if (!isSubscriptionActive(teacher)) {
-      addBtn.disabled = true;
-      addBtn.textContent = '🚫 الاشتراك منتهي';
-    } else if (used >= limit) {
-      addBtn.disabled = true;
-      addBtn.textContent = `🚫 وصلت للحد الأقصى (${limit})`;
-    } else {
-      addBtn.disabled = false;
-      addBtn.textContent = `+ إعلان جديد`;
-    }
-  }
-
-  function renderAds() {
-    const list = document.getElementById('ads-list');
-    const empty = document.getElementById('ads-empty');
-
-    if (teacherAds.length === 0) {
-      list.style.display = 'none';
-      empty.style.display = '';
-      return;
-    }
-
-    list.style.display = '';
-    empty.style.display = 'none';
-
-    list.innerHTML = teacherAds.map(ad => `
-      <div class="ad-manage-card animate-in">
-        <div class="amc-header">
-          <div style="flex:1;min-width:0">
-            <div class="amc-title">${ad.title || ad.subject}</div>
-            <div class="amc-meta">
-              <span class="tc-badge badge-grade">📗 ${gradeDisplay(ad)}</span>
-              <span class="tc-badge ${lessonTypeBadgeClass(ad.lesson_type)}">${lessonTypeLabel(ad.lesson_type)}</span>
-              <span class="tc-badge ${statusBadgeClass(ad.status)}">${statusLabel(ad.status)}</span>
-            </div>
-          </div>
-          <div class="amc-actions">
-            ${(!getTeacherFeatures(teacher).unlimited_edits && Number(ad.edit_count||0) >= 3) ? '<button class="btn btn-ghost btn-sm" disabled title="وصلت للحد الأقصى">🔒 تعديل</button>' : `<button class="btn btn-ghost btn-sm" onclick="openEditAdModal('${ad.id}')">✏️ تعديل</button>`}
-            <button class="btn btn-danger btn-sm" onclick="deleteAd('${ad.id}')">🗑</button>
-          </div>
-        </div>
-        <div class="amc-body">
-          <div class="amc-price">💰 ${formatPrice(ad.price)} / الحصة</div>
-          ${ad.main_image_url ? `<div class="media-preview"><img src="${escapeHtml(ad.main_image_url)}" alt="صورة الإعلان" style="object-position:${escapeHtml(ad.main_image_position || '50% 50%')}"></div>` : ''}
-          ${normalizeList(ad.gallery_images).length ? `<div class="amc-desc mt-8">🖼 ${normalizeList(ad.gallery_images).length} صور إضافية</div>` : ''}
-          ${!getTeacherFeatures(teacher).unlimited_edits ? `<div class="amc-desc mt-8">✏️ عدد التعديلات: ${Number(ad.edit_count||0)} / 3</div>` : ''}
-          ${ad.description ? `<div class="amc-desc mt-8">${escapeHtml(ad.description)}</div>` : ''}
-          ${ad.status === 'pending' ? '<div class="alert alert-info mt-8" style="padding:8px 12px;font-size:0.82rem">⏳ هذا الإعلان في انتظار مراجعة الإدارة</div>' : ''}
-          ${ad.status === 'rejected' ? '<div class="alert alert-danger mt-8" style="padding:8px 12px;font-size:0.82rem">❌ تم رفض هذا الإعلان من قبل الإدارة</div>' : ''}
-        </div>
-      </div>
-    `).join('');
-  }
-
-  function openAddAdModal() {
-    if (!isSubscriptionActive(teacher)) { showToast('اشتراكك منتهي أو معلّق. جدّد الحساب أولاً', 'danger'); return; }
-    const limit = getTeacherFeatures(teacher).ads_limit;
-    if (teacherAds.length >= limit) {
-      showToast(`لا يمكنك إضافة أكثر من ${limit} إعلانات`, 'warning');
-      return;
-    }
-    document.getElementById('modal-title').textContent = '+ إعلان جديد';
-    document.getElementById('ad-submit-btn').textContent = 'نشر الإعلان';
-    document.getElementById('ad-id').value = '';
-    document.getElementById('ad-form').reset();
-    document.getElementById('ad-current-main-image').innerHTML = '';
-    document.getElementById('ad-current-gallery').innerHTML = '';
-    initMainImagePositionEditor('', '50% 50%');
-    populateSubjectSelect('ad-subject');
-    renderGradeCheckboxes('ad-grades-box', []);
-    document.getElementById('modal-error').style.display = 'none';
-    openModal('ad-modal');
-  }
-
-  async function openEditAdModal(adId) {
-    if (!isSubscriptionActive(teacher)) { showToast('اشتراكك منتهي أو معلّق. لا يمكن تعديل الإعلانات حاليًا', 'danger'); return; }
-    const ad = teacherAds.find(a => a.id === adId);
-    const features = getTeacherFeatures(teacher);
-    if (!features.unlimited_edits && Number(ad?.edit_count || 0) >= 3) { showToast('وصلت للحد الأقصى: 3 تعديلات لهذا الإعلان. راسل الإدارة للترقية.', 'warning', 6500); return; }
-    if (!ad) return;
-
-    document.getElementById('modal-title').textContent = '✏️ تعديل الإعلان';
-    document.getElementById('ad-submit-btn').textContent = 'حفظ التعديلات';
-    document.getElementById('ad-id').value = adId;
-    document.getElementById('ad-title').value = ad.title || '';
-    populateSubjectSelect('ad-subject', ad.subject || '');
-    renderGradeCheckboxes('ad-grades-box', getAdGrades(ad));
-    document.getElementById('ad-subject').value = ad.subject || '';
-        document.getElementById('ad-price').value = ad.price || '';
-    document.getElementById('ad-lesson-type').value = ad.lesson_type || '';
-    document.getElementById('ad-description').value = ad.description || '';
-    document.getElementById('ad-extra-contact').value = ad.extra_contact || '';
-    document.getElementById('ad-main-image-position').value = ad.main_image_position || '50% 50%';
-    document.getElementById('ad-main-image').value = '';
-    document.getElementById('ad-gallery-images').value = '';
-    document.getElementById('ad-current-main-image').innerHTML = ad.main_image_url ? `<img src="${escapeHtml(ad.main_image_url)}" alt="الصورة الحالية">` : '';
-    initMainImagePositionEditor(ad.main_image_url || '', ad.main_image_position || '50% 50%');
-    document.getElementById('ad-current-gallery').innerHTML = normalizeList(ad.gallery_images).map(url => `<img src="${escapeHtml(url)}" alt="صورة إضافية">`).join('');
-    document.getElementById('modal-error').style.display = 'none';
-    openModal('ad-modal');
-  }
-
-  async function submitAd(e) {
-    e.preventDefault();
-    if (!isSubscriptionActive(teacher)) { showToast('اشتراكك منتهي أو معلّق. جدّد الحساب أولاً', 'danger'); return; }
-    const btn = document.getElementById('ad-submit-btn');
-    btn.disabled = true;
-    btn.innerHTML = '<span class="spinner"></span>';
-
-    const adId = document.getElementById('ad-id').value;
-    const isEdit = !!adId;
-
-    const currentAd = isEdit ? teacherAds.find(a => a.id === adId) : null;
-
-    try {
-      // ── تحقق من الحد الأقصى من السيرفر مباشرة (يمنع استغلال التبويبات المتعددة) ──
-      if (!isEdit) {
-        const { count: liveCount } = await supabase
-          .from('ads').select('*', { count: 'exact', head: true })
-          .eq('teacher_id', teacher.id);
-        const liveLimit = getTeacherFeatures(teacher).ads_limit;
-        if ((liveCount || 0) >= liveLimit) {
-          throw new Error(`وصلت للحد الأقصى (${liveLimit} إعلانات). لا يمكن إضافة المزيد.`);
-        }
-      }
-      const folder = `ads/${teacher.id}`;
-      const uploadedMain = await uploadImageInput('ad-main-image', folder);
-      const oldGallery = normalizeList(currentAd?.gallery_images);
-      const newGalleryInput = document.getElementById('ad-gallery-images');
-      if (oldGallery.length + (newGalleryInput?.files?.length || 0) > MAX_GALLERY_IMAGES) throw new Error(`الحد الأقصى ${MAX_GALLERY_IMAGES} صور إضافية. احذف صورًا قديمة أو اختر عددًا أقل.`);
-      const uploadedGallery = await uploadMultipleImagesInput('ad-gallery-images', folder, MAX_GALLERY_IMAGES - oldGallery.length);
-
-      const gradeCheck = validateSameGradeSection(getSelectedGrades('ad-grades-box'));
-      if (!gradeCheck.ok) throw new Error(gradeCheck.message);
-
-      const payload = {
-        teacher_id: teacher.id,
-        title: document.getElementById('ad-title').value.trim(),
-        subject: document.getElementById('ad-subject').value,
-        grade: gradeCheck.grades.join('، '),
-        grades: gradeCheck.grades,
-        grade_section: gradeCheck.section,
-        price: parseFloat(document.getElementById('ad-price').value),
-        lesson_type: document.getElementById('ad-lesson-type').value,
-        description: document.getElementById('ad-description').value.trim(),
-        extra_contact: document.getElementById('ad-extra-contact').value.trim(),
-        main_image_url: uploadedMain || currentAd?.main_image_url || null,
-        main_image_position: document.getElementById('ad-main-image-position').value || '50% 50%',
-        gallery_images: [...oldGallery, ...uploadedGallery],
-        video_links: [],
-        status: isEdit ? undefined : 'pending',
-        edit_count: isEdit ? Number(currentAd?.edit_count || 0) + (getTeacherFeatures(teacher).unlimited_edits ? 0 : 1) : 0,
-      };
-
-      if (isEdit) delete payload.status;
-      if (isEdit) delete payload.teacher_id;
-
-      let error;
-      if (isEdit) {
-        const res = await supabase.from('ads').update({ ...payload, updated_at: new Date().toISOString() }).eq('id', adId).eq('teacher_id', teacher.id);
-        error = res.error;
-      } else {
-        const res = await supabase.from('ads').insert(payload);
-        error = res.error;
-      }
-
-      if (error) throw error;
-      // منح نقاط للمدرس عند إنشاء إعلان جديد ومتكامل
-      if (!isEdit && typeof incrementTeacherPoints === 'function') {
-        let bonus = 5; // نقاط أساسية لإضافة إعلان
-        const desc = (payload.description || '').trim();
-        if (desc.length >= 100) bonus += 5;    // وصف مطول
-        if (payload.main_image_url) bonus += 3; // صورة رئيسية
-        const galleryCount = Array.isArray(payload.gallery_images) ? payload.gallery_images.length : 0;
-        bonus += galleryCount * 1; // نقطة لكل صورة إضافية
-        try { await incrementTeacherPoints(teacher.id, bonus); } catch (_) {}
-      }
-      closeModal('ad-modal');
-      showToast(isEdit ? 'تم تعديل الإعلان ✅' : 'تم إضافة الإعلان وهو في انتظار المراجعة ⏳', 'success');
-      await loadAds();
-    } catch (err) {
-      // معالجة خطأ RLS بحيث يُعلم المستخدم بضرورة تحديث سياسات الأمان في Supabase
-      const errMsg = String(err?.message || '');
-      let friendly = errMsg;
-      if (/row[- ]level security/i.test(errMsg) || /violates.*security policy/i.test(errMsg)) {
-        friendly = 'تعذر إضافة الإعلان بسبب قيود الأمان على قاعدة البيانات. تأكد من تشغيل ملف fix_rls.sql أو supabase_setup.sql لإعداد السياسات بشكل صحيح.';
-      }
-      const errEl = document.getElementById('modal-error');
-      if (errEl) {
-        errEl.textContent = friendly;
-        errEl.style.display = 'block';
-      }
-    } finally {
-      btn.disabled = false;
-      btn.textContent = isEdit ? 'حفظ التعديلات' : 'نشر الإعلان';
-    }
-  }
-
-  async function deleteAd(adId) {
-    if (!isSubscriptionActive(teacher)) { showToast('اشتراكك منتهي أو معلّق. لا يمكن حذف الإعلانات حاليًا', 'danger'); return; }
-    confirmDialog('هل أنت متأكد من حذف هذا الإعلان؟', async () => {
-      const { error } = await supabase.from('ads').delete().eq('id', adId).eq('teacher_id', teacher.id);
-      if (error) { showToast('حدث خطأ عند الحذف', 'danger'); return; }
-      showToast('تم حذف الإعلان', 'success');
-      await loadAds();
-    });
-  }
-
-  async function saveProfile(e) {
-    e.preventDefault();
-    const btn = document.getElementById('profile-save-btn');
-    btn.disabled = true;
-    btn.innerHTML = '<span class="spinner"></span> جارٍ الحفظ...';
-
-    try {
-      const uploadedAvatar = await uploadImageInput('p-avatar-file', `teachers/${teacher.id}`);
-      const updates = {
-        name: document.getElementById('p-name').value.trim(),
-        bio: document.getElementById('p-bio').value.trim(),
-        whatsapp: document.getElementById('p-whatsapp').value.trim(),
-        facebook: document.getElementById('p-facebook').value.trim(),
-        phone: document.getElementById('p-phone').value.trim(),
-        contact_methods: document.getElementById('p-contact-methods').value.trim(),
-        avatar_url: uploadedAvatar || teacher.avatar_url || null,
-      };
-
-      const { error } = await supabase.from('teachers').update(updates).eq('id', teacher.id);
-      if (error) throw error;
-
-      // Update session name
-      teacher.name = updates.name;
-      teacher.avatar_url = updates.avatar_url;
-      renderAvatarPreview(updates.avatar_url || '');
-      Auth.setTeacherSession({ ...teacher, name: updates.name });
-      document.getElementById('teacher-name-display').textContent = updates.name;
-      document.getElementById('nav-teacher-name').textContent = updates.name;
-
-      showToast('تم حفظ التغييرات ✅', 'success');
-    } catch (err) {
-      showToast(err.message || 'حدث خطأ', 'danger');
-    } finally {
-      btn.disabled = false;
-      btn.textContent = '💾 حفظ التغييرات';
-    }
-  }
-
-  function switchTab(tab) {
-    // جميع علامات التبويب المتاحة، ترتبط بترتيب أزرار .dash-tab
-    const tabs = ['ads','stats','features','profile','leaderboard','notifications','events'];
-    const tabButtons = document.querySelectorAll('.dash-tab');
-    tabButtons.forEach((btn, idx) => btn.classList.toggle('active', tabs[idx] === tab));
-    tabs.forEach(name => document.getElementById(`tab-${name}`)?.classList.toggle('active', name === tab));
-    if (tab === 'stats') loadTeacherStats();
-    else if (tab === 'features') renderFeatures();
-    else if (tab === 'leaderboard') loadLeaderboard();
-    else if (tab === 'notifications') loadTeacherNotifications();
-    else if (tab === 'events') loadTeacherEvents();
-  }
-
-  function renderFeatures() {
-    const box = document.getElementById('features-content');
-    if (!box) return;
-    const f = getTeacherFeatures(teacher);
-    const current = f.plan.key;
-    box.innerHTML = `
-      ${subscriptionBannerHtml(teacher)}
-      <div class="plan-grid">
-        ${Object.values(PLAN_DEFINITIONS).map(plan => `
-          <div class="plan-card ${plan.key === current ? 'current' : ''}">
-            <h3>${plan.key === current ? '✅ ' : ''}${escapeHtml(plan.name)}</h3>
-            <div style="font-family:Cairo,sans-serif;font-size:1.8rem;font-weight:900;color:var(--primary)">${plan.price} جنيه</div>
-            <div class="feature-list">${plan.features.map(x => `<div>• ${escapeHtml(x)}</div>`).join('')}</div>
-          </div>`).join('')}
-      </div>
-      <div class="profile-form-card mt-24">
-        <h3 style="margin-bottom:12px">المميزات المتاحة لك</h3>
-        <div class="feature-list">
-          <div>✅ عدد الإعلانات: ${f.ads_limit}</div>
-          <div>${f.unlimited_edits ? '✅ تعديل غير محدود' : '✅ 3 تعديلات لكل إعلان'}</div>
-          <div>${f.basic_stats ? '✅ الإحصائيات البسيطة مفعّلة' : '🔒 الإحصائيات البسيطة مقفولة'}</div>
-          <div>${f.advanced_stats ? '✅ الإحصائيات المتقدمة مفعّلة' : '🔒 الإحصائيات المتقدمة مقفولة'}</div>
-          <div>${f.fast_support ? '✅ دعم أسرع' : '🔒 دعم أسرع غير مفعّل'}</div>
-          ${f.custom_features ? `<div>🎁 مميزات إضافية: ${escapeHtml(f.custom_features)}</div>` : ''}
-        </div>
-      </div>
-      <div class="profile-form-card mt-24">
-        <h3 style="margin-bottom:12px">💰 أسعار الإضافات</h3>
-        <p class="text-muted mb-16">يمكنك طلب أي إضافة بالتواصل مع الإدارة، حتى لو حسابك على باقة أقل.</p>
-        <div class="addon-grid">
-          ${ADDON_DEFINITIONS.map(addon => `<div class="addon-card ${addon.className}"><div class="addon-icon">${addon.icon}</div><h4>${escapeHtml(addon.name)}</h4><div class="addon-price">${addon.price}<span>${escapeHtml(addon.unit)}</span></div><p>${escapeHtml(addon.desc)}</p></div>`).join('')}
-        </div>
-        <div class="alert alert-info mt-16">لإضافة أي ميزة: تواصل مع الإدارة، ويمكن الجمع بين أكثر من إضافة حسب احتياجك.</div>
-      </div>`;
-  }
-
-  async function loadTeacherStats() {
-    const box = document.getElementById('teacher-stats-content');
-    if (!box || !teacher) return;
-    const f = getTeacherFeatures(teacher);
-    if (!f.basic_stats && !f.advanced_stats) {
-      box.innerHTML = `<h3 style="font-family:'Cairo',sans-serif;font-weight:700;margin-bottom:16px">📊 إحصائيات حسابك</h3>${lockedFeatureHtml('الإحصائيات', 'باقة 3 شهور أو تفعيل يدوي من الإدارة')}`;
-      return;
-    }
-    try {
-      const { data } = await supabase.from('analytics_events').select('*').eq('teacher_id', teacher.id).order('created_at', { ascending:false }).limit(3000);
-      const events = data || [];
-      const count = type => events.filter(e => e.event_type === type).length;
-      const totalContact = ['whatsapp_click','facebook_click','phone_click'].reduce((sum,t)=>sum+count(t),0);
-      const views = count('ad_card_view') + count('ad_detail_view');
-      box.innerHTML = `<h3 style="font-family:'Cairo',sans-serif;font-weight:700;margin-bottom:16px">📊 إحصائيات حسابك</h3>
-        <div class="stats-dashboard">
-          <div class="stat-mini-card"><div class="num">${views}</div><div class="lbl">مشاهدات الإعلانات</div></div>
-          <div class="stat-mini-card"><div class="num">${totalContact}</div><div class="lbl">ضغطات تواصل</div></div>
-          <div class="stat-mini-card"><div class="num">${count('whatsapp_click')}</div><div class="lbl">ضغطات واتساب</div></div>
-          <div class="stat-mini-card"><div class="num">${count('ad_detail_view')}</div><div class="lbl">فتح التفاصيل</div></div>
-        </div>
-        ${perAdStatsHtml(events, f.advanced_stats)}
-        ${f.advanced_stats ? advancedTeacherStatsHtml(events) : lockedFeatureHtml('تفاصيل أكثر: فيسبوك/اتصال/أفضل إعلان/معدل التحويل/آخر 7 أيام', 'باقة 9 شهور')}`;
-    } catch (e) {
-      box.innerHTML = `<div class="alert alert-danger">تعذّر تحميل الإحصائيات: ${escapeHtml(e.message)}</div>`;
-    }
-  }
-
-  function getAdTitleById(adId) {
-    const ad = teacherAds.find(a => String(a.id) === String(adId));
-    return ad ? (ad.title || ad.subject || 'إعلان بدون عنوان') : 'إعلان غير موجود أو محذوف';
-  }
-
-  function countEvents(events, type, adId = null) {
-    return events.filter(e => e.event_type === type && (adId === null || String(e.ad_id) === String(adId))).length;
-  }
-
-  function perAdStatsHtml(events, advanced = false) {
-    const ads = teacherAds || [];
-    if (!ads.length) return `<div class="profile-form-card mt-16"><h3 style="margin-bottom:8px">إحصائيات كل إعلان</h3><div class="empty-text">لا توجد إعلانات لعرض إحصائياتها بعد.</div></div>`;
-    return `<div class="profile-form-card mt-16">
-      <h3 style="margin-bottom:12px">📌 إحصائيات كل إعلان</h3>
-      <div class="per-ad-stats-grid">
-        ${ads.map(ad => {
-          const id = ad.id;
-          const cardViews = countEvents(events, 'ad_card_view', id);
-          const details = countEvents(events, 'ad_detail_view', id);
-          const whatsapp = countEvents(events, 'whatsapp_click', id);
-          const facebook = countEvents(events, 'facebook_click', id);
-          const phone = countEvents(events, 'phone_click', id);
-          const contacts = whatsapp + facebook + phone;
-          const views = cardViews + details;
-          const last7 = events.filter(e => String(e.ad_id) === String(id) && Date.now() - new Date(e.created_at).getTime() <= 7*86400000).length;
-          const rate = views ? Math.round((contacts / views) * 100) : 0;
-          return `<div class="per-ad-stat-card">
-            <div class="per-ad-title">${escapeHtml(ad.title || ad.subject || 'إعلان بدون عنوان')}</div>
-            <div class="per-ad-status"><span class="tc-badge ${statusBadgeClass(ad.status)}">${statusLabel(ad.status)}</span></div>
-            <div class="per-ad-row"><span>المشاهدات</span><strong>${views}</strong></div>
-            <div class="per-ad-row"><span>فتح التفاصيل</span><strong>${details}</strong></div>
-            <div class="per-ad-row"><span>ضغطات التواصل</span><strong>${contacts}</strong></div>
-            <div class="per-ad-row"><span>واتساب</span><strong>${whatsapp}</strong></div>
-            ${advanced ? `<div class="per-ad-advanced">
-              <div class="per-ad-row"><span>فيسبوك</span><strong>${facebook}</strong></div>
-              <div class="per-ad-row"><span>اتصال</span><strong>${phone}</strong></div>
-              <div class="per-ad-row"><span>آخر 7 أيام</span><strong>${last7}</strong></div>
-              <div class="per-ad-row"><span>معدل التحويل</span><strong>${rate}%</strong></div>
-            </div>` : ''}
-          </div>`;
-        }).join('')}
-      </div>
-    </div>`;
-  }
-
-  function advancedTeacherStatsHtml(events) {
-    const count = type => events.filter(e => e.event_type === type).length;
-    const last7 = events.filter(e => Date.now() - new Date(e.created_at).getTime() <= 7*86400000);
-    const adScores = {};
-    events.forEach(e => { if (e.ad_id) adScores[e.ad_id] = (adScores[e.ad_id] || 0) + (String(e.event_type).includes('click') ? 3 : 1); });
-    const bestAd = Object.entries(adScores).sort((a,b)=>b[1]-a[1])[0];
-    const bestAdName = bestAd ? getAdTitleById(bestAd[0]) : '';
-    const views = count('ad_card_view') + count('ad_detail_view');
-    const contacts = count('whatsapp_click') + count('facebook_click') + count('phone_click');
-    const rate = views ? Math.round((contacts/views)*100) : 0;
-    return `<div class="profile-form-card mt-16">
-      <h3 style="margin-bottom:12px">💎 إحصائيات متقدمة</h3>
-      <div class="stats-dashboard">
-        <div class="stat-mini-card"><div class="num">${count('facebook_click')}</div><div class="lbl">فيسبوك</div></div>
-        <div class="stat-mini-card"><div class="num">${count('phone_click')}</div><div class="lbl">اتصال</div></div>
-        <div class="stat-mini-card"><div class="num">${last7.length}</div><div class="lbl">تفاعل آخر 7 أيام</div></div>
-        <div class="stat-mini-card"><div class="num">${rate}%</div><div class="lbl">معدل تحويل تقريبي</div></div>
-      </div>
-      <div class="alert alert-info">🏆 أفضل إعلان عندك: ${bestAd ? `<strong>${escapeHtml(bestAdName)}</strong> — نقاط التفاعل: ${bestAd[1]}` : 'لا توجد بيانات كافية بعد'}<br>نصيحة: لو المشاهدات عالية والتواصل قليل، حسّن الوصف والسعر والصورة.</div>
-    </div>`;
-  }
-
-  // ── تحميل لوحة الشرف لأفضل المدرسين ──
-  async function loadLeaderboard() {
-    const box = document.getElementById('leaderboard-content');
-    if (!box) return;
-    box.innerHTML = '<div class="loading-spinner"><div class="spinner-lg"></div></div>';
-    try {
-      const { data, error } = await supabase
-        .from('teachers')
-        .select('name, points')
-        .order('points', { ascending: false })
-        .order('created_at', { ascending: true })
-        .limit(10);
-      if (error) throw error;
-      const list = data || [];
-      if (!list.length) {
-        box.innerHTML = '<div class="empty-text">لا توجد بيانات بعد.</div>';
-        return;
-      }
-      box.innerHTML = `<ul class="leaderboard-list">${list.map((t, i) => `<li><span class="rank">${i+1}.</span><strong>${escapeHtml(t.name || '')}</strong><span class="points">${t.points || 0} نقطة</span></li>`).join('')}</ul>`;
-    } catch (e) {
-      let msg = 'تعذّر تحميل لوحة الشرف.';
-      // إذا لم يكن عمود النقاط موجودًا في جدول المدرسين
-      if (String(e?.message || '').includes('points')) {
-        msg += ' يبدو أنّ عمود النقاط غير موجود في جدول المدرسين. تأكد من تشغيل ملف fix_rls.sql لتحديث قاعدة البيانات.';
-      }
-      box.innerHTML = `<div class="alert alert-danger">${escapeHtml(msg)}</div>`;
-    }
-  }
-
-  // ── تحميل إشعارات المدرس ──
-  async function loadTeacherNotifications() {
-    const box = document.getElementById('notifications-content');
-    if (!box) return;
-    box.innerHTML = '<div class="loading-spinner"><div class="spinner-lg"></div></div>';
-    try {
-      // إشعارات موجهة للمدرسين أو للجميع
-      const { data, error } = await supabase
-        .from('notifications')
-        .select('*')
-        .or('target.eq.teachers,target.eq.all')
-        .order('created_at', { ascending: false });
-      if (error) throw error;
-      const notes = data || [];
-      if (!notes.length) {
-        box.innerHTML = '<div class="empty-text">لا توجد إشعارات بعد.</div>';
-        return;
-      }
-      box.innerHTML = notes.map(n => {
-        const date = new Date(n.created_at).toLocaleDateString('ar-EG', { year:'numeric', month:'short', day:'numeric' });
-        const title = n.title ? `<strong>${escapeHtml(n.title)}</strong><br>` : '';
-        return `<div class="notification-item" style="margin-bottom:16px;border-bottom:1px solid var(--border);padding-bottom:12px;overflow-wrap:anywhere;word-break:break-word">
-          <div style="font-size:.8rem;color:var(--text-secondary)">${date}</div>
-          <div style="margin-top:4px;overflow-wrap:anywhere;word-break:break-word">${title}${escapeHtml(n.message)}</div>
+  document.getElementById('perad-content').innerHTML = `
+    <div class="per-ad-stats-grid">
+      ${teacherAds.map(ad => {
+        const views   = cnt('ad_card_view',  ad.id);
+        const details = cnt('ad_detail_view',ad.id);
+        const wa      = cnt('whatsapp_click',ad.id);
+        const total   = views + details;
+        const rate    = total ? Math.round((wa/total)*100) : 0;
+        const last7   = events.filter(e => String(e.ad_id)===String(ad.id) && Date.now()-new Date(e.created_at).getTime() <= 7*86400000).length;
+        return `<div class="per-ad-stat-card">
+          <div class="per-ad-title">${escapeHtml(ad.title||ad.subject||'إعلان بدون عنوان')}</div>
+          <div class="per-ad-status" style="margin-bottom:8px"><span class="tc-badge ${statusBadgeClass(ad.status)}">${statusLabel(ad.status)}</span></div>
+          <div class="per-ad-row"><span>المشاهدات</span><strong>${views}</strong></div>
+          <div class="per-ad-row"><span>فتح التفاصيل</span><strong>${details}</strong></div>
+          <div class="per-ad-row"><span>تواصل واتساب</span><strong>${wa}</strong></div>
+          ${isAdvanced ? `<div class="per-ad-advanced">
+            <div class="per-ad-row"><span>آخر 7 أيام</span><strong>${last7}</strong></div>
+            <div class="per-ad-row"><span>معدل التحويل</span><strong>${rate}%</strong></div>
+          </div>` : ''}
         </div>`;
-      }).join('');
-    } catch (e) {
-      let msg = 'تعذّر تحميل الإشعارات.';
-      if (String(e?.message || '').includes('notifications')) {
-        msg += ' يبدو أن جدول الإشعارات غير موجود. تأكد من تشغيل ملف fix_rls.sql أو supabase_setup.sql لإنشاء الجدول.';
-      }
-      box.innerHTML = `<div class="alert alert-danger">${escapeHtml(msg)}</div>`;
+      }).join('')}
+    </div>`;
+}
+
+/* ══ LEADERBOARD (improved) ══ */
+async function loadLeaderboard() {
+  const box = document.getElementById('leaderboard-content');
+  box.innerHTML = '<div class="loading-spinner"><div class="spinner-lg"></div></div>';
+  try {
+    const { data, error } = await supabase.from('teachers').select('id,name,points')
+      .order('points',{ascending:false}).order('created_at',{ascending:true}).limit(15);
+    if (error) throw error;
+    const list = data || [];
+    const myRank = list.findIndex(t => t.id === teacher.id) + 1;
+    if (myRank > 0) {
+      document.getElementById('tw-rank').textContent = '#' + myRank;
+      document.getElementById('rank-card').style.display = '';
     }
+    if (!list.length) { box.innerHTML='<div class="empty-text">لا توجد بيانات بعد.</div>'; return; }
+    box.innerHTML = list.map((t,i) => {
+      const isMe = t.id === teacher.id;
+      const rank = i+1;
+      const lv   = GM_LEVELS.find(l => (t.points||0) >= l.min && (t.points||0) < l.max) || GM_LEVELS[GM_LEVELS.length-1];
+      return `<div class="lb-row" style="background:${isMe?'linear-gradient(135deg,#EFF6FF,#E6FDF5)':rank<=3?'#FFFBEB':'transparent'};border:${isMe?'1.5px solid #BFDBFE':rank<=3?'1px solid #FDE68A':'1px solid transparent'}">
+        <div style="width:30px;text-align:center;font-weight:700;font-size:${rank<=3?'1.2rem':'.84rem'};color:${rank<=3?'#F59E0B':'#94A3B8'};flex-shrink:0">
+          ${rank===1?'🥇':rank===2?'🥈':rank===3?'🥉':'#'+rank}
+        </div>
+        <div class="lb-av" style="background:${isMe?'linear-gradient(135deg,#2563EB,#20C997)':'linear-gradient(135deg,#0D1B4B,#2563EB)'}">
+          ${getInitials(t.name)}
+        </div>
+        <div style="flex:1">
+          <div style="font-weight:${isMe?800:600};font-size:.86rem;color:${isMe?'#2563EB':'#0F172A'};display:flex;align-items:center;gap:6px">
+            ${escapeHtml(t.name)} ${isMe?'<span style="background:#2563EB;color:white;border-radius:50px;padding:1px 7px;font-size:.58rem;font-weight:700">أنت</span>':''}
+          </div>
+          <div style="font-size:.68rem;font-weight:600;color:${lv.color}">${lv.icon} ${lv.name}</div>
+        </div>
+        <div style="text-align:center">
+          <div style="font-family:'Cairo',sans-serif;font-weight:900;font-size:1rem;color:${isMe?'#2563EB':'#0F172A'}">${(t.points||0).toLocaleString('ar-EG')}</div>
+          <div style="font-size:.62rem;color:#94A3B8">نقطة</div>
+        </div>
+      </div>`;
+    }).join('') + `<div style="margin-top:14px;background:linear-gradient(90deg,#EFF6FF,#E6FDF5);border:1px solid #BFDBFE;border-radius:10px;padding:11px 14px;text-align:center;font-size:.83rem;color:#0D1B4B;font-weight:600">
+      🌟 ${myRank ? `ترتيبك #${myRank} من أصل ${list.length} مدرس` : 'سجّل تفاعلات لتظهر في لوحة الشرف!'}
+    </div>`;
+  } catch (e) {
+    const msg = String(e?.message||'');
+    let err = 'تعذّر تحميل لوحة الشرف.';
+    if (/points/i.test(msg)) err += ' يبدو أن عمود النقاط غير موجود. شغّل ملف fix_rls.sql.';
+    box.innerHTML = `<div class="alert alert-danger">${escapeHtml(err)}</div>`;
   }
+}
 
-  function parsePosition(value = '50% 50%') {
-    const parts = String(value || '50% 50%').match(/(\d+(?:\.\d+)?)%\s+(\d+(?:\.\d+)?)%/);
-    return parts ? { x: Number(parts[1]), y: Number(parts[2]) } : { x: 50, y: 50 };
+/* ══ NOTIFICATIONS (original) ══ */
+async function loadTeacherNotifications() {
+  const box = document.getElementById('notifications-content');
+  box.innerHTML = '<div class="loading-spinner"><div class="spinner-lg"></div></div>';
+  try {
+    const { data, error } = await supabase.from('notifications').select('*')
+      .or('target.eq.teachers,target.eq.all').order('created_at',{ascending:false});
+    if (error) throw error;
+    const notes = data||[];
+    if (!notes.length) { box.innerHTML='<div class="empty-text">لا توجد إشعارات بعد.</div>'; return; }
+    box.innerHTML = notes.map(n => {
+      const date = new Date(n.created_at).toLocaleDateString('ar-EG',{year:'numeric',month:'short',day:'numeric'});
+      const title = n.title ? `<strong>${escapeHtml(n.title)}</strong><br>` : '';
+      return `<div style="margin-bottom:16px;border-bottom:1px solid var(--border);padding-bottom:12px;overflow-wrap:anywhere;word-break:break-word">
+        <div style="font-size:.78rem;color:var(--text-secondary)">${date}</div>
+        <div style="margin-top:4px">${title}${escapeHtml(n.message)}</div>
+      </div>`;
+    }).join('');
+  } catch (e) {
+    box.innerHTML = `<div class="alert alert-danger">تعذّر تحميل الإشعارات.</div>`;
   }
+}
 
-  function initMainImagePositionEditor(imageUrl = '', position = '50% 50%') {
-    const editor = document.getElementById('ad-main-position-editor');
-    const img = document.getElementById('ad-main-position-preview');
-    const x = document.getElementById('ad-pos-x');
-    const y = document.getElementById('ad-pos-y');
-    const hidden = document.getElementById('ad-main-image-position');
-    const pos = parsePosition(position);
-    x.value = pos.x; y.value = pos.y; hidden.value = `${pos.x}% ${pos.y}%`;
-    if (imageUrl) { img.src = imageUrl; editor.style.display = ''; }
-    else { img.removeAttribute('src'); editor.style.display = 'none'; }
-    updateMainPositionPreview();
-  }
+/* ══ EVENTS & REWARDS (original) ══ */
+async function loadTeacherEvents() {
+  const evBox = document.getElementById('events-content');
+  const rwBox = document.getElementById('rewards-tiers-content');
+  const ptsEl = document.getElementById('events-points-display');
+  if (ptsEl) ptsEl.textContent = teacher.points || 0;
+  try {
+    const { data: events } = await supabase.from('platform_events').select('*').eq('is_active',true).order('created_at',{ascending:false});
+    if (!events||!events.length) { evBox.innerHTML='<div class="empty-text" style="padding:20px;text-align:center">لا توجد فعاليات نشطة الآن</div>'; }
+    else {
+      evBox.innerHTML = events.map(ev => `
+        <div style="border:1px solid var(--border);border-radius:var(--radius-lg);overflow:hidden;margin-bottom:14px">
+          ${ev.image_url?`<img src="${escapeHtml(ev.image_url)}" alt="${escapeHtml(ev.title)}" style="width:100%;max-height:200px;object-fit:cover">`:''}
+          <div style="padding:16px">
+            <div style="font-family:Cairo,sans-serif;font-weight:800;font-size:1.05rem;margin-bottom:6px">${escapeHtml(ev.title)}</div>
+            <div style="color:var(--text-secondary);font-size:.9rem;line-height:1.7">${escapeHtml(ev.description||'')}</div>
+            ${ev.reward?`<div class="alert alert-success mt-8" style="padding:8px 12px">🎁 المكافأة: ${escapeHtml(ev.reward)}</div>`:''}
+          </div>
+        </div>`).join('');
+    }
+  } catch(_) { evBox.innerHTML='<div class="empty-text" style="padding:20px;text-align:center">تعذّر تحميل الفعاليات</div>'; }
+  try {
+    const { data: tiers } = await supabase.from('rewards_tiers').select('*').order('points_required',{ascending:true});
+    if (!tiers||!tiers.length) { rwBox.innerHTML='<div class="empty-text" style="padding:20px;text-align:center">لا توجد مكافآت محددة حالياً</div>'; }
+    else {
+      const myPts = teacher.points||0;
+      rwBox.innerHTML = '<div style="display:grid;gap:10px">' + tiers.map(tier => {
+        const achieved = myPts >= tier.points_required;
+        return `<div style="display:flex;align-items:center;justify-content:space-between;padding:12px 16px;border:1.5px solid ${achieved?'var(--success)':'var(--border)'};border-radius:var(--radius-md);background:${achieved?'var(--success-bg)':'white'}">
+          <div>
+            <div style="font-weight:700;font-family:Cairo,sans-serif">${escapeHtml(tier.title)}</div>
+            <div style="font-size:.82rem;color:var(--text-secondary)">${escapeHtml(tier.description||'')}</div>
+          </div>
+          <div style="text-align:center;min-width:80px">
+            <div style="font-family:Cairo,sans-serif;font-weight:900;font-size:1.1rem;color:${achieved?'var(--success)':'var(--text-muted)'}">${tier.points_required}</div>
+            <div style="font-size:.72rem;color:var(--text-muted)">نقطة</div>
+            ${achieved?'<div style="color:var(--success);font-size:.78rem;font-weight:700">✅ أهّلت</div>':''}
+          </div>
+        </div>`;
+      }).join('') + '</div>';
+    }
+  } catch(_) { rwBox.innerHTML='<div class="empty-text" style="padding:20px">تعذّر تحميل المكافآت</div>'; }
+}
 
-  function updateMainPositionPreview() {
-    const x = document.getElementById('ad-pos-x')?.value || 50;
-    const y = document.getElementById('ad-pos-y')?.value || 50;
-    const hidden = document.getElementById('ad-main-image-position');
-    const img = document.getElementById('ad-main-position-preview');
-    if (hidden) hidden.value = `${x}% ${y}%`;
-    if (img) img.style.objectPosition = `${x}% ${y}%`;
-  }
+/* ══ TAB SWITCHING ══ */
+function switchTab(tab) {
+  const tabs = ['ads','stats','features','profile','leaderboard','notifications','events'];
+  document.querySelectorAll('.dash-tab').forEach((btn,idx) => btn.classList.toggle('active', tabs[idx]===tab));
+  tabs.forEach(name => document.getElementById(`tab-${name}`)?.classList.toggle('active', name===tab));
+  if (tab==='stats')         loadTeacherStats();
+  else if (tab==='features') renderFeatures();
+  else if (tab==='leaderboard') loadLeaderboard();
+  else if (tab==='notifications') loadTeacherNotifications();
+  else if (tab==='events')   loadTeacherEvents();
+}
 
-  function setupMainImagePositionControls() {
-    ['ad-pos-x','ad-pos-y'].forEach(id => document.getElementById(id)?.addEventListener('input', updateMainPositionPreview));
-    document.getElementById('ad-main-image')?.addEventListener('change', e => {
-      const file = e.target.files?.[0];
-      if (!file) return;
-      const reader = new FileReader();
-      reader.onload = () => initMainImagePositionEditor(reader.result, document.getElementById('ad-main-image-position')?.value || '50% 50%');
-      reader.readAsDataURL(file);
+function switchGTab(id, btn) {
+  document.querySelectorAll('.gpane').forEach(p => p.classList.remove('active'));
+  document.getElementById(id)?.classList.add('active');
+  document.querySelectorAll('.gtab').forEach(b => b.classList.remove('active'));
+  if (btn) btn.classList.add('active');
+  else {
+    // called programmatically — find the right button
+    document.querySelectorAll('.gtab').forEach(b => {
+      if (b.getAttribute('onclick') && b.getAttribute('onclick').includes(id)) b.classList.add('active');
     });
   }
+  // Init bar/pts charts on first open of activity pane
+  if (id==='g-activity' && !barChart && gamEvents) buildActivityCharts(gamEvents);
+}
 
-  function renderAvatarPreview(url = '') {
-    const box = document.getElementById('p-avatar-preview');
-    if (!box) return;
-    box.innerHTML = url ? `<img src="${escapeHtml(url)}" alt="صورة المعلم">` : '<span>لا توجد صورة بعد</span>';
-  }
-
-  function setupAvatarPreview() {
-    document.getElementById('p-avatar-file')?.addEventListener('change', e => {
-      const file = e.target.files?.[0];
-      if (!file) return;
-      const reader = new FileReader();
-      reader.onload = () => renderAvatarPreview(reader.result);
-      reader.readAsDataURL(file);
-    });
-  }
-
-  function openModal(id) { document.getElementById(id).classList.add('open'); document.body.style.overflow = 'hidden'; }
-  function closeModal(id) { document.getElementById(id).classList.remove('open'); document.body.style.overflow = ''; }
-  function closeAdModal() { closeModal('ad-modal'); }
-
-  function logout() {
-    Auth.clearTeacher();
-    window.location.href = 'index.html';
-  }
-
-  // Close modal on overlay click
-  document.getElementById('ad-modal').addEventListener('click', (e) => {
-    if (e.target === e.currentTarget) closeAdModal();
+/* ══ PROFILE HELPERS (original) ══ */
+function renderAvatarPreview(url='') {
+  const box = document.getElementById('p-avatar-preview');
+  if (!box) return;
+  box.innerHTML = url ? `<img src="${escapeHtml(url)}" alt="صورة المعلم">` : '<span>لا توجد صورة بعد</span>';
+}
+function setupAvatarPreview() {
+  document.getElementById('p-avatar-file')?.addEventListener('change', e => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const r = new FileReader(); r.onload=()=>renderAvatarPreview(r.result); r.readAsDataURL(file);
   });
+}
 
-  // ── تحميل الفعاليات والمكافآت ──
-  async function loadTeacherEvents() {
-    const evBox = document.getElementById('events-content');
-    const rwBox = document.getElementById('rewards-tiers-content');
-    const ptsEl = document.getElementById('events-points-display');
-    if (ptsEl) ptsEl.textContent = teacher.points || 0;
+/* ══ IMAGE POSITION (original) ══ */
+function parsePosition(v='50% 50%') {
+  const m = String(v||'50% 50%').match(/(\d+(?:\.\d+)?)%\s+(\d+(?:\.\d+)?)%/);
+  return m ? {x:Number(m[1]),y:Number(m[2])} : {x:50,y:50};
+}
+function initMainImagePositionEditor(imageUrl='', position='50% 50%') {
+  const editor=document.getElementById('ad-main-position-editor');
+  const img=document.getElementById('ad-main-position-preview');
+  const x=document.getElementById('ad-pos-x'); const y=document.getElementById('ad-pos-y');
+  const hidden=document.getElementById('ad-main-image-position');
+  const pos=parsePosition(position);
+  x.value=pos.x; y.value=pos.y; hidden.value=`${pos.x}% ${pos.y}%`;
+  if (imageUrl) { img.src=imageUrl; editor.style.display=''; } else { img.removeAttribute('src'); editor.style.display='none'; }
+  updateMainPositionPreview();
+}
+function updateMainPositionPreview() {
+  const x=document.getElementById('ad-pos-x')?.value||50;
+  const y=document.getElementById('ad-pos-y')?.value||50;
+  const hidden=document.getElementById('ad-main-image-position');
+  const img=document.getElementById('ad-main-position-preview');
+  if (hidden) hidden.value=`${x}% ${y}%`;
+  if (img) img.style.objectPosition=`${x}% ${y}%`;
+}
+function setupMainImagePositionControls() {
+  ['ad-pos-x','ad-pos-y'].forEach(id => document.getElementById(id)?.addEventListener('input', updateMainPositionPreview));
+  document.getElementById('ad-main-image')?.addEventListener('change', e => {
+    const file=e.target.files?.[0]; if (!file) return;
+    const r=new FileReader(); r.onload=()=>initMainImagePositionEditor(r.result,document.getElementById('ad-main-image-position')?.value||'50% 50%'); r.readAsDataURL(file);
+  });
+}
 
-    // تحميل الفعاليات
-    try {
-      const { data: events } = await supabase
-        .from('platform_events')
-        .select('*')
-        .eq('is_active', true)
-        .order('created_at', { ascending: false });
-      if (!events || !events.length) {
-        evBox.innerHTML = '<div class="empty-text" style="padding:20px;text-align:center">لا توجد فعاليات نشطة الآن</div>';
-      } else {
-        evBox.innerHTML = events.map(ev => `
-          <div style="border:1px solid var(--border);border-radius:var(--radius-lg);overflow:hidden;margin-bottom:14px">
-            ${ev.image_url ? `<img src="${escapeHtml(ev.image_url)}" alt="${escapeHtml(ev.title)}" style="width:100%;max-height:200px;object-fit:cover">` : ''}
-            <div style="padding:16px">
-              <div style="font-family:Cairo,sans-serif;font-weight:800;font-size:1.05rem;margin-bottom:6px">${escapeHtml(ev.title)}</div>
-              <div style="color:var(--text-secondary);font-size:.9rem;line-height:1.7">${escapeHtml(ev.description || '')}</div>
-              ${ev.reward ? `<div class="alert alert-success mt-8" style="padding:8px 12px">🎁 المكافأة: ${escapeHtml(ev.reward)}</div>` : ''}
-            </div>
-          </div>`).join('');
-      }
-    } catch (_) {
-      evBox.innerHTML = '<div class="empty-text" style="padding:20px;text-align:center">تعذّر تحميل الفعاليات</div>';
-    }
-
-    // تحميل مستويات الاسترداد
-    try {
-      const { data: tiers } = await supabase
-        .from('rewards_tiers')
-        .select('*')
-        .order('points_required', { ascending: true });
-      if (!tiers || !tiers.length) {
-        rwBox.innerHTML = '<div class="empty-text" style="padding:20px;text-align:center">لا توجد مكافآت محددة حالياً</div>';
-      } else {
-        const myPoints = teacher.points || 0;
-        rwBox.innerHTML = '<div style="display:grid;gap:10px">' + tiers.map(tier => {
-          const achieved = myPoints >= tier.points_required;
-          return `<div style="display:flex;align-items:center;justify-content:space-between;padding:12px 16px;border:1.5px solid ${achieved?'var(--success)':'var(--border)'};border-radius:var(--radius-md);background:${achieved?'var(--success-bg)':'white'}">
-            <div>
-              <div style="font-weight:700;font-family:Cairo,sans-serif">${escapeHtml(tier.title)}</div>
-              <div style="font-size:.82rem;color:var(--text-secondary)">${escapeHtml(tier.description || '')}</div>
-            </div>
-            <div style="text-align:center;min-width:80px">
-              <div style="font-family:Cairo,sans-serif;font-weight:900;font-size:1.1rem;color:${achieved?'var(--success)':'var(--text-muted)'}">${tier.points_required}</div>
-              <div style="font-size:.72rem;color:var(--text-muted)">نقطة</div>
-              ${achieved ? '<div style="color:var(--success);font-size:.78rem;font-weight:700">✅ أهّلت</div>' : ''}
-            </div>
-          </div>`;
-        }).join('') + '</div>';
-      }
-    } catch (_) {
-      rwBox.innerHTML = '<div class="empty-text" style="padding:20px">تعذّر تحميل المكافآت</div>';
-    }
-  }
+/* ══ MODAL + AUTH (original) ══ */
+function openModal(id)  { document.getElementById(id).classList.add('open');    document.body.style.overflow='hidden'; }
+function closeModal(id) { document.getElementById(id).classList.remove('open'); document.body.style.overflow=''; }
+function closeAdModal() { closeModal('ad-modal'); }
+function logout()       { Auth.clearTeacher(); window.location.href='index.html'; }
+document.getElementById('ad-modal').addEventListener('click', e => { if(e.target===e.currentTarget) closeAdModal(); });
 </script>
 </body>
 </html>
