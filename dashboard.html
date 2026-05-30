@@ -144,9 +144,17 @@
 @media(max-width:600px){
   .form-row,.gam-stat-grid{grid-template-columns:1fr}
   .amc-header{flex-direction:column}
-  .tw-inner{flex-direction:column}
-  .mini-stats{grid-template-columns:1fr}
+  .tw-inner{flex-direction:column;gap:16px}
+  .mini-stats{grid-template-columns:1fr 1fr}
   .ach-grid,.ch-grid{grid-template-columns:1fr}
+  .tw-right{width:100%;display:grid;grid-template-columns:repeat(3,1fr)}
+  .tw-card{min-width:0}
+  .per-ad-stats-grid{grid-template-columns:1fr}
+  .gam-tabs{gap:0}
+  .gtab{padding:8px 10px;font-size:.78rem}
+  .lv-prog-track,.lv-prog-labels,.lv-prog-pct{max-width:100%}
+  .dash-tabs{gap:0}
+  .dash-tab{padding:9px 12px;font-size:.82rem}
 }
   </style>
 </head>
@@ -175,6 +183,10 @@
       <div>
         <div class="welcome-name">مرحباً، <span id="teacher-name-display">...</span> 👋</div>
         <div class="welcome-sub">لوحة تحكم حسابك في منصة مدرسك</div>
+        <!-- شارة المدرسين الأوائل -->
+        <div id="early-adopter-badge" style="display:none;margin-bottom:8px">
+          <span style="background:linear-gradient(135deg,#F59E0B,#EF4444);color:white;border-radius:50px;padding:4px 14px;font-size:.76rem;font-weight:700;display:inline-flex;align-items:center;gap:5px">🥇 من المدرسين الأوائل</span>
+        </div>
         <!-- level badge -->
         <div class="lv-badge" id="lv-badge">
           <span id="lv-icon">🌱</span>
@@ -206,7 +218,7 @@
               <div class="circ-sub">اليوم</div>
             </div>
           </div>
-          <div class="tw-card-lbl">هدف: 20 نقطة</div>
+          <div class="tw-card-lbl">هدف: 100 نقطة</div>
         </div>
         <!-- total points -->
         <div class="tw-card">
@@ -298,10 +310,24 @@
           <div class="gam-scard-lbl">تواصل واتساب</div>
         </div>
         <div class="gam-scard" style="background:#FFFBEB;border-color:#FDE68A">
+          <div class="gam-scard-top"><span style="font-size:1.35rem">📈</span></div>
+          <div class="gam-scard-val" style="color:#F59E0B" id="gsc-conv-rate">0%</div>
+          <div class="gam-scard-lbl">معدل التحويل</div>
+        </div>
+        <div class="gam-scard" style="background:#F5F3FF;border-color:#C4B5FD">
           <div class="gam-scard-top"><span style="font-size:1.35rem">📋</span></div>
-          <div class="gam-scard-val" style="color:#F59E0B" id="gsc-ads">0</div>
+          <div class="gam-scard-val" style="color:#7C3AED" id="gsc-ads">0</div>
           <div class="gam-scard-lbl">الإعلانات النشطة</div>
         </div>
+      </div>
+
+      <!-- نسبة اكتمال الملف الشخصي -->
+      <div class="profile-form-card" id="profile-completion-card" style="margin-bottom:16px;padding:18px"></div>
+
+      <!-- معدل التحويل التفصيلي -->
+      <div class="profile-form-card" style="margin-bottom:16px;padding:18px">
+        <div style="font-family:'Cairo',sans-serif;font-weight:700;margin-bottom:14px;display:flex;align-items:center;gap:7px"><span>📊</span> معدل التحويل</div>
+        <div id="conversion-section"></div>
       </div>
 
       <!-- insight banner -->
@@ -582,11 +608,11 @@
    GAMIFICATION DATA
 ══════════════════════════════════════════════════════ */
 const GM_LEVELS = [
-  {name:'مبتدئ',    icon:'🌱', min:0,    max:100,  color:'#6B7280', track:'#E5E7EB'},
-  {name:'نشيط',     icon:'⚡', min:100,  max:300,  color:'#2563EB', track:'#DBEAFE'},
-  {name:'مميز',     icon:'⭐', min:300,  max:700,  color:'#0EA672', track:'#A7F3D0'},
-  {name:'محترف',    icon:'🏅', min:700,  max:1500, color:'#F59E0B', track:'#FEF3C7'},
-  {name:'نجم مدرسك',icon:'🌟', min:1500, max:9999, color:'#0D1B4B', track:'#DBEAFE'},
+  {name:'مبتدئ',         icon:'🌱', min:0,     max:500,   color:'#6B7280', track:'#E5E7EB'},
+  {name:'صاعد',          icon:'🚀', min:500,   max:2000,  color:'#2563EB', track:'#DBEAFE'},
+  {name:'متقدم',         icon:'⭐', min:2000,  max:5000,  color:'#0EA672', track:'#A7F3D0'},
+  {name:'خبير',          icon:'🏅', min:5000,  max:10000, color:'#F59E0B', track:'#FEF3C7'},
+  {name:'أسطورة مدرسك',  icon:'👑', min:10000, max:99999, color:'#7C3AED', track:'#EDE9FE'},
 ];
 
 // Achievement definitions — checked against real data
@@ -598,9 +624,9 @@ const ACH_DEFS = [
   {id:'img_ad',      icon:'📸', title:'إعلان بصورة',     desc:'أضفت صورة لإعلانك',                  pts:15,  color:'#0EA5E9'},
   {id:'desc_ad',     icon:'✍', title:'وصف متكامل',      desc:'كتبت وصفاً لإعلانك أكثر من 100 حرف', pts:10,  color:'#8B5CF6'},
   {id:'10_wa',       icon:'🎯', title:'10 تواصل',        desc:'وصلت لـ 10 ضغطة واتساب',             pts:40,  color:'#20C997'},
-  {id:'lv_2',        icon:'⚡', title:'مستوى نشيط',      desc:'الوصول للمستوى الثاني',               pts:50,  color:'#2563EB'},
-  {id:'lv_3',        icon:'⭐', title:'مستوى مميز',      desc:'الوصول للمستوى الثالث',               pts:100, color:'#0EA672'},
-  {id:'lv_4',        icon:'🏅', title:'مستوى محترف',     desc:'الوصول للمستوى الرابع',               pts:200, color:'#F59E0B'},
+  {id:'lv_2',        icon:'🚀', title:'مستوى صاعد',      desc:'الوصول للمستوى الثاني (500 نقطة)',   pts:50,  color:'#2563EB'},
+  {id:'lv_3',        icon:'⭐', title:'مستوى متقدم',     desc:'الوصول للمستوى الثالث (2000 نقطة)',  pts:100, color:'#0EA672'},
+  {id:'lv_4',        icon:'🏅', title:'مستوى خبير',      desc:'الوصول للمستوى الرابع (5000 نقطة)',  pts:200, color:'#F59E0B'},
 ];
 
 // Challenge definitions — progress computed from today/this week events
@@ -641,7 +667,7 @@ async function loadTeacherData() {
   let data;
   try {
     const res = await supabase.from('teachers')
-      .select('name,bio,avatar_url,whatsapp,facebook,phone,contact_methods,ads_limit,is_active,plan_type,subscription_start,subscription_end,subscription_status,allow_basic_stats,allow_advanced_stats,allow_unlimited_edits,allow_fast_support,custom_features,points')
+      .select('name,bio,avatar_url,whatsapp,facebook,phone,contact_methods,ads_limit,is_active,plan_type,subscription_start,subscription_end,subscription_status,allow_basic_stats,allow_advanced_stats,allow_unlimited_edits,allow_fast_support,custom_features,points,created_at')
       .eq('id', teacher.id).single();
     if (res.error) throw res.error;
     data = res.data;
@@ -652,9 +678,15 @@ async function loadTeacherData() {
         .select('name,bio,avatar_url,whatsapp,facebook,phone,contact_methods,ads_limit,is_active,plan_type,subscription_start,subscription_end,subscription_status,allow_basic_stats,allow_advanced_stats,allow_unlimited_edits,allow_fast_support,custom_features')
         .eq('id', teacher.id).single();
       data = res2.data; data.points = 0;
-    } else { console.error(e); return; }
+    } else { console.error(err); return; }
   }
   if (!data) return;
+
+  // تحديد المدرسين الأوائل: الحسابات المنشأة قبل 90 يوم من الآن
+  const createdAt = new Date(data.created_at || '2026-01-01');
+  const cutoff    = new Date('2026-04-01'); // تاريخ إطلاق المنصة + 30 يوم
+  data.is_early_adopter = createdAt <= cutoff;
+
   document.getElementById('p-name').value             = data.name || '';
   document.getElementById('p-bio').value              = data.bio  || '';
   document.getElementById('p-whatsapp').value         = data.whatsapp || '';
@@ -665,6 +697,11 @@ async function loadTeacherData() {
   Object.assign(teacher, data);
   Auth.setTeacherSession({...teacher, name: data.name || teacher.name});
   document.getElementById('subscription-banner').innerHTML = subscriptionBannerHtml(teacher);
+
+  // شارة المدرسين الأوائل في الهيرو
+  const earlyBadge = document.getElementById('early-adopter-badge');
+  if (earlyBadge) earlyBadge.style.display = data.is_early_adopter ? '' : 'none';
+
   renderFeatures();
   const pts = typeof data.points === 'number' ? data.points : 0;
   teacher.points = pts;
@@ -673,8 +710,8 @@ async function loadTeacherData() {
 
 /* ══ HERO GAMIFICATION UPDATE ══ */
 function updateHeroGamification(pts) {
-  document.getElementById('teacher-points').textContent = pts;
-  document.getElementById('events-points-display').textContent = pts;
+  document.getElementById('teacher-points').textContent = pts.toLocaleString('ar-EG');
+  document.getElementById('events-points-display').textContent = pts.toLocaleString('ar-EG');
   const cur  = GM_LEVELS.find(l => pts >= l.min && pts < l.max) || GM_LEVELS[GM_LEVELS.length-1];
   const next = GM_LEVELS.find(l => l.min > pts);
   document.getElementById('lv-icon').textContent  = cur.icon;
@@ -682,19 +719,25 @@ function updateHeroGamification(pts) {
   document.getElementById('lv-dot').style.background = cur.color;
   document.getElementById('lv-cur').textContent   = cur.name;
   document.getElementById('lv-next').textContent  = next ? next.name : '—';
-  const pct = next ? Math.round(((pts - cur.min)/(next.min - cur.min))*100) : 100;
-  document.getElementById('lv-pts-lbl').textContent = `${pts} / ${next ? next.min : cur.max} نقطة`;
-  document.getElementById('lv-prog-fill').style.width = pct + '%';
-  document.getElementById('lv-prog-pct').textContent  = pct + '% للمستوى التالي';
+  const range = next ? (next.min - cur.min) : (cur.max - cur.min);
+  const pct   = next ? Math.min(Math.round(((pts - cur.min) / range) * 100), 100) : 100;
+  document.getElementById('lv-pts-lbl').textContent = `${pts.toLocaleString('ar-EG')} / ${next ? next.min.toLocaleString('ar-EG') : '∞'} نقطة`;
+  document.getElementById('lv-prog-fill').style.width      = pct + '%';
+  document.getElementById('lv-prog-fill').style.background = `linear-gradient(90deg,${cur.color},${next?next.color:cur.color})`;
+  document.getElementById('lv-prog-pct').textContent       = pct + '% للمستوى التالي';
 }
 
 function updateCircularGoal(todayPts) {
-  const max = 20;
+  const max = 100;
   const pct = Math.min(todayPts / max, 1);
   const circ = 188.5;
   const offset = circ * (1 - pct);
   document.getElementById('circ-arc').setAttribute('stroke-dashoffset', offset.toFixed(1));
-  document.getElementById('circ-today').textContent = todayPts;
+  document.getElementById('circ-today').textContent = Math.min(todayPts, max);
+  // تغيير لون القوس عند الوصول للحد
+  const arc = document.getElementById('circ-arc');
+  if (todayPts >= max) { arc.setAttribute('stroke','#F59E0B'); }
+  else { arc.setAttribute('stroke','#20C997'); }
 }
 
 /* ══ LOAD ADS (original) ══ */
@@ -732,18 +775,35 @@ function renderAds() {
   const empty= document.getElementById('ads-empty');
   if (!teacherAds.length) { list.style.display='none'; empty.style.display=''; return; }
   list.style.display=''; empty.style.display='none';
+
+  // تنبيهات ذكية
+  const smartAlerts = buildSmartAlerts();
+  if (smartAlerts) {
+    let alertBox = document.getElementById('smart-alerts-box');
+    if (!alertBox) {
+      alertBox = document.createElement('div');
+      alertBox.id = 'smart-alerts-box';
+      list.before(alertBox);
+    }
+    alertBox.innerHTML = smartAlerts;
+  }
+
   list.innerHTML = teacherAds.map(ad => `
     <div class="ad-manage-card animate-in">
       <div class="amc-header">
         <div style="flex:1;min-width:0">
-          <div class="amc-title">${ad.title || ad.subject}</div>
+          <div class="amc-title" style="display:flex;align-items:center;gap:8px">
+            ${escapeHtml(ad.title || ad.subject)}
+            ${teacher.is_early_adopter ? '<span style="background:linear-gradient(135deg,#F59E0B,#EF4444);color:white;border-radius:50px;padding:2px 8px;font-size:.6rem;font-weight:700">🥇 أوائل</span>' : ''}
+          </div>
           <div class="amc-meta">
             <span class="tc-badge badge-grade">📗 ${gradeDisplay(ad)}</span>
             <span class="tc-badge ${lessonTypeBadgeClass(ad.lesson_type)}">${lessonTypeLabel(ad.lesson_type)}</span>
             <span class="tc-badge ${statusBadgeClass(ad.status)}">${statusLabel(ad.status)}</span>
           </div>
         </div>
-        <div class="amc-actions">
+        <div class="amc-actions" style="flex-wrap:wrap;">
+          <a href="teacher.html?ad=${ad.id}${ad.status!=='active'?'&preview=1':''}" target="_blank" class="btn btn-ghost btn-sm" title="معاينة كما يراها الطالب">👁 معاينة</a>
           ${(!getTeacherFeatures(teacher).unlimited_edits && Number(ad.edit_count||0) >= 3)
             ? '<button class="btn btn-ghost btn-sm" disabled>🔒 تعديل</button>'
             : `<button class="btn btn-ghost btn-sm" onclick="openEditAdModal('${ad.id}')">✏️ تعديل</button>`}
@@ -759,6 +819,48 @@ function renderAds() {
         ${ad.status==='pending'  ? '<div class="alert alert-info mt-8"  style="padding:8px 12px;font-size:.82rem">⏳ قيد مراجعة الإدارة</div>' : ''}
         ${ad.status==='rejected' ? '<div class="alert alert-danger mt-8" style="padding:8px 12px;font-size:.82rem">❌ مرفوض من الإدارة</div>' : ''}
       </div>
+    </div>`).join('');
+}
+
+/* ══ تنبيهات ذكية ══ */
+function buildSmartAlerts() {
+  const alerts = [];
+  const now = Date.now();
+  const sevenDaysAgo = now - 7*86400000;
+
+  teacherAds.forEach(ad => {
+    if (ad.status !== 'active') return;
+    // إعلان بدون صورة
+    if (!ad.main_image_url) {
+      alerts.push({type:'info', icon:'📸', msg:`إعلانك "<strong>${escapeHtml(ad.title||ad.subject)}</strong>" بدون صورة — أضف صورة لتحسين فرص التواصل`});
+    }
+    // إعلان بدون وصف كافٍ
+    if (!ad.description || ad.description.length < 50) {
+      alerts.push({type:'warning', icon:'✍️', msg:`إعلانك "<strong>${escapeHtml(ad.title||ad.subject)}</strong>" يحتاج وصفاً أوفى لجذب الطلاب`});
+    }
+  });
+
+  // تحقق من عدم وجود مشاهدات (سيُحدَّث بعد تحميل gamEvents)
+  if (gamEvents.length) {
+    const sevenDaysEvents = gamEvents.filter(e => new Date(e.created_at).getTime() > sevenDaysAgo);
+    if (!sevenDaysEvents.length && teacherAds.some(a=>a.status==='active')) {
+      alerts.push({type:'warning', icon:'⚠️', msg:'إعلانك لم يحصل على أي مشاهدة خلال آخر 7 أيام — جرّب مشاركته على وسائل التواصل'});
+    }
+    const thisWeekViews = sevenDaysEvents.filter(e=>e.event_type==='ad_card_view').length;
+    if (thisWeekViews >= 50) {
+      alerts.push({type:'success', icon:'🎉', msg:`إعلانك حصل على <strong>${thisWeekViews} مشاهدة</strong> هذا الأسبوع — أداء ممتاز!`});
+    }
+    // مقارنة بمتوسط المنصة (نفترض 20 مشاهدة أسبوع كمتوسط)
+    if (thisWeekViews > 20) {
+      alerts.push({type:'success', icon:'📈', msg:'إعلانك يحقق أداءً أعلى من متوسط المنصة هذا الأسبوع!'});
+    }
+  }
+
+  if (!alerts.length) return '';
+  return alerts.map(a => `
+    <div class="alert alert-${a.type}" style="margin-bottom:8px;padding:10px 14px;font-size:.86rem;border-radius:var(--radius-sm)">
+      <span>${a.icon}</span>
+      <span>${a.msg}</span>
     </div>`).join('');
 }
 
@@ -965,32 +1067,55 @@ async function loadTeacherStats() {
 
     // Aggregate counts
     const cnt = t => gamEvents.filter(e => e.event_type===t).length;
-    const totalViews   = cnt('ad_card_view');
-    const totalDetails = cnt('ad_detail_view');
-    const totalWa      = cnt('whatsapp_click');
+    const totalViews    = cnt('ad_card_view');
+    const totalDetails  = cnt('ad_detail_view');
+    const totalWa       = cnt('whatsapp_click');
+    const totalFb       = cnt('facebook_click');
+    const totalContacts = totalWa + totalFb;
+
+    // معدل التحويل
+    const convRate = totalViews > 0 ? ((totalContacts / totalViews) * 100).toFixed(1) : 0;
 
     // Update stat cards
     document.getElementById('gsc-views').textContent   = totalViews.toLocaleString('ar-EG');
     document.getElementById('gsc-details').textContent = totalDetails.toLocaleString('ar-EG');
     document.getElementById('gsc-wa').textContent      = totalWa.toLocaleString('ar-EG');
+    document.getElementById('gsc-conv-rate').textContent = convRate + '%';
 
-    // Today's points (estimate: views*1 + details*2 + wa*4)
+    // Today's points
     const today = new Date().toISOString().slice(0,10);
     const todayEv = gamEvents.filter(e => (e.created_at||'').startsWith(today));
-    const todayPts = todayEv.filter(e=>e.event_type==='ad_card_view').length
-                   + todayEv.filter(e=>e.event_type==='ad_detail_view').length * 2
-                   + todayEv.filter(e=>e.event_type==='whatsapp_click').length * 4;
+    const DAILY_MAX = 100;
+    const todayPts = Math.min(
+      todayEv.filter(e=>e.event_type==='ad_card_view').length
+      + todayEv.filter(e=>e.event_type==='ad_detail_view').length * 2
+      + todayEv.filter(e=>e.event_type==='whatsapp_click').length * 4
+      + todayEv.filter(e=>e.event_type==='facebook_click').length * 3,
+      DAILY_MAX
+    );
     updateCircularGoal(todayPts);
+
+    // إضافة بطاقة نسبة اكتمال الملف
+    renderProfileCompletion();
+
+    // بطاقة معدل التحويل التفصيلية
+    renderConversionSection(totalViews, totalWa, totalFb, totalContacts, convRate);
 
     // Insight banner
     const pts = teacher.points || 0;
     const cur  = GM_LEVELS.find(l => pts>=l.min && pts<l.max) || GM_LEVELS[GM_LEVELS.length-1];
     const next = GM_LEVELS.find(l => l.min > pts);
     const ptsToNext = next ? (next.min - pts) : 0;
-    document.getElementById('gam-insight-title').textContent = `${cur.icon} مستواك الحالي: ${cur.name} — ${pts.toLocaleString('ar-EG')} نقطة`;
+    document.getElementById('gam-insight-title').textContent = `${cur.icon} مستواك: ${cur.name} — ${pts.toLocaleString('ar-EG')} نقطة`;
     document.getElementById('gam-insight-sub').textContent   = next
-      ? `تحتاج ${ptsToNext} نقطة إضافية للوصول لمستوى "${next.name} ${next.icon}"`
-      : '🎉 وصلت لأعلى مستوى! أنت نجم مدرسك';
+      ? `تحتاج ${ptsToNext.toLocaleString('ar-EG')} نقطة للوصول لـ "${next.name} ${next.icon}" | الحد اليومي: ${DAILY_MAX} نقطة/يوم`
+      : '🎉 وصلت لأعلى مستوى! أنت أسطورة مدرسك 👑';
+
+    // البطاقة اليومية
+    if (todayPts >= DAILY_MAX) {
+      const insightEl = document.getElementById('gam-insight-sub');
+      if (insightEl) insightEl.textContent += ' | ✅ وصلت للحد الأقصى اليوم (100 نقطة) — يُجدَّد غداً';
+    }
 
     // Build sub-tabs content
     buildLevelPath(pts, cur, next);
@@ -1002,6 +1127,13 @@ async function loadTeacherStats() {
 
     gamLoad.style.display='none';
     gamCont.style.display='';
+
+    // تحديث التنبيهات الذكية بعد تحميل gamEvents
+    const smartBox = document.getElementById('smart-alerts-box');
+    if (smartBox) {
+      const smartAlerts = buildSmartAlerts();
+      if (smartAlerts) smartBox.innerHTML = smartAlerts;
+    }
   } catch (err) {
     gamLoad.style.display='none';
     gamLock.style.display='';
@@ -1009,18 +1141,87 @@ async function loadTeacherStats() {
   }
 }
 
+/* ── نسبة اكتمال الملف الشخصي ── */
+function renderProfileCompletion() {
+  const fields = [
+    {key:'avatar_url',      label:'الصورة الشخصية', icon:'📷'},
+    {key:'name',            label:'الاسم',           icon:'👤'},
+    {key:'bio',             label:'النبذة الشخصية',  icon:'✍️'},
+    {key:'phone',           label:'رقم الهاتف',      icon:'📞'},
+    {key:'whatsapp',        label:'الواتساب',         icon:'💬'},
+    {key:'contact_methods', label:'وسائل التواصل',   icon:'🔗'},
+  ];
+  const filled = fields.filter(f => !!(teacher[f.key]));
+  const pct = Math.round((filled.length / fields.length) * 100);
+  const missing = fields.filter(f => !(teacher[f.key]));
+
+  const box = document.getElementById('profile-completion-card');
+  if (!box) return;
+
+  const colorClass = pct >= 80 ? '#0EA672' : pct >= 50 ? '#F59E0B' : '#EF4444';
+  box.innerHTML = `
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
+      <div style="font-family:'Cairo',sans-serif;font-weight:700;font-size:.95rem">📋 اكتمال الملف الشخصي</div>
+      <span style="font-family:'Cairo',sans-serif;font-weight:900;font-size:1.3rem;color:${colorClass}">${pct}%</span>
+    </div>
+    <div style="height:8px;border-radius:50px;background:#F1F5F9;margin-bottom:12px;overflow:hidden">
+      <div style="height:100%;border-radius:50px;background:${colorClass};width:${pct}%;transition:width .6s"></div>
+    </div>
+    ${missing.length ? `
+      <div style="font-size:.76rem;color:var(--text-muted);margin-bottom:8px">العناصر الناقصة:</div>
+      <div style="display:flex;flex-wrap:wrap;gap:6px">
+        ${missing.map(f=>`<span style="background:#FEF3C7;color:#92400E;border-radius:50px;padding:3px 10px;font-size:.72rem;font-weight:600">${f.icon} ${f.label}</span>`).join('')}
+      </div>
+      <button onclick="switchTab('profile')" class="btn btn-primary btn-sm" style="margin-top:12px;width:100%">إكمال الملف الشخصي</button>
+    ` : '<div style="color:#0EA672;font-size:.85rem;font-weight:600">✅ ملفك الشخصي مكتمل بالكامل!</div>'}`;
+}
+
+/* ── بطاقة معدل التحويل ── */
+function renderConversionSection(views, wa, fb, total, rate) {
+  const box = document.getElementById('conversion-section');
+  if (!box) return;
+  box.innerHTML = `
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:12px;margin-bottom:14px">
+      <div style="background:#ECFDF5;border:1px solid #A7F3D0;border-radius:12px;padding:14px;text-align:center">
+        <div style="font-size:1.1rem">💬</div>
+        <div style="font-family:'Cairo',sans-serif;font-weight:900;font-size:1.4rem;color:#059669">${wa}</div>
+        <div style="font-size:.72rem;color:#065F46">ضغطات واتساب</div>
+      </div>
+      <div style="background:#EFF6FF;border:1px solid #BFDBFE;border-radius:12px;padding:14px;text-align:center">
+        <div style="font-size:1.1rem">👥</div>
+        <div style="font-family:'Cairo',sans-serif;font-weight:900;font-size:1.4rem;color:#2563EB">${fb}</div>
+        <div style="font-size:.72rem;color:#1D4ED8">ضغطات فيسبوك</div>
+      </div>
+      <div style="background:#F5F3FF;border:1px solid #C4B5FD;border-radius:12px;padding:14px;text-align:center">
+        <div style="font-size:1.1rem">📊</div>
+        <div style="font-family:'Cairo',sans-serif;font-weight:900;font-size:1.4rem;color:#7C3AED">${total}</div>
+        <div style="font-size:.72rem;color:#6D28D9">إجمالي التحويلات</div>
+      </div>
+      <div style="background:${Number(rate)>=5?'#FFF7ED':'#F8FAFC'};border:1px solid ${Number(rate)>=5?'#FED7AA':'#E2E8F0'};border-radius:12px;padding:14px;text-align:center">
+        <div style="font-size:1.1rem">📈</div>
+        <div style="font-family:'Cairo',sans-serif;font-weight:900;font-size:1.4rem;color:${Number(rate)>=5?'#EA580C':'#94A3B8'}">${rate}%</div>
+        <div style="font-size:.72rem;color:${Number(rate)>=5?'#9A3412':'#64748B'}">معدل التحويل</div>
+      </div>
+    </div>
+    <div style="background:#F8FAFC;border-radius:10px;padding:11px 14px;font-size:.78rem;color:#64748B">
+      💡 معدل التحويل = (واتساب + فيسبوك) ÷ المشاهدات × 100 | ${Number(rate)>=5?'✅ أداء جيد':'📌 يمكن تحسينه بإضافة صورة ووصف أكثر تفصيلاً'}
+    </div>`;
+}
+
 /* ── Level Path ── */
 function buildLevelPath(pts, cur, next) {
   document.getElementById('lpath-content').innerHTML = GM_LEVELS.map(lv => {
-    const done = pts >= lv.max;
-    const isCur= pts >= lv.min && pts < lv.max;
-    const pct  = isCur ? Math.min(Math.round(((pts-lv.min)/(lv.max-lv.min))*100),100) : done ? 100 : 0;
+    const done  = pts >= lv.max && lv.max < 99999;
+    const isCur = pts >= lv.min && pts < lv.max;
+    const range = lv.max - lv.min;
+    const pct   = isCur ? Math.min(Math.round(((pts - lv.min) / range) * 100), 100)
+                        : done ? 100 : 0;
     return `<div class="lpath-item">
       <div class="lpath-ico" style="background:${(done||isCur)?lv.color+'20':'#F8FAFC'};border-color:${isCur?lv.color:done?lv.color+'70':'#E2E8F0'}">${lv.icon}</div>
       <div style="flex:1">
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">
           <span style="font-weight:${isCur?700:500};color:${isCur?lv.color:done?'#334155':'#94A3B8'};font-size:.82rem">${lv.name}</span>
-          <span style="font-size:.63rem;color:#94A3B8">${lv.min}–${lv.max===9999?'∞':lv.max}</span>
+          <span style="font-size:.63rem;color:#94A3B8">${lv.min.toLocaleString('ar-EG')}–${lv.max>=99999?'∞':lv.max.toLocaleString('ar-EG')}</span>
         </div>
         <div class="lpath-bar" style="background:${lv.track}">
           <div class="lpath-bar-fill" style="background:${lv.color};width:${pct}%"></div>
@@ -1080,17 +1281,17 @@ function buildAchievements(events, pts, isAdvanced) {
     img_ad:    hasImg,
     desc_ad:   hasLongDesc,
     '10_wa':   totalWa >= 10,
-    lv_2:      pts >= 100,
-    lv_3:      pts >= 300,
-    lv_4:      pts >= 700,
+    lv_2:      pts >= 500,
+    lv_3:      pts >= 2000,
+    lv_4:      pts >= 5000,
   };
 
   const progMap = {
     '100_views': {v: Math.min(totalViews,100),   t:100},
     '500_views': {v: Math.min(totalViews,500),   t:500},
     '10_wa':     {v: Math.min(totalWa,10),        t:10},
-    lv_3:        {v: Math.min(pts,700),           t:700},
-    lv_4:        {v: Math.min(pts,1500),          t:1500},
+    lv_3:        {v: Math.min(pts,2000),          t:2000},
+    lv_4:        {v: Math.min(pts,5000),          t:5000},
   };
 
   const unlocked = ACH_DEFS.filter(a => checkMap[a.id]).length;
@@ -1176,9 +1377,13 @@ function buildActivityCharts(events) {
       views:    ev.filter(e=>e.event_type==='ad_card_view').length,
       details:  ev.filter(e=>e.event_type==='ad_detail_view').length,
       whatsapp: ev.filter(e=>e.event_type==='whatsapp_click').length,
-      pts:      ev.filter(e=>e.event_type==='ad_card_view').length
-              + ev.filter(e=>e.event_type==='ad_detail_view').length * 2
-              + ev.filter(e=>e.event_type==='whatsapp_click').length * 4,
+      pts: Math.min(
+        ev.filter(e=>e.event_type==='ad_card_view').length
+        + ev.filter(e=>e.event_type==='ad_detail_view').length * 2
+        + ev.filter(e=>e.event_type==='whatsapp_click').length * 4
+        + ev.filter(e=>e.event_type==='facebook_click').length * 3,
+        100
+      ),
     };
   });
 

@@ -422,7 +422,7 @@ function getSessionId() {
 const AntiSpam = {
 
   // ── الحد الأقصى للنقاط يوميًا لكل مدرس ──
-  DAILY_MAX_POINTS: 30,
+  DAILY_MAX_POINTS: 100,
 
   // ── قواعد كل نوع حدث ──
   // maxPerDay  : أقصى عدد مرات يُحتسب هذا الحدث يوميًا (بنفس الإعلان)
