@@ -262,7 +262,7 @@
           <div class="tw-card-lbl">أيام نشاط</div>
         </div>
         <!-- view profile -->
-        <a href="#" onclick="openTeacherProfile();return false;" class="btn btn-white btn-sm" style="color:var(--primary);align-self:flex-end">👁 عرض ملفي</a>
+        <a href="#" id="view-profile-btn" onclick="openTeacherProfile();return false;" class="btn btn-white btn-sm" style="color:var(--primary);align-self:flex-end">👁 عرض ملفي</a>
       </div>
     </div>
   </div>
@@ -769,12 +769,19 @@ function updateCircularGoal(todayPts) {
 async function loadAds() {
   document.getElementById('ads-loading').style.display = 'flex';
   document.getElementById('ads-list').style.display    = 'none';
-  const { data } = await supabase.from('ads').select('*').eq('teacher_id', teacher.id).order('created_at', {ascending:false});
-  teacherAds = data || [];
+  try {
+    const { data, error } = await supabase.from('ads').select('*').eq('teacher_id', teacher.id).order('created_at', {ascending:false});
+    if (error) throw error;
+    teacherAds = data || [];
+  } catch (err) {
+    console.error('loadAds error:', err);
+    showToast('تعذّر تحميل الإعلانات: ' + (err?.message || ''), 'danger');
+    teacherAds = [];
+  }
   renderAds(); updateStats(); updateLimitDisplay();
   document.getElementById('ads-loading').style.display = 'none';
-  // update active ads count in stats card
-  document.getElementById('gsc-ads').textContent = teacherAds.filter(a => a.status==='active').length;
+  const gscAds = document.getElementById('gsc-ads');
+  if (gscAds) gscAds.textContent = teacherAds.filter(a => a.status==='active').length;
 }
 
 function updateStats() {
