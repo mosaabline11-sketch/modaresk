@@ -63,8 +63,26 @@
 .amc-price{font-weight:700;color:var(--primary);font-family:'Cairo',sans-serif;font-size:1.05rem}
 .profile-form-card{background:white;border-radius:var(--radius-lg);border:1px solid var(--border);padding:28px;box-shadow:var(--shadow-sm);overflow-x:hidden;overflow-wrap:anywhere;word-break:break-word}
 .form-row{display:grid;grid-template-columns:1fr 1fr;gap:16px}
-.dash-tabs{display:flex;border-bottom:2px solid var(--border);margin-bottom:24px;overflow-x:auto;scrollbar-width:none}
+/* ── Tabs scroll with fade indicator ── */
+.dash-tabs-wrap{position:relative;margin-bottom:24px}
+.dash-tabs{display:flex;border-bottom:2px solid var(--border);overflow-x:auto;scrollbar-width:none;scroll-behavior:smooth;-webkit-overflow-scrolling:touch}
 .dash-tabs::-webkit-scrollbar{display:none}
+/* fade indicator على اليسار يشير لوجود محتوى */
+.dash-tabs-wrap::after{
+  content:'';position:absolute;top:0;left:0;bottom:2px;
+  width:40px;
+  background:linear-gradient(to right,transparent,rgba(248,250,252,.95));
+  pointer-events:none;z-index:2;
+  display:none;
+}
+.dash-tabs-wrap.has-overflow::after{display:block}
+.dash-tabs-wrap::before{
+  content:'›';position:absolute;bottom:6px;left:6px;
+  font-size:1.1rem;color:var(--primary);font-weight:900;
+  pointer-events:none;z-index:3;
+  opacity:0;transition:opacity .3s;
+}
+.dash-tabs-wrap.has-overflow::before{opacity:1}
 .dash-tab{padding:11px 18px;background:none;border:none;border-bottom:2px solid transparent;margin-bottom:-2px;font-family:'Tajawal',sans-serif;font-size:.92rem;font-weight:500;color:var(--text-secondary);cursor:pointer;white-space:nowrap;transition:var(--transition);display:flex;align-items:center;gap:5px}
 .dash-tab.active{color:var(--primary);border-bottom-color:var(--primary);font-weight:700}
 .dash-tab:hover:not(.active){color:var(--text-primary)}
@@ -95,13 +113,14 @@
 .gtab.active{color:#0D1B4B;border-bottom-color:#0D1B4B;font-weight:700}
 .gpane{display:none}
 .gpane.active{display:block;animation:fadeIn .3s ease}
-/* level path */
-.lpath-item{display:flex;align-items:center;gap:12px;padding:9px 0;border-bottom:1px solid #F1F5F9}
+/* level path - mobile fix */
+.lpath-item{display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid #F1F5F9;min-width:0}
 .lpath-item:last-child{border-bottom:none}
-.lpath-ico{width:38px;height:38px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:1.1rem;flex-shrink:0;border:2px solid transparent}
+.lpath-ico{width:36px;height:36px;min-width:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:1rem;flex-shrink:0;border:2px solid transparent}
 .lpath-bar{height:5px;border-radius:50px;margin-top:4px}
 .lpath-bar-fill{height:100%;border-radius:50px;transition:width .6s}
-.lpath-cur-tag{padding:2px 9px;border-radius:50px;font-size:.62rem;font-weight:700;white-space:nowrap}
+.lpath-cur-tag{padding:2px 7px;border-radius:50px;font-size:.58rem;font-weight:700;white-space:nowrap;flex-shrink:0}
+.lpath-name{font-weight:500;color:#94A3B8;font-size:.78rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:80px}
 /* mini challenge */
 .mc-row{margin-bottom:14px}
 .mc-row:last-child{margin-bottom:0}
@@ -147,14 +166,18 @@
   .tw-inner{flex-direction:column;gap:16px}
   .mini-stats{grid-template-columns:1fr 1fr}
   .ach-grid,.ch-grid{grid-template-columns:1fr}
-  .tw-right{width:100%;display:grid;grid-template-columns:repeat(3,1fr)}
-  .tw-card{min-width:0}
+  .tw-right{width:100%;display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+  .tw-card{min-width:0;padding:10px 8px}
+  .tw-card-val{font-size:1.1rem}
   .per-ad-stats-grid{grid-template-columns:1fr}
   .gam-tabs{gap:0}
-  .gtab{padding:8px 10px;font-size:.78rem}
+  .gtab{padding:8px 10px;font-size:.76rem}
   .lv-prog-track,.lv-prog-labels,.lv-prog-pct{max-width:100%}
-  .dash-tabs{gap:0}
-  .dash-tab{padding:9px 12px;font-size:.82rem}
+  .dash-tab{padding:9px 12px;font-size:.8rem}
+  /* level path mobile */
+  .lpath-ico{width:30px;height:30px;min-width:30px;font-size:.85rem}
+  .lpath-name{max-width:60px;font-size:.7rem}
+  .lpath-cur-tag{display:none}
 }
   </style>
 </head>
@@ -239,7 +262,7 @@
           <div class="tw-card-lbl">أيام نشاط</div>
         </div>
         <!-- view profile -->
-        <a href="teacher.html?id=" id="view-profile-btn" class="btn btn-white btn-sm" style="color:var(--primary);align-self:flex-end">👁 عرض ملفي</a>
+        <a href="#" onclick="openTeacherProfile();return false;" class="btn btn-white btn-sm" style="color:var(--primary);align-self:flex-end">👁 عرض ملفي</a>
       </div>
     </div>
   </div>
@@ -248,14 +271,16 @@
   <div id="subscription-banner"></div>
 
   <!-- ── Tabs ── -->
-  <div class="dash-tabs">
-    <button class="dash-tab active" onclick="switchTab('ads')">📋 إعلاناتي</button>
-    <button class="dash-tab" onclick="switchTab('stats')">📊 إحصائيات ونقاط</button>
-    <button class="dash-tab" onclick="switchTab('features')">💎 مميزات الباقة</button>
-    <button class="dash-tab" onclick="switchTab('profile')">👤 الملف الشخصي</button>
-    <button class="dash-tab" onclick="switchTab('leaderboard')">🏆 لوحة الشرف</button>
-    <button class="dash-tab" onclick="switchTab('notifications')">🔔 إشعارات</button>
-    <button class="dash-tab" onclick="switchTab('events')">🎁 فعاليات ومكافآت</button>
+  <div class="dash-tabs-wrap" id="dash-tabs-wrap">
+    <div class="dash-tabs" id="dash-tabs">
+      <button class="dash-tab active" onclick="switchTab('ads',this)">📋 إعلاناتي</button>
+      <button class="dash-tab" onclick="switchTab('stats',this)">📊 إحصائيات</button>
+      <button class="dash-tab" onclick="switchTab('features',this)">💎 الباقة</button>
+      <button class="dash-tab" onclick="switchTab('profile',this)">👤 ملفي</button>
+      <button class="dash-tab" onclick="switchTab('leaderboard',this)">🏆 الشرف</button>
+      <button class="dash-tab" onclick="switchTab('notifications',this)">🔔 إشعارات</button>
+      <button class="dash-tab" onclick="switchTab('events',this)">🎁 فعاليات</button>
+    </div>
   </div>
 
   <!-- ══════════════════════════════════
@@ -1043,7 +1068,7 @@ function renderFeatures() {
 }
 
 /* ══════════════════════════════════════════════════════
-   NEW: GAMIFICATION STATS LOADER
+   GAMIFICATION STATS LOADER - FIXED
 ══════════════════════════════════════════════════════ */
 async function loadTeacherStats() {
   const f = getTeacherFeatures(teacher);
@@ -1052,53 +1077,57 @@ async function loadTeacherStats() {
   const gamLock = document.getElementById('gam-locked');
   gamLoad.style.display='flex'; gamCont.style.display='none'; gamLock.style.display='none';
 
-  if (!f.basic_stats && !f.advanced_stats) {
-    gamLoad.style.display='none';
-    gamLock.style.display='';
-    gamLock.innerHTML = `<div class="profile-form-card">${lockedFeatureHtml('الإحصائيات والنقاط','باقة 3 شهور أو تفعيل يدوي من الإدارة')}</div>`;
-    return;
-  }
-
   try {
-    const { data } = await supabase.from('analytics_events')
-      .select('event_type,created_at,ad_id').eq('teacher_id', teacher.id)
-      .order('created_at',{ascending:false}).limit(5000);
+    const { data, error } = await supabase.from('analytics_events')
+      .select('event_type,created_at,ad_id')
+      .eq('teacher_id', teacher.id)
+      .order('created_at', {ascending:false})
+      .limit(5000);
+
+    if (error) throw error;
     gamEvents = data || [];
 
-    // Aggregate counts
+    // Aggregate counts - real data
     const cnt = t => gamEvents.filter(e => e.event_type===t).length;
     const totalViews    = cnt('ad_card_view');
     const totalDetails  = cnt('ad_detail_view');
     const totalWa       = cnt('whatsapp_click');
     const totalFb       = cnt('facebook_click');
-    const totalContacts = totalWa + totalFb;
+    const totalPhone    = cnt('phone_click');
+    const totalContacts = totalWa + totalFb + totalPhone;
 
-    // معدل التحويل
-    const convRate = totalViews > 0 ? ((totalContacts / totalViews) * 100).toFixed(1) : 0;
+    // معدل التحويل الحقيقي
+    const convRate = totalViews > 0 ? ((totalContacts / totalViews) * 100).toFixed(1) : '0.0';
 
-    // Update stat cards
-    document.getElementById('gsc-views').textContent   = totalViews.toLocaleString('ar-EG');
-    document.getElementById('gsc-details').textContent = totalDetails.toLocaleString('ar-EG');
-    document.getElementById('gsc-wa').textContent      = totalWa.toLocaleString('ar-EG');
-    document.getElementById('gsc-conv-rate').textContent = convRate + '%';
+    // تحديث بطاقات الإحصائيات بالبيانات الحقيقية
+    document.getElementById('gsc-views').textContent      = totalViews.toLocaleString('ar-EG');
+    document.getElementById('gsc-details').textContent    = totalDetails.toLocaleString('ar-EG');
+    document.getElementById('gsc-wa').textContent         = totalWa.toLocaleString('ar-EG');
+    document.getElementById('gsc-conv-rate').textContent  = convRate + '%';
+    document.getElementById('gsc-ads').textContent        = teacherAds.filter(a => a.status==='active').length;
 
-    // Today's points
+    // نقاط اليوم الحقيقية
     const today = new Date().toISOString().slice(0,10);
-    const todayEv = gamEvents.filter(e => (e.created_at||'').startsWith(today));
+    const todayEv = gamEvents.filter(e => (e.created_at||'').slice(0,10) === today);
     const DAILY_MAX = 100;
     const todayPts = Math.min(
-      todayEv.filter(e=>e.event_type==='ad_card_view').length
+      todayEv.filter(e=>e.event_type==='ad_card_view').length * 1
       + todayEv.filter(e=>e.event_type==='ad_detail_view').length * 2
       + todayEv.filter(e=>e.event_type==='whatsapp_click').length * 4
-      + todayEv.filter(e=>e.event_type==='facebook_click').length * 3,
+      + todayEv.filter(e=>e.event_type==='facebook_click').length * 3
+      + todayEv.filter(e=>e.event_type==='phone_click').length * 5,
       DAILY_MAX
     );
     updateCircularGoal(todayPts);
 
-    // إضافة بطاقة نسبة اكتمال الملف
+    // حساب streak حقيقي
+    const streak = calcStreak(gamEvents);
+    document.getElementById('tw-streak').textContent = streak;
+
+    // نسبة اكتمال الملف
     renderProfileCompletion();
 
-    // بطاقة معدل التحويل التفصيلية
+    // معدل التحويل التفصيلي
     renderConversionSection(totalViews, totalWa, totalFb, totalContacts, convRate);
 
     // Insight banner
@@ -1106,18 +1135,17 @@ async function loadTeacherStats() {
     const cur  = GM_LEVELS.find(l => pts>=l.min && pts<l.max) || GM_LEVELS[GM_LEVELS.length-1];
     const next = GM_LEVELS.find(l => l.min > pts);
     const ptsToNext = next ? (next.min - pts) : 0;
-    document.getElementById('gam-insight-title').textContent = `${cur.icon} مستواك: ${cur.name} — ${pts.toLocaleString('ar-EG')} نقطة`;
-    document.getElementById('gam-insight-sub').textContent   = next
-      ? `تحتاج ${ptsToNext.toLocaleString('ar-EG')} نقطة للوصول لـ "${next.name} ${next.icon}" | الحد اليومي: ${DAILY_MAX} نقطة/يوم`
+    document.getElementById('gam-insight-title').textContent = cur.icon + ' مستواك: ' + cur.name + ' — ' + pts.toLocaleString('ar-EG') + ' نقطة';
+    document.getElementById('gam-insight-sub').textContent = next
+      ? 'تحتاج ' + ptsToNext.toLocaleString('ar-EG') + ' نقطة للوصول لـ "' + next.name + ' ' + next.icon + '" | الحد اليومي: ' + DAILY_MAX + ' نقطة/يوم'
       : '🎉 وصلت لأعلى مستوى! أنت أسطورة مدرسك 👑';
 
-    // البطاقة اليومية
     if (todayPts >= DAILY_MAX) {
       const insightEl = document.getElementById('gam-insight-sub');
-      if (insightEl) insightEl.textContent += ' | ✅ وصلت للحد الأقصى اليوم (100 نقطة) — يُجدَّد غداً';
+      if (insightEl) insightEl.textContent += ' | ✅ وصلت للحد الأقصى اليوم — يُجدَّد غداً';
     }
 
-    // Build sub-tabs content
+    // build all sections
     buildLevelPath(pts, cur, next);
     buildMiniChallenges(gamEvents);
     buildAchievements(gamEvents, pts, f.advanced_stats);
@@ -1125,20 +1153,43 @@ async function loadTeacherStats() {
     buildActivityCharts(gamEvents);
     buildPerAdStats(gamEvents, f.advanced_stats);
 
+    // إذا لم تكن الباقة تدعم الإحصائيات، أظهر تنبيه ترقية فوق المحتوى
+    if (!f.basic_stats && !f.advanced_stats) {
+      gamLock.style.display = '';
+      gamLock.innerHTML = '<div class="alert alert-info" style="margin-bottom:16px">🔒 الإحصائيات التفصيلية متاحة في باقة 3 شهور فأعلى — <a href="#" data-admin-contact data-message="أريد ترقية باقتي" class="btn btn-primary btn-sm" style="margin-right:8px">تواصل مع الإدارة</a></div>';
+    }
+
     gamLoad.style.display='none';
     gamCont.style.display='';
 
-    // تحديث التنبيهات الذكية بعد تحميل gamEvents
+    // تحديث التنبيهات الذكية
     const smartBox = document.getElementById('smart-alerts-box');
     if (smartBox) {
-      const smartAlerts = buildSmartAlerts();
-      if (smartAlerts) smartBox.innerHTML = smartAlerts;
+      const alerts = buildSmartAlerts();
+      if (alerts) smartBox.innerHTML = alerts;
     }
+
   } catch (err) {
+    console.error('Stats error:', err);
     gamLoad.style.display='none';
     gamLock.style.display='';
-    gamLock.innerHTML = `<div class="alert alert-danger">تعذّر تحميل الإحصائيات: ${escapeHtml(err.message)}</div>`;
+    gamLock.innerHTML = '<div class="alert alert-danger">❌ تعذّر تحميل الإحصائيات: ' + escapeHtml(err.message) + '<br><small>تأكد من تشغيل supabase_setup.sql وصلاحيات RLS</small></div>';
+    gamCont.style.display='';
   }
+}
+
+/* ── حساب streak حقيقي ── */
+function calcStreak(events) {
+  if (!events.length) return 0;
+  const days = new Set(events.map(e => (e.created_at||'').slice(0,10)));
+  let streak = 0;
+  const d = new Date();
+  for (let i = 0; i < 365; i++) {
+    const ds = d.toISOString().slice(0,10);
+    if (days.has(ds)) { streak++; d.setDate(d.getDate()-1); }
+    else break;
+  }
+  return streak;
 }
 
 /* ── نسبة اكتمال الملف الشخصي ── */
@@ -1613,16 +1664,49 @@ async function loadTeacherEvents() {
 }
 
 /* ══ TAB SWITCHING ══ */
-function switchTab(tab) {
+function switchTab(tab, clickedBtn) {
   const tabs = ['ads','stats','features','profile','leaderboard','notifications','events'];
-  document.querySelectorAll('.dash-tab').forEach((btn,idx) => btn.classList.toggle('active', tabs[idx]===tab));
-  tabs.forEach(name => document.getElementById(`tab-${name}`)?.classList.toggle('active', name===tab));
-  if (tab==='stats')         loadTeacherStats();
-  else if (tab==='features') renderFeatures();
+  document.querySelectorAll('.dash-tab').forEach(b => b.classList.remove('active'));
+  if (clickedBtn) clickedBtn.classList.add('active');
+  else {
+    document.querySelectorAll('.dash-tab').forEach((btn,idx) => {
+      if (tabs[idx] === tab) btn.classList.add('active');
+    });
+  }
+  tabs.forEach(name => {
+    const pane = document.getElementById('tab-' + name);
+    if (pane) pane.classList.toggle('active', name === tab);
+  });
+  if (tab==='stats')            loadTeacherStats();
+  else if (tab==='features')    renderFeatures();
   else if (tab==='leaderboard') loadLeaderboard();
   else if (tab==='notifications') loadTeacherNotifications();
-  else if (tab==='events')   loadTeacherEvents();
+  else if (tab==='events')      loadTeacherEvents();
+
+  // scroll active tab into view on mobile
+  if (clickedBtn) {
+    clickedBtn.scrollIntoView({behavior:'smooth', block:'nearest', inline:'center'});
+  }
+  checkTabsOverflow();
 }
+
+/* مؤشر التمرير الأفقي */
+function checkTabsOverflow() {
+  const wrap = document.getElementById('dash-tabs-wrap');
+  const tabs = document.getElementById('dash-tabs');
+  if (!wrap || !tabs) return;
+  const hasOverflow = tabs.scrollWidth > tabs.clientWidth + 2;
+  const atEnd = tabs.scrollLeft <= 5;
+  wrap.classList.toggle('has-overflow', hasOverflow && atEnd);
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  const tabsEl = document.getElementById('dash-tabs');
+  if (tabsEl) {
+    tabsEl.addEventListener('scroll', checkTabsOverflow);
+    setTimeout(checkTabsOverflow, 300);
+  }
+});
 
 function switchGTab(id, btn) {
   document.querySelectorAll('.gpane').forEach(p => p.classList.remove('active'));
@@ -1690,6 +1774,20 @@ function closeModal(id) { document.getElementById(id).classList.remove('open'); 
 function closeAdModal() { closeModal('ad-modal'); }
 function logout()       { Auth.clearTeacher(); window.location.href='index.html'; }
 document.getElementById('ad-modal').addEventListener('click', e => { if(e.target===e.currentTarget) closeAdModal(); });
+
+/* ══ فتح ملف المدرس الشخصي ══ */
+function openTeacherProfile() {
+  // يفتح أول إعلان نشط للمدرس، أو أي إعلان، أو ملف المدرس بالـ id
+  const activeAd = teacherAds.find(a => a.status === 'active');
+  const anyAd    = teacherAds[0];
+  if (activeAd) {
+    window.open('teacher.html?ad=' + activeAd.id, '_blank');
+  } else if (anyAd) {
+    window.open('teacher.html?ad=' + anyAd.id + '&preview=1', '_blank');
+  } else {
+    window.open('teacher.html?id=' + teacher.id, '_blank');
+  }
+}
 </script>
 </body>
 </html>

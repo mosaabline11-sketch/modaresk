@@ -1898,33 +1898,44 @@ function exportExcel() {
 // RESET ANALYTICS
 // ══════════════════════════════════════════
 async function confirmResetAnalytics() {
-  // تحذير قبل حذف جميع سجلات الإحصائيات
   const ok = window.confirm('تحذير: سيتم حذف جميع بيانات الإحصائيات (المشاهدات، الضغطات، الزيارات) نهائيًا.\n\nهل أنت متأكد أنك تريد الاستمرار؟');
   if (!ok) {
-    showToast('❌ تم الإلغاء', 'error');
+    showToast('تم الإلغاء', 'warning');
     return;
   }
+
+  // إظهار حالة التحميل
+  const btn = document.querySelector('[onclick="confirmResetAnalytics()"]');
+  if (btn) { btn.disabled = true; btn.textContent = '⏳ جارٍ التصفير...'; }
+
   try {
-    // حذف جميع سجلات الأحداث من analytics_events
+    // حذف جميع سجلات analytics_events
     const { error: err1 } = await supabase
       .from('analytics_events')
       .delete()
-      .neq('id', '00000000-0000-0000-0000-000000000000');
+      .gte('created_at', '2000-01-01'); // شرط يضمن حذف كل الصفوف
     if (err1) throw err1;
-    // إعادة تعيين النقاط لجميع المدرسين إلى صفر
+
+    // إعادة تعيين نقاط المدرسين إلى صفر
     const { error: err2 } = await supabase
       .from('teachers')
       .update({ points: 0 })
-      .neq('id', '00000000-0000-0000-0000-000000000000');
+      .gte('created_at', '2000-01-01');
     if (err2) throw err2;
-    // إعادة تعيين الإحصائيات في الواجهة
+
+    // إعادة تعيين الـ state محلياً
     ST.analytics = { byTeacher:{}, byAd:{}, monthly:{}, total:0, uniqueSessions:0 };
-    renderDashboard();
-    renderAnalytics();
-    showToast('✅ تم مسح جميع الإحصائيات وإعادة تعيين النقاط', 'success');
+    ST.subs = [...ST.subs]; // لا تمسح الاشتراكات
+
+    // إعادة تحميل كل البيانات من Supabase
+    await loadAll();
+
+    showToast('✅ تم مسح جميع الإحصائيات وإعادة تعيين النقاط بنجاح', 'success');
   } catch(e) {
-    console.error(e);
-    showToast('❌ فشل مسح الإحصائيات: ' + e.message, 'error');
+    console.error('Reset error:', e);
+    showToast('❌ فشل مسح الإحصائيات: ' + (e.message || String(e)), 'danger');
+  } finally {
+    if (btn) { btn.disabled = false; btn.textContent = '🔄 تصفير'; }
   }
 }
 

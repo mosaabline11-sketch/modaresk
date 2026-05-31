@@ -989,6 +989,29 @@
             <div id="rewards-admin-list" style="padding: 20px"></div>
           </div>
         </div>
+
+        <!-- ── Achievements Pane ── -->
+        <div class="admin-pane" id="pane-achievements">
+          <div class="admin-header">
+            <h1>🏆 إنجازات المدرسين</h1>
+            <p>عرض الإنجازات المحققة لكل مدرس بناءً على بياناته الحقيقية</p>
+          </div>
+          <div id="achievements-content">
+            <div class="loading-spinner" style="padding:30px"><div class="spinner-lg"></div></div>
+          </div>
+        </div>
+
+        <!-- ── Challenges Pane ── -->
+        <div class="admin-pane" id="pane-challenges">
+          <div class="admin-header">
+            <h1>🎯 تحديات المنصة</h1>
+            <p>متابعة تقدم المدرسين في التحديات النشطة</p>
+          </div>
+          <div id="challenges-content">
+            <div class="loading-spinner" style="padding:30px"><div class="spinner-lg"></div></div>
+          </div>
+        </div>
+
       </main>
     </div>
 
@@ -2263,37 +2286,99 @@
       }
 
       async function renewTeacher(teacherId, planType = "monthly_40") {
-        const plan = getPlan(planType);
-        const start = new Date().toISOString().slice(0, 10);
-        const end = addMonthsToDate(start, plan.months);
-        confirmDialog(
-          `تجديد الحساب على ${plan.name} حتى ${end}؟ ستعود الإعلانات للظهور لو كانت مخفية بسبب انتهاء المدة.`,
-          async () => {
-            try {
-              const { error } = await supabase
-                .from("teachers")
-                .update({
-                  subscription_start: start,
-                  subscription_end: end,
-                  subscription_status: "active",
-                  is_active: true,
-                })
-                .eq("id", teacherId);
-              if (error) throw error;
-              showToast(
-                "تم تجديد الحساب وستعود الإعلانات للظهور ✅",
-                "success",
-              );
-              await Promise.all([
-                loadTeachers(),
-                loadOverview(),
-                loadAdminAnalytics(),
-              ]);
-            } catch (e) {
-              showToast(`خطأ: ${e.message}`, "danger");
-            }
-          },
-        );
+        // افتح نافذة التجديد المخصصة بدل confirmDialog البسيطة
+        openRenewModal(teacherId, planType);
+      }
+
+      // ── نافذة تجديد الاشتراك ──
+      let _renewTeacherId = null;
+      function openRenewModal(teacherId, planType) {
+        _renewTeacherId = teacherId;
+        const teacher = allTeachers.find(t => t.id === teacherId);
+        if (!teacher) return;
+
+        // تعبئة البيانات الافتراضية
+        document.getElementById('rn-teacher-name').textContent = teacher.name;
+        document.getElementById('rn-plan').value = planType || 'monthly_40';
+        document.getElementById('rn-price').value = getPlan(planType || 'monthly_40').price;
+        document.getElementById('rn-start').value = new Date().toISOString().slice(0,10);
+        onRenewPlanChange(); // حساب تاريخ الانتهاء تلقائياً
+
+        document.getElementById('renew-modal').classList.add('open');
+        document.body.style.overflow = 'hidden';
+      }
+
+      function onRenewPlanChange() {
+        const plan  = getPlan(document.getElementById('rn-plan').value);
+        const start = document.getElementById('rn-start').value || new Date().toISOString().slice(0,10);
+        document.getElementById('rn-price').value = plan.price;
+        document.getElementById('rn-end').value   = addMonthsToDate(start, plan.months);
+      }
+
+      function onRenewStartChange() {
+        const plan  = getPlan(document.getElementById('rn-plan').value);
+        const start = document.getElementById('rn-start').value;
+        if (start) document.getElementById('rn-end').value = addMonthsToDate(start, plan.months);
+      }
+
+      async function submitRenew() {
+        const plan   = document.getElementById('rn-plan').value;
+        const start  = document.getElementById('rn-start').value;
+        const end    = document.getElementById('rn-end').value;
+        const price  = document.getElementById('rn-price').value;
+        const notes  = document.getElementById('rn-notes').value.trim();
+
+        if (!start || !end) { showToast('يرجى تحديد تاريخ البداية والنهاية', 'warning'); return; }
+
+        const btn = document.getElementById('rn-submit-btn');
+        btn.disabled = true;
+        btn.textContent = 'جارٍ الحفظ...';
+
+        try {
+          const planObj = getPlan(plan);
+          const { error } = await supabase.from('teachers').update({
+            plan_type:           plan,
+            subscription_start:  start,
+            subscription_end:    end,
+            subscription_status: 'active',
+            is_active:           true,
+            allow_basic_stats:   planObj.basic_stats    || document.getElementById('rn-basic-stats').checked,
+            allow_advanced_stats:planObj.advanced_stats || document.getElementById('rn-adv-stats').checked,
+            allow_unlimited_edits:planObj.unlimited_edits || document.getElementById('rn-unlimited').checked,
+            allow_fast_support:  planObj.fast_support   || document.getElementById('rn-fast-support').checked,
+          }).eq('id', _renewTeacherId);
+          if (error) throw error;
+
+          // حفظ في جدول الاشتراكات المالية إن وُجد
+          const teacherObj = allTeachers.find(t => t.id === _renewTeacherId);
+          if (teacherObj) {
+            await supabase.from('fin_subscriptions').insert({
+              teacher_id:     _renewTeacherId,
+              teacher_name:   teacherObj.name,
+              plan_type:      plan === 'monthly_40' ? 'monthly' : plan === 'quarter_100' ? '3months' : '9months',
+              price:          parseFloat(price) || planObj.price,
+              addons_price:   0,
+              addons:         [],
+              start_date:     start,
+              end_date:       end,
+              client_type:    'renewed',
+              client_source:  'other',
+              payment_method: 'cash',
+              payment_status: 'paid',
+              notes:          notes,
+            }).select();
+          }
+
+          document.getElementById('renew-modal').classList.remove('open');
+          document.body.style.overflow = '';
+          showToast('تم تجديد الاشتراك وحفظ البيانات ✅', 'success');
+          await Promise.all([loadTeachers(), loadOverview()]);
+        } catch(e) {
+          showToast('خطأ في التجديد: ' + e.message, 'danger');
+        } finally {
+          btn.disabled = false;
+          btn.textContent = '💾 حفظ التجديد';
+        }
       }
 
       // ── Site Settings ──
@@ -2706,11 +2791,161 @@
           .querySelectorAll(".admin-sidebar .sidebar-nav a")
           .forEach((a) => a.classList.remove("active"));
         if (linkEl) linkEl.classList.add("active");
-        if (paneId === "pane-analytics") loadAdminAnalytics();
+        if (paneId === "pane-analytics")     loadAdminAnalytics();
         if (paneId === "pane-notifications") loadNotifications();
-        if (paneId === "pane-events") loadEvents();
-        if (paneId === "pane-rewards") loadRewards();
+        if (paneId === "pane-events")        loadEvents();
+        if (paneId === "pane-rewards")       loadRewards();
+        if (paneId === "pane-achievements")  loadAdminAchievements();
+        if (paneId === "pane-challenges")    loadAdminChallenges();
         return false;
+      }
+
+      /* ── إنجازات المدرسين من البيانات الحقيقية ── */
+      async function loadAdminAchievements() {
+        const box = document.getElementById('achievements-content');
+        if (!box) return;
+        box.innerHTML = '<div class="loading-spinner" style="padding:30px"><div class="spinner-lg"></div></div>';
+        try {
+          const [{ data: teachers }, { data: analytics }, { data: ads }] = await Promise.all([
+            supabase.from('teachers').select('id,name,points,created_at').order('points',{ascending:false}),
+            supabase.from('analytics_events').select('teacher_id,event_type').limit(5000),
+            supabase.from('ads').select('teacher_id,main_image_url,description,status')
+          ]);
+
+          if (!teachers || !teachers.length) {
+            box.innerHTML = `<div class="panel"><div style="padding:40px;text-align:center">
+              <div style="font-size:3rem;margin-bottom:12px">🏆</div>
+              <div style="font-weight:700;font-size:1.1rem;margin-bottom:8px">لا يوجد مدرسون بعد</div>
+              <div style="color:var(--text-muted);font-size:.9rem">أضف مدرسين لعرض إنجازاتهم هنا</div>
+            </div></div>`;
+            return;
+          }
+
+          const evByT = {};
+          (analytics||[]).forEach(e => {
+            if (!evByT[e.teacher_id]) evByT[e.teacher_id] = [];
+            evByT[e.teacher_id].push(e.event_type);
+          });
+
+          const adsByT = {};
+          (ads||[]).forEach(a => {
+            if (!adsByT[a.teacher_id]) adsByT[a.teacher_id] = [];
+            adsByT[a.teacher_id].push(a);
+          });
+
+          const ACHIEVEMENTS = [
+            {id:'first_ad',   icon:'🚀', title:'الانطلاقة',      check: (ev,ads,pts) => ads.length>0},
+            {id:'first_wa',   icon:'💬', title:'أول تواصل',      check: (ev) => ev.includes('whatsapp_click')},
+            {id:'100_views',  icon:'👁', title:'مئة عين',        check: (ev) => ev.filter(e=>e==='ad_card_view').length>=100},
+            {id:'500_views',  icon:'🏆', title:'نصف الألف',      check: (ev) => ev.filter(e=>e==='ad_card_view').length>=500},
+            {id:'img_ad',     icon:'📸', title:'إعلان بصورة',    check: (ev,ads) => ads.some(a=>a.main_image_url)},
+            {id:'10_wa',      icon:'🎯', title:'10 تواصل',       check: (ev) => ev.filter(e=>e==='whatsapp_click').length>=10},
+            {id:'lv_2',       icon:'🚀', title:'مستوى صاعد',     check: (ev,ads,pts) => pts>=500},
+            {id:'lv_3',       icon:'⭐', title:'مستوى متقدم',    check: (ev,ads,pts) => pts>=2000},
+          ];
+
+          box.innerHTML = `
+            <div style="display:grid;gap:16px">
+              ${teachers.map(t => {
+                const ev   = evByT[t.id] || [];
+                const tAds = adsByT[t.id] || [];
+                const pts  = t.points || 0;
+                const unlocked = ACHIEVEMENTS.filter(a => a.check(ev, tAds, pts));
+                const pct = Math.round((unlocked.length / ACHIEVEMENTS.length) * 100);
+                return `<div class="panel">
+                  <div class="panel-header">
+                    <div>
+                      <span class="panel-title">${escapeHtml(t.name)}</span>
+                      <span style="margin-right:8px;font-size:.8rem;color:var(--text-muted)">${unlocked.length}/${ACHIEVEMENTS.length} إنجاز • ${pts} نقطة</span>
+                    </div>
+                    <div style="display:flex;align-items:center;gap:10px">
+                      <div style="width:100px;height:8px;border-radius:50px;background:#F1F5F9;overflow:hidden">
+                        <div style="height:100%;border-radius:50px;background:${pct>=80?'#0EA672':pct>=50?'#F59E0B':'#2563EB'};width:${pct}%"></div>
+                      </div>
+                      <span style="font-size:.78rem;font-weight:700;color:${pct>=80?'#0EA672':pct>=50?'#F59E0B':'#2563EB'}">${pct}%</span>
+                    </div>
+                  </div>
+                  <div style="padding:14px 20px;display:flex;flex-wrap:wrap;gap:8px">
+                    ${ACHIEVEMENTS.map(a => {
+                      const done = a.check(ev, tAds, pts);
+                      return `<span style="padding:4px 12px;border-radius:50px;font-size:.78rem;font-weight:600;background:${done?'#DCFCE7':'#F1F5F9'};color:${done?'#065F46':'#94A3B8'};border:1px solid ${done?'#A7F3D0':'#E2E8F0'}">
+                        ${a.icon} ${a.title} ${done?'✓':''}
+                      </span>`;
+                    }).join('')}
+                  </div>
+                </div>`;
+              }).join('')}
+            </div>`;
+        } catch(e) {
+          box.innerHTML = `<div class="alert alert-danger">❌ تعذّر تحميل الإنجازات: ${escapeHtml(e.message)}</div>`;
+        }
+      }
+
+      /* ── تحديات المنصة من البيانات الحقيقية ── */
+      async function loadAdminChallenges() {
+        const box = document.getElementById('challenges-content');
+        if (!box) return;
+        box.innerHTML = '<div class="loading-spinner" style="padding:30px"><div class="spinner-lg"></div></div>';
+        try {
+          const today   = new Date().toISOString().slice(0,10);
+          const weekAgo = new Date(Date.now()-7*86400000).toISOString();
+
+          const [{ data: teachers }, { data: analytics }] = await Promise.all([
+            supabase.from('teachers').select('id,name,points').order('name'),
+            supabase.from('analytics_events').select('teacher_id,event_type,created_at')
+              .gte('created_at', weekAgo).order('created_at',{ascending:false})
+          ]);
+
+          if (!teachers || !teachers.length) {
+            box.innerHTML = `<div class="panel"><div style="padding:40px;text-align:center">
+              <div style="font-size:3rem;margin-bottom:12px">🎯</div>
+              <div style="font-weight:700;font-size:1.1rem;margin-bottom:8px">لا يوجد مدرسون بعد</div>
+              <div style="color:var(--text-muted);font-size:.9rem">أضف مدرسين لعرض تحدياتهم هنا</div>
+            </div></div>`;
+            return;
+          }
+
+          const CHALLENGES = [
+            {title:'20 مشاهدة اليوم',       metric:'ad_card_view',   target:20, period:'daily',  icon:'👁',  color:'#2563EB'},
+            {title:'3 تواصل هذا الأسبوع',   metric:'whatsapp_click', target:3,  period:'weekly', icon:'💬',  color:'#059669'},
+            {title:'5 فتح تفاصيل اليوم',    metric:'ad_detail_view', target:5,  period:'daily',  icon:'🔍',  color:'#0EA5E9'},
+          ];
+
+          box.innerHTML = `
+            <div style="overflow-x:auto">
+              <table class="table">
+                <thead><tr>
+                  <th>المدرس</th>
+                  ${CHALLENGES.map(c=>`<th style="white-space:nowrap">${c.icon} ${c.title}</th>`).join('')}
+                  <th>النقاط</th>
+                </tr></thead>
+                <tbody>
+                ${teachers.map(t => {
+                  const ev = (analytics||[]).filter(e => e.teacher_id===t.id);
+                  const row = CHALLENGES.map(c => {
+                    let prog = 0;
+                    if (c.period==='daily')  prog = ev.filter(e=>e.event_type===c.metric && (e.created_at||'').startsWith(today)).length;
+                    if (c.period==='weekly') prog = ev.filter(e=>e.event_type===c.metric).length;
+                    const pct = Math.min(Math.round((prog/c.target)*100),100);
+                    const done = prog >= c.target;
+                    return `<td>
+                      <div style="display:flex;align-items:center;gap:8px">
+                        <div style="width:60px;height:6px;border-radius:50px;background:#F1F5F9;overflow:hidden;flex-shrink:0">
+                          <div style="height:100%;border-radius:50px;background:${done?'#0EA672':c.color};width:${pct}%"></div>
+                        </div>
+                        <span style="font-size:.78rem;font-weight:600;color:${done?'#0EA672':'#475569'}">${prog}/${c.target}</span>
+                        ${done?'<span style="color:#0EA672;font-size:.8rem">✅</span>':''}
+                      </div>
+                    </td>`;
+                  }).join('');
+                  return `<tr><td><strong>${escapeHtml(t.name)}</strong></td>${row}<td><strong style="color:var(--primary)">${t.points||0}</strong></td></tr>`;
+                }).join('')}
+                </tbody>
+              </table>
+            </div>`;
+        } catch(e) {
+          box.innerHTML = `<div class="alert alert-danger">❌ تعذّر تحميل التحديات: ${escapeHtml(e.message)}</div>`;
+        }
       }
 
       function openModal(id) {
@@ -3002,13 +3237,92 @@
       }
 
       // Close new modals on overlay click
-      ["event-modal", "reward-modal"].forEach((id) => {
+      ["event-modal", "reward-modal", "renew-modal"].forEach((id) => {
         const el = document.getElementById(id);
         if (el)
           el.addEventListener("click", (e) => {
-            if (e.target === el) closeModal(id);
+            if (e.target === el) {
+              el.classList.remove('open');
+              document.body.style.overflow = '';
+            }
           });
       });
     </script>
+
+    <!-- ── Renew Subscription Modal ── -->
+    <div class="modal-overlay" id="renew-modal">
+      <div class="modal" style="max-width:520px">
+        <div class="modal-header">
+          <div>
+            <h3 class="modal-title">🔄 تجديد اشتراك المدرس</h3>
+            <div id="rn-teacher-name" style="font-size:.85rem;color:var(--text-muted);margin-top:2px"></div>
+          </div>
+          <button class="modal-close" onclick="document.getElementById('renew-modal').classList.remove('open');document.body.style.overflow=''">✕</button>
+        </div>
+        <div class="modal-body">
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+
+            <div class="form-group">
+              <label class="form-label">نوع الباقة *</label>
+              <select id="rn-plan" class="form-control form-select" onchange="onRenewPlanChange()">
+                <option value="monthly_40">باقة الشهر — 40 جنيه</option>
+                <option value="quarter_100">باقة 3 شهور — 100 جنيه</option>
+                <option value="nine_months_300">باقة 9 شهور — 300 جنيه</option>
+                <option value="custom">مخصصة</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">السعر المدفوع (جنيه)</label>
+              <input type="number" id="rn-price" class="form-control" min="0" placeholder="0">
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">تاريخ البداية *</label>
+              <input type="date" id="rn-start" class="form-control" onchange="onRenewStartChange()">
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">تاريخ الانتهاء *</label>
+              <input type="date" id="rn-end" class="form-control">
+            </div>
+
+            <div class="form-group" style="grid-column:1/-1">
+              <label class="form-label">مميزات إضافية مع التجديد</label>
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:4px;font-size:.88rem">
+                <label style="display:flex;align-items:center;gap:6px;cursor:pointer">
+                  <input type="checkbox" id="rn-basic-stats"> إحصائيات بسيطة
+                </label>
+                <label style="display:flex;align-items:center;gap:6px;cursor:pointer">
+                  <input type="checkbox" id="rn-adv-stats"> إحصائيات متقدمة
+                </label>
+                <label style="display:flex;align-items:center;gap:6px;cursor:pointer">
+                  <input type="checkbox" id="rn-unlimited"> تعديل غير محدود
+                </label>
+                <label style="display:flex;align-items:center;gap:6px;cursor:pointer">
+                  <input type="checkbox" id="rn-fast-support"> دعم أسرع
+                </label>
+              </div>
+            </div>
+
+            <div class="form-group" style="grid-column:1/-1">
+              <label class="form-label">ملاحظات (اختياري)</label>
+              <textarea id="rn-notes" class="form-control" rows="2" placeholder="تفاصيل إضافية عن التجديد..."></textarea>
+            </div>
+
+          </div>
+
+          <div style="background:var(--primary-bg);border-radius:var(--radius-sm);padding:10px 14px;font-size:.82rem;color:var(--primary-dark);margin-top:4px">
+            💡 سيتم تحديث بيانات اشتراك المدرس وحفظ سجل في لوحة الإدارة المالية تلقائياً
+          </div>
+
+          <div style="display:flex;gap:10px;justify-content:flex-end;margin-top:16px">
+            <button class="btn btn-ghost" onclick="document.getElementById('renew-modal').classList.remove('open');document.body.style.overflow=''">إلغاء</button>
+            <button class="btn btn-primary" id="rn-submit-btn" onclick="submitRenew()">💾 حفظ التجديد</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
   </body>
 </html>

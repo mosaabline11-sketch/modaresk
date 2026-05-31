@@ -395,23 +395,51 @@ function lockedFeatureHtml(title, requiredPlan = 'باقة أعلى') {
 // ── Session ID للزوار الفريدين ──
 // يُولَّد مرة واحدة لكل جلسة متصفح ويُحفظ في sessionStorage
 function getSessionId() {
-  const KEY = 'mdrsk_sid';
-  const KEY_EXP = 'mdrsk_sid_exp';
+  // مفتاح دائم للجهاز (Unique Visitor) - لا يتجدد
+  const DEVICE_KEY = 'mdrsk_did'; // device id - ثابت دائماً
+  // مفتاح الجلسة اليومية لاحتساب الزيارات اليومية
+  const SESSION_KEY = 'mdrsk_sid';
+  const SESSION_EXP = 'mdrsk_sid_exp';
+
+  function makeUUID() {
+    return ([1e7]+-1e3+-4e3+-8e3+-1e11).replace(/[018]/g, c =>
+      (c ^ crypto.getRandomValues(new Uint8Array(1))[0] & 15 >> c / 4).toString(16));
+  }
+
   try {
-    const exp = parseInt(localStorage.getItem(KEY_EXP) || '0');
+    // Device ID: ثابت للجهاز نفسه، لا يتغير أبداً
+    let deviceId = localStorage.getItem(DEVICE_KEY);
+    if (!deviceId) {
+      deviceId = makeUUID();
+      localStorage.setItem(DEVICE_KEY, deviceId);
+    }
+
+    // Session ID: يتجدد كل 30 دقيقة (جلسة حقيقية)
+    const exp = parseInt(localStorage.getItem(SESSION_EXP) || '0');
     const now = Date.now();
-    let sid = localStorage.getItem(KEY);
-    // رينيو كل 24 ساعة فقط — نفس الجهاز لا يُعدّ زائرًا جديدًا خلال نفس اليوم
+    let sid = localStorage.getItem(SESSION_KEY);
     if (!sid || now > exp) {
-      sid = ([1e7]+-1e3+-4e3+-8e3+-1e11).replace(/[018]/g, c =>
-        (c ^ crypto.getRandomValues(new Uint8Array(1))[0] & 15 >> c / 4).toString(16));
-      localStorage.setItem(KEY, sid);
-      localStorage.setItem(KEY_EXP, String(now + 86400000)); // 24h
+      sid = deviceId + '_' + now.toString(36);
+      localStorage.setItem(SESSION_KEY, sid);
+      localStorage.setItem(SESSION_EXP, String(now + 30 * 60 * 1000)); // 30 دقيقة
     }
     return sid;
   } catch (_) {
-    // fallback لو localStorage محجوب
-    return 'anon_' + Math.random().toString(36).slice(2);
+    // Fallback بدون localStorage: استخدم fingerprint بسيط
+    const fp = navigator.userAgent.length + '_' + screen.width + '_' + screen.height;
+    return 'fp_' + fp.split('').reduce((a,c) => (a*31 + c.charCodeAt(0)) & 0xFFFFFF, 0).toString(36);
+  }
+}
+
+/* إحصاء الزوار الفريدين - يعتمد على device_id لا session_id */
+function getDeviceId() {
+  try {
+    let did = localStorage.getItem('mdrsk_did');
+    if (!did) { did = getSessionId(); } // يُنشئ did ضمنياً
+    return localStorage.getItem('mdrsk_did') || did;
+  } catch(_) {
+    const fp = navigator.userAgent.length + '_' + screen.width;
+    return 'fp_' + fp.split('').reduce((a,c) => (a*31 + c.charCodeAt(0)) & 0xFFFFFF, 0).toString(36);
   }
 }
 
