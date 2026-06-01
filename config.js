@@ -602,13 +602,45 @@ async function _getPointsConfig() {
   return result;
 }
 
-// ── trackEvent المحمي بنظام AntiSpam ──
+// ── مفاتيح التكرار اليومي للمشاهدات ──
+const _viewedToday = {
+  _key(adId, eventType) {
+    const today = new Date().toISOString().slice(0,10);
+    return `mdrsk_vt_${eventType}_${adId || 'null'}_${today}`;
+  },
+  check(adId, eventType) {
+    try { return !!localStorage.getItem(this._key(adId, eventType)); } catch(_) { return false; }
+  },
+  mark(adId, eventType) {
+    try { localStorage.setItem(this._key(adId, eventType), '1'); } catch(_) {}
+  },
+  // تنظيف مفاتيح من أمس وما قبل
+  cleanup() {
+    try {
+      const today = new Date().toISOString().slice(0,10);
+      for (let i = localStorage.length - 1; i >= 0; i--) {
+        const k = localStorage.key(i);
+        if (k && k.startsWith('mdrsk_vt_') && !k.includes(today)) localStorage.removeItem(k);
+      }
+    } catch(_) {}
+  }
+};
+try { _viewedToday.cleanup(); } catch(_) {}
+
+// ── trackEvent المحمي بنظام AntiSpam + مشاهدات حقيقية ──
 async function trackEvent(eventType, payload = {}) {
   try {
     if (!window.supabase || !eventType) return;
 
     const teacherId = payload.teacher_id || null;
     const adId      = payload.ad_id      || null;
+
+    // ── فلتر المشاهدات: مرة واحدة في اليوم لكل إعلان لكل جهاز ──
+    const VIEW_EVENTS = ['ad_card_view','ad_detail_view'];
+    if (VIEW_EVENTS.includes(eventType) && adId) {
+      if (_viewedToday.check(adId, eventType)) return; // سبق تسجيلها اليوم
+      _viewedToday.mark(adId, eventType);
+    }
 
     // ── فحص AntiSpam قبل أي عملية ──
     const verdict = AntiSpam.check(eventType, teacherId, adId);
@@ -633,7 +665,7 @@ async function trackEvent(eventType, payload = {}) {
         const cfg   = await _getPointsConfig();
         const delta = cfg[eventType] || 0;
         if (delta > 0) {
-          AntiSpam.trackLocalPts(teacherId, delta); // تسجيل محلي لمراقبة الحد اليومي
+          AntiSpam.trackLocalPts(teacherId, delta);
           await incrementTeacherPoints(teacherId, delta);
         }
       } catch (_) {}
@@ -973,16 +1005,29 @@ function timeAgo(dateStr) {
 }
 
 // ── Points Helpers ──
-// يعمل على زيادة نقاط المدرس عند حدوث تفاعل (عرض بطاقة، ضغط على واتساب، إلخ)
-// تُخزَّن نقاط المدرس في عمود "points" في جدول teachers
+// نظام النقاط المزدوج:
+//   XP (xp)           : نقاط الخبرة — تحدد المستوى، لا تنقص أبداً
+//   RP (reward_points) : نقاط المكافآت — قابلة للصرف، تُضاف مع XP وتُخصم عند الاسترداد
+//   points             : legacy = XP (للتوافق مع الكود القديم)
 async function incrementTeacherPoints(teacherId, delta = 1) {
   if (!window.supabase || !teacherId) return;
   try {
-    const { data: current, error: err1 } = await window.supabase.from('teachers').select('points').eq('id', teacherId).maybeSingle();
-    // إذا حدث خطأ في جلب النقاط الحالية، نتابع دون تحديث
+    const { data: current, error: err1 } = await window.supabase
+      .from('teachers')
+      .select('points,xp,reward_points')
+      .eq('id', teacherId)
+      .maybeSingle();
     if (err1) return;
-    const newPoints = (current?.points || 0) + Number(delta || 0);
-    await window.supabase.from('teachers').update({ points: newPoints }).eq('id', teacherId);
+    const d = Number(delta || 0);
+    // XP: لا ينقص أبداً
+    const newXP = (current?.xp ?? current?.points ?? 0) + d;
+    // Reward Points: يُضاف مع كل نشاط ويمكن خصمه عند الاسترداد
+    const newRP = (current?.reward_points ?? current?.xp ?? current?.points ?? 0) + d;
+    await window.supabase.from('teachers').update({
+      points: newXP,       // legacy compat
+      xp: newXP,           // نقاط الخبرة
+      reward_points: newRP, // نقاط المكافآت
+    }).eq('id', teacherId);
   } catch (_) {
     // نتجاهل الخطأ حتى لا نؤثر على تدفق التطبيق
   }

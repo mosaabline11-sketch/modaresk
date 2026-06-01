@@ -63,6 +63,7 @@
 .amc-price{font-weight:700;color:var(--primary);font-family:'Cairo',sans-serif;font-size:1.05rem}
 .profile-form-card{background:white;border-radius:var(--radius-lg);border:1px solid var(--border);padding:28px;box-shadow:var(--shadow-sm);overflow-x:hidden;overflow-wrap:anywhere;word-break:break-word}
 .form-row{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+@media(max-width:480px){.form-row{grid-template-columns:1fr!important}}
 /* ── Tabs scroll with fade indicator ── */
 .dash-tabs-wrap{position:relative;margin-bottom:24px}
 .dash-tabs{display:flex;border-bottom:2px solid var(--border);overflow-x:auto;scrollbar-width:none;scroll-behavior:smooth;-webkit-overflow-scrolling:touch}
@@ -151,7 +152,7 @@
 .ch-bar-f{height:100%;border-radius:50px;transition:width .6s}
 /* leaderboard */
 .lb-row{display:flex;align-items:center;gap:13px;padding:12px 15px;border-radius:11px;margin-bottom:7px}
-.lb-av{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;color:white;font-weight:700;font-size:.88rem;flex-shrink:0;font-family:'Cairo',sans-serif}
+.lb-av{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;color:white;font-weight:700;font-size:.88rem;flex-shrink:0;font-family:'Cairo',sans-serif;overflow:hidden}
 /* per-ad stats */
 .per-ad-stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:14px}
 .per-ad-stat-card{background:var(--bg-light);border:1px solid var(--border);border-radius:var(--radius-md);padding:14px;box-shadow:var(--shadow-sm)}
@@ -167,6 +168,7 @@
   .mini-stats{grid-template-columns:1fr 1fr}
   .ach-grid,.ch-grid{grid-template-columns:1fr}
   .tw-right{width:100%;display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+@media(max-width:360px){.tw-right{grid-template-columns:repeat(2,1fr)!important}}
   .tw-card{min-width:0;padding:10px 8px}
   .tw-card-val{font-size:1.1rem}
   .per-ad-stats-grid{grid-template-columns:1fr}
@@ -243,12 +245,20 @@
           </div>
           <div class="tw-card-lbl">هدف: 100 نقطة</div>
         </div>
-        <!-- total points -->
-        <div class="tw-card">
+        <!-- XP (never decreases — determines level) -->
+        <div class="tw-card" title="نقاط الخبرة — تحدد مستواك ولا تنقص أبداً">
           <div class="tw-card-icon">⭐</div>
-          <div class="tw-card-val" id="teacher-points">0</div>
-          <div class="tw-card-lbl">نقطة إجمالي</div>
+          <div class="tw-card-val" id="teacher-xp">0</div>
+          <div class="tw-card-lbl">XP خبرة</div>
         </div>
+        <!-- Reward Points (spendable) -->
+        <div class="tw-card" title="نقاط المكافآت — يمكن صرفها على جوائز">
+          <div class="tw-card-icon">🎁</div>
+          <div class="tw-card-val" id="teacher-rp">0</div>
+          <div class="tw-card-lbl">نقاط مكافأة</div>
+        </div>
+        <!-- keep teacher-points hidden for backward compat -->
+        <span id="teacher-points" style="display:none">0</span>
         <!-- rank -->
         <div class="tw-card" id="rank-card" style="display:none">
           <div class="tw-card-icon">🏆</div>
@@ -322,7 +332,7 @@
         <div class="gam-scard" style="background:#EFF6FF;border-color:#BFDBFE">
           <div class="gam-scard-top"><span style="font-size:1.35rem">👁</span><span class="gam-chg" id="gsc-views-chg" style="display:none"></span></div>
           <div class="gam-scard-val" style="color:#2563EB" id="gsc-views">0</div>
-          <div class="gam-scard-lbl">المشاهدات الإجمالية</div>
+          <div class="gam-scard-lbl">مشاهدات الإعلانات (فريدة/يوم)</div>
         </div>
         <div class="gam-scard" style="background:#E6FDF5;border-color:#A7F3D0">
           <div class="gam-scard-top"><span style="font-size:1.35rem">🔍</span></div>
@@ -343,6 +353,16 @@
           <div class="gam-scard-top"><span style="font-size:1.35rem">📋</span></div>
           <div class="gam-scard-val" style="color:#7C3AED" id="gsc-ads">0</div>
           <div class="gam-scard-lbl">الإعلانات النشطة</div>
+        </div>
+        <div class="gam-scard" style="background:#FFF7ED;border-color:#FED7AA" title="نقاط الخبرة — لا تنقص أبداً">
+          <div class="gam-scard-top"><span style="font-size:1.35rem">⭐</span></div>
+          <div class="gam-scard-val" style="color:#EA580C" id="gsc-xp">0</div>
+          <div class="gam-scard-lbl">نقاط الخبرة (XP)</div>
+        </div>
+        <div class="gam-scard" style="background:#FEF3C7;border-color:#FDE68A" title="نقاط المكافآت — يمكن صرفها">
+          <div class="gam-scard-top"><span style="font-size:1.35rem">🎁</span></div>
+          <div class="gam-scard-val" style="color:#B45309" id="gsc-rp">0</div>
+          <div class="gam-scard-lbl">نقاط المكافآت (قابلة للصرف)</div>
         </div>
       </div>
 
@@ -498,7 +518,7 @@
   <div class="dash-pane" id="tab-leaderboard">
     <div class="profile-form-card">
       <h3 style="font-family:'Cairo',sans-serif;font-weight:700;margin-bottom:6px">🏆 لوحة الشرف</h3>
-      <div style="font-size:.82rem;color:var(--text-secondary);margin-bottom:20px">ترتيب المدرسين حسب النقاط الإجمالية</div>
+      <div style="font-size:.82rem;color:var(--text-secondary);margin-bottom:20px">ترتيب المدرسين حسب نقاط الخبرة (XP) — لا تتأثر بالاسترداد</div>
       <div id="leaderboard-content"><div class="loading-spinner"><div class="spinner-lg"></div></div></div>
     </div>
   </div>
@@ -524,12 +544,17 @@
     <div class="profile-form-card">
       <h3 style="font-family:'Cairo',sans-serif;font-weight:700;margin-bottom:12px">🏆 استرداد النقاط</h3>
       <div id="rewards-tiers-content"><div class="loading-spinner"><div class="spinner-lg"></div></div></div>
-      <div class="alert alert-info mt-16">
-        💬 لاسترداد مكافأتك، تواصل مع الإدارة عبر واتساب وأذكر عدد نقاطك الحالية.
-        <br><a href="#" data-admin-contact data-message="مرحبًا، أريد استرداد نقاطي في منصة مدرسك" class="btn btn-primary btn-sm mt-8">تواصل مع الإدارة</a>
+      <div class="alert alert-info mt-16" style="flex-direction:column;gap:8px;align-items:flex-start">
+        <div>💬 لاسترداد مكافأتك، تواصل مع الإدارة عبر واتساب وأذكر عدد نقاط المكافأة لديك.</div>
+        <div style="background:rgba(37,99,235,.08);border-radius:8px;padding:10px 14px;font-size:.82rem;color:#1D4ED8;width:100%">
+          ✅ <strong>مهم:</strong> صرف نقاط المكافأة لا يؤثر على مستواك أو نقاط الخبرة (XP) أبداً.
+        </div>
+        <a href="#" data-admin-contact data-message="مرحبًا، أريد استرداد نقاطي في منصة مدرسك" class="btn btn-primary btn-sm">تواصل مع الإدارة</a>
       </div>
       <div class="mt-16" style="background:var(--primary-bg);border:1px solid var(--primary-border);border-radius:var(--radius-md);padding:14px">
-        <div style="font-size:.9rem;font-weight:700">نقاطك الحالية: <span id="events-points-display" style="color:var(--primary);font-family:Cairo,sans-serif;font-size:1.2rem">0</span> نقطة</div>
+        <div style="font-size:.9rem;font-weight:700;margin-bottom:8px">⭐ نقاط الخبرة (XP): <span id="events-xp-display" style="color:var(--primary);font-family:Cairo,sans-serif;font-size:1.1rem">0</span></div>
+        <div style="font-size:.9rem;font-weight:700">🎁 نقاط المكافآت (قابلة للصرف): <span id="events-points-display" style="color:#F59E0B;font-family:Cairo,sans-serif;font-size:1.2rem">0</span></div>
+        <div style="font-size:.78rem;color:var(--text-muted);margin-top:6px">⚠️ صرف المكافآت لا يؤثر على مستواك أو XP</div>
       </div>
     </div>
   </div>
@@ -692,7 +717,7 @@ async function loadTeacherData() {
   let data;
   try {
     const res = await supabase.from('teachers')
-      .select('name,bio,avatar_url,whatsapp,facebook,phone,contact_methods,ads_limit,is_active,plan_type,subscription_start,subscription_end,subscription_status,allow_basic_stats,allow_advanced_stats,allow_unlimited_edits,allow_fast_support,custom_features,points,created_at')
+      .select('name,bio,avatar_url,whatsapp,facebook,phone,contact_methods,ads_limit,is_active,plan_type,subscription_start,subscription_end,subscription_status,allow_basic_stats,allow_advanced_stats,allow_unlimited_edits,allow_fast_support,custom_features,points,xp,reward_points,created_at')
       .eq('id', teacher.id).single();
     if (res.error) throw res.error;
     data = res.data;
@@ -702,7 +727,7 @@ async function loadTeacherData() {
       const res2 = await supabase.from('teachers')
         .select('name,bio,avatar_url,whatsapp,facebook,phone,contact_methods,ads_limit,is_active,plan_type,subscription_start,subscription_end,subscription_status,allow_basic_stats,allow_advanced_stats,allow_unlimited_edits,allow_fast_support,custom_features')
         .eq('id', teacher.id).single();
-      data = res2.data; data.points = 0;
+      data = res2.data; data.points = 0; data.xp = 0; data.reward_points = 0;
     } else { console.error(err); return; }
   }
   if (!data) return;
@@ -720,7 +745,7 @@ async function loadTeacherData() {
   document.getElementById('p-phone').value            = data.phone || '';
   renderAvatarPreview(data.avatar_url || '');
   Object.assign(teacher, data);
-  Auth.setTeacherSession({...teacher, name: data.name || teacher.name});
+  Auth.setTeacherSession({...teacher, name: data.name || teacher.name, xp: data.xp ?? data.points ?? 0, reward_points: data.reward_points ?? data.xp ?? data.points ?? 0});
   document.getElementById('subscription-banner').innerHTML = subscriptionBannerHtml(teacher);
 
   // شارة المدرسين الأوائل في الهيرو
@@ -728,28 +753,46 @@ async function loadTeacherData() {
   if (earlyBadge) earlyBadge.style.display = data.is_early_adopter ? '' : 'none';
 
   renderFeatures();
-  const pts = typeof data.points === 'number' ? data.points : 0;
-  teacher.points = pts;
-  updateHeroGamification(pts);
+  // XP = experience (never decreases) — fallback to points if xp column absent
+  const xp = typeof data.xp === 'number' ? data.xp : (typeof data.points === 'number' ? data.points : 0);
+  // Reward Points = spendable (fallback to points if rp column absent)
+  const rp = typeof data.reward_points === 'number' ? data.reward_points : xp;
+  teacher.points = xp;   // keep legacy compat
+  teacher.xp = xp;
+  teacher.reward_points = rp;
+  updateHeroGamification(xp, rp);
 }
 
 /* ══ HERO GAMIFICATION UPDATE ══ */
-function updateHeroGamification(pts) {
+// pts = XP (experience points, never decreases)
+// rp  = Reward Points (spendable, separate from XP)
+function updateHeroGamification(pts, rp) {
+  // XP display
+  const xpEl = document.getElementById('teacher-xp');
+  if (xpEl) xpEl.textContent = pts.toLocaleString('ar-EG');
+  // Reward Points display
+  const rpEl = document.getElementById('teacher-rp');
+  if (rpEl) rpEl.textContent = (rp != null ? rp : pts).toLocaleString('ar-EG');
+  // legacy
   document.getElementById('teacher-points').textContent = pts.toLocaleString('ar-EG');
-  document.getElementById('events-points-display').textContent = pts.toLocaleString('ar-EG');
-  const cur  = GM_LEVELS.find(l => pts >= l.min && pts < l.max) || GM_LEVELS[GM_LEVELS.length-1];
-  const next = GM_LEVELS.find(l => l.min > pts);
+  // events tab
+  const evXpEl = document.getElementById('events-xp-display');
+  if (evXpEl) evXpEl.textContent = pts.toLocaleString('ar-EG');
+  document.getElementById('events-points-display').textContent = (rp != null ? rp : pts).toLocaleString('ar-EG');
+  const xpVal = pts; // pts here is XP passed from caller
+  const cur  = GM_LEVELS.find(l => xpVal >= l.min && xpVal < l.max) || GM_LEVELS[GM_LEVELS.length-1];
+  const next = GM_LEVELS.find(l => l.min > xpVal);
   document.getElementById('lv-icon').textContent  = cur.icon;
   document.getElementById('lv-name').textContent  = 'مستوى: ' + cur.name;
   document.getElementById('lv-dot').style.background = cur.color;
   document.getElementById('lv-cur').textContent   = cur.name;
   document.getElementById('lv-next').textContent  = next ? next.name : '—';
   const range = next ? (next.min - cur.min) : (cur.max - cur.min);
-  const pct   = next ? Math.min(Math.round(((pts - cur.min) / range) * 100), 100) : 100;
-  document.getElementById('lv-pts-lbl').textContent = `${pts.toLocaleString('ar-EG')} / ${next ? next.min.toLocaleString('ar-EG') : '∞'} نقطة`;
+  const pct   = next ? Math.min(Math.round(((xpVal - cur.min) / range) * 100), 100) : 100;
+  document.getElementById('lv-pts-lbl').textContent = `${xpVal.toLocaleString('ar-EG')} XP / ${next ? next.min.toLocaleString('ar-EG') : '∞'}`;
   document.getElementById('lv-prog-fill').style.width      = pct + '%';
   document.getElementById('lv-prog-fill').style.background = `linear-gradient(90deg,${cur.color},${next?next.color:cur.color})`;
-  document.getElementById('lv-prog-pct').textContent       = pct + '% للمستوى التالي';
+  document.getElementById('lv-prog-pct').textContent       = pct + '% للمستوى التالي (XP لا تنقص)';
 }
 
 function updateCircularGoal(todayPts) {
@@ -763,6 +806,26 @@ function updateCircularGoal(todayPts) {
   const arc = document.getElementById('circ-arc');
   if (todayPts >= max) { arc.setAttribute('stroke','#F59E0B'); }
   else { arc.setAttribute('stroke','#20C997'); }
+}
+
+// خصم نقاط المكافأة فقط (XP لا يتأثر أبداً)
+async function spendRewardPoints(teacherId, amount) {
+  if (!window.supabase || !teacherId || amount <= 0) return false;
+  try {
+    const { data: current, error } = await window.supabase
+      .from('teachers').select('xp,reward_points,points').eq('id', teacherId).maybeSingle();
+    if (error || !current) return false;
+    const currentRP = current.reward_points ?? current.xp ?? current.points ?? 0;
+    if (currentRP < amount) return false;
+    const newRP = currentRP - amount;
+    await window.supabase.from('teachers').update({ reward_points: newRP }).eq('id', teacherId);
+    teacher.reward_points = newRP;
+    const rpEl = document.getElementById('teacher-rp');
+    if (rpEl) rpEl.textContent = newRP.toLocaleString('ar-EG');
+    const evPtsEl = document.getElementById('events-points-display');
+    if (evPtsEl) evPtsEl.textContent = newRP.toLocaleString('ar-EG');
+    return true;
+  } catch (_) { return false; }
 }
 
 /* ══ LOAD ADS (original) ══ */
@@ -1047,6 +1110,16 @@ function renderFeatures() {
   const f = getTeacherFeatures(teacher);
   box.innerHTML = `
     ${subscriptionBannerHtml(teacher)}
+    <div style="background:linear-gradient(135deg,#0D1B4B,#1E3A8A);color:white;border-radius:14px;padding:16px 20px;margin-bottom:16px;display:flex;gap:12px;align-items:flex-start">
+      <span style="font-size:1.4rem;flex-shrink:0">ℹ️</span>
+      <div>
+        <div style="font-family:Cairo,sans-serif;font-weight:800;margin-bottom:6px">نظام النقاط المزدوج</div>
+        <div style="font-size:.82rem;color:rgba(255,255,255,.8);line-height:1.7">
+          ⭐ <strong>نقاط الخبرة (XP):</strong> تتراكم مع كل تفاعل وتحدد مستواك — <em>لا تنقص أبداً</em><br>
+          🎁 <strong>نقاط المكافآت:</strong> يمكن صرفها على جوائز دون التأثير على مستواك أو XP
+        </div>
+      </div>
+    </div>
     <div class="plan-grid">
       ${Object.values(PLAN_DEFINITIONS).map(plan => `
         <div class="plan-card ${plan.key===f.plan.key?'current':''}">
@@ -1112,6 +1185,13 @@ async function loadTeacherStats() {
     document.getElementById('gsc-wa').textContent         = totalWa.toLocaleString('ar-EG');
     document.getElementById('gsc-conv-rate').textContent  = convRate + '%';
     document.getElementById('gsc-ads').textContent        = teacherAds.filter(a => a.status==='active').length;
+    // XP و RP
+    const xpStat = teacher.xp || teacher.points || 0;
+    const rpStat = teacher.reward_points != null ? teacher.reward_points : xpStat;
+    const gscXp  = document.getElementById('gsc-xp');
+    const gscRp  = document.getElementById('gsc-rp');
+    if (gscXp) gscXp.textContent = xpStat.toLocaleString('ar-EG');
+    if (gscRp) gscRp.textContent = rpStat.toLocaleString('ar-EG');
 
     // نقاط اليوم الحقيقية
     const today = new Date().toISOString().slice(0,10);
@@ -1127,6 +1207,13 @@ async function loadTeacherStats() {
     );
     updateCircularGoal(todayPts);
 
+    // ── مزامنة XP + RP مع ما في قاعدة البيانات ──
+    // XP = مجموع كل النقاط المكتسبة تاريخياً (لا تنقص)
+    // RP = قابلة للصرف (محفوظة في reward_points)
+    const freshXP  = teacher.xp || teacher.points || 0;
+    const freshRP  = teacher.reward_points != null ? teacher.reward_points : freshXP;
+    updateHeroGamification(freshXP, freshRP);
+
     // حساب streak حقيقي
     const streak = calcStreak(gamEvents);
     document.getElementById('tw-streak').textContent = streak;
@@ -1138,24 +1225,29 @@ async function loadTeacherStats() {
     renderConversionSection(totalViews, totalWa, totalFb, totalContacts, convRate);
 
     // Insight banner
-    const pts = teacher.points || 0;
-    const cur  = GM_LEVELS.find(l => pts>=l.min && pts<l.max) || GM_LEVELS[GM_LEVELS.length-1];
-    const next = GM_LEVELS.find(l => l.min > pts);
-    const ptsToNext = next ? (next.min - pts) : 0;
-    document.getElementById('gam-insight-title').textContent = cur.icon + ' مستواك: ' + cur.name + ' — ' + pts.toLocaleString('ar-EG') + ' نقطة';
+    const xp  = teacher.xp || teacher.points || 0;
+    const rp  = teacher.reward_points != null ? teacher.reward_points : xp;
+    const pts = xp; // alias for backward compat
+    const cur  = GM_LEVELS.find(l => xp>=l.min && xp<l.max) || GM_LEVELS[GM_LEVELS.length-1];
+    const next = GM_LEVELS.find(l => l.min > xp);
+    const ptsToNext = next ? (next.min - xp) : 0;
+    document.getElementById('gam-insight-title').textContent = cur.icon + ' مستواك: ' + cur.name + ' — ' + xp.toLocaleString('ar-EG') + ' XP | 🎁 ' + rp.toLocaleString('ar-EG') + ' نقطة مكافأة';
     document.getElementById('gam-insight-sub').textContent = next
-      ? 'تحتاج ' + ptsToNext.toLocaleString('ar-EG') + ' نقطة للوصول لـ "' + next.name + ' ' + next.icon + '" | الحد اليومي: ' + DAILY_MAX + ' نقطة/يوم'
-      : '🎉 وصلت لأعلى مستوى! أنت أسطورة مدرسك 👑';
+      ? 'تحتاج ' + ptsToNext.toLocaleString('ar-EG') + ' XP للوصول لـ "' + next.name + ' ' + next.icon + '" | نقاط المكافأة يمكن صرفها دون خصم XP'
+      : '🎉 وصلت لأعلى مستوى! أنت أسطورة مدرسك 👑 | نقاط المكافأة يمكن صرفها دون خصم XP';
 
     if (todayPts >= DAILY_MAX) {
       const insightEl = document.getElementById('gam-insight-sub');
       if (insightEl) insightEl.textContent += ' | ✅ وصلت للحد الأقصى اليوم — يُجدَّد غداً';
     }
 
+    // ── تحديث عرض XP و RP ──
+    updateHeroGamification(xp, rp);
+
     // build all sections
-    buildLevelPath(pts, cur, next);
+    buildLevelPath(xp, cur, next);
     buildMiniChallenges(gamEvents);
-    buildAchievements(gamEvents, pts, f.advanced_stats);
+    buildAchievements(gamEvents, xp, f.advanced_stats);
     buildChallenges(gamEvents);
     buildActivityCharts(gamEvents);
     buildPerAdStats(gamEvents, f.advanced_stats);
@@ -1267,12 +1359,12 @@ function renderConversionSection(views, wa, fb, total, rate) {
 }
 
 /* ── Level Path ── */
-function buildLevelPath(pts, cur, next) {
+function buildLevelPath(xp, cur, next) { const pts = xp;
   document.getElementById('lpath-content').innerHTML = GM_LEVELS.map(lv => {
-    const done  = pts >= lv.max && lv.max < 99999;
-    const isCur = pts >= lv.min && pts < lv.max;
+    const done  = xp >= lv.max && lv.max < 99999;
+    const isCur = xp >= lv.min && xp < lv.max;
     const range = lv.max - lv.min;
-    const pct   = isCur ? Math.min(Math.round(((pts - lv.min) / range) * 100), 100)
+    const pct   = isCur ? Math.min(Math.round(((xp - lv.min) / range) * 100), 100)
                         : done ? 100 : 0;
     return `<div class="lpath-item">
       <div class="lpath-ico" style="background:${(done||isCur)?lv.color+'20':'#F8FAFC'};border-color:${isCur?lv.color:done?lv.color+'70':'#E2E8F0'}">${lv.icon}</div>
@@ -1323,7 +1415,7 @@ function buildMiniChallenges(events) {
 }
 
 /* ── Achievements ── */
-function buildAchievements(events, pts, isAdvanced) {
+function buildAchievements(events, xp, isAdvanced) { const pts = xp; // backward compat
   const cnt = t => events.filter(e => e.event_type===t).length;
   const totalViews = cnt('ad_card_view');
   const totalWa    = cnt('whatsapp_click');
@@ -1339,17 +1431,17 @@ function buildAchievements(events, pts, isAdvanced) {
     img_ad:    hasImg,
     desc_ad:   hasLongDesc,
     '10_wa':   totalWa >= 10,
-    lv_2:      pts >= 500,
-    lv_3:      pts >= 2000,
-    lv_4:      pts >= 5000,
+    lv_2:      xp >= 500,
+    lv_3:      xp >= 2000,
+    lv_4:      xp >= 5000,
   };
 
   const progMap = {
     '100_views': {v: Math.min(totalViews,100),   t:100},
     '500_views': {v: Math.min(totalViews,500),   t:500},
     '10_wa':     {v: Math.min(totalWa,10),        t:10},
-    lv_3:        {v: Math.min(pts,2000),          t:2000},
-    lv_4:        {v: Math.min(pts,5000),          t:5000},
+    lv_3:        {v: Math.min(xp,2000),          t:2000},
+    lv_4:        {v: Math.min(xp,5000),          t:5000},
   };
 
   const unlocked = ACH_DEFS.filter(a => checkMap[a.id]).length;
@@ -1560,7 +1652,7 @@ async function loadLeaderboard() {
   const box = document.getElementById('leaderboard-content');
   box.innerHTML = '<div class="loading-spinner"><div class="spinner-lg"></div></div>';
   try {
-    const { data, error } = await supabase.from('teachers').select('id,name,points')
+    const { data, error } = await supabase.from('teachers').select('id,name,points,xp,reward_points,avatar_url')
       .order('points',{ascending:false}).order('created_at',{ascending:true}).limit(15);
     if (error) throw error;
     const list = data || [];
@@ -1573,13 +1665,13 @@ async function loadLeaderboard() {
     box.innerHTML = list.map((t,i) => {
       const isMe = t.id === teacher.id;
       const rank = i+1;
-      const lv   = GM_LEVELS.find(l => (t.points||0) >= l.min && (t.points||0) < l.max) || GM_LEVELS[GM_LEVELS.length-1];
+      const lv   = GM_LEVELS.find(l => ((t.xp||t.points)||0) >= l.min && ((t.xp||t.points)||0) < l.max) || GM_LEVELS[GM_LEVELS.length-1];
       return `<div class="lb-row" style="background:${isMe?'linear-gradient(135deg,#EFF6FF,#E6FDF5)':rank<=3?'#FFFBEB':'transparent'};border:${isMe?'1.5px solid #BFDBFE':rank<=3?'1px solid #FDE68A':'1px solid transparent'}">
         <div style="width:30px;text-align:center;font-weight:700;font-size:${rank<=3?'1.2rem':'.84rem'};color:${rank<=3?'#F59E0B':'#94A3B8'};flex-shrink:0">
           ${rank===1?'🥇':rank===2?'🥈':rank===3?'🥉':'#'+rank}
         </div>
-        <div class="lb-av" style="background:${isMe?'linear-gradient(135deg,#2563EB,#20C997)':'linear-gradient(135deg,#0D1B4B,#2563EB)'}">
-          ${getInitials(t.name)}
+        <div class="lb-av" style="background:${isMe?'linear-gradient(135deg,#2563EB,#20C997)':'linear-gradient(135deg,#0D1B4B,#2563EB)'};padding:0;overflow:hidden">
+          ${t.avatar_url ? `<img src="${t.avatar_url}" alt="${escapeHtml(t.name)}" style="width:100%;height:100%;object-fit:cover;border-radius:50%" onerror="this.style.display='none';this.parentElement.textContent='${getInitials(t.name)}'">` : getInitials(t.name)}
         </div>
         <div style="flex:1">
           <div style="font-weight:${isMe?800:600};font-size:.86rem;color:${isMe?'#2563EB':'#0F172A'};display:flex;align-items:center;gap:6px">
@@ -1588,8 +1680,8 @@ async function loadLeaderboard() {
           <div style="font-size:.68rem;font-weight:600;color:${lv.color}">${lv.icon} ${lv.name}</div>
         </div>
         <div style="text-align:center">
-          <div style="font-family:'Cairo',sans-serif;font-weight:900;font-size:1rem;color:${isMe?'#2563EB':'#0F172A'}">${(t.points||0).toLocaleString('ar-EG')}</div>
-          <div style="font-size:.62rem;color:#94A3B8">نقطة</div>
+          <div style="font-family:'Cairo',sans-serif;font-weight:900;font-size:1rem;color:${isMe?'#2563EB':'#0F172A'}">${((t.xp||t.points)||0).toLocaleString('ar-EG')}</div>
+          <div style="font-size:.62rem;color:#94A3B8">XP</div>
         </div>
       </div>`;
     }).join('') + `<div style="margin-top:14px;background:linear-gradient(90deg,#EFF6FF,#E6FDF5);border:1px solid #BFDBFE;border-radius:10px;padding:11px 14px;text-align:center;font-size:.83rem;color:#0D1B4B;font-weight:600">
@@ -1631,7 +1723,9 @@ async function loadTeacherEvents() {
   const evBox = document.getElementById('events-content');
   const rwBox = document.getElementById('rewards-tiers-content');
   const ptsEl = document.getElementById('events-points-display');
-  if (ptsEl) ptsEl.textContent = teacher.points || 0;
+  if (ptsEl) ptsEl.textContent = (teacher.reward_points != null ? teacher.reward_points : teacher.xp || teacher.points || 0);
+  const evXpEl = document.getElementById('events-xp-display');
+  if (evXpEl) evXpEl.textContent = (teacher.xp || teacher.points || 0);
   try {
     const { data: events } = await supabase.from('platform_events').select('*').eq('is_active',true).order('created_at',{ascending:false});
     if (!events||!events.length) { evBox.innerHTML='<div class="empty-text" style="padding:20px;text-align:center">لا توجد فعاليات نشطة الآن</div>'; }
@@ -1651,7 +1745,7 @@ async function loadTeacherEvents() {
     const { data: tiers } = await supabase.from('rewards_tiers').select('*').order('points_required',{ascending:true});
     if (!tiers||!tiers.length) { rwBox.innerHTML='<div class="empty-text" style="padding:20px;text-align:center">لا توجد مكافآت محددة حالياً</div>'; }
     else {
-      const myPts = teacher.points||0;
+      const myPts = teacher.reward_points != null ? teacher.reward_points : (teacher.xp || teacher.points || 0);
       rwBox.innerHTML = '<div style="display:grid;gap:10px">' + tiers.map(tier => {
         const achieved = myPts >= tier.points_required;
         return `<div style="display:flex;align-items:center;justify-content:space-between;padding:12px 16px;border:1.5px solid ${achieved?'var(--success)':'var(--border)'};border-radius:var(--radius-md);background:${achieved?'var(--success-bg)':'white'}">

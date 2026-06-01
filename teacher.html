@@ -86,18 +86,26 @@
       const { data: ad, error } = await query.single();
       // if not found or not active (and not preview), show not found
       if (error || !ad || (!preview && !isSubscriptionActive(ad.teachers))) return showNotFound();
-      // only record a view once per ad per user using localStorage
+      // تسجيل مشاهدة واحدة لكل إعلان لكل جهاز خلال 24 ساعة
       try {
-        const key = 'mdrsk_viewed_ads';
-        let viewed = [];
-        try { viewed = JSON.parse(localStorage.getItem(key) || '[]'); } catch (_) { viewed = []; }
-        if (!viewed.includes(ad.id)) {
+        const today  = new Date().toISOString().slice(0,10);
+        const vKey   = `mdrsk_vd_${ad.id}_${today}`;
+        const alreadySeen = localStorage.getItem(vKey);
+        if (!alreadySeen) {
           trackEvent('ad_detail_view', {ad_id: ad.id, teacher_id: ad.teacher_id, page:'teacher.html'});
-          viewed.push(ad.id);
-          localStorage.setItem(key, JSON.stringify(viewed));
+          localStorage.setItem(vKey, '1');
+          // تنظيف مفاتيح قديمة (أكثر من يومين)
+          try {
+            const yesterday = new Date(Date.now()-86400000).toISOString().slice(0,10);
+            for (let i = localStorage.length-1; i >= 0; i--) {
+              const k = localStorage.key(i);
+              if (k && k.startsWith('mdrsk_vd_') && !k.endsWith(today) && !k.endsWith(yesterday)) {
+                localStorage.removeItem(k);
+              }
+            }
+          } catch(_) {}
         }
       } catch (_) {
-        // fallback: still track the event if localStorage is unavailable
         trackEvent('ad_detail_view', {ad_id: ad.id, teacher_id: ad.teacher_id, page:'teacher.html'});
       }
       renderAd(ad);

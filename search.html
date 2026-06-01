@@ -926,13 +926,19 @@
         grid.innerHTML = pg
           .map((ad) => buildTeacherCard(ad, ad.teachers))
           .join("");
-        pg.forEach((ad) =>
-          trackEvent("ad_card_view", {
-            ad_id: ad.id,
-            teacher_id: ad.teacher_id,
-            page: "search.html",
-          }),
-        );
+        // مشاهدة واحدة لكل إعلان يومياً لكل جهاز
+        const _todaySch = new Date().toISOString().slice(0,10);
+        pg.forEach((ad) => {
+          try {
+            const vk = "mdrsk_vd_card_" + ad.id + "_" + _todaySch;
+            if (!localStorage.getItem(vk)) {
+              trackEvent("ad_card_view", { ad_id: ad.id, teacher_id: ad.teacher_id, page: "search.html" });
+              localStorage.setItem(vk, "1");
+            }
+          } catch(_) {
+            trackEvent("ad_card_view", { ad_id: ad.id, teacher_id: ad.teacher_id, page: "search.html" });
+          }
+        });
         document.getElementById("res-count").textContent =
           `${filtered.length} نتيجة`;
         const parts = [];

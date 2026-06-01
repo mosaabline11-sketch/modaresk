@@ -634,7 +634,19 @@
     // عرض أول PAGE_SIZE إعلانات فقط
     const toShow = filteredAds.slice(0, visibleCount);
     grid.innerHTML = toShow.map(ad => buildTeacherCard(ad, ad.teachers)).join('');
-    toShow.forEach(ad => trackEvent('ad_card_view', {ad_id: ad.id, teacher_id: ad.teacher_id, page:'index.html'}));
+    // مشاهدة واحدة لكل إعلان يومياً لكل جهاز
+    const _todayIdx = new Date().toISOString().slice(0,10);
+    toShow.forEach(ad => {
+      try {
+        const vk = 'mdrsk_vd_card_' + ad.id + '_' + _todayIdx;
+        if (!localStorage.getItem(vk)) {
+          trackEvent('ad_card_view', {ad_id: ad.id, teacher_id: ad.teacher_id, page:'index.html'});
+          localStorage.setItem(vk, '1');
+        }
+      } catch(_) {
+        trackEvent('ad_card_view', {ad_id: ad.id, teacher_id: ad.teacher_id, page:'index.html'});
+      }
+    });
 
     // زر عرض المزيد
     let loadMoreWrap = document.getElementById('load-more-wrap');
