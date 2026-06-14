@@ -3,308 +3,426 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="لوحة المدرس في منصة مدرسك لإضافة وإدارة الإعلانات، الصور، الباقة، الإضافات والإحصائيات.">
+  <meta name="description" content="لوحة المدرس في منصة مدرسك لإضافة وإدارة الإعلانات والإحصائيات.">
   <meta name="robots" content="noindex, nofollow, noarchive">
   <meta name="theme-color" content="#2563EB">
   <title>لوحة المدرس - مدرسك</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800;900&family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="style.css?v=7.5.0">
+  <link rel="stylesheet" href="style.css?v=7.6.0">
   <link rel="icon" type="image/png" href="logo.png">
   <link rel="manifest" href="manifest.webmanifest">
-  <!-- Chart.js for gamification charts -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
-  <style>
-/* ══ ORIGINAL STYLES (unchanged) ══ */
-.teacher-welcome{background:linear-gradient(135deg,#0D1B4B 0%,#1E3A8A 50%,#2563EB 100%);color:white;padding:0;border-radius:var(--radius-lg);margin-bottom:28px;overflow:hidden;position:relative}
-.teacher-welcome::before{content:'';position:absolute;top:-60px;right:-60px;width:200px;height:200px;border-radius:50%;background:rgba(37,99,235,.15);pointer-events:none}
-.teacher-welcome::after{content:'';position:absolute;bottom:-40px;left:-40px;width:160px;height:160px;border-radius:50%;background:rgba(32,201,151,.1);pointer-events:none}
-.tw-inner{padding:26px 30px;position:relative;z-index:1;display:flex;align-items:flex-start;justify-content:space-between;gap:20px;flex-wrap:wrap}
-.welcome-name{font-family:'Cairo',sans-serif;font-size:1.4rem;font-weight:900;margin-bottom:4px}
-.welcome-sub{font-size:.85rem;opacity:.75;margin-bottom:10px}
-/* level badge */
-.lv-badge{display:inline-flex;align-items:center;gap:8px;background:rgba(255,255,255,.12);backdrop-filter:blur(8px);border:1px solid rgba(255,255,255,.2);border-radius:50px;padding:6px 14px;margin-bottom:12px}
-.lv-badge-name{color:white;font-weight:700;font-size:.82rem}
-.lv-dot{width:7px;height:7px;border-radius:50%}
-/* level progress */
-.lv-prog-labels{display:flex;justify-content:space-between;color:rgba(255,255,255,.45);font-size:.62rem;margin-bottom:4px;max-width:260px}
-.lv-prog-track{height:7px;border-radius:50px;background:rgba(255,255,255,.15);max-width:260px}
-.lv-prog-fill{height:100%;border-radius:50px;background:linear-gradient(90deg,#20C997,#2563EB);transition:width .6s ease}
-.lv-prog-pct{color:rgba(255,255,255,.35);font-size:.6rem;margin-top:2px;text-align:left;max-width:260px}
-/* limit bar */
-.limit-bar-wrapper{background:rgba(255,255,255,.2);border-radius:50px;overflow:hidden;height:6px;margin-top:8px;max-width:200px}
-.limit-bar{height:100%;background:white;border-radius:50px;transition:width .5s ease}
-.limit-text{font-size:.75rem;opacity:.8;margin-top:5px}
-/* hero right cards */
-.tw-right{display:flex;gap:10px;flex-wrap:wrap;align-items:flex-start}
-.tw-card{background:rgba(255,255,255,.1);backdrop-filter:blur(8px);border:1px solid rgba(255,255,255,.15);border-radius:13px;padding:12px 14px;text-align:center;min-width:86px}
-.tw-card-icon{font-size:1.3rem;margin-bottom:3px}
-.tw-card-val{color:white;font-family:'Cairo',sans-serif;font-weight:900;font-size:1.3rem;line-height:1}
-.tw-card-lbl{color:rgba(255,255,255,.45);font-size:.6rem;margin-top:3px}
-/* circular goal */
-.circ-goal-wrap{position:relative;display:inline-flex;align-items:center;justify-content:center;margin-bottom:3px}
-.circ-inner{position:absolute;text-align:center}
-.circ-val{color:white;font-family:'Cairo',sans-serif;font-weight:900;font-size:.88rem;line-height:1}
-.circ-sub{color:rgba(255,255,255,.4);font-size:.5rem;margin-top:1px}
-/* subscription banner */
-#subscription-banner{margin:0 0 20px}
+<style>
+/* ══ NAVBAR ADDITIONS ══ */
+.dash-nav-right{display:flex;align-items:center;gap:8px;}
+.notif-wrap{position:relative;}
+.notif-btn{position:relative;width:40px;height:40px;border-radius:50%;background:var(--bg-soft);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:1.1rem;transition:var(--transition);flex-shrink:0;outline:none;}
+.notif-btn:hover{background:var(--primary-bg);border-color:var(--primary);}
+.notif-badge{position:absolute;top:-3px;left:-3px;background:var(--danger);color:white;border-radius:50px;font-size:.58rem;font-weight:700;min-width:16px;height:16px;display:none;align-items:center;justify-content:center;padding:0 4px;border:2px solid white;}
+.notif-badge.show{display:flex;}
+.notif-dropdown{position:absolute;top:calc(100% + 8px);left:0;width:320px;background:white;border:1px solid var(--border);border-radius:var(--radius-lg);box-shadow:var(--shadow-lg);z-index:500;display:none;overflow:hidden;}
+.notif-dropdown.open{display:block;animation:slideDown .2s ease;}
+.notif-dd-header{padding:13px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;}
+.notif-dd-title{font-family:'Cairo',sans-serif;font-weight:700;font-size:.92rem;}
+.notif-dd-clear{font-size:.76rem;color:var(--primary);cursor:pointer;background:none;border:none;font-family:inherit;}
+.notif-dd-list{max-height:300px;overflow-y:auto;}
+.notif-item{padding:11px 16px;border-bottom:1px solid var(--border-light);transition:background .15s;}
+.notif-item:hover{background:var(--bg-soft);}
+.notif-item:last-child{border-bottom:none;}
+.notif-item-title{font-weight:600;font-size:.83rem;color:var(--text-primary);margin-bottom:2px;}
+.notif-item-msg{font-size:.77rem;color:var(--text-secondary);line-height:1.5;overflow-wrap:anywhere;}
+.notif-item-date{font-size:.68rem;color:var(--text-muted);margin-top:3px;}
+.notif-empty{padding:26px 16px;text-align:center;color:var(--text-muted);font-size:.86rem;}
 
-/* ══ TABS (original) ══ */
-.section-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;flex-wrap:wrap;gap:12px}
-.section-header h2{font-family:'Cairo',sans-serif;font-size:1.2rem;font-weight:700}
-.ad-manage-card{background:white;border:1px solid var(--border);border-radius:var(--radius-md);overflow:hidden;margin-bottom:14px;transition:var(--transition)}
-.ad-manage-card:hover{box-shadow:var(--shadow-md)}
-.amc-header{display:flex;align-items:flex-start;justify-content:space-between;padding:16px 20px;gap:12px}
-.amc-title{font-weight:700;font-size:1rem;margin-bottom:6px;font-family:'Cairo',sans-serif}
-.amc-meta{display:flex;flex-wrap:wrap;gap:6px}
-.amc-actions{display:flex;gap:8px;flex-shrink:0}
-.amc-body{padding:0 20px 14px}
-.amc-desc{font-size:.88rem;color:var(--text-secondary)}
-.amc-price{font-weight:700;color:var(--primary);font-family:'Cairo',sans-serif;font-size:1.05rem}
-.profile-form-card{background:white;border-radius:var(--radius-lg);border:1px solid var(--border);padding:28px;box-shadow:var(--shadow-sm);overflow-x:hidden;overflow-wrap:anywhere;word-break:break-word}
-.form-row{display:grid;grid-template-columns:1fr 1fr;gap:16px}
-@media(max-width:480px){.form-row{grid-template-columns:1fr!important}}
-/* ── Tabs scroll with fade indicator ── */
-.dash-tabs-wrap{position:relative;margin-bottom:24px}
-.dash-tabs{display:flex;border-bottom:2px solid var(--border);overflow-x:auto;scrollbar-width:none;scroll-behavior:smooth;-webkit-overflow-scrolling:touch}
-.dash-tabs::-webkit-scrollbar{display:none}
-/* fade indicator على اليسار يشير لوجود محتوى */
-.dash-tabs-wrap::after{
-  content:'';position:absolute;top:0;left:0;bottom:2px;
-  width:40px;
-  background:linear-gradient(to right,transparent,rgba(248,250,252,.95));
-  pointer-events:none;z-index:2;
-  display:none;
-}
-.dash-tabs-wrap.has-overflow::after{display:block}
-.dash-tabs-wrap::before{
-  content:'›';position:absolute;bottom:6px;left:6px;
-  font-size:1.1rem;color:var(--primary);font-weight:900;
-  pointer-events:none;z-index:3;
-  opacity:0;transition:opacity .3s;
-}
-.dash-tabs-wrap.has-overflow::before{opacity:1}
-.dash-tab{padding:11px 18px;background:none;border:none;border-bottom:2px solid transparent;margin-bottom:-2px;font-family:'Tajawal',sans-serif;font-size:.92rem;font-weight:500;color:var(--text-secondary);cursor:pointer;white-space:nowrap;transition:var(--transition);display:flex;align-items:center;gap:5px}
-.dash-tab.active{color:var(--primary);border-bottom-color:var(--primary);font-weight:700}
-.dash-tab:hover:not(.active){color:var(--text-primary)}
-.dash-pane{display:none}
-.dash-pane.active{display:block;animation:fadeIn .3s ease}
-.mini-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:24px}
-.mini-stat{background:white;border:1px solid var(--border);border-radius:var(--radius-md);padding:16px;text-align:center}
-.mini-stat-num{font-family:'Cairo',sans-serif;font-size:1.6rem;font-weight:800}
-.mini-stat-label{font-size:.8rem;color:var(--text-muted);margin-top:2px}
+/* ══ MORE MENU ══ */
+.more-menu-wrap{position:relative;}
+.more-btn{width:40px;height:40px;border-radius:50%;background:var(--bg-soft);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:1.2rem;transition:var(--transition);flex-shrink:0;outline:none;}
+.more-btn:hover{background:var(--primary-bg);border-color:var(--primary);}
+.more-dropdown{position:absolute;top:calc(100% + 8px);left:0;min-width:210px;background:white;border:1px solid var(--border);border-radius:var(--radius-lg);box-shadow:var(--shadow-lg);z-index:500;display:none;overflow:hidden;}
+.more-dropdown.open{display:block;animation:slideDown .2s ease;}
+.more-dd-item{display:flex;align-items:center;gap:10px;padding:11px 16px;cursor:pointer;transition:background .15s;font-size:.88rem;color:var(--text-primary);border:none;background:none;width:100%;text-align:right;font-family:'Tajawal',sans-serif;}
+.more-dd-item:hover{background:var(--bg-soft);}
+.more-dd-divider{height:1px;background:var(--border-light);}
 
-/* ══ GAMIFICATION STYLES ══ */
-/* stat overview cards */
-.gam-stat-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:13px;margin-bottom:22px}
-.gam-scard{background:white;border-radius:14px;padding:16px 18px;border:1px solid var(--border);box-shadow:0 2px 12px rgba(0,0,0,.05);transition:transform .2s,box-shadow .2s;cursor:default}
-.gam-scard:hover{transform:translateY(-3px);box-shadow:0 8px 22px rgba(0,0,0,.1)}
-.gam-scard-top{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px}
-.gam-scard-val{font-family:'Cairo',sans-serif;font-weight:900;font-size:1.65rem;line-height:1}
-.gam-scard-lbl{font-size:.72rem;color:var(--text-secondary);margin-top:3px}
-.gam-chg{padding:2px 8px;border-radius:50px;font-size:.64rem;font-weight:700;background:#DCFCE7;color:#16A34A}
-/* insight banner */
-.gam-insight{background:linear-gradient(135deg,#0D1B4B,#1E3A8A);border-radius:14px;padding:18px 22px;color:white;margin-bottom:18px}
-.gam-insight-title{font-family:'Cairo',sans-serif;font-weight:800;font-size:1rem;margin-bottom:5px}
-.gam-insight-sub{color:rgba(255,255,255,.6);font-size:.8rem}
-/* sub-tabs inside stats */
-.gam-tabs{display:flex;gap:2px;border-bottom:2px solid var(--border);margin-bottom:20px;overflow-x:auto;scrollbar-width:none}
-.gam-tabs::-webkit-scrollbar{display:none}
-.gtab{padding:9px 16px;background:none;border:none;border-bottom:2.5px solid transparent;margin-bottom:-2px;font-family:inherit;font-size:.84rem;font-weight:500;color:var(--muted,#94A3B8);cursor:pointer;white-space:nowrap;transition:color .2s}
-.gtab.active{color:#0D1B4B;border-bottom-color:#0D1B4B;font-weight:700}
-.gpane{display:none}
-.gpane.active{display:block;animation:fadeIn .3s ease}
-/* level path - mobile fix */
-.lpath-item{display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid #F1F5F9;min-width:0}
-.lpath-item:last-child{border-bottom:none}
-.lpath-ico{width:36px;height:36px;min-width:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:1rem;flex-shrink:0;border:2px solid transparent}
-.lpath-bar{height:5px;border-radius:50px;margin-top:4px}
-.lpath-bar-fill{height:100%;border-radius:50px;transition:width .6s}
-.lpath-cur-tag{padding:2px 7px;border-radius:50px;font-size:.58rem;font-weight:700;white-space:nowrap;flex-shrink:0}
-.lpath-name{font-weight:500;color:#94A3B8;font-size:.78rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:80px}
-/* mini challenge */
-.mc-row{margin-bottom:14px}
-.mc-row:last-child{margin-bottom:0}
-.mc-hd{display:flex;align-items:center;gap:9px;margin-bottom:5px}
-.mc-ico{width:32px;height:32px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:.9rem;flex-shrink:0}
-/* achievement cards */
-.ach-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(188px,1fr));gap:14px}
-.ach-card{border-radius:14px;padding:18px;position:relative;overflow:hidden;border:1px solid var(--border);transition:transform .2s,box-shadow .2s;cursor:default;background:white}
-.ach-card.ach-unlocked:hover{transform:translateY(-3px)}
-.ach-card.ach-locked{background:#FAFAFA;opacity:.7}
-.ach-check{position:absolute;top:9px;left:9px;width:19px;height:19px;border-radius:50%;background:#20C997;display:flex;align-items:center;justify-content:center;color:white;font-size:.58rem;font-weight:700}
-.ach-ico{width:48px;height:48px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:1.5rem;margin-bottom:10px}
-.ach-title{font-weight:700;font-size:.86rem;margin-bottom:3px}
-.ach-desc{font-size:.71rem;color:var(--text-secondary);margin-bottom:9px;line-height:1.5}
-.ach-pts{display:inline-flex;align-items:center;gap:4px;border-radius:50px;padding:3px 9px}
-.ach-prog-bar{height:5px;border-radius:50px;background:#F1F5F9;margin-bottom:3px;margin-top:6px}
-.ach-prog-fill{height:100%;border-radius:50px}
-/* challenge cards */
-.ch-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(245px,1fr));gap:16px}
-.ch-card{background:white;border-radius:16px;padding:20px;border:1px solid var(--border);box-shadow:0 2px 12px rgba(0,0,0,.05);position:relative;overflow:hidden}
-.ch-card.ch-done{border-color:#A7F3D0;box-shadow:0 4px 16px rgba(16,185,129,.12)}
-.ch-done-lbl{position:absolute;top:11px;left:11px;background:#20C997;color:white;border-radius:50px;padding:2px 9px;font-size:.6rem;font-weight:700}
-.ch-ico{width:44px;height:44px;border-radius:11px;display:flex;align-items:center;justify-content:center;font-size:1.2rem}
-.ch-type-tag{padding:3px 9px;border-radius:50px;font-size:.66rem;font-weight:700}
-.ch-title{font-family:'Cairo',sans-serif;font-weight:700;font-size:.92rem;margin:10px 0 8px}
-.ch-reward{display:inline-flex;align-items:center;gap:4px;background:#FFFBEB;border-radius:50px;padding:3px 11px;margin-bottom:14px}
-.ch-bar-t{height:9px;border-radius:50px;background:#F1F5F9;overflow:hidden}
-.ch-bar-f{height:100%;border-radius:50px;transition:width .6s}
-/* leaderboard */
-.lb-row{display:flex;align-items:center;gap:13px;padding:12px 15px;border-radius:11px;margin-bottom:7px}
-.lb-av{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;color:white;font-weight:700;font-size:.88rem;flex-shrink:0;font-family:'Cairo',sans-serif;overflow:hidden}
-/* per-ad stats */
-.per-ad-stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:14px}
-.per-ad-stat-card{background:var(--bg-light);border:1px solid var(--border);border-radius:var(--radius-md);padding:14px;box-shadow:var(--shadow-sm)}
-.per-ad-title{font-family:Cairo,sans-serif;font-weight:800;margin-bottom:8px;color:var(--text-primary)}
-.per-ad-row{display:flex;justify-content:space-between;gap:12px;padding:7px 0;border-top:1px solid var(--border-light);color:var(--text-secondary);font-size:.88rem}
-.per-ad-row strong{color:var(--primary);font-family:Cairo,sans-serif}
-.per-ad-advanced{background:#fff;border:1px dashed var(--primary-border);border-radius:9px;padding:0 10px;margin-top:8px}
+/* ══ HERO DASHBOARD ══ */
+.hero-dashboard{background:linear-gradient(135deg,#0D1B4B 0%,#1E3A8A 55%,#2563EB 100%);border-radius:var(--radius-lg);margin-bottom:18px;overflow:hidden;position:relative;}
+.hero-dashboard::before{content:'';position:absolute;top:-40px;right:-40px;width:150px;height:150px;border-radius:50%;background:rgba(255,255,255,.06);pointer-events:none;}
+.hero-inner{padding:20px 24px;position:relative;z-index:1;display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;}
+.hero-left{flex:1;min-width:200px;}
+.hero-name{font-family:'Cairo',sans-serif;font-size:1.2rem;font-weight:900;color:white;margin-bottom:2px;}
+.hero-sub{font-size:.78rem;color:rgba(255,255,255,.6);margin-bottom:8px;}
+.early-tag{display:inline-flex;align-items:center;gap:4px;background:linear-gradient(135deg,#F59E0B,#EF4444);color:white;border-radius:50px;padding:3px 10px;font-size:.68rem;font-weight:700;margin-bottom:7px;}
+.lv-badge{display:inline-flex;align-items:center;gap:7px;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.2);border-radius:50px;padding:5px 12px;margin-bottom:9px;}
+.lv-badge-name{color:white;font-weight:700;font-size:.78rem;}
+.lv-dot{width:6px;height:6px;border-radius:50%;}
+.lv-prog-labels{display:flex;justify-content:space-between;color:rgba(255,255,255,.45);font-size:.58rem;margin-bottom:3px;max-width:220px;}
+.lv-prog-track{height:5px;border-radius:50px;background:rgba(255,255,255,.15);max-width:220px;}
+.lv-prog-fill{height:100%;border-radius:50px;transition:width .6s ease;}
+.lv-prog-pct{color:rgba(255,255,255,.3);font-size:.56rem;margin-top:2px;}
+.hero-stats{display:flex;gap:8px;flex-wrap:wrap;align-items:center;}
+.hstat{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);border-radius:10px;padding:9px 12px;text-align:center;min-width:66px;backdrop-filter:blur(8px);}
+.hstat-val{color:white;font-family:'Cairo',sans-serif;font-weight:900;font-size:1.1rem;line-height:1;}
+.hstat-lbl{color:rgba(255,255,255,.5);font-size:.56rem;margin-top:2px;}
+.circ-goal-wrap{position:relative;display:inline-flex;align-items:center;justify-content:center;margin-bottom:2px;}
+.circ-inner{position:absolute;text-align:center;}
+.circ-val{color:white;font-family:'Cairo',sans-serif;font-weight:900;font-size:.8rem;line-height:1;}
+.circ-sub{color:rgba(255,255,255,.4);font-size:.46rem;margin-top:1px;}
+.hero-view-btn{background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.25);color:white;font-size:.76rem;font-weight:600;padding:7px 11px;border-radius:8px;cursor:pointer;font-family:inherit;transition:.2s;white-space:nowrap;}
+.hero-view-btn:hover{background:rgba(255,255,255,.28);}
 
-@media(max-width:600px){
-  .form-row,.gam-stat-grid{grid-template-columns:1fr}
-  .amc-header{flex-direction:column}
-  .tw-inner{flex-direction:column;gap:16px}
-  .mini-stats{grid-template-columns:1fr 1fr}
-  .ach-grid,.ch-grid{grid-template-columns:1fr}
-  .tw-right{width:100%;display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
-@media(max-width:360px){.tw-right{grid-template-columns:repeat(2,1fr)!important}}
-  .tw-card{min-width:0;padding:10px 8px}
-  .tw-card-val{font-size:1.1rem}
-  .per-ad-stats-grid{grid-template-columns:1fr}
-  .gam-tabs{gap:0}
-  .gtab{padding:8px 10px;font-size:.76rem}
-  .lv-prog-track,.lv-prog-labels,.lv-prog-pct{max-width:100%}
-  .dash-tab{padding:9px 12px;font-size:.8rem}
-  /* level path mobile */
-  .lpath-ico{width:30px;height:30px;min-width:30px;font-size:.85rem}
-  .lpath-name{max-width:60px;font-size:.7rem}
-  .lpath-cur-tag{display:none}
+/* ══ SUBSCRIPTION BANNER ══ */
+#subscription-banner{margin-bottom:14px;}
+
+/* ══ QUICK ACTIONS ══ */
+.quick-actions{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:18px;}
+.qa-btn{background:white;border:1px solid var(--border);border-radius:var(--radius-md);padding:13px 8px;text-align:center;cursor:pointer;transition:var(--transition);display:flex;flex-direction:column;align-items:center;gap:5px;font-family:'Tajawal',sans-serif;}
+.qa-btn:hover{border-color:var(--primary);box-shadow:var(--shadow-md);transform:translateY(-2px);}
+.qa-primary{background:var(--primary);border-color:var(--primary);}
+.qa-primary .qa-label{color:white;}
+.qa-icon{font-size:1.35rem;}
+.qa-label{font-size:.74rem;font-weight:600;color:var(--text-secondary);}
+
+/* ══ MAIN TABS ══ */
+.main-tabs-bar{background:white;border:1px solid var(--border);border-radius:var(--radius-md);padding:4px;display:flex;gap:2px;margin-bottom:18px;overflow-x:auto;scrollbar-width:none;}
+.main-tabs-bar::-webkit-scrollbar{display:none;}
+.main-tab{flex:1;padding:10px 6px;border:none;background:transparent;border-radius:var(--radius-sm);font-family:'Tajawal',sans-serif;font-size:.84rem;font-weight:500;color:var(--text-secondary);cursor:pointer;transition:var(--transition);white-space:nowrap;display:flex;align-items:center;justify-content:center;gap:4px;min-width:0;}
+.main-tab.active{background:var(--primary);color:white;font-weight:700;box-shadow:0 2px 8px rgba(37,99,235,.3);}
+.main-tab:hover:not(.active){background:var(--primary-bg);color:var(--primary);}
+
+/* ══ PANES ══ */
+.dash-pane{display:none;}
+.dash-pane.active{display:block;animation:fadeIn .25s ease;}
+
+/* ══ HOME TAB ══ */
+.home-kpi-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:18px;}
+.kpi-card{background:white;border:1px solid var(--border);border-radius:var(--radius-md);padding:15px;display:flex;gap:11px;align-items:flex-start;box-shadow:var(--shadow-xs);}
+.kpi-icon{width:38px;height:38px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:1.05rem;flex-shrink:0;}
+.kpi-val{font-family:'Cairo',sans-serif;font-size:1.45rem;font-weight:900;line-height:1;}
+.kpi-lbl{font-size:.7rem;color:var(--text-muted);margin-top:2px;}
+.home-chart-wrap{background:white;border:1px solid var(--border);border-radius:var(--radius-md);padding:16px;margin-bottom:14px;}
+.home-chart-hd{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;flex-wrap:wrap;gap:8px;}
+.home-chart-title{font-family:'Cairo',sans-serif;font-weight:700;font-size:.9rem;}
+.profile-completion-bar{background:white;border:1px solid var(--border);border-radius:var(--radius-md);padding:13px;margin-bottom:14px;}
+
+/* ══ ADS TAB ══ */
+.ads-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:11px;margin-bottom:16px;}
+.ads-stat{background:white;border:1px solid var(--border);border-radius:var(--radius-md);padding:13px;text-align:center;}
+.ads-stat-num{font-family:'Cairo',sans-serif;font-size:1.55rem;font-weight:800;}
+.ads-stat-lbl{font-size:.72rem;color:var(--text-muted);margin-top:2px;}
+.section-hd{display:flex;align-items:center;justify-content:space-between;margin-bottom:13px;flex-wrap:wrap;gap:9px;}
+.section-hd h2{font-family:'Cairo',sans-serif;font-size:1rem;font-weight:700;}
+.ad-card{background:white;border:1px solid var(--border);border-radius:var(--radius-md);overflow:hidden;margin-bottom:11px;transition:var(--transition);}
+.ad-card:hover{box-shadow:var(--shadow-md);}
+.ad-card-hd{padding:13px 15px;display:flex;align-items:flex-start;justify-content:space-between;gap:9px;}
+.ad-card-title{font-weight:700;font-size:.92rem;margin-bottom:5px;font-family:'Cairo',sans-serif;}
+.ad-card-meta{display:flex;flex-wrap:wrap;gap:5px;}
+.ad-card-actions{display:flex;gap:5px;flex-shrink:0;flex-wrap:wrap;}
+.ad-card-body{padding:0 15px 12px;}
+.ad-price{font-weight:700;color:var(--primary);font-size:.96rem;}
+.media-preview{display:flex;gap:7px;flex-wrap:wrap;margin-top:7px;}
+.media-preview img{width:76px;height:56px;object-fit:cover;border-radius:8px;border:1px solid var(--border);}
+
+/* ══ STATS TAB ══ */
+.stats-kpi{display:grid;grid-template-columns:repeat(2,1fr);gap:11px;margin-bottom:15px;}
+.stats-kpi-card{background:white;border:1px solid var(--border);border-radius:var(--radius-md);padding:14px;display:flex;gap:11px;align-items:center;}
+.stats-kpi-ico{width:42px;height:42px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:1.15rem;flex-shrink:0;}
+.stats-kpi-val{font-family:'Cairo',sans-serif;font-size:1.55rem;font-weight:900;line-height:1;}
+.stats-kpi-lbl{font-size:.7rem;color:var(--text-secondary);margin-top:2px;}
+.gam-insight{background:linear-gradient(135deg,#0D1B4B,#1E3A8A);border-radius:12px;padding:15px 18px;color:white;margin-bottom:13px;}
+.gam-insight-title{font-family:'Cairo',sans-serif;font-weight:800;font-size:.92rem;margin-bottom:4px;}
+.gam-insight-sub{color:rgba(255,255,255,.6);font-size:.76rem;}
+.chart-card{background:white;border:1px solid var(--border);border-radius:var(--radius-md);padding:16px;margin-bottom:13px;}
+.chart-card-title{font-family:'Cairo',sans-serif;font-weight:700;font-size:.9rem;margin-bottom:13px;}
+.collapsible-section{margin-bottom:10px;}
+.collapsible-hd{display:flex;align-items:center;justify-content:space-between;padding:11px 14px;background:var(--bg-soft);border:1px solid var(--border);border-radius:var(--radius-sm);cursor:pointer;transition:.2s;}
+.collapsible-hd:hover{background:var(--primary-bg);}
+.collapsible-hd.open{border-radius:var(--radius-sm) var(--radius-sm) 0 0;}
+.collapsible-title{font-family:'Cairo',sans-serif;font-weight:700;font-size:.86rem;}
+.collapsible-arrow{font-size:.76rem;transition:transform .25s;}
+.collapsible-hd.open .collapsible-arrow{transform:rotate(180deg);}
+.collapsible-body{border:1px solid var(--border);border-top:none;border-radius:0 0 var(--radius-sm) var(--radius-sm);padding:14px;background:white;display:none;}
+.collapsible-body.open{display:block;animation:fadeIn .2s ease;}
+.gam-tabs{display:flex;gap:2px;border-bottom:2px solid var(--border);margin-bottom:15px;overflow-x:auto;scrollbar-width:none;}
+.gam-tabs::-webkit-scrollbar{display:none;}
+.gtab{padding:8px 13px;border:none;border-bottom:2.5px solid transparent;margin-bottom:-2px;font-family:inherit;font-size:.8rem;font-weight:500;color:var(--text-muted);cursor:pointer;white-space:nowrap;transition:color .2s;background:none;}
+.gtab.active{color:#0D1B4B;border-bottom-color:#0D1B4B;font-weight:700;}
+.gpane{display:none;}
+.gpane.active{display:block;animation:fadeIn .25s ease;}
+.perad-card{background:white;border:1px solid var(--border);border-radius:var(--radius-md);padding:13px;margin-bottom:9px;}
+.perad-row{display:flex;justify-content:space-between;padding:5px 0;border-top:1px solid var(--border-light);font-size:.82rem;color:var(--text-secondary);}
+.perad-row strong{color:var(--primary);font-family:'Cairo',sans-serif;}
+.lpath-item{display:flex;align-items:center;gap:9px;padding:8px 0;border-bottom:1px solid #F1F5F9;}
+.lpath-item:last-child{border-bottom:none;}
+.lpath-ico{width:32px;height:32px;min-width:32px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:.9rem;flex-shrink:0;border:2px solid transparent;}
+.lpath-bar{height:4px;border-radius:50px;margin-top:3px;}
+.lpath-bar-fill{height:100%;border-radius:50px;transition:width .5s;}
+.ach-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:11px;}
+.ach-card{border-radius:12px;padding:15px;border:1px solid var(--border);background:white;position:relative;overflow:hidden;}
+.ach-card.locked{background:#FAFAFA;opacity:.65;}
+.ach-check{position:absolute;top:8px;left:8px;width:17px;height:17px;border-radius:50%;background:#20C997;display:flex;align-items:center;justify-content:center;color:white;font-size:.54rem;font-weight:700;}
+.ach-ico{width:42px;height:42px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:1.35rem;margin-bottom:8px;}
+.ach-title{font-weight:700;font-size:.81rem;margin-bottom:2px;}
+.ach-desc{font-size:.67rem;color:var(--text-secondary);margin-bottom:7px;line-height:1.5;}
+.ach-pts{display:inline-flex;align-items:center;gap:3px;border-radius:50px;padding:2px 8px;}
+.ach-prog-bar{height:4px;border-radius:50px;background:#F1F5F9;margin-top:6px;margin-bottom:2px;}
+.ach-prog-fill{height:100%;border-radius:50px;}
+.ch-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:13px;}
+.ch-card{background:white;border-radius:13px;padding:17px;border:1px solid var(--border);position:relative;overflow:hidden;}
+.ch-card.done{border-color:#A7F3D0;}
+.ch-done-lbl{position:absolute;top:10px;left:10px;background:#20C997;color:white;border-radius:50px;padding:2px 7px;font-size:.57rem;font-weight:700;}
+.ch-ico{width:38px;height:38px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:1.05rem;}
+.ch-type-tag{padding:2px 7px;border-radius:50px;font-size:.62rem;font-weight:700;}
+.ch-title{font-family:'Cairo',sans-serif;font-weight:700;font-size:.86rem;margin:8px 0 6px;}
+.ch-reward{display:inline-flex;align-items:center;gap:3px;background:#FFFBEB;border-radius:50px;padding:3px 9px;margin-bottom:11px;}
+.ch-bar-t{height:7px;border-radius:50px;background:#F1F5F9;overflow:hidden;}
+.ch-bar-f{height:100%;border-radius:50px;transition:width .5s;}
+.mbtn{padding:5px 10px;border-radius:6px;border:1.5px solid var(--border);background:transparent;color:var(--text-secondary);font-size:.7rem;font-weight:600;cursor:pointer;font-family:inherit;transition:.2s;}
+.mbtn.active{border-color:#2563EB;background:#EFF6FF;color:#2563EB;}
+
+/* ══ LEADERBOARD ══ */
+.lb-row{display:flex;align-items:center;gap:11px;padding:10px 13px;border-radius:9px;margin-bottom:5px;}
+.lb-av{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;color:white;font-weight:700;font-size:.82rem;flex-shrink:0;overflow:hidden;background:linear-gradient(135deg,#0D1B4B,#2563EB);}
+
+/* ══ PROFILE ══ */
+.profile-card{background:white;border:1px solid var(--border);border-radius:var(--radius-lg);padding:22px;box-shadow:var(--shadow-sm);}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:13px;}
+.avatar-preview{width:76px;height:76px;border-radius:50%;border:2px solid var(--border);background:var(--bg-soft);overflow:hidden;display:flex;align-items:center;justify-content:center;color:var(--text-muted);font-size:.74rem;text-align:center;margin-top:8px;}
+.avatar-preview img{width:100%;height:100%;object-fit:cover;}
+
+/* ══ PLAN / FEATURES ══ */
+.plan-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:11px;margin-bottom:14px;}
+.plan-card{background:white;border:1px solid var(--border);border-radius:var(--radius-lg);overflow:hidden;}
+.plan-card.current{border-color:var(--primary);box-shadow:var(--shadow-lg);}
+.plan-head{padding:14px;color:white;text-align:center;font-family:'Cairo',sans-serif;font-weight:800;font-size:.95rem;}
+.plan-green{background:linear-gradient(135deg,#059669,#10B981);}
+.plan-blue{background:linear-gradient(135deg,#1D4ED8,#2563EB);}
+.plan-purple{background:linear-gradient(135deg,#6D28D9,#7C3AED);}
+.plan-body{padding:14px;}
+.plan-price{font-family:'Cairo',sans-serif;font-size:2rem;font-weight:900;color:var(--primary);text-align:center;line-height:1;}
+.clean-list{list-style:none;display:flex;flex-direction:column;gap:7px;margin-top:12px;}
+.clean-list li{display:flex;gap:6px;align-items:flex-start;color:var(--text-secondary);font-size:.82rem;}
+.clean-list li::before{content:"✓";color:var(--success);font-weight:900;}
+.addon-grid2{display:grid;grid-template-columns:repeat(auto-fill,minmax(155px,1fr));gap:9px;}
+.addon-card2{background:white;border:1px solid var(--border);border-radius:var(--radius-md);padding:13px;}
+.addon-card2 .ai{font-size:1.25rem;margin-bottom:5px;}
+.addon-card2 h4{font-size:.82rem;font-weight:700;margin-bottom:3px;}
+.addon-card2 .ap{font-family:'Cairo',sans-serif;font-size:1.3rem;font-weight:900;color:var(--primary);}
+.addon-card2 p{font-size:.7rem;color:var(--text-muted);margin-top:3px;line-height:1.5;}
+
+/* ══ EVENTS ══ */
+.event-card{border:1px solid var(--border);border-radius:var(--radius-lg);overflow:hidden;margin-bottom:11px;}
+.rewards-list{display:flex;flex-direction:column;gap:7px;}
+.reward-item{display:flex;align-items:center;justify-content:space-between;padding:10px 13px;border:1.5px solid var(--border);border-radius:var(--radius-md);background:white;}
+.reward-item.achieved{border-color:var(--success);background:var(--success-bg);}
+
+/* ══ IMAGE POSITION ══ */
+.image-position-editor{margin-top:9px;padding:11px;border:1px solid var(--border);border-radius:var(--radius-md);background:var(--bg-light);}
+.image-position-preview{width:100%;aspect-ratio:16/9;overflow:hidden;border-radius:var(--radius-md);border:1px dashed var(--primary-border);background:var(--bg-soft);margin-bottom:7px;}
+.image-position-preview img{width:100%;height:100%;object-fit:cover;}
+.range-row{display:grid;grid-template-columns:76px 1fr;align-items:center;gap:7px;margin:5px 0;font-size:.8rem;color:var(--text-secondary);}
+.range-row input[type="range"]{width:100%;accent-color:var(--primary);}
+.file-note{font-size:.76rem;color:var(--text-muted);margin-top:5px;}
+.teacher-avatar-preview{width:76px;height:76px;border-radius:50%;border:1px solid var(--border);background:var(--bg-soft);overflow:hidden;display:flex;align-items:center;justify-content:center;color:var(--text-muted);font-size:.74rem;text-align:center;margin-top:7px;}
+.teacher-avatar-preview img{width:100%;height:100%;object-fit:cover;}
+.grade-check-section{border:1px solid var(--border);border-radius:var(--radius-md);padding:10px;background:var(--bg-light);margin-bottom:8px;}
+.grade-check-title{font-weight:800;font-family:'Cairo',sans-serif;margin-bottom:7px;color:var(--text-primary);font-size:.83rem;}
+.grade-check-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:5px;}
+.grade-check{display:flex;align-items:center;gap:6px;padding:6px 8px;border:1.5px solid var(--border);border-radius:var(--radius-sm);background:white;cursor:pointer;transition:var(--transition);font-weight:600;font-size:.82rem;}
+.grade-check input{width:14px;height:14px;accent-color:var(--primary);}
+.grade-check.checked{border-color:var(--primary);background:var(--primary-bg);color:var(--primary-dark);}
+.grade-check.disabled{opacity:.45;cursor:not-allowed;background:var(--bg-soft);}
+.grade-picker-note{font-size:.72rem;color:var(--text-muted);margin-top:5px;}
+
+/* ══ RESPONSIVE ══ */
+@media(max-width:640px){
+  .hero-inner{flex-direction:column;gap:12px;}
+  .hero-stats{width:100%;display:grid;grid-template-columns:repeat(3,1fr);}
+  .hstat{min-width:0;}
+  .quick-actions{grid-template-columns:repeat(2,1fr);}
+  .home-kpi-grid{grid-template-columns:repeat(2,1fr);}
+  .stats-kpi{grid-template-columns:1fr;}
+  .plan-grid{grid-template-columns:1fr;}
+  .form-row{grid-template-columns:1fr;}
+  .ach-grid,.ch-grid{grid-template-columns:1fr;}
+  .notif-dropdown{width:280px;}
+  .main-tab{font-size:.77rem;padding:9px 4px;}
+  .more-dropdown{left:auto;right:0;}
+  .notif-dropdown{left:auto;right:0;}
 }
-  </style>
+@media(max-width:400px){
+  .hero-stats{grid-template-columns:repeat(2,1fr);}
+  .home-kpi-grid{grid-template-columns:1fr 1fr;}
+}
+</style>
 </head>
 <body>
 
 <!-- ── Navbar ── -->
 <nav class="navbar">
-  <div class="nav-container" style="max-width:1200px;margin:0 auto">
+  <div class="nav-container" style="max-width:960px;margin:0 auto">
     <a href="index.html" class="nav-brand">
       <img src="logo.png" alt="مدرسك" class="site-logo"> مدرسك
     </a>
-    <div class="nav-actions" style="display:flex;align-items:center;gap:12px">
-      <span id="nav-teacher-name" style="font-size:.9rem;color:var(--text-secondary)"></span>
-      <a href="index.html" class="btn btn-ghost btn-sm">الرئيسية</a>
-      <button onclick="logout()" class="btn btn-outline btn-sm">تسجيل الخروج</button>
+    <div class="dash-nav-right">
+      <span id="nav-teacher-name" style="font-size:.84rem;color:var(--text-secondary);"></span>
+
+      <!-- Bell Icon -->
+      <div class="notif-wrap">
+        <button class="notif-btn" id="notif-btn" onclick="toggleNotifDropdown()" aria-label="الإشعارات">
+          🔔
+          <span class="notif-badge" id="notif-count">0</span>
+        </button>
+        <div class="notif-dropdown" id="notif-dropdown">
+          <div class="notif-dd-header">
+            <span class="notif-dd-title">🔔 الإشعارات</span>
+            <button class="notif-dd-clear" onclick="markAllRead()">تعليم كمقروء</button>
+          </div>
+          <div class="notif-dd-list" id="notif-dd-list">
+            <div class="notif-empty">جارٍ التحميل...</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- More Menu -->
+      <div class="more-menu-wrap">
+        <button class="more-btn" id="more-btn" onclick="toggleMoreMenu()" aria-label="المزيد">⋮</button>
+        <div class="more-dropdown" id="more-dropdown">
+          <button class="more-dd-item" onclick="switchTab('profile');closeMoreMenu()">👤 ملفي الشخصي</button>
+          <button class="more-dd-item" onclick="switchTab('features');closeMoreMenu()">💎 الباقة والمميزات</button>
+          <button class="more-dd-item" onclick="switchTab('events');closeMoreMenu()">🎁 الفعاليات والمكافآت</button>
+          <div class="more-dd-divider"></div>
+          <button class="more-dd-item" onclick="openTeacherProfile();closeMoreMenu()">👁 عرض ملفي للطلاب</button>
+          <div class="more-dd-divider"></div>
+          <button class="more-dd-item" onclick="logout()" style="color:var(--danger)">🚪 تسجيل الخروج</button>
+        </div>
+      </div>
     </div>
   </div>
 </nav>
 
-<div class="container" style="padding-top:28px;padding-bottom:60px;max-width:960px">
+<div class="container" style="padding-top:18px;padding-bottom:60px;max-width:960px">
 
-  <!-- ── NEW HERO ── -->
-  <div class="teacher-welcome" id="welcome-banner">
-    <div class="tw-inner">
-      <!-- Left: name + level + progress + ads limit -->
-      <div>
-        <div class="welcome-name">مرحباً، <span id="teacher-name-display">...</span> 👋</div>
-        <div class="welcome-sub">لوحة تحكم حسابك في منصة مدرسك</div>
-        <!-- شارة المدرسين الأوائل -->
-        <div id="early-adopter-badge" style="display:none;margin-bottom:8px">
-          <span style="background:linear-gradient(135deg,#F59E0B,#EF4444);color:white;border-radius:50px;padding:4px 14px;font-size:.76rem;font-weight:700;display:inline-flex;align-items:center;gap:5px">🥇 من المدرسين الأوائل</span>
-        </div>
-        <!-- level badge -->
+  <!-- Hero -->
+  <div class="hero-dashboard" id="welcome-banner">
+    <div class="hero-inner">
+      <div class="hero-left">
+        <div class="hero-name">مرحباً، <span id="teacher-name-display">...</span> 👋</div>
+        <div class="hero-sub">لوحة تحكم حسابك في منصة مدرسك</div>
+        <div id="early-adopter-badge" style="display:none"><span class="early-tag">🥇 من المدرسين الأوائل</span></div>
         <div class="lv-badge" id="lv-badge">
           <span id="lv-icon">🌱</span>
-          <span class="lv-badge-name" id="lv-name">مستوى: مبتدئ</span>
+          <span class="lv-badge-name" id="lv-name">مبتدئ</span>
           <div class="lv-dot" id="lv-dot" style="background:#6B7280"></div>
         </div>
-        <!-- level progress -->
-        <div id="lv-prog-wrap">
-          <div class="lv-prog-labels"><span id="lv-cur">مبتدئ</span><span id="lv-pts-lbl">0 / 100 نقطة</span><span id="lv-next">نشيط</span></div>
-          <div class="lv-prog-track"><div class="lv-prog-fill" id="lv-prog-fill" style="width:0%"></div></div>
-          <div class="lv-prog-pct" id="lv-prog-pct">0% للمستوى التالي</div>
-        </div>
-        <!-- ads limit -->
-        <div class="limit-text" id="limit-text"></div>
-        <div class="limit-bar-wrapper" style="max-width:200px"><div class="limit-bar" id="limit-bar" style="width:0%"></div></div>
+        <div class="lv-prog-labels"><span id="lv-cur">مبتدئ</span><span id="lv-pts-lbl">0 / 500</span><span id="lv-next">صاعد</span></div>
+        <div class="lv-prog-track"><div class="lv-prog-fill" id="lv-prog-fill" style="width:0%"></div></div>
+        <div class="lv-prog-pct" id="lv-prog-pct">0%</div>
       </div>
-      <!-- Right: goal + points + rank + streak + view profile -->
-      <div class="tw-right">
-        <!-- daily goal circular -->
-        <div class="tw-card">
+      <div class="hero-stats">
+        <div class="hstat" style="padding:7px">
           <div class="circ-goal-wrap">
-            <svg width="76" height="76" style="transform:rotate(-90deg)" id="circ-svg">
-              <circle cx="38" cy="38" r="30" fill="none" stroke="rgba(255,255,255,.15)" stroke-width="6"/>
-              <circle cx="38" cy="38" r="30" fill="none" stroke="#20C997" stroke-width="6"
-                stroke-dasharray="188.5" stroke-dashoffset="188.5" stroke-linecap="round" id="circ-arc"/>
+            <svg width="62" height="62" style="transform:rotate(-90deg)">
+              <circle cx="31" cy="31" r="24" fill="none" stroke="rgba(255,255,255,.15)" stroke-width="5"/>
+              <circle cx="31" cy="31" r="24" fill="none" stroke="#20C997" stroke-width="5"
+                stroke-dasharray="150.8" stroke-dashoffset="150.8" stroke-linecap="round" id="circ-arc"/>
             </svg>
-            <div class="circ-inner">
-              <div class="circ-val" id="circ-today">0</div>
-              <div class="circ-sub">اليوم</div>
-            </div>
+            <div class="circ-inner"><div class="circ-val" id="circ-today">0</div><div class="circ-sub">اليوم</div></div>
           </div>
-          <div class="tw-card-lbl">هدف: 100 نقطة</div>
+          <div class="hstat-lbl">هدف: 100</div>
         </div>
-        <!-- XP (never decreases — determines level) -->
-        <div class="tw-card" title="نقاط الخبرة — تحدد مستواك ولا تنقص أبداً">
-          <div class="tw-card-icon">⭐</div>
-          <div class="tw-card-val" id="teacher-xp">0</div>
-          <div class="tw-card-lbl">XP خبرة</div>
-        </div>
-        <!-- Reward Points (spendable) -->
-        <div class="tw-card" title="نقاط المكافآت — يمكن صرفها على جوائز">
-          <div class="tw-card-icon">🎁</div>
-          <div class="tw-card-val" id="teacher-rp">0</div>
-          <div class="tw-card-lbl">نقاط مكافأة</div>
-        </div>
-        <!-- keep teacher-points hidden for backward compat -->
-        <span id="teacher-points" style="display:none">0</span>
-        <!-- rank -->
-        <div class="tw-card" id="rank-card" style="display:none">
-          <div class="tw-card-icon">🏆</div>
-          <div class="tw-card-val" id="tw-rank">#–</div>
-          <div class="tw-card-lbl">ترتيبك</div>
-        </div>
-        <!-- streak -->
-        <div class="tw-card">
-          <div class="tw-card-icon">🔥</div>
-          <div class="tw-card-val" id="tw-streak">0</div>
-          <div class="tw-card-lbl">أيام نشاط</div>
-        </div>
-        <!-- view profile -->
-        <a href="#" id="view-profile-btn" onclick="openTeacherProfile();return false;" class="btn btn-white btn-sm" style="color:var(--primary);align-self:flex-end">👁 عرض ملفي</a>
+        <div class="hstat"><div class="hstat-val" id="teacher-xp">0</div><div class="hstat-lbl">⭐ XP</div></div>
+        <div class="hstat"><div class="hstat-val" id="teacher-rp">0</div><div class="hstat-lbl">🎁 مكافأة</div></div>
+        <div class="hstat" id="rank-hstat" style="display:none"><div class="hstat-val" id="tw-rank">#—</div><div class="hstat-lbl">🏆 ترتيب</div></div>
+        <div class="hstat"><div class="hstat-val" id="tw-streak">0</div><div class="hstat-lbl">🔥 نشاط</div></div>
+        <button class="hero-view-btn" onclick="openTeacherProfile()">👁 ملفي</button>
       </div>
     </div>
   </div>
 
-  <!-- subscription banner -->
+  <!-- Subscription Banner -->
   <div id="subscription-banner"></div>
 
-  <!-- ── Tabs ── -->
-  <div class="dash-tabs-wrap" id="dash-tabs-wrap">
-    <div class="dash-tabs" id="dash-tabs">
-      <button class="dash-tab active" onclick="switchTab('ads',this)">📋 إعلاناتي</button>
-      <button class="dash-tab" onclick="switchTab('stats',this)">📊 إحصائيات</button>
-      <button class="dash-tab" onclick="switchTab('features',this)">💎 الباقة</button>
-      <button class="dash-tab" onclick="switchTab('profile',this)">👤 ملفي</button>
-      <button class="dash-tab" onclick="switchTab('leaderboard',this)">🏆 الشرف</button>
-      <button class="dash-tab" onclick="switchTab('notifications',this)">🔔 إشعارات</button>
-      <button class="dash-tab" onclick="switchTab('events',this)">🎁 فعاليات</button>
+  <!-- Quick Actions -->
+  <div class="quick-actions">
+    <button class="qa-btn qa-primary" onclick="openAddAdModal()">
+      <span class="qa-icon">➕</span><span class="qa-label">إعلان جديد</span>
+    </button>
+    <button class="qa-btn" onclick="quickEditFirstAd()">
+      <span class="qa-icon">✏️</span><span class="qa-label">تعديل إعلان</span>
+    </button>
+    <button class="qa-btn" onclick="switchTab('stats')">
+      <span class="qa-icon">📊</span><span class="qa-label">إحصائياتي</span>
+    </button>
+    <button class="qa-btn" onclick="switchTab('features')">
+      <span class="qa-icon">🚀</span><span class="qa-label">ترقية الباقة</span>
+    </button>
+  </div>
+
+  <!-- Main Tabs -->
+  <div class="main-tabs-bar">
+    <button class="main-tab active" id="tab-btn-home" onclick="switchTab('home',this)">🏠 الرئيسية</button>
+    <button class="main-tab" id="tab-btn-ads" onclick="switchTab('ads',this)">📋 إعلاناتي</button>
+    <button class="main-tab" id="tab-btn-stats" onclick="switchTab('stats',this)">📈 التحليلات</button>
+    <button class="main-tab" id="tab-btn-leaderboard" onclick="switchTab('leaderboard',this)">🏆 الشرف</button>
+  </div>
+
+  <!-- ══ HOME ══ -->
+  <div class="dash-pane active" id="tab-home">
+    <div class="home-kpi-grid">
+      <div class="kpi-card">
+        <div class="kpi-icon" style="background:#EFF6FF">👁</div>
+        <div><div class="kpi-val" style="color:#2563EB" id="home-views">—</div><div class="kpi-lbl">المشاهدات</div></div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-icon" style="background:#ECFDF5">💬</div>
+        <div><div class="kpi-val" style="color:#059669" id="home-contacts">—</div><div class="kpi-lbl">التواصل</div></div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-icon" style="background:#FFF7ED">📋</div>
+        <div><div class="kpi-val" style="color:#EA580C" id="home-active-ads">—</div><div class="kpi-lbl">إعلانات نشطة</div></div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-icon" style="background:#FFFBEB">📈</div>
+        <div><div class="kpi-val" style="color:#D97706" id="home-conv">—</div><div class="kpi-lbl">معدل التحويل</div></div>
+      </div>
+    </div>
+    <div id="home-alerts"></div>
+    <div class="home-chart-wrap">
+      <div class="home-chart-hd">
+        <div class="home-chart-title">📊 نشاطك آخر 7 أيام</div>
+        <div style="display:flex;gap:5px" id="home-metric-btns">
+          <button class="mbtn active" onclick="switchHomeMetric('views',this)">👁 مشاهدات</button>
+          <button class="mbtn" onclick="switchHomeMetric('contacts',this)">💬 تواصل</button>
+        </div>
+      </div>
+      <div id="home-chart-loading" style="text-align:center;padding:28px;color:var(--text-muted)">
+        <div class="spinner-lg" style="margin:0 auto 8px"></div>جارٍ التحميل...
+      </div>
+      <canvas id="home-area-chart" height="70" style="display:none"></canvas>
+    </div>
+    <div class="profile-completion-bar" id="home-profile-completion" style="display:none">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:7px">
+        <div style="font-family:'Cairo',sans-serif;font-weight:700;font-size:.86rem">📋 اكتمال الملف الشخصي</div>
+        <span id="home-completion-pct" style="font-family:'Cairo',sans-serif;font-weight:900;font-size:1rem">0%</span>
+      </div>
+      <div style="height:6px;border-radius:50px;background:#F1F5F9;overflow:hidden;margin-bottom:7px">
+        <div id="home-completion-bar" style="height:100%;border-radius:50px;transition:.5s;width:0%"></div>
+      </div>
+      <div id="home-completion-msg" style="font-size:.74rem;color:var(--text-secondary)"></div>
     </div>
   </div>
 
-  <!-- ══════════════════════════════════
-       TAB: إعلاناتي (ORIGINAL — unchanged)
-  ══════════════════════════════════ -->
-  <div class="dash-pane active" id="tab-ads">
-    <div class="mini-stats">
-      <div class="mini-stat"><div class="mini-stat-num text-primary-color" id="stat-active">0</div><div class="mini-stat-label">مقبول</div></div>
-      <div class="mini-stat"><div class="mini-stat-num" style="color:var(--pending-color)" id="stat-pending">0</div><div class="mini-stat-label">قيد المراجعة</div></div>
-      <div class="mini-stat"><div class="mini-stat-num text-danger" id="stat-rejected">0</div><div class="mini-stat-label">مرفوض</div></div>
+  <!-- ══ ADS ══ -->
+  <div class="dash-pane" id="tab-ads">
+    <div class="ads-stats">
+      <div class="ads-stat"><div class="ads-stat-num text-primary-color" id="stat-active">0</div><div class="ads-stat-lbl">مقبول</div></div>
+      <div class="ads-stat"><div class="ads-stat-num" style="color:var(--pending-color)" id="stat-pending">0</div><div class="ads-stat-lbl">مراجعة</div></div>
+      <div class="ads-stat"><div class="ads-stat-num text-danger" id="stat-rejected">0</div><div class="ads-stat-lbl">مرفوض</div></div>
     </div>
-    <div class="section-header">
+    <div class="section-hd">
       <h2>📋 إعلاناتي</h2>
-      <button class="btn btn-primary" id="add-ad-btn" onclick="openAddAdModal()">+ إعلان جديد</button>
+      <button class="btn btn-primary btn-sm" id="add-ad-btn" onclick="openAddAdModal()">+ إعلان جديد</button>
     </div>
     <div id="ads-loading" class="loading-spinner"><div class="spinner-lg"></div></div>
     <div id="ads-list" style="display:none"></div>
@@ -316,255 +434,125 @@
     </div>
   </div>
 
-  <!-- ══════════════════════════════════
-       TAB: إحصائيات ونقاط (NEW GAMIFICATION)
-  ══════════════════════════════════ -->
+  <!-- ══ STATS ══ -->
   <div class="dash-pane" id="tab-stats">
-
-    <!-- Loading state -->
     <div id="gam-loading" class="loading-spinner"><div class="spinner-lg"></div></div>
-
-    <!-- Content (shown after load) -->
+    <div id="gam-locked" style="display:none"></div>
     <div id="gam-content" style="display:none">
-
-      <!-- 4 Stat cards (real data from analytics_events) -->
-      <div class="gam-stat-grid" id="gam-stat-grid">
-        <div class="gam-scard" style="background:#EFF6FF;border-color:#BFDBFE">
-          <div class="gam-scard-top"><span style="font-size:1.35rem">👁</span><span class="gam-chg" id="gsc-views-chg" style="display:none"></span></div>
-          <div class="gam-scard-val" style="color:#2563EB" id="gsc-views">0</div>
-          <div class="gam-scard-lbl">مشاهدات الإعلانات (فريدة/يوم)</div>
-        </div>
-        <div class="gam-scard" style="background:#E6FDF5;border-color:#A7F3D0">
-          <div class="gam-scard-top"><span style="font-size:1.35rem">🔍</span></div>
-          <div class="gam-scard-val" style="color:#0EA672" id="gsc-details">0</div>
-          <div class="gam-scard-lbl">فتح تفاصيل الإعلان</div>
-        </div>
-        <div class="gam-scard" style="background:#ECFDF5;border-color:#BBF7D0">
-          <div class="gam-scard-top"><span style="font-size:1.35rem">💬</span></div>
-          <div class="gam-scard-val" style="color:#059669" id="gsc-wa">0</div>
-          <div class="gam-scard-lbl">تواصل واتساب</div>
-        </div>
-        <div class="gam-scard" style="background:#FFFBEB;border-color:#FDE68A">
-          <div class="gam-scard-top"><span style="font-size:1.35rem">📈</span></div>
-          <div class="gam-scard-val" style="color:#F59E0B" id="gsc-conv-rate">0%</div>
-          <div class="gam-scard-lbl">معدل التحويل</div>
-        </div>
-        <div class="gam-scard" style="background:#F5F3FF;border-color:#C4B5FD">
-          <div class="gam-scard-top"><span style="font-size:1.35rem">📋</span></div>
-          <div class="gam-scard-val" style="color:#7C3AED" id="gsc-ads">0</div>
-          <div class="gam-scard-lbl">الإعلانات النشطة</div>
-        </div>
-        <div class="gam-scard" style="background:#FFF7ED;border-color:#FED7AA" title="نقاط الخبرة — لا تنقص أبداً">
-          <div class="gam-scard-top"><span style="font-size:1.35rem">⭐</span></div>
-          <div class="gam-scard-val" style="color:#EA580C" id="gsc-xp">0</div>
-          <div class="gam-scard-lbl">نقاط الخبرة (XP)</div>
-        </div>
-        <div class="gam-scard" style="background:#FEF3C7;border-color:#FDE68A" title="نقاط المكافآت — يمكن صرفها">
-          <div class="gam-scard-top"><span style="font-size:1.35rem">🎁</span></div>
-          <div class="gam-scard-val" style="color:#B45309" id="gsc-rp">0</div>
-          <div class="gam-scard-lbl">نقاط المكافآت (قابلة للصرف)</div>
-        </div>
+      <div class="stats-kpi">
+        <div class="stats-kpi-card"><div class="stats-kpi-ico" style="background:#EFF6FF">👁</div><div><div class="stats-kpi-val" style="color:#2563EB" id="gsc-views">0</div><div class="stats-kpi-lbl">إجمالي المشاهدات</div></div></div>
+        <div class="stats-kpi-card"><div class="stats-kpi-ico" style="background:#ECFDF5">💬</div><div><div class="stats-kpi-val" style="color:#059669" id="gsc-wa">0</div><div class="stats-kpi-lbl">تواصل واتساب</div></div></div>
+        <div class="stats-kpi-card"><div class="stats-kpi-ico" style="background:#FFFBEB">📈</div><div><div class="stats-kpi-val" style="color:#F59E0B" id="gsc-conv-rate">0%</div><div class="stats-kpi-lbl">معدل التحويل</div></div></div>
+        <div class="stats-kpi-card"><div class="stats-kpi-ico" style="background:#FFF7ED">🔍</div><div><div class="stats-kpi-val" style="color:#EA580C" id="gsc-details">0</div><div class="stats-kpi-lbl">فتح التفاصيل</div></div></div>
       </div>
-
-      <!-- نسبة اكتمال الملف الشخصي -->
-      <div class="profile-form-card" id="profile-completion-card" style="margin-bottom:16px;padding:18px"></div>
-
-      <!-- معدل التحويل التفصيلي -->
-      <div class="profile-form-card" style="margin-bottom:16px;padding:18px">
-        <div style="font-family:'Cairo',sans-serif;font-weight:700;margin-bottom:14px;display:flex;align-items:center;gap:7px"><span>📊</span> معدل التحويل</div>
-        <div id="conversion-section"></div>
-      </div>
-
-      <!-- insight banner -->
-      <div class="gam-insight" id="gam-insight-banner">
-        <div class="gam-insight-title" id="gam-insight-title">🌟 لوحة النقاط والمستويات</div>
-        <div class="gam-insight-sub" id="gam-insight-sub">يتم تحميل بياناتك...</div>
-      </div>
-
-      <!-- Sub-tabs -->
+      <span id="gsc-ads" style="display:none">0</span>
+      <div class="gam-insight"><div class="gam-insight-title" id="gam-insight-title">🌟 مستواك الحالي</div><div class="gam-insight-sub" id="gam-insight-sub">يتم تحميل بياناتك...</div></div>
       <div class="gam-tabs">
-        <button class="gtab active" onclick="switchGTab('g-overview',this)">📊 نظرة عامة</button>
+        <button class="gtab active" onclick="switchGTab('g-activity',this)">📊 النشاط</button>
+        <button class="gtab" onclick="switchGTab('g-perad',this)">📋 الإعلانات</button>
         <button class="gtab" onclick="switchGTab('g-achievements',this)">🏆 الإنجازات</button>
         <button class="gtab" onclick="switchGTab('g-challenges',this)">🎯 التحديات</button>
-        <button class="gtab" onclick="switchGTab('g-activity',this)">📈 النشاط</button>
-        <button class="gtab" onclick="switchGTab('g-perad',this)">📌 إحصائيات الإعلانات</button>
+        <button class="gtab" onclick="switchGTab('g-levels',this)">⬆️ المستويات</button>
       </div>
-
-      <!-- ── G: Overview ── -->
-      <div class="gpane active" id="g-overview">
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:18px">
-          <!-- Level path -->
-          <div class="profile-form-card" style="padding:20px">
-            <div style="font-family:'Cairo',sans-serif;font-weight:700;margin-bottom:16px;display:flex;align-items:center;gap:7px"><span>🎯</span> مسار المستويات</div>
-            <div id="lpath-content"></div>
-          </div>
-          <!-- Active challenges mini -->
-          <div class="profile-form-card" style="padding:20px">
-            <div style="font-family:'Cairo',sans-serif;font-weight:700;margin-bottom:16px;display:flex;justify-content:space-between;align-items:center">
-              <span>⚡ التحديات النشطة</span>
-              <button onclick="switchGTab('g-challenges',null)" style="background:none;border:none;cursor:pointer;color:var(--primary);font-size:.73rem;font-family:inherit;font-weight:600">عرض الكل ←</button>
+      <div class="gpane active" id="g-activity">
+        <div class="chart-card">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:11px;flex-wrap:wrap;gap:7px">
+            <div class="chart-card-title" style="margin:0">📈 آخر 7 أيام</div>
+            <div style="display:flex;gap:5px" id="metric-btns">
+              <button class="mbtn active" onclick="switchMetric('views',this)">👁 مشاهدات</button>
+              <button class="mbtn" onclick="switchMetric('details',this)">🔍 تفاصيل</button>
+              <button class="mbtn" onclick="switchMetric('whatsapp',this)">💬 واتساب</button>
             </div>
-            <div id="mini-ch"></div>
           </div>
-          <!-- Activity chart -->
-          <div class="profile-form-card" style="grid-column:1/-1;padding:20px">
-            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;flex-wrap:wrap;gap:8px">
-              <div style="font-family:'Cairo',sans-serif;font-weight:700;display:flex;align-items:center;gap:7px"><span>📈</span> نشاطك آخر 7 أيام</div>
-              <div style="display:flex;gap:6px" id="metric-btns">
-                <button class="mbtn active-m" onclick="switchMetric('views',this)">👁 مشاهدات</button>
-                <button class="mbtn" onclick="switchMetric('details',this)">🔍 تفاصيل</button>
-                <button class="mbtn" onclick="switchMetric('whatsapp',this)">💬 واتساب</button>
-              </div>
-            </div>
-            <canvas id="area-chart" height="75"></canvas>
+          <canvas id="area-chart" height="75"></canvas>
+        </div>
+        <div class="collapsible-section">
+          <div class="collapsible-hd" onclick="toggleCollapsible(this)">
+            <span class="collapsible-title">📊 تفاصيل معدل التحويل</span>
+            <span class="collapsible-arrow">▼</span>
           </div>
+          <div class="collapsible-body"><div id="conversion-section"></div></div>
         </div>
       </div>
-
-      <!-- ── G: Achievements ── -->
+      <div class="gpane" id="g-perad"><div id="perad-content"></div></div>
       <div class="gpane" id="g-achievements">
-        <div style="display:flex;gap:13px;margin-bottom:20px;flex-wrap:wrap" id="ach-summary"></div>
+        <div style="display:flex;gap:10px;margin-bottom:14px;flex-wrap:wrap" id="ach-summary"></div>
         <div class="ach-grid" id="ach-grid"></div>
       </div>
-
-      <!-- ── G: Challenges ── -->
-      <div class="gpane" id="g-challenges">
-        <div class="ch-grid" id="ch-grid"></div>
+      <div class="gpane" id="g-challenges"><div class="ch-grid" id="ch-grid"></div></div>
+      <div class="gpane" id="g-levels">
+        <div class="chart-card"><div class="chart-card-title">🎯 مسار المستويات</div><div id="lpath-content"></div></div>
       </div>
-
-      <!-- ── G: Activity ── -->
-      <div class="gpane" id="g-activity">
-        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:13px;margin-bottom:20px" id="act-summary"></div>
-        <div class="profile-form-card" style="padding:20px;margin-bottom:18px">
-          <div style="font-family:'Cairo',sans-serif;font-weight:700;margin-bottom:16px">📊 التفاعل التفصيلي — آخر 7 أيام</div>
-          <canvas id="bar-chart" height="100"></canvas>
-        </div>
-        <div class="profile-form-card" style="padding:20px">
-          <div style="font-family:'Cairo',sans-serif;font-weight:700;margin-bottom:16px">⭐ منحنى النقاط اليومية</div>
-          <canvas id="pts-chart" height="80"></canvas>
-        </div>
-      </div>
-
-      <!-- ── G: Per-Ad Stats ── -->
-      <div class="gpane" id="g-perad">
-        <div id="perad-content"></div>
-      </div>
-
-    </div><!-- /gam-content -->
-
-    <!-- locked state (no stats permission) -->
-    <div id="gam-locked" style="display:none"></div>
-
-  </div><!-- /tab-stats -->
-
-  <!-- ══════════════════════════════════
-       TAB: مميزات الباقة (ORIGINAL)
-  ══════════════════════════════════ -->
-  <div class="dash-pane" id="tab-features">
-    <div id="features-content"></div>
+    </div>
   </div>
 
-  <!-- ══════════════════════════════════
-       TAB: الملف الشخصي (ORIGINAL)
-  ══════════════════════════════════ -->
+  <!-- ══ LEADERBOARD ══ -->
+  <div class="dash-pane" id="tab-leaderboard">
+    <div class="profile-card">
+      <h3 style="font-family:'Cairo',sans-serif;font-weight:700;margin-bottom:4px">🏆 لوحة الشرف</h3>
+      <div style="font-size:.76rem;color:var(--text-secondary);margin-bottom:16px">الترتيب حسب نقاط الخبرة (XP)</div>
+      <div id="leaderboard-content"><div class="loading-spinner"><div class="spinner-lg"></div></div></div>
+    </div>
+  </div>
+
+  <!-- ══ PROFILE (via More menu) ══ -->
   <div class="dash-pane" id="tab-profile">
-    <div class="profile-form-card">
-      <h3 style="font-family:'Cairo',sans-serif;font-weight:700;margin-bottom:24px">👤 تعديل الملف الشخصي</h3>
+    <div class="profile-card">
+      <h3 style="font-family:'Cairo',sans-serif;font-weight:700;margin-bottom:18px">👤 تعديل الملف الشخصي</h3>
       <form id="profile-form" onsubmit="saveProfile(event)">
         <div class="form-group">
           <label class="form-label">صورة المعلم</label>
           <input type="file" id="p-avatar-file" class="form-control" accept="image/*">
-          <div class="form-hint">اختياري — تظهر صورتك في كارت الإعلان وصفحة التفاصيل.</div>
+          <div class="form-hint">تظهر في كارت الإعلان وصفحة التفاصيل.</div>
           <div id="p-avatar-preview" class="teacher-avatar-preview"></div>
         </div>
         <div class="form-row">
-          <div class="form-group">
-            <label class="form-label">الاسم الكامل <span class="required">*</span></label>
-            <input type="text" id="p-name" class="form-control" placeholder="اسمك الكامل" required>
-          </div>
-          <div class="form-group">
-            <label class="form-label">رقم الجوال</label>
-            <input type="tel" id="p-phone" class="form-control" placeholder="05xxxxxxxx">
-          </div>
+          <div class="form-group"><label class="form-label">الاسم الكامل <span class="required">*</span></label><input type="text" id="p-name" class="form-control" placeholder="اسمك الكامل" required></div>
+          <div class="form-group"><label class="form-label">رقم الجوال</label><input type="tel" id="p-phone" class="form-control" placeholder="05xxxxxxxx"></div>
         </div>
         <div class="form-row">
-          <div class="form-group">
-            <label class="form-label">واتساب</label>
-            <input type="text" id="p-whatsapp" class="form-control" placeholder="رقم الواتساب (مع كود الدولة)">
-            <div class="form-hint">مثال: 966501234567</div>
-          </div>
-          <div class="form-group">
-            <label class="form-label">رابط فيسبوك</label>
-            <input type="url" id="p-facebook" class="form-control" placeholder="https://facebook.com/...">
-          </div>
+          <div class="form-group"><label class="form-label">واتساب</label><input type="text" id="p-whatsapp" class="form-control" placeholder="966501234567"></div>
+          <div class="form-group"><label class="form-label">رابط فيسبوك</label><input type="url" id="p-facebook" class="form-control" placeholder="https://facebook.com/..."></div>
         </div>
-        <div class="form-group">
-          <label class="form-label">نبذة عنك</label>
-          <textarea id="p-bio" class="form-control" rows="4" placeholder="اكتب نبذة مختصرة عن خبرتك وأسلوب تدريسك..."></textarea>
-        </div>
+        <div class="form-group"><label class="form-label">نبذة عنك</label><textarea id="p-bio" class="form-control" rows="4" placeholder="اكتب نبذة مختصرة..."></textarea></div>
         <div class="form-group">
           <label class="form-label">وسائل تواصل إضافية</label>
-          <textarea id="p-contact-methods" class="form-control" rows="3" placeholder="مثال:&#10;تيليجرام: @username&#10;إنستجرام: https://..."></textarea>
-          <div class="form-hint">تغيير كلمة المرور يتم من لوحة الإدارة فقط.</div>
+          <textarea id="p-contact-methods" class="form-control" rows="3" placeholder="تيليجرام: @username&#10;إنستجرام: https://..."></textarea>
+          <div class="form-hint">تغيير كلمة المرور من لوحة الإدارة فقط.</div>
         </div>
         <button type="submit" class="btn btn-primary btn-lg" id="profile-save-btn">💾 حفظ التغييرات</button>
       </form>
     </div>
   </div>
 
-  <!-- ══════════════════════════════════
-       TAB: لوحة الشرف (IMPROVED)
-  ══════════════════════════════════ -->
-  <div class="dash-pane" id="tab-leaderboard">
-    <div class="profile-form-card">
-      <h3 style="font-family:'Cairo',sans-serif;font-weight:700;margin-bottom:6px">🏆 لوحة الشرف</h3>
-      <div style="font-size:.82rem;color:var(--text-secondary);margin-bottom:20px">ترتيب المدرسين حسب نقاط الخبرة (XP) — لا تتأثر بالاسترداد</div>
-      <div id="leaderboard-content"><div class="loading-spinner"><div class="spinner-lg"></div></div></div>
-    </div>
-  </div>
+  <!-- ══ FEATURES (via More menu) ══ -->
+  <div class="dash-pane" id="tab-features"><div id="features-content"></div></div>
 
-  <!-- ══════════════════════════════════
-       TAB: الإشعارات (ORIGINAL)
-  ══════════════════════════════════ -->
-  <div class="dash-pane" id="tab-notifications">
-    <div class="profile-form-card">
-      <h3 style="font-family:'Cairo',sans-serif;font-weight:700;margin-bottom:16px">🔔 الإشعارات</h3>
-      <div id="notifications-content" style="overflow-x:hidden;overflow-wrap:anywhere;word-break:break-word"><div class="loading-spinner"><div class="spinner-lg"></div></div></div>
-    </div>
-  </div>
-
-  <!-- ══════════════════════════════════
-       TAB: فعاليات ومكافآت (ORIGINAL)
-  ══════════════════════════════════ -->
+  <!-- ══ EVENTS (via More menu) ══ -->
   <div class="dash-pane" id="tab-events">
-    <div class="profile-form-card mb-24" style="margin-bottom:20px">
-      <h3 style="font-family:'Cairo',sans-serif;font-weight:700;margin-bottom:16px">🎯 الفعاليات النشطة</h3>
+    <div class="profile-card" style="margin-bottom:13px">
+      <h3 style="font-family:'Cairo',sans-serif;font-weight:700;margin-bottom:13px">🎯 الفعاليات النشطة</h3>
       <div id="events-content"><div class="loading-spinner"><div class="spinner-lg"></div></div></div>
     </div>
-    <div class="profile-form-card">
-      <h3 style="font-family:'Cairo',sans-serif;font-weight:700;margin-bottom:12px">🏆 استرداد النقاط</h3>
+    <div class="profile-card">
+      <h3 style="font-family:'Cairo',sans-serif;font-weight:700;margin-bottom:10px">🏆 استرداد النقاط</h3>
       <div id="rewards-tiers-content"><div class="loading-spinner"><div class="spinner-lg"></div></div></div>
-      <div class="alert alert-info mt-16" style="flex-direction:column;gap:8px;align-items:flex-start">
-        <div>💬 لاسترداد مكافأتك، تواصل مع الإدارة عبر واتساب وأذكر عدد نقاط المكافأة لديك.</div>
-        <div style="background:rgba(37,99,235,.08);border-radius:8px;padding:10px 14px;font-size:.82rem;color:#1D4ED8;width:100%">
-          ✅ <strong>مهم:</strong> صرف نقاط المكافأة لا يؤثر على مستواك أو نقاط الخبرة (XP) أبداً.
-        </div>
+      <div class="alert alert-info mt-16" style="flex-direction:column;gap:7px;align-items:flex-start">
+        <div>💬 لاسترداد مكافأتك تواصل مع الإدارة.</div>
         <a href="#" data-admin-contact data-message="مرحبًا، أريد استرداد نقاطي في منصة مدرسك" class="btn btn-primary btn-sm">تواصل مع الإدارة</a>
       </div>
-      <div class="mt-16" style="background:var(--primary-bg);border:1px solid var(--primary-border);border-radius:var(--radius-md);padding:14px">
-        <div style="font-size:.9rem;font-weight:700;margin-bottom:8px">⭐ نقاط الخبرة (XP): <span id="events-xp-display" style="color:var(--primary);font-family:Cairo,sans-serif;font-size:1.1rem">0</span></div>
-        <div style="font-size:.9rem;font-weight:700">🎁 نقاط المكافآت (قابلة للصرف): <span id="events-points-display" style="color:#F59E0B;font-family:Cairo,sans-serif;font-size:1.2rem">0</span></div>
-        <div style="font-size:.78rem;color:var(--text-muted);margin-top:6px">⚠️ صرف المكافآت لا يؤثر على مستواك أو XP</div>
+      <div style="background:var(--primary-bg);border:1px solid var(--primary-border);border-radius:var(--radius-md);padding:11px;margin-top:11px;display:flex;gap:14px;flex-wrap:wrap">
+        <div style="font-size:.83rem;font-weight:700">⭐ XP: <span id="events-xp-display" style="color:var(--primary);font-family:Cairo,sans-serif;font-size:.96rem">0</span></div>
+        <div style="font-size:.83rem;font-weight:700">🎁 مكافآت: <span id="events-points-display" style="color:#F59E0B;font-family:Cairo,sans-serif;font-size:.96rem">0</span></div>
       </div>
     </div>
   </div>
 
-</div><!-- /container -->
+  <span id="teacher-points" style="display:none">0</span>
+  <span id="gsc-views-chg" style="display:none"></span>
+</div>
 
-
-<!-- ══════════════════════════════════
-     AD MODAL (ORIGINAL — unchanged)
-══════════════════════════════════ -->
+<!-- ══ AD MODAL ══ -->
 <div class="modal-overlay" id="ad-modal">
   <div class="modal">
     <div class="modal-header">
@@ -574,66 +562,31 @@
     <div class="modal-body">
       <form id="ad-form" onsubmit="submitAd(event)">
         <input type="hidden" id="ad-id">
-        <div class="form-group">
-          <label class="form-label">عنوان الإعلان <span class="required">*</span></label>
-          <input type="text" id="ad-title" class="form-control" placeholder="مثال: دروس رياضيات للصف الثالث متوسط" required>
+        <div class="form-group"><label class="form-label">عنوان الإعلان <span class="required">*</span></label><input type="text" id="ad-title" class="form-control" placeholder="مثال: دروس رياضيات للصف الثالث متوسط" required></div>
+        <div class="form-row">
+          <div class="form-group"><label class="form-label">المادة <span class="required">*</span></label><select id="ad-subject" class="form-control form-select" required><option value="">اختر المادة</option></select></div>
+          <div class="form-group"><label class="form-label">الفصول الدراسية <span class="required">*</span></label><div id="ad-grades-box"></div><div class="grade-picker-note">يمكن اختيار أكثر من فصل من نفس القسم.</div></div>
         </div>
         <div class="form-row">
-          <div class="form-group">
-            <label class="form-label">المادة <span class="required">*</span></label>
-            <select id="ad-subject" class="form-control form-select" required><option value="">اختر المادة</option></select>
-          </div>
-          <div class="form-group">
-            <label class="form-label">الفصول الدراسية <span class="required">*</span></label>
-            <div id="ad-grades-box"></div>
-            <div class="grade-picker-note">يمكن اختيار أكثر من فصل، لكن من نفس القسم فقط.</div>
-          </div>
+          <div class="form-group"><label class="form-label">السعر (جنيه/الحصة) <span class="required">*</span></label><input type="number" id="ad-price" class="form-control" placeholder="100" min="1" required></div>
+          <div class="form-group"><label class="form-label">نوع الدرس <span class="required">*</span></label><select id="ad-lesson-type" class="form-control form-select" required><option value="">اختر</option><option value="online">🌐 أونلاين</option><option value="inperson">🏠 حضوري</option><option value="both">🌐🏠 كلاهما</option></select></div>
         </div>
-        <div class="form-row">
-          <div class="form-group">
-            <label class="form-label">السعر (جنيه/الحصة) <span class="required">*</span></label>
-            <input type="number" id="ad-price" class="form-control" placeholder="100" min="1" required>
-          </div>
-          <div class="form-group">
-            <label class="form-label">نوع الدرس <span class="required">*</span></label>
-            <select id="ad-lesson-type" class="form-control form-select" required>
-              <option value="">اختر</option>
-              <option value="online">🌐 أونلاين</option>
-              <option value="inperson">🏠 حضوري</option>
-              <option value="both">🌐🏠 كلاهما</option>
-            </select>
-          </div>
-        </div>
+        <div class="form-group"><label class="form-label">وصف الإعلان</label><textarea id="ad-description" class="form-control" rows="3" placeholder="اكتب تفاصيل إضافية..."></textarea></div>
         <div class="form-group">
-          <label class="form-label">وصف الإعلان</label>
-          <textarea id="ad-description" class="form-control" rows="3" placeholder="اكتب تفاصيل إضافية عن أسلوب التدريس والخبرة..."></textarea>
-        </div>
-        <div class="form-group">
-          <label class="form-label">الصورة الرئيسية للإعلان</label>
-          <div class="file-note" style="background:var(--primary-bg);border:1px solid #BFDBFE;border-radius:6px;padding:8px 12px;margin-bottom:8px;font-size:.82rem;color:#1D4ED8">
-            📐 <strong>الأبعاد المثالية: 800×450 بكسل</strong> (نسبة 16:9) — الحجم الأقصى: 6MB
-          </div>
+          <label class="form-label">الصورة الرئيسية</label>
+          <div class="file-note" style="background:var(--primary-bg);border:1px solid #BFDBFE;border-radius:6px;padding:7px 10px;margin-bottom:7px;font-size:.76rem;color:#1D4ED8">📐 الأبعاد المثالية: 800×450 (16:9) — الحجم الأقصى: 6MB</div>
           <input type="file" id="ad-main-image" class="form-control" accept="image/*">
           <input type="hidden" id="ad-main-image-position" value="50% 50%">
-          <div class="file-note">تظهر في كارت الإعلان. اتركها فارغة عند التعديل إذا لا تريد تغييرها.</div>
+          <div class="file-note">اتركها فارغة عند التعديل إذا لا تريد تغييرها.</div>
           <div id="ad-main-position-editor" class="image-position-editor" style="display:none">
             <div class="image-position-preview"><img id="ad-main-position-preview" alt="معاينة"></div>
-            <div class="range-row"><label>تحريك أفقي</label><input type="range" id="ad-pos-x" min="0" max="100" value="50"></div>
-            <div class="range-row"><label>تحريك رأسي</label><input type="range" id="ad-pos-y" min="0" max="100" value="50"></div>
+            <div class="range-row"><label>أفقي</label><input type="range" id="ad-pos-x" min="0" max="100" value="50"></div>
+            <div class="range-row"><label>رأسي</label><input type="range" id="ad-pos-y" min="0" max="100" value="50"></div>
           </div>
           <div id="ad-current-main-image" class="media-preview"></div>
         </div>
-        <div class="form-group">
-          <label class="form-label">صور إضافية داخل التفاصيل</label>
-          <input type="file" id="ad-gallery-images" class="form-control" accept="image/*" multiple>
-          <div class="file-note">حتى 10 صور إضافية. عند التعديل ستُضاف للصور القديمة.</div>
-          <div id="ad-current-gallery" class="media-preview"></div>
-        </div>
-        <div class="form-group">
-          <label class="form-label">معلومات تواصل إضافية</label>
-          <input type="text" id="ad-extra-contact" class="form-control" placeholder="مثال: تيليجرام: @username">
-          <div class="form-hint">ستظهر داخل تفاصيل الإعلان.</div>
-        </div>
+        <div class="form-group"><label class="form-label">صور إضافية (حتى 10)</label><input type="file" id="ad-gallery-images" class="form-control" accept="image/*" multiple><div id="ad-current-gallery" class="media-preview"></div></div>
+        <div class="form-group"><label class="form-label">معلومات تواصل إضافية</label><input type="text" id="ad-extra-contact" class="form-control" placeholder="تيليجرام: @username"></div>
         <div id="modal-error" class="alert alert-danger" style="display:none"></div>
         <div style="display:flex;gap:10px;justify-content:flex-end;margin-top:4px">
           <button type="button" class="btn btn-ghost" onclick="closeAdModal()">إلغاء</button>
@@ -644,1251 +597,8 @@
   </div>
 </div>
 
-
-<style>
-/* metric buttons */
-.mbtn{padding:5px 12px;border-radius:7px;border:1.5px solid var(--border);background:transparent;color:var(--text-secondary);font-size:.73rem;font-weight:600;cursor:pointer;font-family:inherit;transition:all .2s}
-.mbtn.active-m{border-color:#2563EB;background:#EFF6FF;color:#2563EB}
-</style>
-
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="config.js?v=7.5.0"></script>
-<script>
-/* ══════════════════════════════════════════════════════
-   GAMIFICATION DATA
-══════════════════════════════════════════════════════ */
-const GM_LEVELS = [
-  {name:'مبتدئ',         icon:'🌱', min:0,     max:500,   color:'#6B7280', track:'#E5E7EB'},
-  {name:'صاعد',          icon:'🚀', min:500,   max:2000,  color:'#2563EB', track:'#DBEAFE'},
-  {name:'متقدم',         icon:'⭐', min:2000,  max:5000,  color:'#0EA672', track:'#A7F3D0'},
-  {name:'خبير',          icon:'🏅', min:5000,  max:10000, color:'#F59E0B', track:'#FEF3C7'},
-  {name:'أسطورة مدرسك',  icon:'👑', min:10000, max:99999, color:'#7C3AED', track:'#EDE9FE'},
-];
-
-// Achievement definitions — checked against real data
-const ACH_DEFS = [
-  {id:'first_ad',    icon:'🚀', title:'الانطلاقة',       desc:'نشرت أول إعلان على المنصة',          pts:10,  color:'#20C997'},
-  {id:'first_wa',    icon:'💬', title:'أول تواصل',       desc:'تلقيت أول ضغطة واتساب',              pts:20,  color:'#2563EB'},
-  {id:'100_views',   icon:'👁', title:'مئة عين',         desc:'وصلت إلى 100 مشاهدة إجمالية',        pts:30,  color:'#0EA672'},
-  {id:'500_views',   icon:'🏆', title:'نصف الألف',       desc:'تجاوزت 500 مشاهدة',                  pts:75,  color:'#EF4444'},
-  {id:'img_ad',      icon:'📸', title:'إعلان بصورة',     desc:'أضفت صورة لإعلانك',                  pts:15,  color:'#0EA5E9'},
-  {id:'desc_ad',     icon:'✍', title:'وصف متكامل',      desc:'كتبت وصفاً لإعلانك أكثر من 100 حرف', pts:10,  color:'#8B5CF6'},
-  {id:'10_wa',       icon:'🎯', title:'10 تواصل',        desc:'وصلت لـ 10 ضغطة واتساب',             pts:40,  color:'#20C997'},
-  {id:'lv_2',        icon:'🚀', title:'مستوى صاعد',      desc:'الوصول للمستوى الثاني (500 نقطة)',   pts:50,  color:'#2563EB'},
-  {id:'lv_3',        icon:'⭐', title:'مستوى متقدم',     desc:'الوصول للمستوى الثالث (2000 نقطة)',  pts:100, color:'#0EA672'},
-  {id:'lv_4',        icon:'🏅', title:'مستوى خبير',      desc:'الوصول للمستوى الرابع (5000 نقطة)',  pts:200, color:'#F59E0B'},
-];
-
-// Challenge definitions — progress computed from today/this week events
-const CH_DEFS = [
-  {id:'daily_views',  icon:'👁', title:'20 مشاهدة اليوم',      metric:'ad_card_view',   target:20, reward:10, period:'daily' },
-  {id:'weekly_wa',    icon:'💬', title:'3 تواصل هذا الأسبوع',  metric:'whatsapp_click', target:3,  reward:25, period:'weekly'},
-  {id:'daily_details',icon:'🔍', title:'5 فتح تفاصيل اليوم',   metric:'ad_detail_view', target:5,  reward:8,  period:'daily' },
-  {id:'streak_7',     icon:'🔥', title:'7 أيام نشاط متواصل',   metric:'streak',         target:7,  reward:50, period:'streak'},
-];
-const PERIOD_LBL  = {daily:'يومي', weekly:'أسبوعي', streak:'متواصل', once:'مرة واحدة'};
-const PERIOD_CLR  = {daily:'#2563EB', weekly:'#0EA672', streak:'#F59E0B', once:'#20C997'};
-
-/* ══ STATE ══ */
-let teacher      = null;
-let teacherAds   = [];
-let gamEvents    = [];
-let areaChart, barChart, ptsChart;
-let curMetric    = 'views';
-const CHART_FONT = "'Tajawal','Cairo',sans-serif";
-
-/* ══ INIT ══ */
-document.addEventListener('DOMContentLoaded', async () => {
-  if (!Auth.requireTeacher()) return;
-  teacher = Auth.getTeacherSession();
-  document.getElementById('teacher-name-display').textContent = teacher.name;
-  document.getElementById('nav-teacher-name').textContent     = teacher.name;
-  document.getElementById('view-profile-btn').href = `teacher.html?id=${teacher.id}`;
-  await loadSubjectsSafe();
-  populateAllSubjectAndGradeSelects();
-  await loadTeacherData();
-  await loadAds();
-  setupMainImagePositionControls();
-  setupAvatarPreview();
-});
-
-/* ══ LOAD TEACHER DATA (original) ══ */
-async function loadTeacherData() {
-  let data;
-  try {
-    const res = await supabase.from('teachers')
-      .select('name,bio,avatar_url,whatsapp,facebook,phone,contact_methods,ads_limit,is_active,plan_type,subscription_start,subscription_end,subscription_status,allow_basic_stats,allow_advanced_stats,allow_unlimited_edits,allow_fast_support,custom_features,points,xp,reward_points,created_at')
-      .eq('id', teacher.id).single();
-    if (res.error) throw res.error;
-    data = res.data;
-  } catch (err) {
-    const msg = String(err?.message || '');
-    if (/points/i.test(msg)) {
-      const res2 = await supabase.from('teachers')
-        .select('name,bio,avatar_url,whatsapp,facebook,phone,contact_methods,ads_limit,is_active,plan_type,subscription_start,subscription_end,subscription_status,allow_basic_stats,allow_advanced_stats,allow_unlimited_edits,allow_fast_support,custom_features')
-        .eq('id', teacher.id).single();
-      data = res2.data; data.points = 0; data.xp = 0; data.reward_points = 0;
-    } else { console.error(err); return; }
-  }
-  if (!data) return;
-
-  // تحديد المدرسين الأوائل: الحسابات المنشأة قبل 90 يوم من الآن
-  const createdAt = new Date(data.created_at || '2026-01-01');
-  const cutoff    = new Date('2026-04-01'); // تاريخ إطلاق المنصة + 30 يوم
-  data.is_early_adopter = createdAt <= cutoff;
-
-  document.getElementById('p-name').value             = data.name || '';
-  document.getElementById('p-bio').value              = data.bio  || '';
-  document.getElementById('p-whatsapp').value         = data.whatsapp || '';
-  document.getElementById('p-facebook').value         = data.facebook || '';
-  document.getElementById('p-contact-methods').value  = data.contact_methods || '';
-  document.getElementById('p-phone').value            = data.phone || '';
-  renderAvatarPreview(data.avatar_url || '');
-  Object.assign(teacher, data);
-  Auth.setTeacherSession({...teacher, name: data.name || teacher.name, xp: data.xp ?? data.points ?? 0, reward_points: data.reward_points ?? data.xp ?? data.points ?? 0});
-  document.getElementById('subscription-banner').innerHTML = subscriptionBannerHtml(teacher);
-
-  // شارة المدرسين الأوائل في الهيرو
-  const earlyBadge = document.getElementById('early-adopter-badge');
-  if (earlyBadge) earlyBadge.style.display = data.is_early_adopter ? '' : 'none';
-
-  renderFeatures();
-  // XP = experience (never decreases) — fallback to points if xp column absent
-  const xp = typeof data.xp === 'number' ? data.xp : (typeof data.points === 'number' ? data.points : 0);
-  // Reward Points = spendable (fallback to points if rp column absent)
-  const rp = typeof data.reward_points === 'number' ? data.reward_points : xp;
-  teacher.points = xp;   // keep legacy compat
-  teacher.xp = xp;
-  teacher.reward_points = rp;
-  updateHeroGamification(xp, rp);
-}
-
-/* ══ HERO GAMIFICATION UPDATE ══ */
-// pts = XP (experience points, never decreases)
-// rp  = Reward Points (spendable, separate from XP)
-function updateHeroGamification(pts, rp) {
-  // XP display
-  const xpEl = document.getElementById('teacher-xp');
-  if (xpEl) xpEl.textContent = pts.toLocaleString('ar-EG');
-  // Reward Points display
-  const rpEl = document.getElementById('teacher-rp');
-  if (rpEl) rpEl.textContent = (rp != null ? rp : pts).toLocaleString('ar-EG');
-  // legacy
-  document.getElementById('teacher-points').textContent = pts.toLocaleString('ar-EG');
-  // events tab
-  const evXpEl = document.getElementById('events-xp-display');
-  if (evXpEl) evXpEl.textContent = pts.toLocaleString('ar-EG');
-  document.getElementById('events-points-display').textContent = (rp != null ? rp : pts).toLocaleString('ar-EG');
-  const xpVal = pts; // pts here is XP passed from caller
-  const cur  = GM_LEVELS.find(l => xpVal >= l.min && xpVal < l.max) || GM_LEVELS[GM_LEVELS.length-1];
-  const next = GM_LEVELS.find(l => l.min > xpVal);
-  document.getElementById('lv-icon').textContent  = cur.icon;
-  document.getElementById('lv-name').textContent  = 'مستوى: ' + cur.name;
-  document.getElementById('lv-dot').style.background = cur.color;
-  document.getElementById('lv-cur').textContent   = cur.name;
-  document.getElementById('lv-next').textContent  = next ? next.name : '—';
-  const range = next ? (next.min - cur.min) : (cur.max - cur.min);
-  const pct   = next ? Math.min(Math.round(((xpVal - cur.min) / range) * 100), 100) : 100;
-  document.getElementById('lv-pts-lbl').textContent = `${xpVal.toLocaleString('ar-EG')} XP / ${next ? next.min.toLocaleString('ar-EG') : '∞'}`;
-  document.getElementById('lv-prog-fill').style.width      = pct + '%';
-  document.getElementById('lv-prog-fill').style.background = `linear-gradient(90deg,${cur.color},${next?next.color:cur.color})`;
-  document.getElementById('lv-prog-pct').textContent       = pct + '% للمستوى التالي (XP لا تنقص)';
-}
-
-function updateCircularGoal(todayPts) {
-  const max = 100;
-  const pct = Math.min(todayPts / max, 1);
-  const circ = 188.5;
-  const offset = circ * (1 - pct);
-  document.getElementById('circ-arc').setAttribute('stroke-dashoffset', offset.toFixed(1));
-  document.getElementById('circ-today').textContent = Math.min(todayPts, max);
-  // تغيير لون القوس عند الوصول للحد
-  const arc = document.getElementById('circ-arc');
-  if (todayPts >= max) { arc.setAttribute('stroke','#F59E0B'); }
-  else { arc.setAttribute('stroke','#20C997'); }
-}
-
-// خصم نقاط المكافأة فقط (XP لا يتأثر أبداً)
-async function spendRewardPoints(teacherId, amount) {
-  if (!window.supabase || !teacherId || amount <= 0) return false;
-  try {
-    const { data: current, error } = await window.supabase
-      .from('teachers').select('xp,reward_points,points').eq('id', teacherId).maybeSingle();
-    if (error || !current) return false;
-    const currentRP = current.reward_points ?? current.xp ?? current.points ?? 0;
-    if (currentRP < amount) return false;
-    const newRP = currentRP - amount;
-    await window.supabase.from('teachers').update({ reward_points: newRP }).eq('id', teacherId);
-    teacher.reward_points = newRP;
-    const rpEl = document.getElementById('teacher-rp');
-    if (rpEl) rpEl.textContent = newRP.toLocaleString('ar-EG');
-    const evPtsEl = document.getElementById('events-points-display');
-    if (evPtsEl) evPtsEl.textContent = newRP.toLocaleString('ar-EG');
-    return true;
-  } catch (_) { return false; }
-}
-
-/* ══ LOAD ADS (original) ══ */
-async function loadAds() {
-  document.getElementById('ads-loading').style.display = 'flex';
-  document.getElementById('ads-list').style.display    = 'none';
-  try {
-    const { data, error } = await supabase.from('ads').select('*').eq('teacher_id', teacher.id).order('created_at', {ascending:false});
-    if (error) throw error;
-    teacherAds = data || [];
-  } catch (err) {
-    console.error('loadAds error:', err);
-    showToast('تعذّر تحميل الإعلانات: ' + (err?.message || ''), 'danger');
-    teacherAds = [];
-  }
-  renderAds(); updateStats(); updateLimitDisplay();
-  document.getElementById('ads-loading').style.display = 'none';
-  const gscAds = document.getElementById('gsc-ads');
-  if (gscAds) gscAds.textContent = teacherAds.filter(a => a.status==='active').length;
-}
-
-function updateStats() {
-  document.getElementById('stat-active').textContent   = teacherAds.filter(a => a.status==='active').length;
-  document.getElementById('stat-pending').textContent  = teacherAds.filter(a => a.status==='pending').length;
-  document.getElementById('stat-rejected').textContent = teacherAds.filter(a => a.status==='rejected').length;
-}
-
-function updateLimitDisplay() {
-  const limit = getTeacherFeatures(teacher).ads_limit;
-  const used  = teacherAds.length;
-  const pct   = Math.min(100, (used/limit)*100);
-  document.getElementById('limit-text').textContent    = `الإعلانات: ${used} من ${limit}`;
-  document.getElementById('limit-bar').style.width     = `${pct}%`;
-  const addBtn = document.getElementById('add-ad-btn');
-  if (!isSubscriptionActive(teacher)) { addBtn.disabled=true; addBtn.textContent='🚫 الاشتراك منتهي'; }
-  else if (used >= limit)             { addBtn.disabled=true; addBtn.textContent=`🚫 الحد الأقصى (${limit})`; }
-  else                                { addBtn.disabled=false; addBtn.textContent='+ إعلان جديد'; }
-}
-
-function renderAds() {
-  const list = document.getElementById('ads-list');
-  const empty= document.getElementById('ads-empty');
-  if (!teacherAds.length) { list.style.display='none'; empty.style.display=''; return; }
-  list.style.display=''; empty.style.display='none';
-
-  // تنبيهات ذكية
-  const smartAlerts = buildSmartAlerts();
-  if (smartAlerts) {
-    let alertBox = document.getElementById('smart-alerts-box');
-    if (!alertBox) {
-      alertBox = document.createElement('div');
-      alertBox.id = 'smart-alerts-box';
-      list.before(alertBox);
-    }
-    alertBox.innerHTML = smartAlerts;
-  }
-
-  list.innerHTML = teacherAds.map(ad => `
-    <div class="ad-manage-card animate-in">
-      <div class="amc-header">
-        <div style="flex:1;min-width:0">
-          <div class="amc-title" style="display:flex;align-items:center;gap:8px">
-            ${escapeHtml(ad.title || ad.subject)}
-            ${teacher.is_early_adopter ? '<span style="background:linear-gradient(135deg,#F59E0B,#EF4444);color:white;border-radius:50px;padding:2px 8px;font-size:.6rem;font-weight:700">🥇 أوائل</span>' : ''}
-          </div>
-          <div class="amc-meta">
-            <span class="tc-badge badge-grade">📗 ${gradeDisplay(ad)}</span>
-            <span class="tc-badge ${lessonTypeBadgeClass(ad.lesson_type)}">${lessonTypeLabel(ad.lesson_type)}</span>
-            <span class="tc-badge ${statusBadgeClass(ad.status)}">${statusLabel(ad.status)}</span>
-          </div>
-        </div>
-        <div class="amc-actions" style="flex-wrap:wrap;">
-          <a href="teacher.html?ad=${ad.id}${ad.status!=='active'?'&preview=1':''}" target="_blank" class="btn btn-ghost btn-sm" title="معاينة كما يراها الطالب">👁 معاينة</a>
-          ${(!getTeacherFeatures(teacher).unlimited_edits && Number(ad.edit_count||0) >= 3)
-            ? '<button class="btn btn-ghost btn-sm" disabled>🔒 تعديل</button>'
-            : `<button class="btn btn-ghost btn-sm" onclick="openEditAdModal('${ad.id}')">✏️ تعديل</button>`}
-          <button class="btn btn-danger btn-sm" onclick="deleteAd('${ad.id}')">🗑</button>
-        </div>
-      </div>
-      <div class="amc-body">
-        <div class="amc-price">💰 ${formatPrice(ad.price)} / الحصة</div>
-        ${ad.main_image_url ? `<div class="media-preview"><img src="${escapeHtml(ad.main_image_url)}" alt="صورة الإعلان" style="object-position:${escapeHtml(ad.main_image_position||'50% 50%')}"></div>` : ''}
-        ${normalizeList(ad.gallery_images).length ? `<div class="amc-desc mt-8">🖼 ${normalizeList(ad.gallery_images).length} صور إضافية</div>` : ''}
-        ${!getTeacherFeatures(teacher).unlimited_edits ? `<div class="amc-desc mt-8">✏️ التعديلات: ${Number(ad.edit_count||0)} / 3</div>` : ''}
-        ${ad.description ? `<div class="amc-desc mt-8">${escapeHtml(ad.description)}</div>` : ''}
-        ${ad.status==='pending'  ? '<div class="alert alert-info mt-8"  style="padding:8px 12px;font-size:.82rem">⏳ قيد مراجعة الإدارة</div>' : ''}
-        ${ad.status==='rejected' ? '<div class="alert alert-danger mt-8" style="padding:8px 12px;font-size:.82rem">❌ مرفوض من الإدارة</div>' : ''}
-      </div>
-    </div>`).join('');
-}
-
-/* ══ تنبيهات ذكية ══ */
-function buildSmartAlerts() {
-  const alerts = [];
-  const now = Date.now();
-  const sevenDaysAgo = now - 7*86400000;
-
-  teacherAds.forEach(ad => {
-    if (ad.status !== 'active') return;
-    // إعلان بدون صورة
-    if (!ad.main_image_url) {
-      alerts.push({type:'info', icon:'📸', msg:`إعلانك "<strong>${escapeHtml(ad.title||ad.subject)}</strong>" بدون صورة — أضف صورة لتحسين فرص التواصل`});
-    }
-    // إعلان بدون وصف كافٍ
-    if (!ad.description || ad.description.length < 50) {
-      alerts.push({type:'warning', icon:'✍️', msg:`إعلانك "<strong>${escapeHtml(ad.title||ad.subject)}</strong>" يحتاج وصفاً أوفى لجذب الطلاب`});
-    }
-  });
-
-  // تحقق من عدم وجود مشاهدات (سيُحدَّث بعد تحميل gamEvents)
-  if (gamEvents.length) {
-    const sevenDaysEvents = gamEvents.filter(e => new Date(e.created_at).getTime() > sevenDaysAgo);
-    if (!sevenDaysEvents.length && teacherAds.some(a=>a.status==='active')) {
-      alerts.push({type:'warning', icon:'⚠️', msg:'إعلانك لم يحصل على أي مشاهدة خلال آخر 7 أيام — جرّب مشاركته على وسائل التواصل'});
-    }
-    const thisWeekViews = sevenDaysEvents.filter(e=>e.event_type==='ad_card_view').length;
-    if (thisWeekViews >= 50) {
-      alerts.push({type:'success', icon:'🎉', msg:`إعلانك حصل على <strong>${thisWeekViews} مشاهدة</strong> هذا الأسبوع — أداء ممتاز!`});
-    }
-    // مقارنة بمتوسط المنصة (نفترض 20 مشاهدة أسبوع كمتوسط)
-    if (thisWeekViews > 20) {
-      alerts.push({type:'success', icon:'📈', msg:'إعلانك يحقق أداءً أعلى من متوسط المنصة هذا الأسبوع!'});
-    }
-  }
-
-  if (!alerts.length) return '';
-  return alerts.map(a => `
-    <div class="alert alert-${a.type}" style="margin-bottom:8px;padding:10px 14px;font-size:.86rem;border-radius:var(--radius-sm)">
-      <span>${a.icon}</span>
-      <span>${a.msg}</span>
-    </div>`).join('');
-}
-
-/* ══ AD CRUD (original) ══ */
-function openAddAdModal() {
-  if (!isSubscriptionActive(teacher)) { showToast('اشتراكك منتهي. جدّد أولاً','danger'); return; }
-  const limit = getTeacherFeatures(teacher).ads_limit;
-  if (teacherAds.length >= limit) { showToast(`الحد الأقصى ${limit} إعلانات`,'warning'); return; }
-  document.getElementById('modal-title').textContent    = '+ إعلان جديد';
-  document.getElementById('ad-submit-btn').textContent  = 'نشر الإعلان';
-  document.getElementById('ad-id').value                = '';
-  document.getElementById('ad-form').reset();
-  document.getElementById('ad-current-main-image').innerHTML = '';
-  document.getElementById('ad-current-gallery').innerHTML    = '';
-  initMainImagePositionEditor('','50% 50%');
-  populateSubjectSelect('ad-subject');
-  renderGradeCheckboxes('ad-grades-box',[]);
-  document.getElementById('modal-error').style.display = 'none';
-  openModal('ad-modal');
-}
-
-async function openEditAdModal(adId) {
-  if (!isSubscriptionActive(teacher)) { showToast('اشتراكك منتهي','danger'); return; }
-  const ad = teacherAds.find(a => a.id===adId);
-  if (!ad) return;
-  const f = getTeacherFeatures(teacher);
-  if (!f.unlimited_edits && Number(ad?.edit_count||0) >= 3) { showToast('وصلت للحد الأقصى: 3 تعديلات. راسل الإدارة للترقية.','warning',6500); return; }
-  document.getElementById('modal-title').textContent    = '✏️ تعديل الإعلان';
-  document.getElementById('ad-submit-btn').textContent  = 'حفظ التعديلات';
-  document.getElementById('ad-id').value                = adId;
-  document.getElementById('ad-title').value             = ad.title || '';
-  populateSubjectSelect('ad-subject', ad.subject||'');
-  renderGradeCheckboxes('ad-grades-box', getAdGrades(ad));
-  document.getElementById('ad-subject').value           = ad.subject || '';
-  document.getElementById('ad-price').value             = ad.price   || '';
-  document.getElementById('ad-lesson-type').value       = ad.lesson_type || '';
-  document.getElementById('ad-description').value       = ad.description  || '';
-  document.getElementById('ad-extra-contact').value     = ad.extra_contact || '';
-  document.getElementById('ad-main-image-position').value = ad.main_image_position || '50% 50%';
-  document.getElementById('ad-main-image').value  = '';
-  document.getElementById('ad-gallery-images').value = '';
-  document.getElementById('ad-current-main-image').innerHTML = ad.main_image_url ? `<img src="${escapeHtml(ad.main_image_url)}" alt="الصورة الحالية">` : '';
-  initMainImagePositionEditor(ad.main_image_url||'', ad.main_image_position||'50% 50%');
-  document.getElementById('ad-current-gallery').innerHTML = normalizeList(ad.gallery_images).map(u => `<img src="${escapeHtml(u)}" alt="صورة إضافية">`).join('');
-  document.getElementById('modal-error').style.display = 'none';
-  openModal('ad-modal');
-}
-
-async function submitAd(e) {
-  e.preventDefault();
-  if (!isSubscriptionActive(teacher)) { showToast('اشتراكك منتهي','danger'); return; }
-  const btn = document.getElementById('ad-submit-btn');
-  btn.disabled = true; btn.innerHTML = '<span class="spinner"></span>';
-  const adId = document.getElementById('ad-id').value;
-  const isEdit = !!adId;
-  const currentAd = isEdit ? teacherAds.find(a => a.id===adId) : null;
-  try {
-    if (!isEdit) {
-      const { count: liveCount } = await supabase.from('ads').select('*',{count:'exact',head:true}).eq('teacher_id',teacher.id);
-      if ((liveCount||0) >= getTeacherFeatures(teacher).ads_limit) throw new Error(`وصلت للحد الأقصى`);
-    }
-    const folder = `ads/${teacher.id}`;
-    const uploadedMain = await uploadImageInput('ad-main-image', folder);
-    const oldGallery   = normalizeList(currentAd?.gallery_images);
-    const newGallInput = document.getElementById('ad-gallery-images');
-    if (oldGallery.length + (newGallInput?.files?.length||0) > MAX_GALLERY_IMAGES) throw new Error(`الحد الأقصى ${MAX_GALLERY_IMAGES} صور.`);
-    const uploadedGallery = await uploadMultipleImagesInput('ad-gallery-images', folder, MAX_GALLERY_IMAGES - oldGallery.length);
-    const gradeCheck = validateSameGradeSection(getSelectedGrades('ad-grades-box'));
-    if (!gradeCheck.ok) throw new Error(gradeCheck.message);
-    const payload = {
-      teacher_id: teacher.id,
-      title: document.getElementById('ad-title').value.trim(),
-      subject: document.getElementById('ad-subject').value,
-      grade: gradeCheck.grades.join('، '),
-      grades: gradeCheck.grades, grade_section: gradeCheck.section,
-      price: parseFloat(document.getElementById('ad-price').value),
-      lesson_type: document.getElementById('ad-lesson-type').value,
-      description: document.getElementById('ad-description').value.trim(),
-      extra_contact: document.getElementById('ad-extra-contact').value.trim(),
-      main_image_url: uploadedMain || currentAd?.main_image_url || null,
-      main_image_position: document.getElementById('ad-main-image-position').value || '50% 50%',
-      gallery_images: [...oldGallery, ...uploadedGallery], video_links: [],
-      status: isEdit ? undefined : 'pending',
-      edit_count: isEdit ? Number(currentAd?.edit_count||0) + (getTeacherFeatures(teacher).unlimited_edits ? 0 : 1) : 0,
-    };
-    if (isEdit) { delete payload.status; delete payload.teacher_id; }
-    let error;
-    if (isEdit) { const r = await supabase.from('ads').update({...payload, updated_at: new Date().toISOString()}).eq('id',adId).eq('teacher_id',teacher.id); error=r.error; }
-    else        { const r = await supabase.from('ads').insert(payload); error=r.error; }
-    if (error) throw error;
-    if (!isEdit) {
-      let bonus = 5;
-      if ((payload.description||'').trim().length >= 100) bonus += 5;
-      if (payload.main_image_url) bonus += 3;
-      bonus += (payload.gallery_images?.length||0);
-      try { await incrementTeacherPoints(teacher.id, bonus); } catch(_) {}
-    }
-    closeModal('ad-modal');
-    showToast(isEdit ? 'تم تعديل الإعلان ✅' : 'تم الإضافة وهو قيد المراجعة ⏳','success');
-    await loadAds();
-  } catch (err) {
-    const errMsg = String(err?.message||'');
-    let friendly = errMsg;
-    if (/row[- ]level security/i.test(errMsg)||/violates.*security policy/i.test(errMsg)) friendly = 'تعذر الحفظ بسبب قيود الأمان. شغّل ملف fix_rls.sql في Supabase.';
-    const errEl = document.getElementById('modal-error');
-    if (errEl) { errEl.textContent=friendly; errEl.style.display='block'; }
-  } finally { btn.disabled=false; btn.textContent=isEdit?'حفظ التعديلات':'نشر الإعلان'; }
-}
-
-async function deleteAd(adId) {
-  if (!isSubscriptionActive(teacher)) { showToast('اشتراكك منتهي','danger'); return; }
-  confirmDialog('هل أنت متأكد من حذف هذا الإعلان؟', async () => {
-    const { error } = await supabase.from('ads').delete().eq('id',adId).eq('teacher_id',teacher.id);
-    if (error) { showToast('حدث خطأ عند الحذف','danger'); return; }
-    showToast('تم حذف الإعلان','success');
-    await loadAds();
-  });
-}
-
-/* ══ PROFILE (original) ══ */
-async function saveProfile(e) {
-  e.preventDefault();
-  const btn = document.getElementById('profile-save-btn');
-  btn.disabled=true; btn.innerHTML='<span class="spinner"></span> جارٍ الحفظ...';
-  try {
-    const uploadedAvatar = await uploadImageInput('p-avatar-file',`teachers/${teacher.id}`);
-    const updates = {
-      name:            document.getElementById('p-name').value.trim(),
-      bio:             document.getElementById('p-bio').value.trim(),
-      whatsapp:        document.getElementById('p-whatsapp').value.trim(),
-      facebook:        document.getElementById('p-facebook').value.trim(),
-      phone:           document.getElementById('p-phone').value.trim(),
-      contact_methods: document.getElementById('p-contact-methods').value.trim(),
-      avatar_url:      uploadedAvatar || teacher.avatar_url || null,
-    };
-    const { error } = await supabase.from('teachers').update(updates).eq('id',teacher.id);
-    if (error) throw error;
-    teacher.name = updates.name; teacher.avatar_url = updates.avatar_url;
-    renderAvatarPreview(updates.avatar_url||'');
-    Auth.setTeacherSession({...teacher, name: updates.name});
-    document.getElementById('teacher-name-display').textContent = updates.name;
-    document.getElementById('nav-teacher-name').textContent     = updates.name;
-    showToast('تم حفظ التغييرات ✅','success');
-  } catch (err) { showToast(err.message||'حدث خطأ','danger'); }
-  finally { btn.disabled=false; btn.textContent='💾 حفظ التغييرات'; }
-}
-
-/* ══ FEATURES (original) ══ */
-function renderFeatures() {
-  const box = document.getElementById('features-content');
-  if (!box) return;
-  const f = getTeacherFeatures(teacher);
-  box.innerHTML = `
-    ${subscriptionBannerHtml(teacher)}
-    <div style="background:linear-gradient(135deg,#0D1B4B,#1E3A8A);color:white;border-radius:14px;padding:16px 20px;margin-bottom:16px;display:flex;gap:12px;align-items:flex-start">
-      <span style="font-size:1.4rem;flex-shrink:0">ℹ️</span>
-      <div>
-        <div style="font-family:Cairo,sans-serif;font-weight:800;margin-bottom:6px">نظام النقاط المزدوج</div>
-        <div style="font-size:.82rem;color:rgba(255,255,255,.8);line-height:1.7">
-          ⭐ <strong>نقاط الخبرة (XP):</strong> تتراكم مع كل تفاعل وتحدد مستواك — <em>لا تنقص أبداً</em><br>
-          🎁 <strong>نقاط المكافآت:</strong> يمكن صرفها على جوائز دون التأثير على مستواك أو XP
-        </div>
-      </div>
-    </div>
-    <div class="plan-grid">
-      ${Object.values(PLAN_DEFINITIONS).map(plan => `
-        <div class="plan-card ${plan.key===f.plan.key?'current':''}">
-          <h3>${plan.key===f.plan.key?'✅ ':''}${escapeHtml(plan.name)}</h3>
-          <div style="font-family:Cairo,sans-serif;font-size:1.8rem;font-weight:900;color:var(--primary)">${plan.price} جنيه</div>
-          <div class="feature-list">${plan.features.map(x=>`<div>• ${escapeHtml(x)}</div>`).join('')}</div>
-        </div>`).join('')}
-    </div>
-    <div class="profile-form-card mt-24">
-      <h3 style="margin-bottom:12px">المميزات المتاحة لك الآن</h3>
-      <div class="feature-list">
-        <div>✅ عدد الإعلانات: ${f.ads_limit}</div>
-        <div>${f.unlimited_edits?'✅ تعديل غير محدود':'✅ 3 تعديلات لكل إعلان'}</div>
-        <div>${f.basic_stats?'✅ الإحصائيات البسيطة مفعّلة':'🔒 الإحصائيات البسيطة مقفولة'}</div>
-        <div>${f.advanced_stats?'✅ الإحصائيات المتقدمة مفعّلة':'🔒 الإحصائيات المتقدمة مقفولة'}</div>
-        <div>${f.fast_support?'✅ دعم أسرع':'🔒 دعم أسرع غير مفعّل'}</div>
-        ${f.custom_features?`<div>🎁 مميزات إضافية: ${escapeHtml(f.custom_features)}</div>`:''}
-      </div>
-    </div>
-    <div class="profile-form-card mt-24">
-      <h3 style="margin-bottom:12px">💰 أسعار الإضافات</h3>
-      <p class="text-muted mb-16">يمكنك طلب أي إضافة بالتواصل مع الإدارة.</p>
-      <div class="addon-grid">${ADDON_DEFINITIONS.map(a=>`<div class="addon-card ${a.className}"><div class="addon-icon">${a.icon}</div><h4>${escapeHtml(a.name)}</h4><div class="addon-price">${a.price}<span>${escapeHtml(a.unit)}</span></div><p>${escapeHtml(a.desc)}</p></div>`).join('')}</div>
-      <div class="alert alert-info mt-16">لإضافة أي ميزة: تواصل مع الإدارة.</div>
-    </div>`;
-}
-
-/* ══════════════════════════════════════════════════════
-   GAMIFICATION STATS LOADER - FIXED
-══════════════════════════════════════════════════════ */
-async function loadTeacherStats() {
-  const f = getTeacherFeatures(teacher);
-  const gamLoad = document.getElementById('gam-loading');
-  const gamCont = document.getElementById('gam-content');
-  const gamLock = document.getElementById('gam-locked');
-  gamLoad.style.display='flex'; gamCont.style.display='none'; gamLock.style.display='none';
-
-  try {
-    const { data, error } = await supabase.from('analytics_events')
-      .select('event_type,created_at,ad_id')
-      .eq('teacher_id', teacher.id)
-      .order('created_at', {ascending:false})
-      .limit(5000);
-
-    if (error) throw error;
-    gamEvents = data || [];
-
-    // Aggregate counts - real data
-    const cnt = t => gamEvents.filter(e => e.event_type===t).length;
-    const totalViews    = cnt('ad_card_view');
-    const totalDetails  = cnt('ad_detail_view');
-    const totalWa       = cnt('whatsapp_click');
-    const totalFb       = cnt('facebook_click');
-    const totalPhone    = cnt('phone_click');
-    const totalContacts = totalWa + totalFb + totalPhone;
-
-    // معدل التحويل الحقيقي
-    const convRate = totalViews > 0 ? ((totalContacts / totalViews) * 100).toFixed(1) : '0.0';
-
-    // تحديث بطاقات الإحصائيات بالبيانات الحقيقية
-    document.getElementById('gsc-views').textContent      = totalViews.toLocaleString('ar-EG');
-    document.getElementById('gsc-details').textContent    = totalDetails.toLocaleString('ar-EG');
-    document.getElementById('gsc-wa').textContent         = totalWa.toLocaleString('ar-EG');
-    document.getElementById('gsc-conv-rate').textContent  = convRate + '%';
-    document.getElementById('gsc-ads').textContent        = teacherAds.filter(a => a.status==='active').length;
-    // XP و RP
-    const xpStat = teacher.xp || teacher.points || 0;
-    const rpStat = teacher.reward_points != null ? teacher.reward_points : xpStat;
-    const gscXp  = document.getElementById('gsc-xp');
-    const gscRp  = document.getElementById('gsc-rp');
-    if (gscXp) gscXp.textContent = xpStat.toLocaleString('ar-EG');
-    if (gscRp) gscRp.textContent = rpStat.toLocaleString('ar-EG');
-
-    // نقاط اليوم الحقيقية
-    const today = new Date().toISOString().slice(0,10);
-    const todayEv = gamEvents.filter(e => (e.created_at||'').slice(0,10) === today);
-    const DAILY_MAX = 100;
-    const todayPts = Math.min(
-      todayEv.filter(e=>e.event_type==='ad_card_view').length * 1
-      + todayEv.filter(e=>e.event_type==='ad_detail_view').length * 2
-      + todayEv.filter(e=>e.event_type==='whatsapp_click').length * 4
-      + todayEv.filter(e=>e.event_type==='facebook_click').length * 3
-      + todayEv.filter(e=>e.event_type==='phone_click').length * 5,
-      DAILY_MAX
-    );
-    updateCircularGoal(todayPts);
-
-    // ── مزامنة XP + RP مع ما في قاعدة البيانات ──
-    // XP = مجموع كل النقاط المكتسبة تاريخياً (لا تنقص)
-    // RP = قابلة للصرف (محفوظة في reward_points)
-    const freshXP  = teacher.xp || teacher.points || 0;
-    const freshRP  = teacher.reward_points != null ? teacher.reward_points : freshXP;
-    updateHeroGamification(freshXP, freshRP);
-
-    // حساب streak حقيقي
-    const streak = calcStreak(gamEvents);
-    document.getElementById('tw-streak').textContent = streak;
-
-    // نسبة اكتمال الملف
-    renderProfileCompletion();
-
-    // معدل التحويل التفصيلي
-    renderConversionSection(totalViews, totalWa, totalFb, totalContacts, convRate);
-
-    // Insight banner
-    const xp  = teacher.xp || teacher.points || 0;
-    const rp  = teacher.reward_points != null ? teacher.reward_points : xp;
-    const pts = xp; // alias for backward compat
-    const cur  = GM_LEVELS.find(l => xp>=l.min && xp<l.max) || GM_LEVELS[GM_LEVELS.length-1];
-    const next = GM_LEVELS.find(l => l.min > xp);
-    const ptsToNext = next ? (next.min - xp) : 0;
-    document.getElementById('gam-insight-title').textContent = cur.icon + ' مستواك: ' + cur.name + ' — ' + xp.toLocaleString('ar-EG') + ' XP | 🎁 ' + rp.toLocaleString('ar-EG') + ' نقطة مكافأة';
-    document.getElementById('gam-insight-sub').textContent = next
-      ? 'تحتاج ' + ptsToNext.toLocaleString('ar-EG') + ' XP للوصول لـ "' + next.name + ' ' + next.icon + '" | نقاط المكافأة يمكن صرفها دون خصم XP'
-      : '🎉 وصلت لأعلى مستوى! أنت أسطورة مدرسك 👑 | نقاط المكافأة يمكن صرفها دون خصم XP';
-
-    if (todayPts >= DAILY_MAX) {
-      const insightEl = document.getElementById('gam-insight-sub');
-      if (insightEl) insightEl.textContent += ' | ✅ وصلت للحد الأقصى اليوم — يُجدَّد غداً';
-    }
-
-    // ── تحديث عرض XP و RP ──
-    updateHeroGamification(xp, rp);
-
-    // build all sections
-    buildLevelPath(xp, cur, next);
-    buildMiniChallenges(gamEvents);
-    buildAchievements(gamEvents, xp, f.advanced_stats);
-    buildChallenges(gamEvents);
-    buildActivityCharts(gamEvents);
-    buildPerAdStats(gamEvents, f.advanced_stats);
-
-    // إذا لم تكن الباقة تدعم الإحصائيات، أظهر تنبيه ترقية فوق المحتوى
-    if (!f.basic_stats && !f.advanced_stats) {
-      gamLock.style.display = '';
-      gamLock.innerHTML = '<div class="alert alert-info" style="margin-bottom:16px">🔒 الإحصائيات التفصيلية متاحة في باقة 3 شهور فأعلى — <a href="#" data-admin-contact data-message="أريد ترقية باقتي" class="btn btn-primary btn-sm" style="margin-right:8px">تواصل مع الإدارة</a></div>';
-    }
-
-    gamLoad.style.display='none';
-    gamCont.style.display='';
-
-    // تحديث التنبيهات الذكية
-    const smartBox = document.getElementById('smart-alerts-box');
-    if (smartBox) {
-      const alerts = buildSmartAlerts();
-      if (alerts) smartBox.innerHTML = alerts;
-    }
-
-  } catch (err) {
-    console.error('Stats error:', err);
-    gamLoad.style.display='none';
-    gamLock.style.display='';
-    gamLock.innerHTML = '<div class="alert alert-danger">❌ تعذّر تحميل الإحصائيات: ' + escapeHtml(err.message) + '<br><small>تأكد من تشغيل supabase_setup.sql وصلاحيات RLS</small></div>';
-    gamCont.style.display='';
-  }
-}
-
-/* ── حساب streak حقيقي ── */
-function calcStreak(events) {
-  if (!events.length) return 0;
-  const days = new Set(events.map(e => (e.created_at||'').slice(0,10)));
-  let streak = 0;
-  const d = new Date();
-  for (let i = 0; i < 365; i++) {
-    const ds = d.toISOString().slice(0,10);
-    if (days.has(ds)) { streak++; d.setDate(d.getDate()-1); }
-    else break;
-  }
-  return streak;
-}
-
-/* ── نسبة اكتمال الملف الشخصي ── */
-function renderProfileCompletion() {
-  const fields = [
-    {key:'avatar_url',      label:'الصورة الشخصية', icon:'📷'},
-    {key:'name',            label:'الاسم',           icon:'👤'},
-    {key:'bio',             label:'النبذة الشخصية',  icon:'✍️'},
-    {key:'phone',           label:'رقم الهاتف',      icon:'📞'},
-    {key:'whatsapp',        label:'الواتساب',         icon:'💬'},
-    {key:'contact_methods', label:'وسائل التواصل',   icon:'🔗'},
-  ];
-  const filled = fields.filter(f => !!(teacher[f.key]));
-  const pct = Math.round((filled.length / fields.length) * 100);
-  const missing = fields.filter(f => !(teacher[f.key]));
-
-  const box = document.getElementById('profile-completion-card');
-  if (!box) return;
-
-  const colorClass = pct >= 80 ? '#0EA672' : pct >= 50 ? '#F59E0B' : '#EF4444';
-  box.innerHTML = `
-    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
-      <div style="font-family:'Cairo',sans-serif;font-weight:700;font-size:.95rem">📋 اكتمال الملف الشخصي</div>
-      <span style="font-family:'Cairo',sans-serif;font-weight:900;font-size:1.3rem;color:${colorClass}">${pct}%</span>
-    </div>
-    <div style="height:8px;border-radius:50px;background:#F1F5F9;margin-bottom:12px;overflow:hidden">
-      <div style="height:100%;border-radius:50px;background:${colorClass};width:${pct}%;transition:width .6s"></div>
-    </div>
-    ${missing.length ? `
-      <div style="font-size:.76rem;color:var(--text-muted);margin-bottom:8px">العناصر الناقصة:</div>
-      <div style="display:flex;flex-wrap:wrap;gap:6px">
-        ${missing.map(f=>`<span style="background:#FEF3C7;color:#92400E;border-radius:50px;padding:3px 10px;font-size:.72rem;font-weight:600">${f.icon} ${f.label}</span>`).join('')}
-      </div>
-      <button onclick="switchTab('profile')" class="btn btn-primary btn-sm" style="margin-top:12px;width:100%">إكمال الملف الشخصي</button>
-    ` : '<div style="color:#0EA672;font-size:.85rem;font-weight:600">✅ ملفك الشخصي مكتمل بالكامل!</div>'}`;
-}
-
-/* ── بطاقة معدل التحويل ── */
-function renderConversionSection(views, wa, fb, total, rate) {
-  const box = document.getElementById('conversion-section');
-  if (!box) return;
-  box.innerHTML = `
-    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:12px;margin-bottom:14px">
-      <div style="background:#ECFDF5;border:1px solid #A7F3D0;border-radius:12px;padding:14px;text-align:center">
-        <div style="font-size:1.1rem">💬</div>
-        <div style="font-family:'Cairo',sans-serif;font-weight:900;font-size:1.4rem;color:#059669">${wa}</div>
-        <div style="font-size:.72rem;color:#065F46">ضغطات واتساب</div>
-      </div>
-      <div style="background:#EFF6FF;border:1px solid #BFDBFE;border-radius:12px;padding:14px;text-align:center">
-        <div style="font-size:1.1rem">👥</div>
-        <div style="font-family:'Cairo',sans-serif;font-weight:900;font-size:1.4rem;color:#2563EB">${fb}</div>
-        <div style="font-size:.72rem;color:#1D4ED8">ضغطات فيسبوك</div>
-      </div>
-      <div style="background:#F5F3FF;border:1px solid #C4B5FD;border-radius:12px;padding:14px;text-align:center">
-        <div style="font-size:1.1rem">📊</div>
-        <div style="font-family:'Cairo',sans-serif;font-weight:900;font-size:1.4rem;color:#7C3AED">${total}</div>
-        <div style="font-size:.72rem;color:#6D28D9">إجمالي التحويلات</div>
-      </div>
-      <div style="background:${Number(rate)>=5?'#FFF7ED':'#F8FAFC'};border:1px solid ${Number(rate)>=5?'#FED7AA':'#E2E8F0'};border-radius:12px;padding:14px;text-align:center">
-        <div style="font-size:1.1rem">📈</div>
-        <div style="font-family:'Cairo',sans-serif;font-weight:900;font-size:1.4rem;color:${Number(rate)>=5?'#EA580C':'#94A3B8'}">${rate}%</div>
-        <div style="font-size:.72rem;color:${Number(rate)>=5?'#9A3412':'#64748B'}">معدل التحويل</div>
-      </div>
-    </div>
-    <div style="background:#F8FAFC;border-radius:10px;padding:11px 14px;font-size:.78rem;color:#64748B">
-      💡 معدل التحويل = (واتساب + فيسبوك) ÷ المشاهدات × 100 | ${Number(rate)>=5?'✅ أداء جيد':'📌 يمكن تحسينه بإضافة صورة ووصف أكثر تفصيلاً'}
-    </div>`;
-}
-
-/* ── Level Path ── */
-function buildLevelPath(xp, cur, next) { const pts = xp;
-  document.getElementById('lpath-content').innerHTML = GM_LEVELS.map(lv => {
-    const done  = xp >= lv.max && lv.max < 99999;
-    const isCur = xp >= lv.min && xp < lv.max;
-    const range = lv.max - lv.min;
-    const pct   = isCur ? Math.min(Math.round(((xp - lv.min) / range) * 100), 100)
-                        : done ? 100 : 0;
-    return `<div class="lpath-item">
-      <div class="lpath-ico" style="background:${(done||isCur)?lv.color+'20':'#F8FAFC'};border-color:${isCur?lv.color:done?lv.color+'70':'#E2E8F0'}">${lv.icon}</div>
-      <div style="flex:1">
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">
-          <span style="font-weight:${isCur?700:500};color:${isCur?lv.color:done?'#334155':'#94A3B8'};font-size:.82rem">${lv.name}</span>
-          <span style="font-size:.63rem;color:#94A3B8">${lv.min.toLocaleString('ar-EG')}–${lv.max>=99999?'∞':lv.max.toLocaleString('ar-EG')}</span>
-        </div>
-        <div class="lpath-bar" style="background:${lv.track}">
-          <div class="lpath-bar-fill" style="background:${lv.color};width:${pct}%"></div>
-        </div>
-      </div>
-      ${done  ? '<span style="font-size:.9rem">✅</span>' : ''}
-      ${isCur ? `<span class="lpath-cur-tag" style="background:${lv.color}18;color:${lv.color}">الحالي</span>` : ''}
-    </div>`;
-  }).join('');
-}
-
-/* ── Mini Challenges (overview) ── */
-function buildMiniChallenges(events) {
-  const today  = new Date().toISOString().slice(0,10);
-  const weekAgo= new Date(Date.now()-7*86400000).toISOString();
-  document.getElementById('mini-ch').innerHTML = CH_DEFS.map(ch => {
-    let prog = 0;
-    if (ch.metric === 'streak') { prog = 5; } // placeholder — real streak needs more complex logic
-    else if (ch.period === 'daily')  prog = events.filter(e => e.event_type===ch.metric && (e.created_at||'').startsWith(today)).length;
-    else if (ch.period === 'weekly') prog = events.filter(e => e.event_type===ch.metric && e.created_at >= weekAgo).length;
-    const pct = Math.min((prog/ch.target)*100,100);
-    const cc  = PERIOD_CLR[ch.period]||'#2563EB';
-    return `<div class="mc-row">
-      <div class="mc-hd">
-        <div class="mc-ico" style="background:${cc}18">${ch.icon}</div>
-        <div style="flex:1">
-          <div style="display:flex;justify-content:space-between">
-            <span style="font-size:.82rem;font-weight:600">${ch.title}</span>
-            <span style="font-size:.7rem;color:#0EA672;font-weight:700">+${ch.reward} نقطة</span>
-          </div>
-        </div>
-      </div>
-      <div style="display:flex;align-items:center;gap:8px">
-        <div style="flex:1;height:7px;border-radius:50px;background:#F1F5F9;overflow:hidden">
-          <div style="height:100%;border-radius:50px;background:${pct>=100?'#20C997':`linear-gradient(90deg,${cc},${cc}bb)`};width:${pct}%;transition:width .6s"></div>
-        </div>
-        <span style="font-size:.68rem;color:#94A3B8;min-width:34px;text-align:left">${prog}/${ch.target}</span>
-      </div>
-    </div>`;
-  }).join('');
-}
-
-/* ── Achievements ── */
-function buildAchievements(events, xp, isAdvanced) { const pts = xp; // backward compat
-  const cnt = t => events.filter(e => e.event_type===t).length;
-  const totalViews = cnt('ad_card_view');
-  const totalWa    = cnt('whatsapp_click');
-  const hasAds     = teacherAds.length > 0;
-  const hasImg     = teacherAds.some(a => !!a.main_image_url);
-  const hasLongDesc= teacherAds.some(a => (a.description||'').length >= 100);
-
-  const checkMap = {
-    first_ad:  hasAds,
-    first_wa:  totalWa >= 1,
-    '100_views': totalViews >= 100,
-    '500_views': totalViews >= 500,
-    img_ad:    hasImg,
-    desc_ad:   hasLongDesc,
-    '10_wa':   totalWa >= 10,
-    lv_2:      xp >= 500,
-    lv_3:      xp >= 2000,
-    lv_4:      xp >= 5000,
-  };
-
-  const progMap = {
-    '100_views': {v: Math.min(totalViews,100),   t:100},
-    '500_views': {v: Math.min(totalViews,500),   t:500},
-    '10_wa':     {v: Math.min(totalWa,10),        t:10},
-    lv_3:        {v: Math.min(xp,2000),          t:2000},
-    lv_4:        {v: Math.min(xp,5000),          t:5000},
-  };
-
-  const unlocked = ACH_DEFS.filter(a => checkMap[a.id]).length;
-  const earnedPts= ACH_DEFS.filter(a => checkMap[a.id]).reduce((s,a)=>s+a.pts,0);
-
-  document.getElementById('ach-summary').innerHTML = `
-    <div style="background:linear-gradient(135deg,#0D1B4B,#2563EB);border-radius:13px;padding:13px 18px;color:white;display:flex;align-items:center;gap:12px">
-      <span style="font-size:1.4rem">🏆</span>
-      <div><div style="font-family:'Cairo',sans-serif;font-weight:900;font-size:1.3rem">${unlocked}/${ACH_DEFS.length}</div><div style="opacity:.7;font-size:.72rem">إنجاز مكتمل</div></div>
-    </div>
-    <div style="background:linear-gradient(135deg,#0EA672,#20C997);border-radius:13px;padding:13px 18px;color:white;display:flex;align-items:center;gap:12px">
-      <span style="font-size:1.4rem">⭐</span>
-      <div><div style="font-family:'Cairo',sans-serif;font-weight:900;font-size:1.3rem">${earnedPts}</div><div style="opacity:.7;font-size:.72rem">نقطة من الإنجازات</div></div>
-    </div>`;
-
-  document.getElementById('ach-grid').innerHTML = ACH_DEFS.map(a => {
-    const done = !!checkMap[a.id];
-    const pg   = progMap[a.id];
-    const progHtml = !done && pg ? `
-      <div class="ach-prog-bar"><div class="ach-prog-fill" style="background:${a.color};width:${Math.min((pg.v/pg.t)*100,100)}%"></div></div>
-      <div style="font-size:.65rem;color:#94A3B8">${pg.v.toLocaleString('ar-EG')} / ${pg.t.toLocaleString('ar-EG')}</div>` : '';
-    return `<div class="ach-card ${done?'ach-unlocked':'ach-locked'}" style="border-color:${done?a.color+'40':'#E2E8F0'};box-shadow:${done?`0 4px 16px ${a.color}18`:'none'}">
-      ${done ? '<div class="ach-check">✓</div>' : ''}
-      <div class="ach-ico" style="background:${done?a.color+'18':'#F1F5F9'};filter:${done?'none':'grayscale(1)'}">
-        ${done ? a.icon : '🔒'}
-      </div>
-      <div class="ach-title" style="color:${done?'#0F172A':'#94A3B8'}">${a.title}</div>
-      <div class="ach-desc">${a.desc}</div>
-      ${progHtml}
-      <div class="ach-pts" style="background:${done?a.color+'14':'#F1F5F9'};margin-top:8px">
-        <span style="font-size:.6rem">⭐</span>
-        <span style="font-size:.69rem;font-weight:700;color:${done?a.color:'#94A3B8'}">+${a.pts} نقطة</span>
-      </div>
-    </div>`;
-  }).join('');
-}
-
-/* ── Challenges ── */
-function buildChallenges(events) {
-  const today  = new Date().toISOString().slice(0,10);
-  const weekAgo= new Date(Date.now()-7*86400000).toISOString();
-  document.getElementById('ch-grid').innerHTML = CH_DEFS.map(ch => {
-    let prog = 0;
-    if (ch.metric==='streak') prog = 5;
-    else if (ch.period==='daily')  prog = events.filter(e=>e.event_type===ch.metric&&(e.created_at||'').startsWith(today)).length;
-    else if (ch.period==='weekly') prog = events.filter(e=>e.event_type===ch.metric&&e.created_at>=weekAgo).length;
-    const pct  = Math.min((prog/ch.target)*100,100);
-    const done = pct >= 100;
-    const cc   = PERIOD_CLR[ch.period]||'#2563EB';
-    return `<div class="ch-card ${done?'ch-done':''}">
-      ${done ? '<div class="ch-done-lbl">✅ مكتمل!</div>' : ''}
-      <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:13px">
-        <div class="ch-ico" style="background:${cc}18">${ch.icon}</div>
-        <span class="ch-type-tag" style="background:${cc}14;color:${cc}">${PERIOD_LBL[ch.period]}</span>
-      </div>
-      <div class="ch-title">${ch.title}</div>
-      <div class="ch-reward"><span>🎁</span><span style="font-size:.73rem;font-weight:700;color:#B45309">+${ch.reward} نقطة مكافأة</span></div>
-      <div class="ch-bar-t">
-        <div class="ch-bar-f" style="background:${done?'#20C997':`linear-gradient(90deg,${cc},${cc}cc)`};width:${pct}%"></div>
-      </div>
-      <div style="display:flex;justify-content:space-between;font-size:.74rem;margin-top:5px">
-        <span style="color:#64748B">${done?'مكتمل 🎉':`${prog} من ${ch.target}`}</span>
-        <span style="font-weight:700;color:${cc}">${Math.round(pct)}%</span>
-      </div>
-    </div>`;
-  }).join('');
-}
-
-/* ── Activity Charts ── */
-function buildActivityCharts(events) {
-  const days   = [];
-  const labels = [];
-  for (let i=6; i>=0; i--) {
-    const d = new Date(Date.now() - i*86400000);
-    const ds= d.toISOString().slice(0,10);
-    const dl= ['الأحد','الاثنين','الثلاثاء','الأربعاء','الخميس','الجمعة','السبت'][d.getDay()];
-    days.push(ds);
-    labels.push(i===0 ? 'اليوم' : dl);
-  }
-  const dayData = days.map(ds => {
-    const ev = events.filter(e => (e.created_at||'').startsWith(ds));
-    return {
-      views:    ev.filter(e=>e.event_type==='ad_card_view').length,
-      details:  ev.filter(e=>e.event_type==='ad_detail_view').length,
-      whatsapp: ev.filter(e=>e.event_type==='whatsapp_click').length,
-      pts: Math.min(
-        ev.filter(e=>e.event_type==='ad_card_view').length
-        + ev.filter(e=>e.event_type==='ad_detail_view').length * 2
-        + ev.filter(e=>e.event_type==='whatsapp_click').length * 4
-        + ev.filter(e=>e.event_type==='facebook_click').length * 3,
-        100
-      ),
-    };
-  });
-
-  // Summary row
-  const totWk = {views:0,details:0,wa:0,pts:0};
-  dayData.forEach(d => { totWk.views+=d.views; totWk.details+=d.details; totWk.wa+=d.whatsapp; totWk.pts+=d.pts; });
-  document.getElementById('act-summary').innerHTML = [
-    {icon:'📅',lbl:'نقاط الأسبوع',val:totWk.pts,col:'#2563EB'},
-    {icon:'👁',lbl:'مشاهدات الأسبوع',val:totWk.views,col:'#0EA672'},
-    {icon:'💬',lbl:'واتساب الأسبوع',val:totWk.wa,col:'#059669'},
-    {icon:'⭐',lbl:'أعلى يوم (نقاط)',val:Math.max(...dayData.map(d=>d.pts)),col:'#F59E0B'},
-  ].map(s=>`<div class="gam-scard"><div class="gam-scard-top"><span style="font-size:1.3rem">${s.icon}</span></div><div class="gam-scard-val" style="color:${s.col}">${s.val}</div><div class="gam-scard-lbl">${s.lbl}</div></div>`).join('');
-
-  // Area chart
-  if (areaChart) areaChart.destroy();
-  const ctx1 = document.getElementById('area-chart').getContext('2d');
-  const c1 = {views:'#2563EB',details:'#0EA672',whatsapp:'#059669'};
-  const g1  = ctx1.createLinearGradient(0,0,0,250);
-  g1.addColorStop(0,c1[curMetric]+'44'); g1.addColorStop(1,c1[curMetric]+'00');
-  areaChart = new Chart(ctx1, {
-    type:'line',
-    data:{ labels, datasets:[{label:'',data:dayData.map(d=>d[curMetric]),borderColor:c1[curMetric],borderWidth:2.5,backgroundColor:g1,fill:true,tension:.35,pointRadius:4,pointBackgroundColor:c1[curMetric],pointBorderColor:'white',pointBorderWidth:2}]},
-    options:chartOpts()
-  });
-
-  // Bar chart (activity tab)
-  if (barChart) barChart.destroy();
-  const ctx2 = document.getElementById('bar-chart').getContext('2d');
-  barChart = new Chart(ctx2, {
-    type:'bar',
-    data:{ labels, datasets:[
-      {label:'مشاهدات',data:dayData.map(d=>d.views),   backgroundColor:'#2563EB',borderRadius:5,borderSkipped:false},
-      {label:'تفاصيل', data:dayData.map(d=>d.details), backgroundColor:'#20C997',borderRadius:5,borderSkipped:false},
-      {label:'واتساب', data:dayData.map(d=>d.whatsapp),backgroundColor:'#059669',borderRadius:5,borderSkipped:false},
-    ]},
-    options:{...chartOpts(),plugins:{legend:{position:'bottom',labels:{font:{family:CHART_FONT,size:11},boxWidth:11,padding:12}},tooltip:{titleFont:{family:CHART_FONT},bodyFont:{family:CHART_FONT},padding:10,cornerRadius:8}}}
-  });
-
-  // Points chart
-  if (ptsChart) ptsChart.destroy();
-  const ctx3 = document.getElementById('pts-chart').getContext('2d');
-  const g3   = ctx3.createLinearGradient(0,0,0,180);
-  g3.addColorStop(0,'#F59E0B44'); g3.addColorStop(1,'#F59E0B00');
-  ptsChart = new Chart(ctx3, {
-    type:'line',
-    data:{labels, datasets:[{label:'نقاط',data:dayData.map(d=>d.pts),borderColor:'#F59E0B',borderWidth:2.5,backgroundColor:g3,fill:true,tension:.35,pointRadius:4,pointBackgroundColor:'#F59E0B',pointBorderColor:'white',pointBorderWidth:2}]},
-    options:chartOpts()
-  });
-
-  // Store day data for metric switching
-  window._gamDayData = dayData;
-}
-
-function chartOpts() {
-  return {
-    responsive:true, maintainAspectRatio:true,
-    plugins:{legend:{display:false},tooltip:{titleFont:{family:CHART_FONT},bodyFont:{family:CHART_FONT},padding:10,cornerRadius:8}},
-    scales:{
-      x:{grid:{display:false},ticks:{font:{family:CHART_FONT,size:11}},border:{display:false}},
-      y:{grid:{color:'#F1F5F9'},ticks:{font:{family:CHART_FONT,size:11}},border:{display:false}}
-    }
-  };
-}
-
-function switchMetric(metric, btn) {
-  curMetric = metric;
-  const cols = {views:'#2563EB', details:'#0EA672', whatsapp:'#059669'};
-  const col  = cols[metric];
-  document.querySelectorAll('.mbtn').forEach(b => { b.classList.remove('active-m'); b.style.borderColor=''; b.style.background=''; b.style.color=''; });
-  btn.classList.add('active-m'); btn.style.borderColor=col; btn.style.background=col+'14'; btn.style.color=col;
-  if (!areaChart || !window._gamDayData) return;
-  areaChart.data.datasets[0].data        = window._gamDayData.map(d => d[metric]);
-  areaChart.data.datasets[0].borderColor = col;
-  areaChart.data.datasets[0].pointBackgroundColor = col;
-  setTimeout(() => {
-    const g = areaChart.ctx.createLinearGradient(0,0,0,250);
-    g.addColorStop(0,col+'44'); g.addColorStop(1,col+'00');
-    areaChart.data.datasets[0].backgroundColor = g;
-    areaChart.update();
-  },10);
-}
-
-/* ── Per-Ad Stats ── */
-function buildPerAdStats(events, isAdvanced) {
-  const cnt = (t, adId) => events.filter(e => e.event_type===t && String(e.ad_id)===String(adId)).length;
-  if (!teacherAds.length) {
-    document.getElementById('perad-content').innerHTML = '<div class="empty-state" style="padding:40px"><div class="empty-icon">📋</div><div class="empty-title">لا توجد إعلانات بعد</div></div>';
-    return;
-  }
-  document.getElementById('perad-content').innerHTML = `
-    <div class="per-ad-stats-grid">
-      ${teacherAds.map(ad => {
-        const views   = cnt('ad_card_view',  ad.id);
-        const details = cnt('ad_detail_view',ad.id);
-        const wa      = cnt('whatsapp_click',ad.id);
-        const total   = views + details;
-        const rate    = total ? Math.round((wa/total)*100) : 0;
-        const last7   = events.filter(e => String(e.ad_id)===String(ad.id) && Date.now()-new Date(e.created_at).getTime() <= 7*86400000).length;
-        return `<div class="per-ad-stat-card">
-          <div class="per-ad-title">${escapeHtml(ad.title||ad.subject||'إعلان بدون عنوان')}</div>
-          <div class="per-ad-status" style="margin-bottom:8px"><span class="tc-badge ${statusBadgeClass(ad.status)}">${statusLabel(ad.status)}</span></div>
-          <div class="per-ad-row"><span>المشاهدات</span><strong>${views}</strong></div>
-          <div class="per-ad-row"><span>فتح التفاصيل</span><strong>${details}</strong></div>
-          <div class="per-ad-row"><span>تواصل واتساب</span><strong>${wa}</strong></div>
-          ${isAdvanced ? `<div class="per-ad-advanced">
-            <div class="per-ad-row"><span>آخر 7 أيام</span><strong>${last7}</strong></div>
-            <div class="per-ad-row"><span>معدل التحويل</span><strong>${rate}%</strong></div>
-          </div>` : ''}
-        </div>`;
-      }).join('')}
-    </div>`;
-}
-
-/* ══ LEADERBOARD (improved) ══ */
-async function loadLeaderboard() {
-  const box = document.getElementById('leaderboard-content');
-  box.innerHTML = '<div class="loading-spinner"><div class="spinner-lg"></div></div>';
-  try {
-    const { data, error } = await supabase.from('teachers').select('id,name,points,xp,reward_points,avatar_url')
-      .order('points',{ascending:false}).order('created_at',{ascending:true}).limit(15);
-    if (error) throw error;
-    const list = data || [];
-    const myRank = list.findIndex(t => t.id === teacher.id) + 1;
-    if (myRank > 0) {
-      document.getElementById('tw-rank').textContent = '#' + myRank;
-      document.getElementById('rank-card').style.display = '';
-    }
-    if (!list.length) { box.innerHTML='<div class="empty-text">لا توجد بيانات بعد.</div>'; return; }
-    box.innerHTML = list.map((t,i) => {
-      const isMe = t.id === teacher.id;
-      const rank = i+1;
-      const lv   = GM_LEVELS.find(l => ((t.xp||t.points)||0) >= l.min && ((t.xp||t.points)||0) < l.max) || GM_LEVELS[GM_LEVELS.length-1];
-      return `<div class="lb-row" style="background:${isMe?'linear-gradient(135deg,#EFF6FF,#E6FDF5)':rank<=3?'#FFFBEB':'transparent'};border:${isMe?'1.5px solid #BFDBFE':rank<=3?'1px solid #FDE68A':'1px solid transparent'}">
-        <div style="width:30px;text-align:center;font-weight:700;font-size:${rank<=3?'1.2rem':'.84rem'};color:${rank<=3?'#F59E0B':'#94A3B8'};flex-shrink:0">
-          ${rank===1?'🥇':rank===2?'🥈':rank===3?'🥉':'#'+rank}
-        </div>
-        <div class="lb-av" style="background:${isMe?'linear-gradient(135deg,#2563EB,#20C997)':'linear-gradient(135deg,#0D1B4B,#2563EB)'};padding:0;overflow:hidden">
-          ${t.avatar_url ? `<img src="${t.avatar_url}" alt="${escapeHtml(t.name)}" style="width:100%;height:100%;object-fit:cover;border-radius:50%" onerror="this.style.display='none';this.parentElement.textContent='${getInitials(t.name)}'">` : getInitials(t.name)}
-        </div>
-        <div style="flex:1">
-          <div style="font-weight:${isMe?800:600};font-size:.86rem;color:${isMe?'#2563EB':'#0F172A'};display:flex;align-items:center;gap:6px">
-            ${escapeHtml(t.name)} ${isMe?'<span style="background:#2563EB;color:white;border-radius:50px;padding:1px 7px;font-size:.58rem;font-weight:700">أنت</span>':''}
-          </div>
-          <div style="font-size:.68rem;font-weight:600;color:${lv.color}">${lv.icon} ${lv.name}</div>
-        </div>
-        <div style="text-align:center">
-          <div style="font-family:'Cairo',sans-serif;font-weight:900;font-size:1rem;color:${isMe?'#2563EB':'#0F172A'}">${((t.xp||t.points)||0).toLocaleString('ar-EG')}</div>
-          <div style="font-size:.62rem;color:#94A3B8">XP</div>
-        </div>
-      </div>`;
-    }).join('') + `<div style="margin-top:14px;background:linear-gradient(90deg,#EFF6FF,#E6FDF5);border:1px solid #BFDBFE;border-radius:10px;padding:11px 14px;text-align:center;font-size:.83rem;color:#0D1B4B;font-weight:600">
-      🌟 ${myRank ? `ترتيبك #${myRank} من أصل ${list.length} مدرس` : 'سجّل تفاعلات لتظهر في لوحة الشرف!'}
-    </div>`;
-  } catch (e) {
-    const msg = String(e?.message||'');
-    let err = 'تعذّر تحميل لوحة الشرف.';
-    if (/points/i.test(msg)) err += ' يبدو أن عمود النقاط غير موجود. شغّل ملف fix_rls.sql.';
-    box.innerHTML = `<div class="alert alert-danger">${escapeHtml(err)}</div>`;
-  }
-}
-
-/* ══ NOTIFICATIONS (original) ══ */
-async function loadTeacherNotifications() {
-  const box = document.getElementById('notifications-content');
-  box.innerHTML = '<div class="loading-spinner"><div class="spinner-lg"></div></div>';
-  try {
-    const { data, error } = await supabase.from('notifications').select('*')
-      .or('target.eq.teachers,target.eq.all').order('created_at',{ascending:false});
-    if (error) throw error;
-    const notes = data||[];
-    if (!notes.length) { box.innerHTML='<div class="empty-text">لا توجد إشعارات بعد.</div>'; return; }
-    box.innerHTML = notes.map(n => {
-      const date = new Date(n.created_at).toLocaleDateString('ar-EG',{year:'numeric',month:'short',day:'numeric'});
-      const title = n.title ? `<strong>${escapeHtml(n.title)}</strong><br>` : '';
-      return `<div style="margin-bottom:16px;border-bottom:1px solid var(--border);padding-bottom:12px;overflow-wrap:anywhere;word-break:break-word">
-        <div style="font-size:.78rem;color:var(--text-secondary)">${date}</div>
-        <div style="margin-top:4px">${title}${escapeHtml(n.message)}</div>
-      </div>`;
-    }).join('');
-  } catch (e) {
-    box.innerHTML = `<div class="alert alert-danger">تعذّر تحميل الإشعارات.</div>`;
-  }
-}
-
-/* ══ EVENTS & REWARDS (original) ══ */
-async function loadTeacherEvents() {
-  const evBox = document.getElementById('events-content');
-  const rwBox = document.getElementById('rewards-tiers-content');
-  const ptsEl = document.getElementById('events-points-display');
-  if (ptsEl) ptsEl.textContent = (teacher.reward_points != null ? teacher.reward_points : teacher.xp || teacher.points || 0);
-  const evXpEl = document.getElementById('events-xp-display');
-  if (evXpEl) evXpEl.textContent = (teacher.xp || teacher.points || 0);
-  try {
-    const { data: events } = await supabase.from('platform_events').select('*').eq('is_active',true).order('created_at',{ascending:false});
-    if (!events||!events.length) { evBox.innerHTML='<div class="empty-text" style="padding:20px;text-align:center">لا توجد فعاليات نشطة الآن</div>'; }
-    else {
-      evBox.innerHTML = events.map(ev => `
-        <div style="border:1px solid var(--border);border-radius:var(--radius-lg);overflow:hidden;margin-bottom:14px">
-          ${ev.image_url?`<img src="${escapeHtml(ev.image_url)}" alt="${escapeHtml(ev.title)}" style="width:100%;max-height:200px;object-fit:cover">`:''}
-          <div style="padding:16px">
-            <div style="font-family:Cairo,sans-serif;font-weight:800;font-size:1.05rem;margin-bottom:6px">${escapeHtml(ev.title)}</div>
-            <div style="color:var(--text-secondary);font-size:.9rem;line-height:1.7">${escapeHtml(ev.description||'')}</div>
-            ${ev.reward?`<div class="alert alert-success mt-8" style="padding:8px 12px">🎁 المكافأة: ${escapeHtml(ev.reward)}</div>`:''}
-          </div>
-        </div>`).join('');
-    }
-  } catch(_) { evBox.innerHTML='<div class="empty-text" style="padding:20px;text-align:center">تعذّر تحميل الفعاليات</div>'; }
-  try {
-    const { data: tiers } = await supabase.from('rewards_tiers').select('*').order('points_required',{ascending:true});
-    if (!tiers||!tiers.length) { rwBox.innerHTML='<div class="empty-text" style="padding:20px;text-align:center">لا توجد مكافآت محددة حالياً</div>'; }
-    else {
-      const myPts = teacher.reward_points != null ? teacher.reward_points : (teacher.xp || teacher.points || 0);
-      rwBox.innerHTML = '<div style="display:grid;gap:10px">' + tiers.map(tier => {
-        const achieved = myPts >= tier.points_required;
-        return `<div style="display:flex;align-items:center;justify-content:space-between;padding:12px 16px;border:1.5px solid ${achieved?'var(--success)':'var(--border)'};border-radius:var(--radius-md);background:${achieved?'var(--success-bg)':'white'}">
-          <div>
-            <div style="font-weight:700;font-family:Cairo,sans-serif">${escapeHtml(tier.title)}</div>
-            <div style="font-size:.82rem;color:var(--text-secondary)">${escapeHtml(tier.description||'')}</div>
-          </div>
-          <div style="text-align:center;min-width:80px">
-            <div style="font-family:Cairo,sans-serif;font-weight:900;font-size:1.1rem;color:${achieved?'var(--success)':'var(--text-muted)'}">${tier.points_required}</div>
-            <div style="font-size:.72rem;color:var(--text-muted)">نقطة</div>
-            ${achieved?'<div style="color:var(--success);font-size:.78rem;font-weight:700">✅ أهّلت</div>':''}
-          </div>
-        </div>`;
-      }).join('') + '</div>';
-    }
-  } catch(_) { rwBox.innerHTML='<div class="empty-text" style="padding:20px">تعذّر تحميل المكافآت</div>'; }
-}
-
-/* ══ TAB SWITCHING ══ */
-function switchTab(tab, clickedBtn) {
-  const tabs = ['ads','stats','features','profile','leaderboard','notifications','events'];
-  document.querySelectorAll('.dash-tab').forEach(b => b.classList.remove('active'));
-  if (clickedBtn) clickedBtn.classList.add('active');
-  else {
-    document.querySelectorAll('.dash-tab').forEach((btn,idx) => {
-      if (tabs[idx] === tab) btn.classList.add('active');
-    });
-  }
-  tabs.forEach(name => {
-    const pane = document.getElementById('tab-' + name);
-    if (pane) pane.classList.toggle('active', name === tab);
-  });
-  if (tab==='stats')            loadTeacherStats();
-  else if (tab==='features')    renderFeatures();
-  else if (tab==='leaderboard') loadLeaderboard();
-  else if (tab==='notifications') loadTeacherNotifications();
-  else if (tab==='events')      loadTeacherEvents();
-
-  // scroll active tab into view on mobile
-  if (clickedBtn) {
-    clickedBtn.scrollIntoView({behavior:'smooth', block:'nearest', inline:'center'});
-  }
-  checkTabsOverflow();
-}
-
-/* مؤشر التمرير الأفقي */
-function checkTabsOverflow() {
-  const wrap = document.getElementById('dash-tabs-wrap');
-  const tabs = document.getElementById('dash-tabs');
-  if (!wrap || !tabs) return;
-  const hasOverflow = tabs.scrollWidth > tabs.clientWidth + 2;
-  const atEnd = tabs.scrollLeft <= 5;
-  wrap.classList.toggle('has-overflow', hasOverflow && atEnd);
-}
-
-document.addEventListener('DOMContentLoaded', () => {
-  const tabsEl = document.getElementById('dash-tabs');
-  if (tabsEl) {
-    tabsEl.addEventListener('scroll', checkTabsOverflow);
-    setTimeout(checkTabsOverflow, 300);
-  }
-});
-
-function switchGTab(id, btn) {
-  document.querySelectorAll('.gpane').forEach(p => p.classList.remove('active'));
-  document.getElementById(id)?.classList.add('active');
-  document.querySelectorAll('.gtab').forEach(b => b.classList.remove('active'));
-  if (btn) btn.classList.add('active');
-  else {
-    // called programmatically — find the right button
-    document.querySelectorAll('.gtab').forEach(b => {
-      if (b.getAttribute('onclick') && b.getAttribute('onclick').includes(id)) b.classList.add('active');
-    });
-  }
-  // Init bar/pts charts on first open of activity pane
-  if (id==='g-activity' && !barChart && gamEvents) buildActivityCharts(gamEvents);
-}
-
-/* ══ PROFILE HELPERS (original) ══ */
-function renderAvatarPreview(url='') {
-  const box = document.getElementById('p-avatar-preview');
-  if (!box) return;
-  box.innerHTML = url ? `<img src="${escapeHtml(url)}" alt="صورة المعلم">` : '<span>لا توجد صورة بعد</span>';
-}
-function setupAvatarPreview() {
-  document.getElementById('p-avatar-file')?.addEventListener('change', e => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    const r = new FileReader(); r.onload=()=>renderAvatarPreview(r.result); r.readAsDataURL(file);
-  });
-}
-
-/* ══ IMAGE POSITION (original) ══ */
-function parsePosition(v='50% 50%') {
-  const m = String(v||'50% 50%').match(/(\d+(?:\.\d+)?)%\s+(\d+(?:\.\d+)?)%/);
-  return m ? {x:Number(m[1]),y:Number(m[2])} : {x:50,y:50};
-}
-function initMainImagePositionEditor(imageUrl='', position='50% 50%') {
-  const editor=document.getElementById('ad-main-position-editor');
-  const img=document.getElementById('ad-main-position-preview');
-  const x=document.getElementById('ad-pos-x'); const y=document.getElementById('ad-pos-y');
-  const hidden=document.getElementById('ad-main-image-position');
-  const pos=parsePosition(position);
-  x.value=pos.x; y.value=pos.y; hidden.value=`${pos.x}% ${pos.y}%`;
-  if (imageUrl) { img.src=imageUrl; editor.style.display=''; } else { img.removeAttribute('src'); editor.style.display='none'; }
-  updateMainPositionPreview();
-}
-function updateMainPositionPreview() {
-  const x=document.getElementById('ad-pos-x')?.value||50;
-  const y=document.getElementById('ad-pos-y')?.value||50;
-  const hidden=document.getElementById('ad-main-image-position');
-  const img=document.getElementById('ad-main-position-preview');
-  if (hidden) hidden.value=`${x}% ${y}%`;
-  if (img) img.style.objectPosition=`${x}% ${y}%`;
-}
-function setupMainImagePositionControls() {
-  ['ad-pos-x','ad-pos-y'].forEach(id => document.getElementById(id)?.addEventListener('input', updateMainPositionPreview));
-  document.getElementById('ad-main-image')?.addEventListener('change', e => {
-    const file=e.target.files?.[0]; if (!file) return;
-    const r=new FileReader(); r.onload=()=>initMainImagePositionEditor(r.result,document.getElementById('ad-main-image-position')?.value||'50% 50%'); r.readAsDataURL(file);
-  });
-}
-
-/* ══ MODAL + AUTH (original) ══ */
-function openModal(id)  { document.getElementById(id).classList.add('open');    document.body.style.overflow='hidden'; }
-function closeModal(id) { document.getElementById(id).classList.remove('open'); document.body.style.overflow=''; }
-function closeAdModal() { closeModal('ad-modal'); }
-function logout()       { Auth.clearTeacher(); window.location.href='index.html'; }
-document.getElementById('ad-modal').addEventListener('click', e => { if(e.target===e.currentTarget) closeAdModal(); });
-
-/* ══ فتح ملف المدرس الشخصي ══ */
-function openTeacherProfile() {
-  // يفتح أول إعلان نشط للمدرس، أو أي إعلان، أو ملف المدرس بالـ id
-  const activeAd = teacherAds.find(a => a.status === 'active');
-  const anyAd    = teacherAds[0];
-  if (activeAd) {
-    window.open('teacher.html?ad=' + activeAd.id, '_blank');
-  } else if (anyAd) {
-    window.open('teacher.html?ad=' + anyAd.id + '&preview=1', '_blank');
-  } else {
-    window.open('teacher.html?id=' + teacher.id, '_blank');
-  }
-}
-</script>
+<script src="config.js?v=7.6.0"></script>
+<script src="dashboard_logic.js?v=7.6.0"></script>
 </body>
 </html>
