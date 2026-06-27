@@ -67,6 +67,10 @@ document.addEventListener('DOMContentLoaded', async () => {
     if (!e.target.closest('.notif-wrap')) closeNotifDropdown();
     if (!e.target.closest('.more-menu-wrap')) closeMoreMenu();
   });
+
+  // إغلاق modal الإعلان عند الضغط على الخلفية
+  const adModal = document.getElementById('ad-modal');
+  if (adModal) adModal.addEventListener('click', e => { if (e.target === e.currentTarget) closeAdModal(); });
 });
 
 /* ══════════════════════════════════════
@@ -547,10 +551,55 @@ async function loadHomeStats() {
       + todayEv.filter(e => e.event_type === 'phone_click').length * 5, 100);
     updateCircularGoal(todayPts);
     document.getElementById('tw-streak').textContent = calcStreak(gamEvents);
+
+    // ── تنبيهات الصفحة الرئيسية ──
+    renderHomeAlerts();
   } catch (e) {
     const el = document.getElementById('home-chart-loading');
     if (el) el.textContent = 'تعذّر تحميل البيانات';
   }
+}
+
+function renderHomeAlerts() {
+  const box = document.getElementById('home-alerts');
+  if (!box) return;
+  const alerts = [];
+
+  // تنبيه انتهاء الاشتراك
+  if (!isSubscriptionActive(teacher)) {
+    alerts.push({ type: 'danger', icon: '🚫', msg: 'اشتراكك منتهي — إعلاناتك مخفية حتى التجديد.' });
+  } else {
+    const days = daysUntil(teacher.subscription_end);
+    if (days !== null && days <= 7 && days >= 0) {
+      alerts.push({ type: 'warning', icon: '⚠️', msg: `اشتراكك ينتهي خلال ${days} يوم — تواصل مع الإدارة للتجديد.` });
+    }
+  }
+
+  // تنبيه عدم وجود إعلانات نشطة
+  const activeAds = teacherAds.filter(a => a.status === 'active');
+  const pendingAds = teacherAds.filter(a => a.status === 'pending');
+  if (teacherAds.length === 0) {
+    alerts.push({ type: 'info', icon: '📋', msg: 'لم تضف أي إعلان بعد — أضف إعلانك الأول ليظهر للطلاب.' });
+  } else if (activeAds.length === 0 && pendingAds.length > 0) {
+    alerts.push({ type: 'info', icon: '⏳', msg: `إعلانك قيد مراجعة الإدارة (${pendingAds.length} إعلان).` });
+  }
+
+  // تنبيه اكتمال الملف الشخصي
+  if (!teacher.whatsapp && !teacher.phone && !teacher.facebook) {
+    alerts.push({ type: 'warning', icon: '📞', msg: 'لم تضف وسائل تواصل — أضفها من ملفك الشخصي حتى يتصل بك الطلاب.' });
+  }
+
+  if (!alerts.length) { box.innerHTML = ''; return; }
+
+  const colors = { danger: '#FEF2F2', warning: '#FFFBEB', info: '#EFF6FF' };
+  const borders = { danger: '#FCA5A5', warning: '#FCD34D', info: '#BFDBFE' };
+  const texts = { danger: '#9B1C1C', warning: '#92400E', info: '#1D4ED8' };
+
+  box.innerHTML = alerts.map(a => `
+    <div style="display:flex;align-items:flex-start;gap:10px;padding:11px 14px;border-radius:10px;border:1px solid ${borders[a.type]};background:${colors[a.type]};color:${texts[a.type]};font-size:.86rem;font-weight:600;margin-bottom:8px">
+      <span style="flex-shrink:0;font-size:1rem">${a.icon}</span>
+      <span>${a.msg}</span>
+    </div>`).join('');
 }
 
 /* ══════════════════════════════════════
@@ -1013,12 +1062,6 @@ function setupMainImagePositionControls() {
 function openModal(id) { document.getElementById(id).classList.add('open'); document.body.style.overflow = 'hidden'; }
 function closeModal(id) { document.getElementById(id).classList.remove('open'); document.body.style.overflow = ''; }
 function closeAdModal() { closeModal('ad-modal'); }
-function logout() { Auth.clearTeacher(); window.location.href = 'index.html'; }
-
-document.addEventListener('DOMContentLoaded', () => {
-  const adModal = document.getElementById('ad-modal');
-  if (adModal) adModal.addEventListener('click', e => { if (e.target === e.currentTarget) closeAdModal(); });
-});
 
 function openTeacherProfile() {
   const activeAd = teacherAds.find(a => a.status === 'active');

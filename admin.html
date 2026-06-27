@@ -43,7 +43,7 @@
       href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800;900&family=Cairo:wght@400;600;700;800&display=swap"
       rel="stylesheet"
     />
-    <link rel="stylesheet" href="style.css?v=7.5.0" />
+    <link rel="stylesheet" href="style.css?v=7.6.0" />
     <link rel="icon" type="image/png" href="logo.png" />
     <link rel="manifest" href="manifest.webmanifest" />
     <style>
@@ -365,6 +365,16 @@
               background: transparent;
             "
             >↗ الموقع</a
+          >
+          <a
+            href="financial-dashboard.html"
+            class="btn btn-sm"
+            style="
+              color: #86efac;
+              border: 1px solid rgba(134, 239, 172, 0.3);
+              background: transparent;
+            "
+            >💰 المالية</a
           >
           <button onclick="logoutAdmin()" class="btn btn-danger btn-sm">
             تسجيل الخروج
@@ -1445,7 +1455,7 @@
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <script src="config.js?v=7.5.0"></script>
+    <script src="config.js?v=7.6.0"></script>
     <script>
       let allTeachers = [];
       let allAds = [];
@@ -1994,11 +2004,7 @@
           document.getElementById("t-active").checked = data.is_active ?? true;
           document.getElementById("t-password").value = "";
           document.getElementById("pass-required").style.display = "none";
-          document.getElementById("pass-hint").textContent = data.plain_password
-            ? "الحالية: " +
-              data.plain_password +
-              " — اتركه فارغاً للإبقاء عليها"
-            : "اتركه فارغاً للإبقاء على كلمة المرور الحالية";
+          document.getElementById("pass-hint").textContent = "اتركه فارغاً للإبقاء على كلمة المرور الحالية — أدخل كلمة جديدة للتغيير";
           document.getElementById("teacher-modal-error").style.display = "none";
           openModal("teacher-modal");
         } catch (e) {
@@ -2067,7 +2073,7 @@
             if (password.length < 6)
               throw new Error("كلمة المرور يجب أن تكون 6 أحرف على الأقل");
             payload.password_hash = await sha256(password);
-            payload.plain_password = password;
+            // لا نحفظ كلمة المرور نصياً لأسباب أمنية
           }
 
           let result;
@@ -2159,12 +2165,16 @@
             folder,
             MAX_GALLERY_IMAGES - oldGallery.length,
           );
+          const gradeCheck = validateSameGradeSection(getSelectedGrades("ea-grades-box"));
+          if (!gradeCheck.ok) throw new Error(gradeCheck.message);
           const { error } = await supabase
             .from("ads")
             .update({
               title: document.getElementById("ea-title").value.trim(),
               subject: document.getElementById("ea-subject").value,
-              grade: document.getElementById("ea-grade").value,
+              grade: gradeCheck.grades.join("، "),
+              grades: gradeCheck.grades,
+              grade_section: gradeCheck.section,
               price: parseFloat(document.getElementById("ea-price").value),
               lesson_type: document.getElementById("ea-lesson-type").value,
               description: document

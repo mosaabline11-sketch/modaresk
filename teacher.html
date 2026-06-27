@@ -22,7 +22,7 @@
   <title>تفاصيل الإعلان - مدرسك</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800;900&family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="style.css?v=7.5.0">
+  <link rel="stylesheet" href="style.css?v=7.6.0">
   <link rel="icon" type="image/png" href="logo.png">
   <link rel="manifest" href="manifest.webmanifest">
   <style>
@@ -52,7 +52,7 @@
 </main>
 <footer class="footer" style="margin-top:0"><div class="container"><div class="footer-bottom" style="border-top:none;margin-top:0">© 2026 مدرسك — جميع الحقوق محفوظة · <a href="privacy.html">سياسة الخصوصية</a> · <a href="terms.html">شروط الاستخدام</a></div></div></footer>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="config.js?v=7.5.0"></script>
+<script src="config.js?v=7.6.0"></script>
 <script>
   document.addEventListener('DOMContentLoaded', async () => {
     const params = new URLSearchParams(location.search);
@@ -114,6 +114,13 @@
 
   function renderAd(ad){
     const t=ad.teachers || {};
+    // تحديث canonical و meta ديناميكياً حسب الإعلان
+    const baseUrl = 'https://mosaabline11-sketch.github.io/modaresk/teacher.html';
+    const canonicalEl = document.querySelector('link[rel="canonical"]');
+    if (canonicalEl) canonicalEl.href = `${baseUrl}?ad=${ad.id}`;
+    document.title = `${escapeHtml(ad.title || ad.subject)} - ${escapeHtml(t.name || 'مدرس')} | مدرسك`;
+    const metaDesc = document.querySelector('meta[name="description"]');
+    if (metaDesc) metaDesc.content = `${ad.subject} للصف ${gradeDisplay(ad)} - ${ad.lesson_type === 'online' ? 'أونلاين' : ad.lesson_type === 'inperson' ? 'حضوري' : 'أونلاين وحضوري'} - ${ad.price} جنيه/الحصة. تواصل مباشر مع ${t.name || 'المدرس'}.`;
     document.getElementById('hero-loading').style.display='none';
     document.getElementById('hero-content').style.display='';
     document.getElementById('hero-content').innerHTML=`
