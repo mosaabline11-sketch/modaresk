@@ -1,487 +1,264 @@
 /*!
- * مدرسك — Splash Screen v1.0
- * شاشة افتتاحية احترافية بـ HTML + CSS + JavaScript بحت
- * ─────────────────────────────────────────────────────
- * للتفعيل: أضف هذا السطر الواحد مباشرة بعد <body> في index.html
- *   <script src="splash.js?v=1.0"></script>
- *
- * لإعادة الاختبار: افتح Console وأكتب:
- *   localStorage.removeItem('mdrsk_splash_v1')
- * ─────────────────────────────────────────────────────
+ * مدرسك — Splash Screen v2.0
+ * GSAP-powered | Zero FOUC | Minimal | 2.3s
+ * ─────────────────────────────────────────
+ * المتطلبات (مُضافة تلقائياً في index.html):
+ *  • Anti-FOUC <style> في <head>
+ *  • GSAP من cdnjs في <head>
+ *  • HTML الشاشة inline في <body>
  */
 (function () {
   'use strict';
 
-  // ══════════════════════════════════════════════════
-  // الإعدادات
-  // ══════════════════════════════════════════════════
-  const KEY     = 'mdrsk_splash_v1';   // مفتاح localStorage
-  const LOGO    = 'logo.png';           // مسار الشعار (نفس مجلد index.html)
+  var KEY = 'mdrsk_splash_v2';
+  var sp  = document.getElementById('ms-sp');
 
-  // توقيتات الأنيميشن بالملي ثانية
-  const T = {
-    glow    :   50,   // نقطة الضوء
-    logo    :  500,   // ظهور الشعار
-    ring    :  710,   // هالة الضوء حول الشعار
-    pulse   : 1250,   // نبضة الشعار
-    text    : 2000,   // كتلة النص
-    line    : 2215,   // الخط المتدرج
-    tag     : 2330,   // الشعار الفرعي
-    fadeOut : 2850,   // بداية الاختفاء
-    remove  : 3440    // إزالة العنصر من DOM
-  };
+  /* ── إظهار محتوى الصفحة ─────────────────────────── */
+  function showPage() {
+    document.body.style.visibility = '';
+    var f = document.getElementById('ms-fouc');
+    if (f) f.remove();
+  }
 
-  // ── لا تُظهر الشاشة إذا سبق وظهرت ──────────────
-  try { if (localStorage.getItem(KEY)) return; } catch (_) {}
+  /* ── هل الشاشة مطلوبة؟ ──────────────────────────── */
+  var needed = true;
+  try { if (localStorage.getItem(KEY)) needed = false; } catch (_) {}
 
-  // ══════════════════════════════════════════════════
-  // CSS (مُحقَن برمجياً — لا ملف إضافي)
-  // ══════════════════════════════════════════════════
-  const CSS = `
+  if (!needed) { showPage(); if (sp) sp.remove(); return; }
 
-    /* ── Keyframes ───────────────────────────────── */
+  showPage(); /* الـ overlay يغطي الصفحة */
+  if (!sp) return;
 
-    @keyframes ms-gi {
-      from { opacity:0; transform:scale(0) }
-      to   { opacity:1; transform:scale(1) }
-    }
-    @keyframes ms-go {
-      to { opacity:0; transform:scale(7); filter:blur(4px) }
-    }
-    @keyframes ms-li {
-      0%   { opacity:0; transform:scale(.45) rotate(-6deg) }
-      62%  { opacity:1; transform:scale(1.07) rotate(1.5deg) }
-      100% { opacity:1; transform:scale(1)    rotate(0deg) }
-    }
-    @keyframes ms-lp {
-      0%,100% { transform:scale(1) }
-      48%     { transform:scale(1.09); filter:brightness(1.06) }
-    }
-    @keyframes ms-bi {
-      from { opacity:0; transform:translateY(24px) }
-      to   { opacity:1; transform:translateY(0) }
-    }
-    @keyframes ms-lg {
-      from { transform:scaleX(0) }
-      to   { transform:scaleX(1) }
-    }
-    @keyframes ms-ti {
-      from { opacity:0; transform:translateY(8px) }
-      to   { opacity:1; transform:translateY(0) }
-    }
-    @keyframes ms-sk {
-      to { opacity:1 }
-    }
-    @keyframes ms-dots {
-      0%,80%,100% { transform:scale(0) }
-      40%         { transform:scale(1) }
-    }
+  /* ══════════════════════════════════════════════════
+     CSS — حقن ديناميكي
+  ══════════════════════════════════════════════════ */
+  var ST = document.createElement('style');
+  ST.textContent = [
+    /* reset داخل الشاشة فقط */
+    '#ms-sp *{box-sizing:border-box;margin:0;padding:0}',
 
-    /* ── الغلاف الرئيسي ──────────────────────────── */
-    #ms-sp {
-      position     : fixed;
-      inset        : 0;
-      background   : #FFFFFF;
-      z-index      : 99999;
-      display      : flex;
-      align-items  : center;
-      justify-content: center;
-      flex-direction : column;
-      font-family  : 'Tajawal','Cairo',system-ui,sans-serif;
-      direction    : rtl;
-      cursor       : pointer;
-      will-change  : opacity;
-      -webkit-tap-highlight-color: transparent;
-    }
+    /* نقطة الضوء — بسيطة وخفيفة */
+    '#ms-glow{',
+      'position:absolute;',
+      'width:10px;height:10px;border-radius:50%;',
+      'background:#2563EB;',
+      'box-shadow:0 0 16px 6px rgba(37,99,235,.32);', /* ظل واحد خفيف */
+    '}',
 
-    /* حالة الاختفاء */
-    #ms-sp.ms-x {
-      opacity        : 0;
-      pointer-events : none;
-      transition     : opacity .58s cubic-bezier(.4,0,.2,1);
-    }
+    /* غلاف الشعار */
+    '#ms-logo-wrap{',
+      'position:relative;display:flex;',
+      'align-items:center;justify-content:center;',
+      'margin-bottom:28px;',
+    '}',
 
-    /* ── نقطة الضوء ──────────────────────────────── */
-    #ms-glow {
-      position     : absolute;
-      width        : 14px;
-      height       : 14px;
-      border-radius: 50%;
-      background   : #2563EB;
-      opacity      : 0;
-      will-change  : transform, opacity;
-      box-shadow   :
-        0  0 26px 11px rgba(37,99,235,.55),
-        0  0 75px 32px rgba(37,99,235,.18),
-        0  0 120px 55px rgba(14,165,233,.10);
-    }
-    #ms-glow.gi { animation: ms-gi .38s cubic-bezier(.34,1.56,.64,1) forwards }
-    #ms-glow.go { animation: ms-go .38s ease forwards }
+    /* هالة — خفيفة جداً */
+    '#ms-ring{',
+      'position:absolute;width:148px;height:148px;',
+      'border-radius:50%;',
+      'background:radial-gradient(circle,rgba(37,99,235,.055) 0%,transparent 60%);',
+    '}',
 
-    /* ── غلاف الشعار ─────────────────────────────── */
-    #ms-lw {
-      position       : relative;
-      display        : flex;
-      align-items    : center;
-      justify-content: center;
-      margin-bottom  : 30px;
-    }
+    /* غلاف يُدار للـ scale + opacity */
+    '#ms-logo-w{position:relative;z-index:1}',
 
-    /* هالة ضوئية حول الشعار */
-    #ms-ring {
-      position     : absolute;
-      width        : 168px;
-      height       : 168px;
-      border-radius: 50%;
-      background   : radial-gradient(
-        circle,
-        rgba(37,99,235,.12) 0%,
-        rgba(14,165,233,.06) 40%,
-        transparent 68%
-      );
-      opacity    : 0;
-      transition : opacity .55s ease;
-    }
-    #ms-lw.rn #ms-ring { opacity: 1 }
+    /* الشعار — نظيف بدون زخرفة */
+    '#ms-logo{',
+      'width:96px;height:96px;',
+      'object-fit:contain;',
+      'border-radius:20px;',
+      'display:block;',
+    '}',
 
-    /* الشعار */
-    #ms-logo {
-      width        : 100px;
-      height       : 100px;
-      object-fit   : contain;
-      border-radius: 22px;
-      opacity      : 0;
-      transform    : scale(.45) rotate(-6deg);
-      position     : relative;
-      z-index      : 1;
-      will-change  : transform, opacity;
-      box-shadow   :
-        0 10px 40px rgba(37,99,235,.22),
-        0  2px  8px rgba(0,0,0,.07);
-    }
-    #ms-logo.li { animation: ms-li .58s cubic-bezier(.34,1.4,.64,1) forwards }
-    #ms-logo.lp { animation: ms-lp .46s ease-in-out forwards }
+    /* كتلة النص */
+    '#ms-brand{text-align:center}',
 
-    /* ── كتلة النص ───────────────────────────────── */
-    #ms-brd {
-      text-align  : center;
-      opacity     : 0;
-      transform   : translateY(24px);
-      will-change : transform, opacity;
-    }
-    #ms-brd.bi { animation: ms-bi .52s cubic-bezier(.34,1.2,.64,1) forwards }
-
-    #ms-name {
-      font-family  : 'Cairo','Tajawal',sans-serif;
-      font-size    : 2.5rem;
-      font-weight  : 900;
-      color        : #0D1B4B;
-      letter-spacing: -.5px;
-      line-height  : 1.15;
-    }
+    '#ms-name{',
+      'font-family:"Cairo","Tajawal",sans-serif;',
+      'font-size:2.4rem;font-weight:900;',
+      'color:#0D1B4B;letter-spacing:-.5px;line-height:1.15;',
+    '}',
 
     /* الخط المتدرج */
-    #ms-ln {
-      height          : 3px;
-      width           : 148px;
-      margin          : 12px auto;
-      border-radius   : 50px;
-      background      : linear-gradient(90deg, #2563EB 0%, #0EA5E9 50%, #10B981 100%);
-      transform       : scaleX(0);
-      transform-origin: center;
-      will-change     : transform;
-    }
-    #ms-ln.lg { animation: ms-lg .5s cubic-bezier(.25,1,.5,1) forwards }
+    '#ms-line{',
+      'height:2.5px;width:138px;',
+      'background:linear-gradient(90deg,#2563EB 0%,#0EA5E9 50%,#10B981 100%);',
+      'border-radius:50px;margin:11px auto;',
+    '}',
 
     /* الشعار الفرعي */
-    #ms-tag {
-      font-size     : .88rem;
-      color         : #64748B;
-      font-weight   : 500;
-      letter-spacing: .3px;
-      opacity       : 0;
-    }
-    #ms-tag.ti { animation: ms-ti .42s ease forwards }
+    '#ms-tagline{',
+      'font-family:"Tajawal","Cairo",sans-serif;',
+      'font-size:.87rem;font-weight:500;',
+      'color:#64748B;letter-spacing:.2px;',
+    '}',
 
     /* رسالة التخطي */
-    #ms-skip {
-      position   : absolute;
-      bottom     : 28px;
-      left       : 0;
-      right      : 0;
-      text-align : center;
-      font-size  : .68rem;
-      color      : #CBD5E1;
-      opacity    : 0;
-      animation  : ms-sk .3s ease 1.9s forwards;
-    }
+    '#ms-skip{',
+      'position:absolute;bottom:24px;',
+      'font-family:"Tajawal",sans-serif;',
+      'font-size:.68rem;color:#D1D5DB;',
+      'left:0;right:0;text-align:center;',
+    '}',
 
-    /* ── احترام تفضيل تقليل الحركة ───────────────── */
-    @media (prefers-reduced-motion: reduce) {
-      #ms-logo.li, #ms-logo.lp,
-      #ms-glow.gi, #ms-glow.go,
-      #ms-brd.bi, #ms-ln.lg, #ms-tag.ti {
-        animation-duration: .01ms !important;
-      }
-      #ms-sp.ms-x { transition-duration: .2s }
-    }
+    /* موبايل */
+    '@media(max-width:400px){',
+      '#ms-logo{width:80px;height:80px;border-radius:16px}',
+      '#ms-name{font-size:2rem}',
+      '#ms-ring{width:128px;height:128px}',
+      '#ms-line{width:114px}',
+    '}',
 
-    /* ── شاشات صغيرة ─────────────────────────────── */
-    @media (max-width: 400px) {
-      #ms-logo { width:82px; height:82px; border-radius:18px }
-      #ms-name  { font-size:2rem }
-      #ms-ring  { width:138px; height:138px }
-      #ms-ln    { width:120px }
-    }
-  `;
+    /* تقليل الحركة */
+    '@media(prefers-reduced-motion:reduce){',
+      '#ms-sp{transition:none!important}',
+    '}',
+  ].join('');
+  document.head.appendChild(ST);
 
-  // ══════════════════════════════════════════════════
-  // المؤثرات الصوتية — Web Audio API
-  // الحل: ننتظر أول تفاعل من المستخدم قبل تشغيل الصوت
-  // ══════════════════════════════════════════════════
-  let _ac = null;
-  let _audioUnlocked = false;
-  const _pendingSounds = [];  // طابور الأصوات المنتظرة
+  /* ══════════════════════════════════════════════════
+     منطق الإنهاء والتخطي
+  ══════════════════════════════════════════════════ */
+  var done = false;
+  var _tl  = null; /* مرجع الـ timeline لإلغائها عند التخطي */
 
-  // فتح AudioContext على أول تفاعل
-  function unlockAudio() {
-    if (_audioUnlocked) return;
-    _audioUnlocked = true;
-    try {
-      _ac = new (window.AudioContext || window.webkitAudioContext)();
-      _ac.resume().then(() => {
-        // شغّل الأصوات المنتظرة
-        _pendingSounds.forEach(fn => { try { fn(_ac); } catch(_) {} });
-        _pendingSounds.length = 0;
-      }).catch(() => {});
-    } catch (_) { _ac = false; }
+  function cleanup() {
+    try { sp.remove(); ST.remove(); } catch (_) {}
+    try { localStorage.setItem(KEY, '1'); } catch (_) {}
   }
 
-  function getAC() {
-    if (_ac && _ac.state !== 'closed') return _ac;
-    return null;
-  }
-
-  // تسجيل مبكر للتفاعل على مستوى الـ document
-  ['click','touchstart','keydown','pointerdown'].forEach(ev => {
-    document.addEventListener(ev, unlockAudio, { once: true, capture: true });
-  });
-
-  // تشغيل صوت: إما فوراً إذا الـ AudioContext جاهز، أو في الطابور
-  function playSound(fn) {
-    const c = getAC();
-    if (c && c.state === 'running') {
-      try { fn(c); } catch(_) {}
-    } else {
-      _pendingSounds.push(fn);
-      // حاول تفتح AudioContext حتى لو من غير تفاعل (بيشتغل أحياناً)
-      if (!_ac) {
-        try {
-          _ac = new (window.AudioContext || window.webkitAudioContext)();
-          _ac.resume().then(() => {
-            if (_ac.state === 'running') {
-              _audioUnlocked = true;
-              _pendingSounds.forEach(f => { try { f(_ac); } catch(_) {} });
-              _pendingSounds.length = 0;
-            }
-          }).catch(() => {});
-        } catch(_) { _ac = false; }
-      }
-    }
-  }
-
-  /* ── Whoosh: هواء خفيف عند نقطة الضوء ─────────── */
-  function snd_whoosh() {
-    playSound(c => {
-      const n   = Math.floor(c.sampleRate * .45);
-      const buf = c.createBuffer(1, n, c.sampleRate);
-      const d   = buf.getChannelData(0);
-      for (let i = 0; i < n; i++)
-        d[i] = (Math.random() * 2 - 1) * Math.exp(-3.8 * i / n);
-
-      const src = c.createBufferSource(); src.buffer = buf;
-      const flt = c.createBiquadFilter();
-      flt.type = 'bandpass'; flt.Q.value = 1.2;
-      flt.frequency.setValueAtTime(1600, c.currentTime);
-      flt.frequency.exponentialRampToValueAtTime(120, c.currentTime + .45);
-
-      const g = c.createGain();
-      g.gain.setValueAtTime(.13, c.currentTime);
-      g.gain.exponentialRampToValueAtTime(.0001, c.currentTime + .45);
-
-      src.connect(flt); flt.connect(g); g.connect(c.destination);
-      src.start();
-    });
-  }
-
-  /* ── Sparkle/Chime: أربع نغمات تصاعدية ─────────── */
-  function snd_sparkle() {
-    playSound(c => {
-      [1047, 1319, 1568, 2093].forEach((freq, i) => {
-        const o = c.createOscillator(), g = c.createGain();
-        o.type = 'sine'; o.frequency.value = freq;
-        const t = c.currentTime + i * .062;
-        g.gain.setValueAtTime(0, t);
-        g.gain.linearRampToValueAtTime(.078, t + .03);
-        g.gain.exponentialRampToValueAtTime(.0001, t + .36);
-        o.connect(g); g.connect(c.destination);
-        o.start(t); o.stop(t + .4);
-      });
-    });
-  }
-
-  /* ── Page Flip: صوت تقليب صفحة كتاب ───────────── */
-  function snd_pageFlip() {
-    playSound(c => {
-      [[660, 185, .08, 0], [400, 145, .045, .082]].forEach(([f1, f2, vol, dt]) => {
-        const o = c.createOscillator(), g = c.createGain();
-        o.type = 'sine';
-        const t = c.currentTime + dt;
-        o.frequency.setValueAtTime(f1, t);
-        o.frequency.exponentialRampToValueAtTime(f2, t + .2);
-        g.gain.setValueAtTime(vol, t);
-        g.gain.exponentialRampToValueAtTime(.0001, t + .22);
-        o.connect(g); g.connect(c.destination);
-        o.start(t); o.stop(t + .26);
-      });
-    });
-  }
-
-  /* ── Success Ding: وتر C ماجور للنجاح ──────────── */
-  function snd_ding() {
-    playSound(c => {
-      // C5 - E5 - G5 - C6
-      [523.25, 659.25, 783.99, 1046.5].forEach((freq, i) => {
-        const o = c.createOscillator(), g = c.createGain();
-        o.type = 'sine'; o.frequency.value = freq;
-        const t   = c.currentTime + i * .042;
-        const vol = [.08, .07, .055, .034][i];
-        g.gain.setValueAtTime(0, t);
-        g.gain.linearRampToValueAtTime(vol, t + .03);
-        g.gain.exponentialRampToValueAtTime(.0001, t + .68);
-        o.connect(g); g.connect(c.destination);
-        o.start(t); o.stop(t + .72);
-      });
-    });
-  }
-
-  // ══════════════════════════════════════════════════
-  // تسلسل الأنيميشن
-  // ══════════════════════════════════════════════════
-  let sp, done = false;
-
+  /* نهاية طبيعية — Fade Out ثم تنظيف */
   function end() {
-    if (done) return;
-    done = true;
-    sp && sp.classList.add('ms-x');
-    setTimeout(() => {
-      try { sp && sp.remove(); }           catch (_) {}
-      try { localStorage.setItem(KEY,'1'); } catch (_) {}
-    }, T.remove - T.fadeOut + 10);
+    if (done) return; done = true;
+    if (typeof gsap !== 'undefined') {
+      gsap.to(sp, { opacity:0, duration:.4, ease:'power2.inOut', onComplete:cleanup });
+    } else {
+      sp.style.transition = 'opacity .4s ease';
+      sp.style.opacity    = '0';
+      setTimeout(cleanup, 420);
+    }
   }
 
-  function runAnim() {
-    const G  = document.getElementById('ms-glow');
-    const LW = document.getElementById('ms-lw');
-    const L  = document.getElementById('ms-logo');
-    const B  = document.getElementById('ms-brd');
-    const LN = document.getElementById('ms-ln');
-    const TG = document.getElementById('ms-tag');
-
-    /* 0.05s — نقطة ضوء + Whoosh ─────────────────── */
-    setTimeout(() => {
-      G && G.classList.add('gi');
-      snd_whoosh();
-    }, T.glow);
-
-    /* 0.5s — شعار يظهر + Sparkle ──────────────── */
-    setTimeout(() => {
-      if (G) { G.classList.remove('gi'); G.classList.add('go'); }
-      L && L.classList.add('li');
-      snd_sparkle();
-    }, T.logo);
-
-    /* 0.71s — هالة الضوء ────────────────────────── */
-    setTimeout(() => { LW && LW.classList.add('rn'); }, T.ring);
-
-    /* 1.25s — نبضة + Page Flip ─────────────────── */
-    setTimeout(() => {
-      L && L.classList.add('lp');
-      snd_pageFlip();
-    }, T.pulse);
-
-    /* 2.0s — نص + Success Ding ─────────────────── */
-    setTimeout(() => {
-      B  && B.classList.add('bi');
-      snd_ding();
-    }, T.text);
-
-    /* 2.215s — خط متدرج ──────────────────────── */
-    setTimeout(() => { LN && LN.classList.add('lg'); }, T.line);
-
-    /* 2.33s — شعار فرعي ─────────────────────── */
-    setTimeout(() => { TG && TG.classList.add('ti'); }, T.tag);
-
-    /* 2.85s — Fade Out ─────────────────────────── */
-    setTimeout(end, T.fadeOut);
-
-    /* Safety net ─────────────────────────────── */
-    setTimeout(end, 5000);
+  /* تخطي بالضغط — Fade Out سريع */
+  function skip() {
+    if (done) return; done = true;
+    if (_tl) _tl.kill();
+    if (typeof gsap !== 'undefined') {
+      gsap.to(sp, { opacity:0, duration:.22, ease:'power2.inOut', onComplete:cleanup });
+    } else {
+      sp.style.transition = 'opacity .22s ease';
+      sp.style.opacity    = '0';
+      setTimeout(cleanup, 240);
+    }
   }
 
-  // ══════════════════════════════════════════════════
-  // التهيئة — حقن HTML و CSS في الصفحة
-  // ══════════════════════════════════════════════════
-  function init() {
-    // ── حقن CSS ───────────────────────────────────
-    const st = document.createElement('style');
-    st.id = 'ms-css'; st.textContent = CSS;
-    document.head.appendChild(st);
+  sp.addEventListener('click',    skip, { once:true });
+  sp.addEventListener('touchend', skip, { once:true, passive:true });
 
-    // ── بناء HTML ─────────────────────────────────
-    sp = document.createElement('div');
-    sp.id = 'ms-sp';
-    sp.setAttribute('role', 'status');
-    sp.setAttribute('aria-label', 'شاشة افتتاحية لمنصة مدرسك');
-    sp.innerHTML = `
-      <div id="ms-glow"></div>
+  /* ══════════════════════════════════════════════════
+     GSAP Timeline — المدة الكلية: ~2.3 ثانية
+  ══════════════════════════════════════════════════ */
+  function run() {
 
-      <div id="ms-lw">
-        <div id="ms-ring"></div>
-        <img
-          id="ms-logo"
-          src="${LOGO}"
-          alt="شعار مدرسك"
-          draggable="false"
-          onerror="this.style.filter='opacity(.5)'"
-        >
-      </div>
+    /* Fallback إذا لم يُحمَّل GSAP */
+    if (typeof gsap === 'undefined') {
+      setTimeout(end, 2300);
+      return;
+    }
 
-      <div id="ms-brd">
-        <div id="ms-name">مدرسك</div>
-        <div id="ms-ln"></div>
-        <div id="ms-tag">فهم أفضل... مستقبل أفضل</div>
-      </div>
+    var G  = document.getElementById('ms-glow');
+    var LW = document.getElementById('ms-logo-w');
+    var L  = document.getElementById('ms-logo');
+    var RN = document.getElementById('ms-ring');
+    var B  = document.getElementById('ms-brand');
+    var LN = document.getElementById('ms-line');
+    var TG = document.getElementById('ms-tagline');
+    var SK = document.getElementById('ms-skip');
 
-      <div id="ms-skip">اضغط للمتابعة</div>
-    `;
+    /* ── الحالة الأولية (كل شيء مخفي) ─────────────── */
+    gsap.set(G,  { opacity:0, scale:0 });
+    gsap.set(LW, { opacity:0, scale:.6 });
+    gsap.set(L,  { filter:'blur(12px)' });
+    gsap.set(RN, { opacity:0 });
+    gsap.set(B,  { opacity:0, y:18 });
+    gsap.set(LN, { scaleX:0, transformOrigin:'center center' });
+    gsap.set(TG, { opacity:0, y:5 });
+    gsap.set(SK, { opacity:0 });
 
-    // ── إضافة في أول الـ body ─────────────────────
-    document.body.prepend(sp);
+    /* ── Timeline ───────────────────────────────────── */
+    _tl = gsap.timeline({ onComplete:end });
 
-    // ── التخطي بالضغط أو اللمس ───────────────────
-    sp.addEventListener('click',    end, { once: true });
-    sp.addEventListener('touchend', end, { once: true, passive: true });
+    _tl
 
-    // ── تشغيل الأنيميشن ───────────────────────────
-    runAnim();
+      /* 0.00s — نقطة الضوء تظهر */
+      .to(G, {
+        opacity: 1, scale: 1,
+        duration: .24, ease: 'back.out(2.5)'
+      })
+
+      /* 0.28s — الشعار يظهر: Blur → Clear, Scale .6 → 1, Opacity 0 → 1 */
+      .to(LW, {
+        opacity: 1, scale: 1,
+        duration: .44, ease: 'power3.out'
+      }, .28)
+      .to(L, {
+        filter: 'blur(0px)',
+        duration: .44, ease: 'power2.out'
+      }, .28)
+
+      /* 0.30s — نقطة الضوء تتبخر */
+      .to(G, {
+        opacity: 0, scale: 4.5,
+        duration: .2, ease: 'power2.in'
+      }, .30)
+
+      /* 0.58s — هالة خفيفة جداً تظهر */
+      .to(RN, {
+        opacity: 1,
+        duration: .3, ease: 'power2.out'
+      }, .58)
+
+      /* 0.74s — Pulse واحد بعد اكتمال ظهور الشعار */
+      .to(LW, { scale: 1.052, duration: .17, ease: 'power2.out' }, .74)
+      .to(LW, { scale: 1,     duration: .2,  ease: 'power2.in'  }, .91)
+
+      /* 1.06s — اسم المنصة يصعد للأعلى */
+      .to(B, {
+        opacity: 1, y: 0,
+        duration: .28, ease: 'power3.out'
+      }, 1.06)
+
+      /* 1.20s — الخط يتمدد بـ scaleX */
+      .to(LN, {
+        scaleX: 1,
+        duration: .32, ease: 'power3.inOut'
+      }, 1.20)
+
+      /* 1.34s — الشعار الفرعي */
+      .to(TG, {
+        opacity: 1, y: 0,
+        duration: .24, ease: 'power2.out'
+      }, 1.34)
+
+      /* 1.60s — رسالة التخطي تظهر ببطء */
+      .to(SK, {
+        opacity: 1,
+        duration: .28, ease: 'power2.out'
+      }, 1.60)
+
+      /* 1.90s — Fade Out الشاشة بالكامل */
+      .to(sp, {
+        opacity: 0,
+        duration: .4, ease: 'power2.inOut'
+      }, 1.90);
+
+    /* الإجمالي ≈ 2.30 ثانية */
   }
 
-  // تشغيل فوري أو بعد تحميل DOM
   if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', init);
+    document.addEventListener('DOMContentLoaded', run);
   } else {
-    init();
+    run();
   }
 
 })();
