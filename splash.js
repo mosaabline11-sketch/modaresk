@@ -22,7 +22,7 @@
 
   /* ── هل الشاشة مطلوبة؟ ──────────────────────────── */
   var needed = true;
-  try { if (localStorage.getItem(KEY)) needed = false; } catch (_) {}
+  try { if (sessionStorage.getItem(KEY)) needed = false; } catch (_) {}
 
   if (!needed) { showPage(); if (sp) sp.remove(); return; }
 
@@ -124,7 +124,7 @@
 
   function cleanup() {
     try { sp.remove(); ST.remove(); } catch (_) {}
-    try { localStorage.setItem(KEY, '1'); } catch (_) {}
+    try { sessionStorage.setItem(KEY, '1'); } catch (_) {}
   }
 
   /* نهاية طبيعية — Fade Out ثم تنظيف */
