@@ -237,24 +237,62 @@
 
   // ══════════════════════════════════════════════════
   // المؤثرات الصوتية — Web Audio API
-  // (تعمل مع Chrome/Firefox، قد تُصمَت على iOS بدون تفاعل)
+  // الحل: ننتظر أول تفاعل من المستخدم قبل تشغيل الصوت
   // ══════════════════════════════════════════════════
   let _ac = null;
+  let _audioUnlocked = false;
+  const _pendingSounds = [];  // طابور الأصوات المنتظرة
+
+  // فتح AudioContext على أول تفاعل
+  function unlockAudio() {
+    if (_audioUnlocked) return;
+    _audioUnlocked = true;
+    try {
+      _ac = new (window.AudioContext || window.webkitAudioContext)();
+      _ac.resume().then(() => {
+        // شغّل الأصوات المنتظرة
+        _pendingSounds.forEach(fn => { try { fn(_ac); } catch(_) {} });
+        _pendingSounds.length = 0;
+      }).catch(() => {});
+    } catch (_) { _ac = false; }
+  }
 
   function getAC() {
     if (_ac && _ac.state !== 'closed') return _ac;
-    if (_ac === false) return null;
-    try {
-      _ac = new (window.AudioContext || window.webkitAudioContext)();
-      if (_ac.state === 'suspended') _ac.resume().catch(() => {});
-    } catch (_) { _ac = false; return null; }
-    return _ac;
+    return null;
+  }
+
+  // تسجيل مبكر للتفاعل على مستوى الـ document
+  ['click','touchstart','keydown','pointerdown'].forEach(ev => {
+    document.addEventListener(ev, unlockAudio, { once: true, capture: true });
+  });
+
+  // تشغيل صوت: إما فوراً إذا الـ AudioContext جاهز، أو في الطابور
+  function playSound(fn) {
+    const c = getAC();
+    if (c && c.state === 'running') {
+      try { fn(c); } catch(_) {}
+    } else {
+      _pendingSounds.push(fn);
+      // حاول تفتح AudioContext حتى لو من غير تفاعل (بيشتغل أحياناً)
+      if (!_ac) {
+        try {
+          _ac = new (window.AudioContext || window.webkitAudioContext)();
+          _ac.resume().then(() => {
+            if (_ac.state === 'running') {
+              _audioUnlocked = true;
+              _pendingSounds.forEach(f => { try { f(_ac); } catch(_) {} });
+              _pendingSounds.length = 0;
+            }
+          }).catch(() => {});
+        } catch(_) { _ac = false; }
+      }
+    }
   }
 
   /* ── Whoosh: هواء خفيف عند نقطة الضوء ─────────── */
   function snd_whoosh() {
-    const c = getAC(); if (!c) return;
-    try {
+    playSound(c => {
       const n   = Math.floor(c.sampleRate * .45);
       const buf = c.createBuffer(1, n, c.sampleRate);
       const d   = buf.getChannelData(0);
@@ -273,13 +311,12 @@
 
       src.connect(flt); flt.connect(g); g.connect(c.destination);
       src.start();
-    } catch (_) {}
+    });
   }
 
   /* ── Sparkle/Chime: أربع نغمات تصاعدية ─────────── */
   function snd_sparkle() {
-    const c = getAC(); if (!c) return;
-    try {
+    playSound(c => {
       [1047, 1319, 1568, 2093].forEach((freq, i) => {
         const o = c.createOscillator(), g = c.createGain();
         o.type = 'sine'; o.frequency.value = freq;
@@ -290,13 +327,12 @@
         o.connect(g); g.connect(c.destination);
         o.start(t); o.stop(t + .4);
       });
-    } catch (_) {}
+    });
   }
 
   /* ── Page Flip: صوت تقليب صفحة كتاب ───────────── */
   function snd_pageFlip() {
-    const c = getAC(); if (!c) return;
-    try {
+    playSound(c => {
       [[660, 185, .08, 0], [400, 145, .045, .082]].forEach(([f1, f2, vol, dt]) => {
         const o = c.createOscillator(), g = c.createGain();
         o.type = 'sine';
@@ -308,13 +344,12 @@
         o.connect(g); g.connect(c.destination);
         o.start(t); o.stop(t + .26);
       });
-    } catch (_) {}
+    });
   }
 
   /* ── Success Ding: وتر C ماجور للنجاح ──────────── */
   function snd_ding() {
-    const c = getAC(); if (!c) return;
-    try {
+    playSound(c => {
       // C5 - E5 - G5 - C6
       [523.25, 659.25, 783.99, 1046.5].forEach((freq, i) => {
         const o = c.createOscillator(), g = c.createGain();
@@ -327,7 +362,7 @@
         o.connect(g); g.connect(c.destination);
         o.start(t); o.stop(t + .72);
       });
-    } catch (_) {}
+    });
   }
 
   // ══════════════════════════════════════════════════
