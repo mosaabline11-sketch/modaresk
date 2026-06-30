@@ -3,57 +3,111 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta
-      name="description"
-      content="انضم إلى منصة مدرسك واعرض دروسك للطلاب من خلال باقات مرنة ومميزات اختيارية، ومعرفة التفاصيل والأسعار تكون من خلال التواصل مع الإدارة."
-    />
-    <meta
-      name="keywords"
-      content="مدرسك, مدرس خصوصي, دروس خصوصية, مدرسين, مدرس أونلاين, مدرس حضوري, منصة مدرسين, تعليم, طلاب, مصر"
-    />
+    <meta name="description" content="انضم إلى منصة مدرسك واعرض دروسك للطلاب من خلال باقات مرنة بأسعار واضحة وشفافة." />
+    <meta name="keywords" content="مدرسك, مدرس خصوصي, دروس خصوصية, مدرسين, مدرس أونلاين, مدرس حضوري, منصة مدرسين, تعليم, طلاب, مصر" />
     <meta name="author" content="مدرسك" />
     <meta name="robots" content="index, follow" />
     <meta name="theme-color" content="#2563EB" />
-    <link
-      rel="canonical"
-      href="https://mosaabline11-sketch.github.io/modaresk/join.html"
-    />
+    <link rel="canonical" href="https://mosaabline11-sketch.github.io/modaresk/join.html" />
     <meta property="og:locale" content="ar_AR" />
     <meta property="og:type" content="website" />
-    <meta
-      property="og:url"
-      content="https://mosaabline11-sketch.github.io/modaresk/join.html"
-    />
+    <meta property="og:url" content="https://mosaabline11-sketch.github.io/modaresk/join.html" />
     <meta property="og:site_name" content="مدرسك" />
     <meta property="og:title" content="انضم كمدرس - مدرسك" />
-    <meta
-      property="og:description"
-      content="انضم إلى منصة مدرسك واعرض دروسك للطلاب من خلال باقات مرنة ومميزات اختيارية، ومعرفة التفاصيل والأسعار تكون من خلال التواصل مع الإدارة."
-    />
+    <meta property="og:description" content="انضم إلى منصة مدرسك واعرض دروسك للطلاب من خلال باقات مرنة بأسعار واضحة وشفافة." />
     <meta property="og:image" content="logo.png" />
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:title" content="انضم كمدرس - مدرسك" />
-    <meta
-      name="twitter:description"
-      content="انضم إلى منصة مدرسك واعرض دروسك للطلاب من خلال باقات مرنة ومميزات اختيارية، ومعرفة التفاصيل والأسعار تكون من خلال التواصل مع الإدارة."
-    />
+    <meta name="twitter:description" content="انضم إلى منصة مدرسك واعرض دروسك للطلاب من خلال باقات مرنة بأسعار واضحة وشفافة." />
     <title>انضم كمدرس - مدرسك</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link
-      href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800;900&family=Cairo:wght@400;600;700;800&display=swap"
-      rel="stylesheet"
-    />
-    <link rel="stylesheet" href="style.css?v=7.5.0" />
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800;900&family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="style.css?v=7.6.0" />
     <link rel="icon" type="image/png" href="logo.png" />
     <link rel="manifest" href="manifest.webmanifest" />
+
+    <style>
+      /* ══ Form Section ══ */
+      #subscribe-form-section { transition: all .3s ease; }
+      .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+      .form-full { grid-column: 1 / -1; }
+      .price-summary-box {
+        background: var(--bg-light);
+        border: 1px solid var(--border);
+        border-radius: var(--radius-md);
+        padding: 16px;
+        margin: 20px 0;
+      }
+      .price-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        font-size: .9rem;
+        padding: 5px 0;
+      }
+      .price-row.final-row {
+        border-top: 2px solid var(--border);
+        padding-top: 11px;
+        margin-top: 6px;
+        font-size: 1rem;
+      }
+      .price-row.discount-row { color: var(--success); }
+      .selected-plan-preview {
+        background: var(--primary-bg);
+        border: 1.5px solid var(--primary-border);
+        border-radius: var(--radius-md);
+        padding: 16px;
+        margin-bottom: 24px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        flex-wrap: wrap;
+        gap: 10px;
+      }
+      .discount-input-wrap { display: flex; gap: 8px; }
+      .discount-input-wrap input { flex: 1; text-transform: uppercase; }
+      #discount-status { font-size: .82rem; margin-top: 5px; min-height: 18px; }
+      /* Plan card button */
+      .plan-subscribe-btn {
+        width: 100%;
+        margin-top: 16px;
+        padding: 11px 16px;
+        border-radius: var(--radius-sm);
+        font-size: .95rem;
+        font-weight: 700;
+        background: var(--primary);
+        color: white;
+        border: none;
+        cursor: pointer;
+        transition: var(--transition);
+        font-family: 'Tajawal', sans-serif;
+      }
+      .plan-subscribe-btn:hover { background: var(--primary-dark); transform: translateY(-1px); box-shadow: var(--shadow-lg); }
+      .plan-subscribe-btn.green-btn { background: #059669; }
+      .plan-subscribe-btn.green-btn:hover { background: #047857; }
+      .plan-subscribe-btn.purple-btn { background: #7C3AED; }
+      .plan-subscribe-btn.purple-btn:hover { background: #6D28D9; }
+
+      /* Highlight when just scrolled to form */
+      @keyframes formHighlight {
+        0%   { box-shadow: 0 0 0 0 rgba(37,99,235,.35); }
+        70%  { box-shadow: 0 0 0 12px rgba(37,99,235,0); }
+        100% { box-shadow: 0 0 0 0 rgba(37,99,235,0); }
+      }
+      .form-highlight { animation: formHighlight 1s ease; }
+
+      @media (max-width: 640px) {
+        .form-grid { grid-template-columns: 1fr; }
+      }
+    </style>
   </head>
   <body>
     <nav class="navbar">
       <div class="nav-container" style="max-width: 1200px; margin: 0 auto">
-        <a href="index.html" class="nav-brand"
-          ><img src="logo.png" alt="مدرسك" class="site-logo" /> مدرسك</a
-        >
+        <a href="index.html" class="nav-brand">
+          <img src="logo.png" alt="مدرسك" class="site-logo" /> مدرسك
+        </a>
         <ul class="nav-links" id="nav-links">
           <li><a href="index.html">الرئيسية</a></li>
           <li><a href="index.html#features">كيف يعمل؟</a></li>
@@ -62,148 +116,90 @@
         <div class="nav-actions">
           <a href="login.html" class="btn btn-outline btn-sm">تسجيل الدخول</a>
         </div>
-        <button
-          class="nav-menu-btn"
-          onclick="
-            document.getElementById('nav-links').classList.toggle('open')
-          "
-        >
-          ☰
-        </button>
+        <button class="nav-menu-btn" onclick="document.getElementById('nav-links').classList.toggle('open')">☰</button>
       </div>
     </nav>
 
+    <!-- ══ Hero ══ -->
     <section class="page-hero">
       <div class="container">
-        <div
-          class="page-kicker"
-          data-launch-alt
-          data-launch-text="🚀 للمدرسين الأوائل"
-          data-normal-text="👨‍🏫 للمدرسين"
-        >
+        <div class="page-kicker" data-launch-alt data-launch-text="🚀 للمدرسين الأوائل" data-normal-text="👨‍🏫 للمدرسين">
           🚀 للمدرسين الأوائل
         </div>
-        <h1
-          data-launch-alt
-          data-launch-text="انضم إلى مدرسك من مرحلة الانطلاق"
-          data-normal-text="انضم إلى مدرسك"
-        >
+        <h1 data-launch-alt data-launch-text="انضم إلى مدرسك من مرحلة الانطلاق" data-normal-text="انضم إلى مدرسك">
           انضم إلى مدرسك من مرحلة الانطلاق
         </h1>
-        <p
-          data-launch-alt
+        <p data-launch-alt
           data-launch-text="المنصة في بداية توسعها، وهدفنا بناء شبكة مدرسين موثوقة للطلاب. انضم مبكرًا واعرض إعلانك بشكل احترافي مع تواصل مباشر من الطلاب عبر واتساب أو فيسبوك."
-          data-normal-text="اعرض إعلانك بشكل احترافي على منصة مدرسك، وسهّل على الطلاب الوصول لك والتواصل معك مباشرة عبر واتساب أو فيسبوك."
-        >
-          المنصة في بداية توسعها، وهدفنا بناء شبكة مدرسين موثوقة للطلاب. انضم
-          مبكرًا واعرض إعلانك بشكل احترافي مع تواصل مباشر من الطلاب عبر واتساب
-          أو فيسبوك.
+          data-normal-text="اعرض إعلانك بشكل احترافي على منصة مدرسك، وسهّل على الطلاب الوصول لك والتواصل معك مباشرة عبر واتساب أو فيسبوك.">
+          المنصة في بداية توسعها، وهدفنا بناء شبكة مدرسين موثوقة للطلاب. انضم مبكرًا واعرض إعلانك بشكل احترافي مع تواصل مباشر من الطلاب عبر واتساب أو فيسبوك.
         </p>
         <div class="launch-note" data-launch-controlled>
           <span>ℹ️</span>
           <div>
-            <strong>تنبيه بشفافية:</strong> مدرسك في مرحلة الانطلاق وجمع
-            المدرسين الأوائل، لذلك يتم تفعيل الحسابات والتفاصيل من خلال التواصل
-            مع الإدارة لضمان جودة الإعلانات وتنظيم المنصة.
+            <strong>تنبيه بشفافية:</strong> مدرسك في مرحلة الانطلاق وجمع المدرسين الأوائل، لذلك يتم تفعيل الحسابات بعد مراجعة الإدارة لضمان جودة المنصة.
           </div>
         </div>
-        <div
-          style="display: flex; gap: 12px; flex-wrap: wrap; margin-top: 26px"
-        >
-          <a
-            href="#plans"
-            class="btn btn-white btn-lg"
-            style="color: var(--primary)"
-            >استعرض المميزات</a
-          >
-          <a
-            href="#"
-            data-admin-contact
-            data-message="مرحبًا، أريد الانضمام كمدرس في منصة مدرسك"
-            class="btn btn-outline-white btn-lg"
-            >تواصل مع الإدارة</a
-          >
+        <div style="display: flex; gap: 12px; flex-wrap: wrap; margin-top: 26px">
+          <a href="#plans" class="btn btn-white btn-lg" style="color: var(--primary)">استعرض الباقات</a>
+          <a href="#" data-admin-contact data-message="مرحبًا، أريد الانضمام كمدرس في منصة مدرسك" class="btn btn-outline-white btn-lg">تواصل مع الإدارة</a>
         </div>
       </div>
     </section>
 
+    <!-- ══ Launch Card ══ -->
     <section class="marketing-section">
       <div class="container">
         <div class="launch-card">
           <div class="launch-pill">⭐ فرصة للمدرسين الأوائل</div>
           <h2 class="section-title">كن من أوائل المدرسين على المنصة</h2>
-          <p>
-            المدرسون الأوائل يساعدون في بناء ثقة المنصة من البداية، لذلك نهتم
-            بمراجعة بياناتهم وإظهار إعلاناتهم بشكل مرتب وواضح للطلاب.
-          </p>
+          <p>المدرسون الأوائل يساعدون في بناء ثقة المنصة من البداية، لذلك نهتم بمراجعة بياناتهم وإظهار إعلاناتهم بشكل مرتب وواضح للطلاب.</p>
           <div class="launch-benefits">
             <div class="launch-benefit">
-              <b>متابعة شخصية</b
-              ><small>مساعدة في تجهيز الحساب والإعلان لأول مرة.</small>
+              <b>متابعة شخصية</b>
+              <small>مساعدة في تجهيز الحساب والإعلان لأول مرة.</small>
             </div>
             <div class="launch-benefit">
-              <b>فرصة ظهور مبكر</b
-              ><small
-                >وجودك من البداية يعطي إعلانك فرصة يبان مع نمو المنصة.</small
-              >
+              <b>فرصة ظهور مبكر</b>
+              <small>وجودك من البداية يعطي إعلانك فرصة يبان مع نمو المنصة.</small>
             </div>
             <div class="launch-benefit">
-              <b>تنظيم وموثوقية</b
-              ><small
-                >كل حساب يتم تفعيله بعد مراجعة الإدارة للحفاظ على جودة
-                المنصة.</small
-              >
+              <b>تنظيم وموثوقية</b>
+              <small>كل حساب يتم تفعيله بعد مراجعة الإدارة للحفاظ على جودة المنصة.</small>
             </div>
           </div>
         </div>
       </div>
     </section>
 
+    <!-- ══ Why Join ══ -->
     <section class="marketing-section">
       <div class="container">
         <div class="text-center mb-32">
           <h2 class="section-title">لماذا تنضم إلى مدرسك؟</h2>
-          <p class="section-sub">
-            واجهة بسيطة تساعد الطالب يصل لك بسرعة بدون تعقيد.
-          </p>
+          <p class="section-sub">واجهة بسيطة تساعد الطالب يصل لك بسرعة بدون تعقيد.</p>
         </div>
         <div class="grid grid-3">
           <div class="marketing-card">
             <div class="marketing-icon">📣</div>
             <h3>إعلان واضح</h3>
-            <p class="feature-desc">
-              اعرض المادة والصف والسعر وطريقة التدريس والصور في إعلان منظم.
-            </p>
+            <p class="feature-desc">اعرض المادة والصف والسعر وطريقة التدريس والصور في إعلان منظم.</p>
           </div>
           <div class="marketing-card">
-            <div
-              class="marketing-icon"
-              style="background: var(--success-bg); color: var(--success)"
-            >
-              💬
-            </div>
+            <div class="marketing-icon" style="background: var(--success-bg); color: var(--success)">💬</div>
             <h3>تواصل مباشر</h3>
-            <p class="feature-desc">
-              الطالب يتواصل معك مباشرة من الإعلان عبر واتساب أو فيسبوك أو طرق
-              التواصل الأخرى.
-            </p>
+            <p class="feature-desc">الطالب يتواصل معك مباشرة من الإعلان عبر واتساب أو فيسبوك أو طرق التواصل الأخرى.</p>
           </div>
           <div class="marketing-card">
-            <div
-              class="marketing-icon"
-              style="background: var(--pending-bg); color: var(--pending-color)"
-            >
-              📊
-            </div>
+            <div class="marketing-icon" style="background: var(--pending-bg); color: var(--pending-color)">📊</div>
             <h3>إحصائيات حسب الباقة</h3>
-            <p class="feature-desc">
-              تابع المشاهدات والضغطات وتفاعل الطلاب حسب نوع حسابك.
-            </p>
+            <p class="feature-desc">تابع المشاهدات والضغطات وتفاعل الطلاب حسب نوع حسابك.</p>
           </div>
         </div>
       </div>
     </section>
 
+    <!-- ══ Steps ══ -->
     <section class="marketing-section" style="background: white" id="steps">
       <div class="container">
         <div class="text-center mb-32">
@@ -215,74 +211,165 @@
             <p>حدد الباقة المناسبة لك حسب مدة الإعلان والمميزات المطلوبة.</p>
           </div>
           <div class="marketing-card">
-            <h3><span class="step-num">2</span> تواصل مع الإدارة</h3>
-            <p>راسل الإدارة لتأكيد البيانات والدفع وتفعيل حسابك كمدرس.</p>
+            <h3><span class="step-num">2</span> أرسل طلبك</h3>
+            <p>أكمل نموذج الاشتراك وستنتقل لواتساب لإتمام الدفع وتأكيد الاشتراك.</p>
           </div>
           <div class="marketing-card">
             <h3><span class="step-num">3</span> أضف إعلانك</h3>
-            <p>ادخل إلى لوحة المدرس وأضف إعلانك بالصور والتفاصيل.</p>
+            <p>بعد التفعيل، ادخل لوحة المدرس وأضف إعلانك بالصور والتفاصيل.</p>
           </div>
         </div>
       </div>
     </section>
 
+    <!-- ══ Plans ══ -->
     <section class="marketing-section" id="plans">
       <div class="container">
         <div class="text-center mb-32">
           <h2 class="section-title">باقات المدرسين</h2>
-          <p class="section-sub">
-            اختر نوع الحساب المناسب لك، ومعرفة السعر والتفاصيل تكون من خلال
-            التواصل مع الإدارة.
-          </p>
+          <p class="section-sub">أسعار واضحة وشفافة — اشترك مباشرةً أو تواصل مع الإدارة للاستفسار</p>
         </div>
-        <div class="plan-cards">
-          <div class="plan-card">
-            <div class="plan-head plan-green">باقة الشهر</div>
-            <div class="plan-body">
-              <div class="plan-price muted-price">السعر عبر التواصل</div>
-              <ul class="clean-list">
-                <li>إعلان واحد</li>
-                <li>3 تعديلات لكل إعلان</li>
-              </ul>
-            </div>
-          </div>
-          <div class="plan-card">
-            <div class="plan-head plan-blue">باقة 3 شهور</div>
-            <div class="plan-body">
-              <div class="plan-price muted-price">السعر عبر التواصل</div>
-              <ul class="clean-list">
-                <li>تشمل مميزات باقة الشهر</li>
-                <li>إحصائيات بسيطة</li>
-                <li>تعديل غير محدود</li>
-              </ul>
-            </div>
-          </div>
-          <div class="plan-card">
-            <div class="plan-head plan-purple">باقة 9 شهور</div>
-            <div class="plan-body">
-              <div class="plan-price muted-price">السعر عبر التواصل</div>
-              <ul class="clean-list">
-                <li>تشمل مميزات باقة 3 شهور</li>
-                <li>إحصائيات متقدمة</li>
-                <li>دعم أسرع</li>
-              </ul>
-            </div>
-          </div>
+
+        <!-- Loading spinner -->
+        <div id="plans-loading" style="text-align:center;padding:44px">
+          <div class="spinner-lg" style="margin:0 auto 14px"></div>
+          <div style="color:var(--text-muted);font-size:.9rem">جارٍ تحميل الباقات...</div>
         </div>
-        <div class="pricing-contact-note">
-          💬 لمعرفة سعر كل باقة وطريقة الاشتراك، تواصل مع الإدارة.
+
+        <!-- Dynamic plan cards (filled by JS) -->
+        <div class="plan-cards" id="plan-cards-dynamic" style="display:none"></div>
+
+        <div class="pricing-contact-note" style="margin-top:20px">
+          💬 للاستفسار أو طلب باقة مخصصة،
+          <a href="#" data-admin-contact data-message="مرحبًا، أريد الاستفسار عن باقات الاشتراك في منصة مدرسك" style="color:var(--primary);font-weight:700">تواصل مع الإدارة</a>
         </div>
       </div>
     </section>
 
+    <!-- ══ Subscribe Form Section (hidden by default) ══ -->
+    <section id="subscribe-form-section" style="display:none;background:#F0F9FF;padding:56px 0">
+      <div class="container-md">
+        <div class="text-center mb-32">
+          <div class="page-kicker" style="margin:0 auto 14px;display:inline-flex;background:var(--primary-bg);border-color:var(--primary-border);color:var(--primary-dark)">
+            📝 طلب الاشتراك
+          </div>
+          <h2 class="section-title">نموذج الاشتراك</h2>
+          <p class="section-sub">أكمل بياناتك وسيتم التواصل معك خلال 24 ساعة لتأكيد الاشتراك</p>
+        </div>
+
+        <div class="launch-card" id="subscribe-form-card">
+          <!-- Selected Plan Preview -->
+          <div class="selected-plan-preview">
+            <div>
+              <div style="font-size:.76rem;color:var(--text-muted);margin-bottom:4px">الباقة المختارة</div>
+              <div id="preview-plan-name" style="font-family:'Cairo',sans-serif;font-weight:900;font-size:1.15rem;color:var(--primary)">—</div>
+              <div id="preview-plan-duration" style="font-size:.82rem;color:var(--text-secondary);margin-top:2px"></div>
+            </div>
+            <div style="text-align:left">
+              <div style="font-size:.7rem;color:var(--text-muted);margin-bottom:2px">السعر</div>
+              <div id="preview-plan-price" style="font-family:'Cairo',sans-serif;font-weight:900;font-size:1.8rem;color:var(--primary)">—</div>
+            </div>
+          </div>
+
+          <form id="sub-form" onsubmit="handleSubscription(event)">
+            <div class="form-grid">
+
+              <!-- Name -->
+              <div class="form-group">
+                <label class="form-label">الاسم الكامل <span class="required">*</span></label>
+                <input type="text" id="sub-name" class="form-control" placeholder="اكتب اسمك الكامل" required>
+              </div>
+
+              <!-- Phone -->
+              <div class="form-group">
+                <label class="form-label">رقم الجوال <span class="required">*</span></label>
+                <input type="tel" id="sub-phone" class="form-control" placeholder="01xxxxxxxxx" required dir="ltr">
+              </div>
+
+              <!-- Email -->
+              <div class="form-group">
+                <label class="form-label">البريد الإلكتروني
+                  <span style="color:var(--text-muted);font-weight:400;font-size:.8rem">(اختياري)</span>
+                </label>
+                <input type="email" id="sub-email" class="form-control" placeholder="email@example.com" dir="ltr">
+              </div>
+
+              <!-- Plan Select -->
+              <div class="form-group">
+                <label class="form-label">الباقة المختارة <span class="required">*</span></label>
+                <select id="form-plan-select" class="form-control form-select" onchange="onFormPlanChange()">
+                  <!-- Filled by JS -->
+                </select>
+              </div>
+
+              <!-- Duration (readonly display) -->
+              <div class="form-group">
+                <label class="form-label">مدة الاشتراك</label>
+                <div class="form-control" style="background:var(--bg-soft);color:var(--text-secondary);cursor:default">
+                  <span id="plan-duration-display">—</span>
+                </div>
+              </div>
+
+              <!-- Discount Code -->
+              <div class="form-group">
+                <label class="form-label">كود الخصم
+                  <span style="color:var(--text-muted);font-weight:400;font-size:.8rem">(اختياري)</span>
+                </label>
+                <div class="discount-input-wrap">
+                  <input type="text" id="discount-code-input" class="form-control"
+                    placeholder="DISCOUNT20" dir="ltr"
+                    oninput="this.value=this.value.toUpperCase()">
+                  <button type="button" class="btn btn-outline btn-sm" onclick="validateDiscount()" style="white-space:nowrap">
+                    تحقق ✓
+                  </button>
+                </div>
+                <div id="discount-status"></div>
+              </div>
+
+            </div><!-- /form-grid -->
+
+            <!-- Price Summary -->
+            <div class="price-summary-box">
+              <div style="font-family:'Cairo',sans-serif;font-weight:700;margin-bottom:12px;font-size:.95rem">💰 ملخص السعر</div>
+              <div class="price-row">
+                <span>السعر الأصلي</span>
+                <span id="price-original" style="font-weight:600">—</span>
+              </div>
+              <div class="price-row discount-row" id="discount-row" style="display:none">
+                <span>الخصم</span>
+                <span id="price-discount" style="font-weight:600"></span>
+              </div>
+              <div class="price-row final-row">
+                <span style="font-weight:700">السعر النهائي</span>
+                <span id="price-final" style="font-family:'Cairo',sans-serif;font-weight:900;color:var(--primary);font-size:1.25rem">—</span>
+              </div>
+            </div>
+
+            <div class="alert alert-info" style="font-size:.86rem;margin-bottom:20px">
+              💬 بعد إرسال الطلب، ستنتقل لواتساب برسالة جاهزة تحتوي على بياناتك لإتمام عملية الدفع مع الإدارة.
+            </div>
+
+            <div id="form-error" class="alert alert-danger" style="display:none;margin-bottom:16px"></div>
+
+            <div style="display:flex;gap:12px;flex-wrap:wrap">
+              <button type="submit" class="btn btn-primary btn-lg" id="subscribe-btn">
+                📨 إرسال طلب الاشتراك
+              </button>
+              <button type="button" class="btn btn-ghost btn-lg" onclick="closeSubscribeForm()">
+                ✕ إغلاق
+              </button>
+            </div>
+          </form>
+        </div><!-- /launch-card -->
+      </div>
+    </section>
+
+    <!-- ══ Addons ══ -->
     <section class="marketing-section" style="background: white" id="addons">
       <div class="container">
         <div class="text-center mb-32">
           <h2 class="section-title">إضافات اختيارية</h2>
-          <p class="section-sub">
-            يمكنك طلب إضافات اختيارية لحسابك، ومعرفة سعر كل إضافة تكون من خلال
-            التواصل مع الإدارة.
-          </p>
+          <p class="section-sub">يمكنك طلب إضافات اختيارية لحسابك من لوحة الإدارة.</p>
         </div>
         <div class="addon-cards">
           <div class="addon-card">
@@ -313,46 +400,39 @@
           <div class="addon-card">
             <div class="addon-title">🎨 تصميم إعلان احترافي</div>
             <div class="addon-price muted-price">السعر عبر التواصل</div>
-            <p class="feature-desc">تصميم صورة أو أعلان كامل .</p>
+            <p class="feature-desc">تصميم صورة أو إعلان كامل.</p>
           </div>
         </div>
         <div class="pricing-contact-note">
-          ✨ يمكن الجمع بين أكثر من إضافة حسب احتياجك، والسعر يتم تحديده
-          بالتواصل مع الإدارة.
+          ✨ يمكن الجمع بين أكثر من إضافة حسب احتياجك، والسعر يتم تحديده بالتواصل مع الإدارة.
         </div>
       </div>
     </section>
 
+    <!-- ══ CTA ══ -->
     <section class="marketing-section">
       <div class="container">
         <div class="cta-box">
           <div>
             <h2>جاهز تبدأ؟</h2>
-            <p>
-              تواصل مع الإدارة وحدد الباقة المناسبة، وسيتم إنشاء حسابك وتفعيله.
-            </p>
+            <p>اختر باقتك واشترك الآن مباشرة من الصفحة، أو تواصل مع الإدارة للاستفسار.</p>
           </div>
-          <a
-            href="#"
-            data-admin-contact
-            data-message="مرحبًا، أريد الاشتراك كمدرس في منصة مدرسك"
-            class="btn btn-white btn-lg"
-            style="color: var(--primary)"
-            >اشترك الآن</a
-          >
+          <div style="display:flex;gap:10px;flex-wrap:wrap">
+            <a href="#plans" class="btn btn-white btn-lg" style="color: var(--primary)">اختر باقتك</a>
+            <a href="#" data-admin-contact data-message="مرحبًا، أريد الاشتراك كمدرس في منصة مدرسك" class="btn btn-outline-white btn-lg">تواصل الإدارة</a>
+          </div>
         </div>
       </div>
     </section>
+
+    <!-- ══ Footer ══ -->
     <footer class="footer">
       <div class="container">
         <div class="grid grid-3" style="gap: 40px; margin-bottom: 0">
           <div>
             <img src="logo.png" alt="مدرسك" class="footer-logo" />
             <div class="footer-brand">مدرسك</div>
-            <div class="footer-desc">
-              منصة تربط الطلاب بأفضل المدرسين الخصوصيين في مختلف المواد والمراحل
-              الدراسية.
-            </div>
+            <div class="footer-desc">منصة تربط الطلاب بأفضل المدرسين الخصوصيين في مختلف المواد والمراحل الدراسية.</div>
           </div>
           <div>
             <div class="footer-title">روابط سريعة</div>
@@ -360,9 +440,7 @@
               <li><a href="index.html">الرئيسية</a></li>
               <li><a href="join.html">انضم كمدرس</a></li>
               <li><a href="login.html">دخول المدرسين</a></li>
-              <li data-admin-only style="display: none">
-                <a href="admin.html">🔧 لوحة الإدارة</a>
-              </li>
+              <li data-admin-only style="display:none"><a href="admin.html">🔧 لوحة الإدارة</a></li>
             </ul>
           </div>
           <div>
@@ -370,21 +448,362 @@
             <ul class="footer-links">
               <li><a href="privacy.html">سياسة الخصوصية</a></li>
               <li><a href="terms.html">شروط الاستخدام</a></li>
-              <li>
-                <a
-                  href="#"
-                  data-admin-contact
-                  data-message="مرحبًا، أريد الاستفسار عن منصة مدرسك"
-                  >💬 واتساب الإدارة</a
-                >
-              </li>
+              <li><a href="#" data-admin-contact data-message="مرحبًا، أريد الاستفسار عن منصة مدرسك">💬 واتساب الإدارة</a></li>
             </ul>
           </div>
         </div>
         <div class="footer-bottom">© 2026 مدرسك — جميع الحقوق محفوظة</div>
       </div>
     </footer>
+
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <script src="config.js?v=7.5.0"></script>
+    <script src="config.js?v=7.6.0"></script>
+    <script>
+    /* ══════════════════════════════════════════════
+       Join Page — Subscription System
+    ══════════════════════════════════════════════ */
+
+    // ── State
+    let currentPackages = [];
+    let selectedPlan    = null;
+    let appliedDiscount = null;
+
+    // ── Fallback packages if DB unreachable
+    const DEFAULT_PACKAGES = [
+      { plan_key:'monthly',     name:'باقة الشهر',    price:40,  duration_months:1, features:['إعلان واحد','3 تعديلات لكل إعلان','ظهور في نتائج البحث','تواصل مباشر مع الطلاب'], color:'green'  },
+      { plan_key:'quarter',     name:'باقة 3 شهور',  price:100, duration_months:3, features:['إعلان واحد','تعديل غير محدود','إحصائيات بسيطة','ظهور مميز','تواصل مباشر مع الطلاب'], color:'blue'   },
+      { plan_key:'nine_months', name:'باقة 9 شهور',  price:300, duration_months:9, features:['إعلان واحد','تعديل غير محدود','إحصائيات متقدمة','دعم أسرع','ظهور مميز','تواصل مباشر مع الطلاب'], color:'purple' }
+    ];
+
+    // ── Init
+    document.addEventListener('DOMContentLoaded', async () => {
+      await loadPackages();
+      await applyGlobalLaunchVisibility();
+    });
+
+    // ── Load Packages from DB
+    async function loadPackages() {
+      try {
+        const { data, error } = await supabase
+          .from('package_settings')
+          .select('*')
+          .eq('is_active', true)
+          .order('sort_order');
+        currentPackages = (!error && data && data.length) ? data : DEFAULT_PACKAGES;
+      } catch (_) {
+        currentPackages = DEFAULT_PACKAGES;
+      }
+      renderPlanCards();
+      populateFormPlanSelect();
+    }
+
+    // ── Render Plan Cards
+    function renderPlanCards() {
+      const container = document.getElementById('plan-cards-dynamic');
+      const loading   = document.getElementById('plans-loading');
+      if (!container) return;
+      if (loading) loading.style.display = 'none';
+
+      const HEAD_CLASS = { green:'plan-green', blue:'plan-blue', purple:'plan-purple' };
+      const BTN_CLASS  = { green:'green-btn',  blue:'',          purple:'purple-btn'  };
+
+      container.innerHTML = currentPackages.map(pkg => {
+        const features = Array.isArray(pkg.features)
+          ? pkg.features
+          : (typeof pkg.features === 'string' ? JSON.parse(pkg.features || '[]') : []);
+        const headCls = HEAD_CLASS[pkg.color] || 'plan-blue';
+        const btnCls  = BTN_CLASS[pkg.color]  || '';
+        const durText = pkg.duration_months === 1 ? 'شهر' : pkg.duration_months + ' شهور';
+        return `
+          <div class="plan-card">
+            <div class="plan-head ${headCls}">${escapeHtml(pkg.name)}</div>
+            <div class="plan-body">
+              <div class="plan-price">
+                ${Number(pkg.price).toLocaleString('ar-EG')}
+                <small style="display:block;font-size:.68rem;color:var(--text-muted);font-weight:500;margin-top:5px">
+                  جنيه / ${escapeHtml(durText)}
+                </small>
+              </div>
+              <ul class="clean-list">
+                ${features.map(f => `<li>${escapeHtml(String(f))}</li>`).join('')}
+              </ul>
+              <button class="plan-subscribe-btn ${btnCls}" onclick="openSubscribeForm('${pkg.plan_key}')">
+                اشترك الآن ←
+              </button>
+            </div>
+          </div>`;
+      }).join('');
+
+      container.style.display = '';
+    }
+
+    // ── Populate form plan dropdown
+    function populateFormPlanSelect() {
+      const sel = document.getElementById('form-plan-select');
+      if (!sel) return;
+      sel.innerHTML = currentPackages.map(pkg =>
+        `<option value="${pkg.plan_key}">${escapeHtml(pkg.name)} — ${Number(pkg.price).toLocaleString('ar-EG')} ج</option>`
+      ).join('');
+    }
+
+    // ── Open Subscribe Form
+    function openSubscribeForm(planKey) {
+      selectedPlan = currentPackages.find(p => p.plan_key === planKey) || currentPackages[0];
+      if (!selectedPlan) return;
+
+      const planSel = document.getElementById('form-plan-select');
+      if (planSel) planSel.value = planKey;
+
+      updateSelectedPlanPreview();
+      resetDiscount();
+      updatePriceDisplay();
+
+      const section = document.getElementById('subscribe-form-section');
+      if (section) {
+        section.style.display = '';
+        setTimeout(() => {
+          section.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          // Pulse animation on the card
+          const card = document.getElementById('subscribe-form-card');
+          if (card) {
+            card.classList.remove('form-highlight');
+            void card.offsetWidth;
+            card.classList.add('form-highlight');
+          }
+        }, 150);
+      }
+    }
+
+    // ── Close Subscribe Form
+    function closeSubscribeForm() {
+      const section = document.getElementById('subscribe-form-section');
+      if (section) section.style.display = 'none';
+      document.getElementById('sub-form')?.reset();
+      resetDiscount();
+    }
+
+    // ── When plan dropdown changes
+    function onFormPlanChange() {
+      const planKey = document.getElementById('form-plan-select').value;
+      selectedPlan = currentPackages.find(p => p.plan_key === planKey) || currentPackages[0];
+      updateSelectedPlanPreview();
+      resetDiscount();
+      updatePriceDisplay();
+    }
+
+    // ── Update plan preview in form
+    function updateSelectedPlanPreview() {
+      if (!selectedPlan) return;
+      const durText = selectedPlan.duration_months === 1
+        ? 'شهر واحد'
+        : selectedPlan.duration_months + ' شهور';
+
+      const setEl = (id, val) => { const el = document.getElementById(id); if (el) el.textContent = val; };
+      setEl('preview-plan-name',     selectedPlan.name);
+      setEl('preview-plan-duration', 'مدة الاشتراك: ' + durText);
+      setEl('preview-plan-price',    Number(selectedPlan.price).toLocaleString('ar-EG') + ' ج');
+      setEl('plan-duration-display', durText);
+    }
+
+    // ── Reset discount state
+    function resetDiscount() {
+      appliedDiscount = null;
+      const inp    = document.getElementById('discount-code-input');
+      const status = document.getElementById('discount-status');
+      if (inp)    inp.value = '';
+      if (status) { status.textContent = ''; status.style.color = ''; }
+    }
+
+    // ── Validate Discount Code
+    async function validateDiscount() {
+      const code     = (document.getElementById('discount-code-input').value || '').trim().toUpperCase();
+      const statusEl = document.getElementById('discount-status');
+
+      if (!code) {
+        statusEl.textContent = 'أدخل كود الخصم أولاً';
+        statusEl.style.color = 'var(--warning)';
+        return;
+      }
+      if (!selectedPlan) {
+        statusEl.textContent = 'اختر الباقة أولاً';
+        statusEl.style.color = 'var(--warning)';
+        return;
+      }
+
+      statusEl.textContent = 'جارٍ التحقق...';
+      statusEl.style.color = 'var(--text-muted)';
+
+      try {
+        const { data, error } = await supabase
+          .from('discount_codes')
+          .select('*')
+          .eq('code', code)
+          .eq('is_active', true)
+          .maybeSingle();
+
+        if (error || !data) {
+          statusEl.textContent = '❌ كود غير صالح أو غير نشط';
+          statusEl.style.color = 'var(--danger)';
+          appliedDiscount = null;
+          updatePriceDisplay();
+          return;
+        }
+
+        if (data.expires_at && new Date(data.expires_at) < new Date()) {
+          statusEl.textContent = '❌ انتهت صلاحية الكود';
+          statusEl.style.color = 'var(--danger)';
+          appliedDiscount = null;
+          updatePriceDisplay();
+          return;
+        }
+
+        if (data.max_uses !== null && data.used_count >= data.max_uses) {
+          statusEl.textContent = '❌ تم استخدام الكود بالحد الأقصى';
+          statusEl.style.color = 'var(--danger)';
+          appliedDiscount = null;
+          updatePriceDisplay();
+          return;
+        }
+
+        appliedDiscount = data;
+        const discAmt  = calcDiscountAmt(Number(selectedPlan.price), data);
+        const discLabel = data.discount_type === 'percentage'
+          ? `${data.discount_value}%`
+          : `${Number(data.discount_value).toLocaleString('ar-EG')} ج`;
+        statusEl.textContent = `✅ تم تطبيق خصم ${discLabel} — توفير ${discAmt.toLocaleString('ar-EG')} ج`;
+        statusEl.style.color = 'var(--success)';
+        updatePriceDisplay();
+
+      } catch (_) {
+        statusEl.textContent = '❌ حدث خطأ، حاول مرة أخرى';
+        statusEl.style.color = 'var(--danger)';
+      }
+    }
+
+    // ── Calculate discount amount
+    function calcDiscountAmt(price, dc) {
+      if (!dc) return 0;
+      if (dc.discount_type === 'percentage') {
+        return Math.round(price * Number(dc.discount_value) / 100);
+      }
+      return Math.min(Number(dc.discount_value), price);
+    }
+
+    // ── Update price display
+    function updatePriceDisplay() {
+      const price   = Number(selectedPlan?.price || 0);
+      const discAmt = appliedDiscount ? calcDiscountAmt(price, appliedDiscount) : 0;
+      const final   = Math.max(0, price - discAmt);
+
+      const setEl = (id, val) => { const el = document.getElementById(id); if (el) el.textContent = val; };
+      setEl('price-original', price.toLocaleString('ar-EG') + ' ج');
+      setEl('price-final',    final.toLocaleString('ar-EG') + ' ج');
+
+      const discRow = document.getElementById('discount-row');
+      if (discAmt > 0) {
+        setEl('price-discount', '- ' + discAmt.toLocaleString('ar-EG') + ' ج');
+        if (discRow) discRow.style.display = 'flex';
+      } else {
+        if (discRow) discRow.style.display = 'none';
+      }
+    }
+
+    // ── Handle Form Submit
+    async function handleSubscription(e) {
+      e.preventDefault();
+      if (!selectedPlan) { showToast('يرجى اختيار باقة', 'warning'); return; }
+
+      const name    = (document.getElementById('sub-name').value  || '').trim();
+      const phone   = (document.getElementById('sub-phone').value || '').trim();
+      const email   = (document.getElementById('sub-email').value || '').trim();
+      const code    = (document.getElementById('discount-code-input').value || '').trim().toUpperCase();
+      const errEl   = document.getElementById('form-error');
+
+      if (!name || !phone) {
+        if (errEl) { errEl.textContent = 'يرجى ملء الاسم ورقم الجوال'; errEl.style.display = 'flex'; }
+        return;
+      }
+      if (errEl) errEl.style.display = 'none';
+
+      const price    = Number(selectedPlan.price);
+      const discAmt  = appliedDiscount ? calcDiscountAmt(price, appliedDiscount) : 0;
+      const final    = Math.max(0, price - discAmt);
+
+      const btn = document.getElementById('subscribe-btn');
+      btn.disabled = true;
+      btn.innerHTML = '<span class="spinner"></span> جارٍ الإرسال...';
+
+      try {
+        // 1) Save request to DB
+        const { error } = await supabase.from('subscription_requests').insert({
+          full_name:       name,
+          phone:           phone,
+          email:           email || null,
+          plan_key:        selectedPlan.plan_key,
+          plan_name:       selectedPlan.name,
+          duration_months: selectedPlan.duration_months,
+          original_price:  price,
+          discount_code:   code || null,
+          discount_amount: discAmt,
+          final_price:     final,
+          status:          'pending'
+        });
+        if (error) throw error;
+
+        // 2) Increment discount usage
+        if (appliedDiscount) {
+          await supabase.from('discount_codes')
+            .update({ used_count: (appliedDiscount.used_count || 0) + 1 })
+            .eq('id', appliedDiscount.id);
+        }
+
+        // 3) Open WhatsApp
+        openWhatsAppRequest({ name, phone, email, code, discAmt, final });
+
+        showToast('✅ تم إرسال طلبك! ستنتقل لواتساب لإتمام الاشتراك', 'success', 5000);
+        document.getElementById('sub-form').reset();
+        resetDiscount();
+        updatePriceDisplay();
+
+      } catch (err) {
+        if (errEl) {
+          errEl.textContent = 'حدث خطأ أثناء إرسال الطلب: ' + (err.message || '');
+          errEl.style.display = 'flex';
+        }
+      } finally {
+        btn.disabled = false;
+        btn.textContent = '📨 إرسال طلب الاشتراك';
+      }
+    }
+
+    // ── Open WhatsApp with pre-filled message
+    function openWhatsAppRequest({ name, phone, email, code, discAmt, final }) {
+      const dur = selectedPlan.duration_months === 1
+        ? 'شهر واحد'
+        : selectedPlan.duration_months + ' شهور';
+
+      let msg = `مرحبًا، أريد الاشتراك في منصة مدرسك 🎓\n\n`;
+      msg += `📋 بيانات الطلب:\n`;
+      msg += `• الاسم: ${name}\n`;
+      msg += `• رقم الجوال: ${phone}\n`;
+      if (email) msg += `• البريد الإلكتروني: ${email}\n`;
+      msg += `• الباقة: ${selectedPlan.name}\n`;
+      msg += `• مدة الاشتراك: ${dur}\n`;
+      msg += `• السعر الأصلي: ${Number(selectedPlan.price).toLocaleString('ar-EG')} ج\n`;
+      if (code && discAmt > 0) {
+        msg += `• كود الخصم: ${code}\n`;
+        msg += `• قيمة الخصم: ${discAmt.toLocaleString('ar-EG')} ج\n`;
+      }
+      msg += `• السعر النهائي: ${final.toLocaleString('ar-EG')} ج\n\n`;
+      msg += `يرجى تأكيد الاشتراك وإرشادي لطريقة الدفع 🙏`;
+
+      const waPhone = (CONFIG.CONTACT_WHATSAPP || '').replace(/[^0-9]/g, '');
+      if (waPhone) {
+        window.open(`https://wa.me/${waPhone}?text=${encodeURIComponent(msg)}`, '_blank');
+      } else {
+        showToast('⚠️ لم يتم إعداد رقم واتساب الإدارة في config.js', 'warning', 6000);
+      }
+    }
+    </script>
   </body>
 </html>
