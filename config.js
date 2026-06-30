@@ -14,7 +14,7 @@ const CONFIG = {
   // غيّر SITE_BASE_URL إلى رابط موقعك الحقيقي بعد النشر لتحسين SEO وملف sitemap.xml
   SITE_BASE_URL: "https://mosaabline11-sketch.github.io/modaresk",
   // ضع رقم واتساب الإدارة بصيغة دولية بدون + لتفعيل أزرار التواصل، مثال: 201234567890
-  CONTACT_WHATSAPP: "",
+  CONTACT_WHATSAPP: "966 54 839 0129⁩",
   CONTACT_EMAIL: "",
   APP_NAME: "مدرسك",
   APP_TAGLINE: "ابحث عن مدرسك المثالي",
