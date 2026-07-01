@@ -734,7 +734,7 @@
       btn.innerHTML = '<span class="spinner"></span> جارٍ الإرسال...';
 
       try {
-        // 1) Save request to DB
+        // 1) حفظ الطلب في Supabase
         const { error } = await supabase.from('subscription_requests').insert({
           full_name:       name,
           phone:           phone,
@@ -750,38 +750,49 @@
         });
         if (error) throw error;
 
-        // 2) Increment discount usage
+        // 2) تحديث عداد كود الخصم
         if (appliedDiscount) {
           await supabase.from('discount_codes')
             .update({ used_count: (appliedDiscount.used_count || 0) + 1 })
             .eq('id', appliedDiscount.id);
         }
 
-        // 3) Open WhatsApp
-        openWhatsAppRequest({ name, phone, email, code, discAmt, final });
+        // 3) بناء رسالة واتساب
+        const waMsg = buildWhatsAppMessage({ name, phone, email, code, discAmt, final });
+        const waPhone = (CONFIG.CONTACT_WHATSAPP || '').replace(/[^0-9]/g, '');
 
-        showToast('✅ تم إرسال طلبك! ستنتقل لواتساب لإتمام الاشتراك', 'success', 5000);
+        // 4) إعادة تعيين النموذج أولاً
         document.getElementById('sub-form').reset();
         resetDiscount();
         updatePriceDisplay();
 
-      } catch (err) {
-        if (errEl) {
-          errEl.textContent = 'حدث خطأ أثناء إرسال الطلب: ' + (err.message || '');
-          errEl.style.display = 'flex';
+        // 5) فتح واتساب أو عرض رسالة النجاح
+        if (waPhone) {
+          // رقم الواتساب متاح → افتح واتساب مباشرة
+          window.open(`https://wa.me/${waPhone}?text=${encodeURIComponent(waMsg)}`, '_blank');
+          showSuccessMessage(name, selectedPlan.name, final);
+        } else {
+          // رقم الواتساب غير محدد → اعرض رسالة نجاح مع خيار النسخ
+          showSuccessMessage(name, selectedPlan.name, final, waMsg);
         }
+
+      } catch (err) {
+        const msg = err?.message || '';
+        const friendly = msg.includes('violates row-level security')
+          ? 'خطأ في إعدادات قاعدة البيانات — يرجى التواصل مع الإدارة مباشرة'
+          : 'حدث خطأ أثناء إرسال الطلب: ' + msg;
+        if (errEl) { errEl.textContent = friendly; errEl.style.display = 'flex'; }
       } finally {
         btn.disabled = false;
         btn.textContent = '📨 إرسال طلب الاشتراك';
       }
     }
 
-    // ── Open WhatsApp with pre-filled message
-    function openWhatsAppRequest({ name, phone, email, code, discAmt, final }) {
+    // ── بناء رسالة واتساب
+    function buildWhatsAppMessage({ name, phone, email, code, discAmt, final }) {
       const dur = selectedPlan.duration_months === 1
         ? 'شهر واحد'
         : selectedPlan.duration_months + ' شهور';
-
       let msg = `مرحبًا، أريد الاشتراك في منصة مدرسك 🎓\n\n`;
       msg += `📋 بيانات الطلب:\n`;
       msg += `• الاسم: ${name}\n`;
@@ -796,13 +807,56 @@
       }
       msg += `• السعر النهائي: ${final.toLocaleString('ar-EG')} ج\n\n`;
       msg += `يرجى تأكيد الاشتراك وإرشادي لطريقة الدفع 🙏`;
+      return msg;
+    }
 
-      const waPhone = (CONFIG.CONTACT_WHATSAPP || '').replace(/[^0-9]/g, '');
-      if (waPhone) {
-        window.open(`https://wa.me/${waPhone}?text=${encodeURIComponent(msg)}`, '_blank');
-      } else {
-        showToast('⚠️ لم يتم إعداد رقم واتساب الإدارة في config.js', 'warning', 6000);
-      }
+    // ── عرض رسالة النجاح بعد الإرسال
+    function showSuccessMessage(name, planName, finalPrice, waMsg) {
+      const formCard = document.getElementById('subscribe-form-card');
+      if (!formCard) return;
+
+      const hasWa = !!(CONFIG.CONTACT_WHATSAPP || '').replace(/[^0-9]/g, '');
+
+      formCard.innerHTML = `
+        <div style="text-align:center;padding:28px 16px">
+          <div style="font-size:3.5rem;margin-bottom:14px">🎉</div>
+          <h3 style="font-family:'Cairo',sans-serif;font-weight:900;font-size:1.4rem;color:var(--success);margin-bottom:8px">
+            تم إرسال طلبك بنجاح!
+          </h3>
+          <p style="color:var(--text-secondary);margin-bottom:6px">
+            شكراً <strong>${escapeHtml(name)}</strong>، تم تسجيل طلبك في باقة <strong>${escapeHtml(planName)}</strong>
+          </p>
+          <p style="color:var(--text-secondary);font-size:.88rem;margin-bottom:24px">
+            ستتواصل معك الإدارة قريباً لتأكيد الاشتراك وإتمام الدفع
+          </p>
+          ${waMsg ? `
+          <div style="background:var(--bg-light);border:1px solid var(--border);border-radius:var(--radius-md);padding:14px;margin-bottom:18px;text-align:right">
+            <div style="font-size:.78rem;color:var(--text-muted);margin-bottom:8px">رسالة واتساب جاهزة للإرسال للإدارة:</div>
+            <pre id="wa-msg-copy" style="font-family:'Tajawal',sans-serif;font-size:.82rem;color:var(--text-primary);white-space:pre-wrap;line-height:1.7;margin:0">${escapeHtml(waMsg)}</pre>
+            <button onclick="copyWaMsg()" class="btn btn-outline btn-sm" style="margin-top:10px">📋 نسخ الرسالة</button>
+          </div>` : ''}
+          <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap">
+            ${!hasWa && waMsg ? `
+            <a href="#" data-admin-contact data-message="${escapeHtml(waMsg)}" class="btn btn-whatsapp">
+              💬 إرسال عبر واتساب
+            </a>` : ''}
+            <button onclick="window.scrollTo({top:0,behavior:'smooth'});document.getElementById('subscribe-form-section').style.display='none'"
+              class="btn btn-primary">
+              العودة للرئيسية ←
+            </button>
+          </div>
+        </div>`;
+
+      // إعادة ربط روابط واتساب الجديدة
+      if (typeof bindAdminContactLinks === 'function') bindAdminContactLinks();
+    }
+
+    function copyWaMsg() {
+      const el = document.getElementById('wa-msg-copy');
+      if (!el) return;
+      navigator.clipboard.writeText(el.textContent)
+        .then(() => showToast('✅ تم نسخ الرسالة!', 'success'))
+        .catch(() => showToast('تعذر النسخ، انسخ النص يدوياً', 'warning'));
     }
     </script>
   </body>
