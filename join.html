@@ -28,6 +28,15 @@
     <link rel="manifest" href="manifest.webmanifest" />
 
     <style>
+      .subscribe-card {
+  background: linear-gradient(135deg, #FFFFFF 0%, #F8FAFC 100%);
+  border: 1px solid var(--primary-border);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-lg);
+  padding: 28px;
+  position: relative;
+  overflow: hidden;
+}
       /* ══ Form Section ══ */
       #subscribe-form-section { transition: all .3s ease; }
       .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
@@ -257,7 +266,7 @@
           <p class="section-sub">أكمل بياناتك وسيتم التواصل معك خلال 24 ساعة لتأكيد الاشتراك</p>
         </div>
 
-        <div class="launch-card" id="subscribe-form-card">
+        <div class="subscribe-card" id="subscribe-form-card">
           <!-- Selected Plan Preview -->
           <div class="selected-plan-preview">
             <div>
