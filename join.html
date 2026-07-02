@@ -28,15 +28,6 @@
     <link rel="manifest" href="manifest.webmanifest" />
 
     <style>
-      .subscribe-card {
-  background: linear-gradient(135deg, #FFFFFF 0%, #F8FAFC 100%);
-  border: 1px solid var(--primary-border);
-  border-radius: var(--radius-xl);
-  box-shadow: var(--shadow-lg);
-  padding: 28px;
-  position: relative;
-  overflow: hidden;
-}
       /* ══ Form Section ══ */
       #subscribe-form-section { transition: all .3s ease; }
       .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
@@ -108,6 +99,18 @@
 
       @media (max-width: 640px) {
         .form-grid { grid-template-columns: 1fr; }
+      }
+
+      /* بطاقة النموذج - منفصلة عن كلاس launch-card عشان ما تتخفيش
+         لما خاصية "رسالة مرحلة الانطلاق" تتقفل من لوحة الإدارة */
+      .subscribe-card {
+        background: linear-gradient(135deg, #FFFFFF 0%, #F8FAFC 100%);
+        border: 1px solid var(--primary-border);
+        border-radius: var(--radius-xl);
+        box-shadow: var(--shadow-lg);
+        padding: 28px;
+        position: relative;
+        overflow: hidden;
       }
     </style>
   </head>
@@ -369,7 +372,7 @@
               </button>
             </div>
           </form>
-        </div><!-- /launch-card -->
+        </div><!-- /subscribe-card -->
       </div>
     </section>
 
