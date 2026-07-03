@@ -433,26 +433,6 @@
           </li>
         </ul>
         <div class="sidebar-divider"></div>
-        <div class="sidebar-section-title">الاشتراكات والباقات</div>
-        <ul class="sidebar-nav">
-          <li>
-            <a href="#" onclick="return showPane('pane-packages', this);"
-              ><span class="icon">📦</span> إعدادات الباقات</a
-            >
-          </li>
-          <li>
-            <a href="#" onclick="return showPane('pane-discounts', this);"
-              ><span class="icon">🎫</span> أكواد الخصم</a
-            >
-          </li>
-          <li>
-            <a href="#" onclick="return showPane('pane-sub-requests', this);"
-              ><span class="icon">📝</span> طلبات الاشتراك
-              <span id="sr-pending-badge" style="display:none;background:#EF4444;color:white;border-radius:50px;padding:1px 7px;font-size:.68rem;font-weight:700;margin-right:6px">0</span>
-            </a>
-          </li>
-        </ul>
-        <div class="sidebar-divider"></div>
         <div class="sidebar-section-title">إدارة</div>
         <ul class="sidebar-nav">
           <li>
@@ -480,6 +460,26 @@
             <a href="#" onclick="return showPane('pane-rewards', this);"
               ><span class="icon">🏆</span> المكافآت</a
             >
+          </li>
+        </ul>
+        <div class="sidebar-divider"></div>
+        <div class="sidebar-section-title">نظام الاشتراكات</div>
+        <ul class="sidebar-nav">
+          <li>
+            <a href="#" onclick="return showPane('pane-packages', this);"
+              ><span class="icon">📦</span> إعدادات الباقات</a
+            >
+          </li>
+          <li>
+            <a href="#" onclick="return showPane('pane-discounts', this);"
+              ><span class="icon">🏷️</span> أكواد الخصم</a
+            >
+          </li>
+          <li>
+            <a href="#" onclick="return showPane('pane-sub-requests', this);"
+              ><span class="icon">📨</span> طلبات الاشتراك
+              <span id="sub-req-badge" style="display:none;background:#EF4444;color:white;border-radius:50px;padding:1px 7px;font-size:.68rem;font-weight:700;margin-right:6px">0</span>
+            </a>
           </li>
         </ul>
       </aside>
@@ -729,116 +729,6 @@
                 </button>
                 <span id="points-save-note" class="form-hint"></span>
               </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- ── Package Settings Pane ── -->
-        <div class="admin-pane" id="pane-packages">
-          <div class="admin-header">
-            <h1>📦 إعدادات الباقات</h1>
-            <p>تحكم في أسعار ومدد ومميزات باقات الاشتراك الظاهرة في صفحة الانضمام.</p>
-          </div>
-          <div class="panel">
-            <div class="panel-header">
-              <span class="panel-title">قائمة الباقات (<span id="pkg-count">0</span>)</span>
-              <button class="btn btn-primary btn-sm" onclick="openPkgModal()">+ إضافة باقة</button>
-            </div>
-            <div id="pkg-loading" class="loading-spinner" style="padding: 30px">
-              <div class="spinner-lg"></div>
-            </div>
-            <div id="pkg-list" style="padding: 20px; display: grid; gap: 14px"></div>
-            <div id="pkg-empty" class="empty-state" style="display: none; padding: 40px">
-              <div class="empty-icon">📦</div>
-              <div class="empty-title">لا توجد باقات بعد</div>
-              <button class="btn btn-primary mt-16" onclick="openPkgModal()">+ إضافة باقة</button>
-            </div>
-          </div>
-        </div>
-
-        <!-- ── Discount Codes Pane ── -->
-        <div class="admin-pane" id="pane-discounts">
-          <div class="admin-header">
-            <h1>🎫 أكواد الخصم</h1>
-            <p>أنشئ أكواد خصم بنسبة مئوية أو مبلغ ثابت، وحدد حدود الاستخدام والصلاحية.</p>
-          </div>
-          <div class="panel">
-            <div class="panel-header">
-              <span class="panel-title">قائمة الأكواد (<span id="dc-count">0</span>)</span>
-              <button class="btn btn-primary btn-sm" onclick="openDcModal()">+ إضافة كود</button>
-            </div>
-            <div id="dc-loading" class="loading-spinner" style="padding: 30px">
-              <div class="spinner-lg"></div>
-            </div>
-            <div class="table-wrapper" id="dc-table" style="display: none">
-              <table class="table">
-                <thead>
-                  <tr>
-                    <th>الكود</th>
-                    <th>نوع الخصم</th>
-                    <th>القيمة</th>
-                    <th>الاستخدام</th>
-                    <th>الصلاحية</th>
-                    <th>الحالة</th>
-                    <th>الإجراءات</th>
-                  </tr>
-                </thead>
-                <tbody id="dc-tbody"></tbody>
-              </table>
-            </div>
-            <div id="dc-empty" class="empty-state" style="display: none; padding: 40px">
-              <div class="empty-icon">🎫</div>
-              <div class="empty-title">لا توجد أكواد خصم بعد</div>
-              <button class="btn btn-primary mt-16" onclick="openDcModal()">+ إضافة كود</button>
-            </div>
-          </div>
-        </div>
-
-        <!-- ── Subscription Requests Pane ── -->
-        <div class="admin-pane" id="pane-sub-requests">
-          <div class="admin-header">
-            <h1>📝 طلبات الاشتراك</h1>
-            <p>راجع طلبات الاشتراك الواردة من صفحة الانضمام وتواصل مع المدرسين مباشرة.</p>
-          </div>
-          <div class="panel">
-            <div class="panel-header">
-              <span class="panel-title">الطلبات (<span id="sr-count">0</span>)</span>
-              <select
-                class="form-control form-select"
-                id="sr-status-filter"
-                onchange="renderSubRequests()"
-                style="width: auto; padding: 8px 32px 8px 12px"
-              >
-                <option value="">جميع الحالات</option>
-                <option value="pending">قيد المراجعة</option>
-                <option value="active">تم التفعيل</option>
-                <option value="rejected">مرفوض</option>
-              </select>
-            </div>
-            <div id="sr-loading" class="loading-spinner" style="padding: 30px">
-              <div class="spinner-lg"></div>
-            </div>
-            <div class="table-wrapper" id="sr-table" style="display: none">
-              <table class="table">
-                <thead>
-                  <tr>
-                    <th>الاسم</th>
-                    <th>الهاتف</th>
-                    <th>الباقة</th>
-                    <th>السعر الأصلي</th>
-                    <th>الخصم</th>
-                    <th>السعر النهائي</th>
-                    <th>الحالة</th>
-                    <th>التاريخ</th>
-                    <th>الإجراءات</th>
-                  </tr>
-                </thead>
-                <tbody id="sr-tbody"></tbody>
-              </table>
-            </div>
-            <div id="sr-empty" class="empty-state" style="display: none; padding: 40px">
-              <div class="empty-icon">📭</div>
-              <div class="empty-title">لا توجد طلبات اشتراك</div>
             </div>
           </div>
         </div>
@@ -1149,6 +1039,98 @@
           </div>
           <div id="challenges-content">
             <div class="loading-spinner" style="padding:30px"><div class="spinner-lg"></div></div>
+          </div>
+        </div>
+
+        <!-- ── Package Settings Pane ── -->
+        <div class="admin-pane" id="pane-packages">
+          <div class="admin-header">
+            <h1>📦 إعدادات الباقات</h1>
+            <p>الباقات التي تظهر في صفحة الانضمام (join.html) وأسعارها ومميزاتها.</p>
+          </div>
+          <div class="panel">
+            <div class="panel-header">
+              <span class="panel-title">قائمة الباقات</span>
+              <button class="btn btn-primary btn-sm" onclick="openPackageModal()">+ إضافة باقة</button>
+            </div>
+            <div id="packages-loading" class="loading-spinner" style="padding:30px"><div class="spinner-lg"></div></div>
+            <div id="packages-list" style="padding:20px;display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:14px"></div>
+            <div id="packages-empty" class="empty-state" style="display:none;padding:40px">
+              <div class="empty-icon">📦</div>
+              <div class="empty-title">لا توجد باقات بعد</div>
+              <button class="btn btn-primary mt-16" onclick="openPackageModal()">+ إضافة باقة</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- ── Discount Codes Pane ── -->
+        <div class="admin-pane" id="pane-discounts">
+          <div class="admin-header">
+            <h1>🏷️ أكواد الخصم</h1>
+            <p>إدارة أكواد الخصم المستخدمة في صفحة الانضمام.</p>
+          </div>
+          <div class="panel">
+            <div class="panel-header">
+              <span class="panel-title">قائمة الأكواد (<span id="discounts-count">0</span>)</span>
+              <button class="btn btn-primary btn-sm" onclick="openDiscountModal()">+ إضافة كود</button>
+            </div>
+            <div id="discounts-loading" class="loading-spinner" style="padding:30px"><div class="spinner-lg"></div></div>
+            <div class="table-wrapper" id="discounts-table" style="display:none">
+              <table class="table">
+                <thead>
+                  <tr>
+                    <th>الكود</th><th>نوع الخصم</th><th>القيمة</th><th>الاستخدام</th>
+                    <th>ينتهي في</th><th>الحالة</th><th>ملاحظات</th><th>الإجراءات</th>
+                  </tr>
+                </thead>
+                <tbody id="discounts-tbody"></tbody>
+              </table>
+            </div>
+            <div id="discounts-empty" class="empty-state" style="display:none;padding:40px">
+              <div class="empty-icon">🏷️</div>
+              <div class="empty-title">لا توجد أكواد خصم بعد</div>
+              <button class="btn btn-primary mt-16" onclick="openDiscountModal()">+ إضافة كود</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- ── Subscription Requests Pane ── -->
+        <div class="admin-pane" id="pane-sub-requests">
+          <div class="admin-header">
+            <h1>📨 طلبات الاشتراك</h1>
+            <p>طلبات الاشتراك المُرسلة من نموذج صفحة الانضمام (join.html).</p>
+          </div>
+          <div class="panel">
+            <div class="panel-header">
+              <span class="panel-title">الطلبات (<span id="sub-requests-count">0</span>)</span>
+              <select
+                class="form-control form-select"
+                id="sub-requests-filter"
+                onchange="loadSubRequests()"
+                style="width: auto; padding: 8px 32px 8px 12px"
+              >
+                <option value="">جميع الحالات</option>
+                <option value="pending">قيد المراجعة</option>
+                <option value="active">مفعّل</option>
+                <option value="rejected">مرفوض</option>
+              </select>
+            </div>
+            <div id="sub-requests-loading" class="loading-spinner" style="padding:30px"><div class="spinner-lg"></div></div>
+            <div class="table-wrapper" id="sub-requests-table" style="display:none">
+              <table class="table">
+                <thead>
+                  <tr>
+                    <th>الاسم</th><th>الهاتف</th><th>الباقة</th><th>السعر الأصلي</th>
+                    <th>الخصم</th><th>السعر النهائي</th><th>الحالة</th><th>التاريخ</th><th>الإجراءات</th>
+                  </tr>
+                </thead>
+                <tbody id="sub-requests-tbody"></tbody>
+              </table>
+            </div>
+            <div id="sub-requests-empty" class="empty-state" style="display:none;padding:40px">
+              <div class="empty-icon">📨</div>
+              <div class="empty-title">لا توجد طلبات اشتراك بعد</div>
+            </div>
           </div>
         </div>
 
@@ -1584,6 +1566,130 @@
       </div>
     </div>
 
+    <!-- ── Package Modal ── -->
+    <div class="modal-overlay" id="package-modal">
+      <div class="modal">
+        <div class="modal-header">
+          <h3 class="modal-title" id="package-modal-title">إضافة باقة</h3>
+          <button class="modal-close" onclick="closeModal('package-modal')">✕</button>
+        </div>
+        <div class="modal-body">
+          <form id="package-form" onsubmit="submitPackage(event)">
+            <input type="hidden" id="pkg-id" />
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+              <div class="form-group">
+                <label class="form-label">مفتاح الباقة (بالإنجليزية) <span class="required">*</span></label>
+                <input type="text" id="pkg-key" class="form-control" placeholder="monthly" dir="ltr" required />
+                <div class="form-hint">فريد ولا يتكرر، يُستخدم داخل الكود. مثال: monthly, quarter, nine_months</div>
+              </div>
+              <div class="form-group">
+                <label class="form-label">اسم الباقة <span class="required">*</span></label>
+                <input type="text" id="pkg-name" class="form-control" placeholder="باقة الشهر" required />
+              </div>
+            </div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+              <div class="form-group">
+                <label class="form-label">السعر (جنيه) <span class="required">*</span></label>
+                <input type="number" id="pkg-price" class="form-control" min="0" required />
+              </div>
+              <div class="form-group">
+                <label class="form-label">المدة (بالشهور) <span class="required">*</span></label>
+                <input type="number" id="pkg-duration" class="form-control" min="1" value="1" required />
+              </div>
+            </div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+              <div class="form-group">
+                <label class="form-label">اللون</label>
+                <select id="pkg-color" class="form-control form-select">
+                  <option value="green">أخضر</option>
+                  <option value="blue">أزرق</option>
+                  <option value="purple">بنفسجي</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label class="form-label">ترتيب الظهور</label>
+                <input type="number" id="pkg-sort" class="form-control" min="0" value="0" />
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="form-label">المميزات (سطر لكل ميزة)</label>
+              <textarea id="pkg-features" class="form-control" rows="4" placeholder="إعلان واحد
+3 تعديلات لكل إعلان
+ظهور في نتائج البحث"></textarea>
+            </div>
+            <div class="form-group">
+              <label class="form-label" style="display:flex;align-items:center;gap:8px;cursor:pointer">
+                <input type="checkbox" id="pkg-active" checked style="width:16px;height:16px" />
+                نشطة (تظهر في صفحة الانضمام)
+              </label>
+            </div>
+            <div id="package-modal-error" class="alert alert-danger" style="display:none"></div>
+            <div style="display:flex;gap:10px;justify-content:flex-end">
+              <button type="button" class="btn btn-ghost" onclick="closeModal('package-modal')">إلغاء</button>
+              <button type="submit" class="btn btn-primary" id="package-submit-btn">إضافة الباقة</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── Discount Code Modal ── -->
+    <div class="modal-overlay" id="discount-modal">
+      <div class="modal">
+        <div class="modal-header">
+          <h3 class="modal-title" id="discount-modal-title">إضافة كود خصم</h3>
+          <button class="modal-close" onclick="closeModal('discount-modal')">✕</button>
+        </div>
+        <div class="modal-body">
+          <form id="discount-form" onsubmit="submitDiscount(event)">
+            <input type="hidden" id="dc-id" />
+            <div class="form-group">
+              <label class="form-label">الكود <span class="required">*</span></label>
+              <input type="text" id="dc-code" class="form-control" placeholder="EARLY20" dir="ltr" style="text-transform:uppercase" required />
+            </div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+              <div class="form-group">
+                <label class="form-label">نوع الخصم</label>
+                <select id="dc-type" class="form-control form-select">
+                  <option value="percentage">نسبة مئوية %</option>
+                  <option value="fixed">مبلغ ثابت (جنيه)</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label class="form-label">القيمة <span class="required">*</span></label>
+                <input type="number" id="dc-value" class="form-control" min="0" required />
+              </div>
+            </div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+              <div class="form-group">
+                <label class="form-label">أقصى عدد استخدام</label>
+                <input type="number" id="dc-max-uses" class="form-control" min="1" placeholder="بلا حدود" />
+              </div>
+              <div class="form-group">
+                <label class="form-label">تاريخ الانتهاء</label>
+                <input type="date" id="dc-expires" class="form-control" />
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="form-label">ملاحظات</label>
+              <input type="text" id="dc-notes" class="form-control" placeholder="خصم للمدرسين الأوائل" />
+            </div>
+            <div class="form-group">
+              <label class="form-label" style="display:flex;align-items:center;gap:8px;cursor:pointer">
+                <input type="checkbox" id="dc-active" checked style="width:16px;height:16px" />
+                نشط
+              </label>
+            </div>
+            <div id="discount-modal-error" class="alert alert-danger" style="display:none"></div>
+            <div style="display:flex;gap:10px;justify-content:flex-end">
+              <button type="button" class="btn btn-ghost" onclick="closeModal('discount-modal')">إلغاء</button>
+              <button type="submit" class="btn btn-primary" id="discount-submit-btn">إضافة الكود</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="config.js?v=7.6.0"></script>
     <script>
@@ -1614,20 +1720,8 @@
           loadAds(),
           loadAdminAnalytics(),
           loadSiteSettings(),
-          loadSrBadgeOnly(),
+          checkPendingSubRequests(),
         ]);
-      }
-
-      // تحميل عداد طلبات الاشتراك المعلقة فقط دون رسم الجدول (يُستخدم عند بدء التشغيل)
-      async function loadSrBadgeOnly() {
-        try {
-          const { data, error } = await supabase
-            .from("subscription_requests")
-            .select("id,status");
-          if (error) throw error;
-          allSubRequests = data || [];
-          updateSrPendingBadge();
-        } catch (_) {}
       }
 
       // ── Show connection error ──
@@ -2416,6 +2510,487 @@
         });
       }
 
+      // ══════════════════════════════════════════
+      // ── PACKAGE SETTINGS (package_settings) ──
+      // ══════════════════════════════════════════
+      let allPackages = [];
+      const PKG_COLOR_HEAD = { green: "linear-gradient(135deg,#059669,#10B981)", blue: "linear-gradient(135deg,#1D4ED8,#2563EB)", purple: "linear-gradient(135deg,#6D28D9,#7C3AED)" };
+
+      async function loadPackages() {
+        const loadEl = document.getElementById("packages-loading");
+        const listEl = document.getElementById("packages-list");
+        const emptyEl = document.getElementById("packages-empty");
+        loadEl.style.display = "flex";
+        listEl.innerHTML = "";
+        emptyEl.style.display = "none";
+        try {
+          const { data, error } = await supabase
+            .from("package_settings")
+            .select("*")
+            .order("sort_order", { ascending: true });
+          if (error) throw error;
+          allPackages = data || [];
+          renderPackages();
+        } catch (e) {
+          showConnError(`خطأ في تحميل الباقات: ${e.message} — تأكد من تشغيل join_subscription_setup.sql`);
+          emptyEl.style.display = "";
+          emptyEl.innerHTML = `<div class="empty-icon">❌</div><div class="empty-title">خطأ في تحميل البيانات</div><div class="empty-text">${e.message}</div>`;
+        } finally {
+          loadEl.style.display = "none";
+        }
+      }
+
+      function renderPackages() {
+        const listEl = document.getElementById("packages-list");
+        const emptyEl = document.getElementById("packages-empty");
+        if (!allPackages.length) {
+          listEl.innerHTML = "";
+          emptyEl.style.display = "";
+          return;
+        }
+        emptyEl.style.display = "none";
+        listEl.innerHTML = allPackages
+          .map((pkg) => {
+            const features = Array.isArray(pkg.features)
+              ? pkg.features
+              : (typeof pkg.features === "string" ? JSON.parse(pkg.features || "[]") : []);
+            const head = PKG_COLOR_HEAD[pkg.color] || PKG_COLOR_HEAD.blue;
+            return `<div class="panel" style="overflow:hidden">
+              <div style="background:${head};color:white;padding:14px 18px;display:flex;align-items:center;justify-content:space-between;gap:8px">
+                <div>
+                  <div style="font-family:Cairo,sans-serif;font-weight:800;font-size:1rem">${escapeHtml(pkg.name)}</div>
+                  <div style="font-size:.72rem;opacity:.85;direction:ltr;text-align:right">${escapeHtml(pkg.plan_key)}</div>
+                </div>
+                <span class="inline-badge" style="background:rgba(255,255,255,.22);color:white">${pkg.is_active ? "✅ نشطة" : "⛔ مخفية"}</span>
+              </div>
+              <div style="padding:16px 18px">
+                <div style="font-family:Cairo,sans-serif;font-weight:900;font-size:1.6rem;color:var(--primary);margin-bottom:4px">
+                  ${Number(pkg.price).toLocaleString("ar-EG")}<small style="font-size:.7rem;color:var(--text-muted);font-weight:600"> ج / ${pkg.duration_months === 1 ? "شهر" : pkg.duration_months + " شهور"}</small>
+                </div>
+                <ul style="list-style:none;display:flex;flex-direction:column;gap:5px;margin:10px 0;padding:0">
+                  ${features.map((f) => `<li style="font-size:.82rem;color:var(--text-secondary);display:flex;gap:6px"><span style="color:var(--success)">✓</span>${escapeHtml(String(f))}</li>`).join("")}
+                </ul>
+                <div style="font-size:.72rem;color:var(--text-muted);margin-bottom:10px">ترتيب الظهور: ${pkg.sort_order ?? 0}</div>
+                <div class="table-actions">
+                  <button class="btn btn-outline btn-sm" onclick="openEditPackageModal('${pkg.id}')">✏️ تعديل</button>
+                  <button class="btn btn-${pkg.is_active ? "warning" : "success"} btn-sm" onclick="togglePackageActive('${pkg.id}', ${pkg.is_active})">${pkg.is_active ? "⛔ إخفاء" : "✅ تفعيل"}</button>
+                  <button class="btn btn-danger btn-sm" onclick="deletePackage('${pkg.id}', '${escapeHtml(pkg.name).replace(/'/g, "\\'")}')">🗑</button>
+                </div>
+              </div>
+            </div>`;
+          })
+          .join("");
+      }
+
+      function openPackageModal() {
+        document.getElementById("package-modal-title").textContent = "➕ إضافة باقة";
+        document.getElementById("package-submit-btn").textContent = "إضافة الباقة";
+        document.getElementById("pkg-id").value = "";
+        document.getElementById("package-form").reset();
+        document.getElementById("pkg-active").checked = true;
+        document.getElementById("pkg-sort").value = allPackages.length;
+        document.getElementById("pkg-duration").value = 1;
+        document.getElementById("package-modal-error").style.display = "none";
+        openModal("package-modal");
+      }
+
+      function openEditPackageModal(pkgId) {
+        const pkg = allPackages.find((p) => p.id === pkgId);
+        if (!pkg) return;
+        const features = Array.isArray(pkg.features)
+          ? pkg.features
+          : (typeof pkg.features === "string" ? JSON.parse(pkg.features || "[]") : []);
+        document.getElementById("package-modal-title").textContent = "✏️ تعديل الباقة";
+        document.getElementById("package-submit-btn").textContent = "حفظ التعديلات";
+        document.getElementById("pkg-id").value = pkg.id;
+        document.getElementById("pkg-key").value = pkg.plan_key || "";
+        document.getElementById("pkg-name").value = pkg.name || "";
+        document.getElementById("pkg-price").value = pkg.price ?? 0;
+        document.getElementById("pkg-duration").value = pkg.duration_months ?? 1;
+        document.getElementById("pkg-color").value = pkg.color || "blue";
+        document.getElementById("pkg-sort").value = pkg.sort_order ?? 0;
+        document.getElementById("pkg-features").value = features.join("\n");
+        document.getElementById("pkg-active").checked = pkg.is_active ?? true;
+        document.getElementById("package-modal-error").style.display = "none";
+        openModal("package-modal");
+      }
+
+      async function submitPackage(e) {
+        e.preventDefault();
+        const btn = document.getElementById("package-submit-btn");
+        const errEl = document.getElementById("package-modal-error");
+        errEl.style.display = "none";
+        btn.disabled = true;
+        btn.innerHTML = '<span class="spinner"></span> جارٍ الحفظ...';
+
+        const id = document.getElementById("pkg-id").value;
+        const isEdit = !!id;
+
+        try {
+          const featuresArr = document
+            .getElementById("pkg-features")
+            .value.split("\n")
+            .map((s) => s.trim())
+            .filter(Boolean);
+
+          const payload = {
+            plan_key: document.getElementById("pkg-key").value.trim(),
+            name: document.getElementById("pkg-name").value.trim(),
+            price: parseFloat(document.getElementById("pkg-price").value) || 0,
+            duration_months: parseInt(document.getElementById("pkg-duration").value) || 1,
+            color: document.getElementById("pkg-color").value,
+            sort_order: parseInt(document.getElementById("pkg-sort").value) || 0,
+            features: featuresArr,
+            is_active: document.getElementById("pkg-active").checked,
+          };
+
+          if (!payload.plan_key) throw new Error("مفتاح الباقة مطلوب");
+          if (!payload.name) throw new Error("اسم الباقة مطلوب");
+
+          let result;
+          if (isEdit) {
+            result = await supabase.from("package_settings").update(payload).eq("id", id);
+          } else {
+            result = await supabase.from("package_settings").insert(payload);
+          }
+          if (result.error) {
+            if (result.error.code === "23505") throw new Error("مفتاح الباقة مستخدم بالفعل، اختر مفتاحًا مختلفًا");
+            throw result.error;
+          }
+
+          closeModal("package-modal");
+          showToast(isEdit ? "تم تحديث الباقة ✅" : "تم إضافة الباقة ✅", "success");
+          await loadPackages();
+        } catch (err) {
+          errEl.textContent = err.message;
+          errEl.style.display = "block";
+        } finally {
+          btn.disabled = false;
+          btn.textContent = isEdit ? "حفظ التعديلات" : "إضافة الباقة";
+        }
+      }
+
+      async function togglePackageActive(pkgId, isActive) {
+        try {
+          const { error } = await supabase.from("package_settings").update({ is_active: !isActive }).eq("id", pkgId);
+          if (error) throw error;
+          showToast(isActive ? "تم إخفاء الباقة" : "تم تفعيل الباقة", "success");
+          await loadPackages();
+        } catch (e) {
+          showToast(`خطأ: ${e.message}`, "danger");
+        }
+      }
+
+      async function deletePackage(pkgId, name) {
+        confirmDialog(`حذف باقة "${name}"؟`, async () => {
+          try {
+            const { error } = await supabase.from("package_settings").delete().eq("id", pkgId);
+            if (error) throw error;
+            showToast("تم حذف الباقة ✅", "success");
+            await loadPackages();
+          } catch (e) {
+            showToast(`خطأ: ${e.message}`, "danger");
+          }
+        });
+      }
+
+      // ══════════════════════════════════════════
+      // ── DISCOUNT CODES (discount_codes) ──
+      // ══════════════════════════════════════════
+      let allDiscounts = [];
+
+      async function loadDiscounts() {
+        const loadEl = document.getElementById("discounts-loading");
+        const tableEl = document.getElementById("discounts-table");
+        const emptyEl = document.getElementById("discounts-empty");
+        loadEl.style.display = "flex";
+        tableEl.style.display = "none";
+        emptyEl.style.display = "none";
+        try {
+          const { data, error } = await supabase
+            .from("discount_codes")
+            .select("*")
+            .order("created_at", { ascending: false });
+          if (error) throw error;
+          allDiscounts = data || [];
+          renderDiscounts();
+        } catch (e) {
+          showConnError(`خطأ في تحميل أكواد الخصم: ${e.message} — تأكد من تشغيل join_subscription_setup.sql`);
+          emptyEl.style.display = "";
+          emptyEl.innerHTML = `<div class="empty-icon">❌</div><div class="empty-title">خطأ في تحميل البيانات</div><div class="empty-text">${e.message}</div>`;
+        } finally {
+          loadEl.style.display = "none";
+        }
+      }
+
+      function renderDiscounts() {
+        const tableEl = document.getElementById("discounts-table");
+        const emptyEl = document.getElementById("discounts-empty");
+        document.getElementById("discounts-count").textContent = allDiscounts.length;
+
+        if (!allDiscounts.length) {
+          tableEl.style.display = "none";
+          emptyEl.style.display = "";
+          return;
+        }
+        tableEl.style.display = "";
+        emptyEl.style.display = "none";
+
+        document.getElementById("discounts-tbody").innerHTML = allDiscounts
+          .map((dc) => {
+            const valueLabel = dc.discount_type === "percentage" ? `${dc.discount_value}%` : `${Number(dc.discount_value).toLocaleString("ar-EG")} ج`;
+            const usage = `${dc.used_count || 0} / ${dc.max_uses ?? "∞"}`;
+            const expired = dc.expires_at && new Date(dc.expires_at) < new Date();
+            const statusBadge = !dc.is_active
+              ? '<span class="inline-badge badge-rejected">⛔ غير نشط</span>'
+              : expired
+                ? '<span class="inline-badge badge-rejected">⌛ منتهي</span>'
+                : '<span class="inline-badge badge-active">✅ نشط</span>';
+            return `<tr>
+              <td><code style="background:var(--bg-soft);padding:2px 8px;border-radius:4px;font-size:.9rem;font-weight:700;direction:ltr;display:inline-block">${escapeHtml(dc.code)}</code></td>
+              <td>${dc.discount_type === "percentage" ? "نسبة %" : "مبلغ ثابت"}</td>
+              <td style="font-weight:700;color:var(--primary)">${valueLabel}</td>
+              <td>${usage}</td>
+              <td style="font-size:.82rem;color:var(--text-muted)">${dc.expires_at ? toDateOnlyInput(dc.expires_at) : "بلا تاريخ"}</td>
+              <td>${statusBadge}</td>
+              <td style="font-size:.8rem;color:var(--text-secondary);max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${escapeHtml(dc.notes || "—")}</td>
+              <td>
+                <div class="table-actions">
+                  <button class="btn btn-outline btn-sm" onclick="openEditDiscountModal('${dc.id}')">✏️</button>
+                  <button class="btn btn-${dc.is_active ? "warning" : "success"} btn-sm" onclick="toggleDiscountActive('${dc.id}', ${dc.is_active})">${dc.is_active ? "⛔" : "✅"}</button>
+                  <button class="btn btn-danger btn-sm" onclick="deleteDiscount('${dc.id}', '${escapeHtml(dc.code).replace(/'/g, "\\'")}')">🗑</button>
+                </div>
+              </td>
+            </tr>`;
+          })
+          .join("");
+      }
+
+      function openDiscountModal() {
+        document.getElementById("discount-modal-title").textContent = "➕ إضافة كود خصم";
+        document.getElementById("discount-submit-btn").textContent = "إضافة الكود";
+        document.getElementById("dc-id").value = "";
+        document.getElementById("discount-form").reset();
+        document.getElementById("dc-type").value = "percentage";
+        document.getElementById("dc-active").checked = true;
+        document.getElementById("discount-modal-error").style.display = "none";
+        openModal("discount-modal");
+      }
+
+      function openEditDiscountModal(dcId) {
+        const dc = allDiscounts.find((d) => d.id === dcId);
+        if (!dc) return;
+        document.getElementById("discount-modal-title").textContent = "✏️ تعديل كود الخصم";
+        document.getElementById("discount-submit-btn").textContent = "حفظ التعديلات";
+        document.getElementById("dc-id").value = dc.id;
+        document.getElementById("dc-code").value = dc.code || "";
+        document.getElementById("dc-type").value = dc.discount_type || "percentage";
+        document.getElementById("dc-value").value = dc.discount_value ?? 0;
+        document.getElementById("dc-max-uses").value = dc.max_uses ?? "";
+        document.getElementById("dc-expires").value = dc.expires_at ? toDateOnlyInput(dc.expires_at) : "";
+        document.getElementById("dc-notes").value = dc.notes || "";
+        document.getElementById("dc-active").checked = dc.is_active ?? true;
+        document.getElementById("discount-modal-error").style.display = "none";
+        openModal("discount-modal");
+      }
+
+      async function submitDiscount(e) {
+        e.preventDefault();
+        const btn = document.getElementById("discount-submit-btn");
+        const errEl = document.getElementById("discount-modal-error");
+        errEl.style.display = "none";
+        btn.disabled = true;
+        btn.innerHTML = '<span class="spinner"></span> جارٍ الحفظ...';
+
+        const id = document.getElementById("dc-id").value;
+        const isEdit = !!id;
+
+        try {
+          const maxUsesVal = document.getElementById("dc-max-uses").value;
+          const expiresVal = document.getElementById("dc-expires").value;
+
+          const payload = {
+            code: document.getElementById("dc-code").value.trim().toUpperCase(),
+            discount_type: document.getElementById("dc-type").value,
+            discount_value: parseFloat(document.getElementById("dc-value").value) || 0,
+            max_uses: maxUsesVal ? parseInt(maxUsesVal) : null,
+            expires_at: expiresVal ? new Date(expiresVal).toISOString() : null,
+            notes: document.getElementById("dc-notes").value.trim(),
+            is_active: document.getElementById("dc-active").checked,
+          };
+
+          if (!payload.code) throw new Error("الكود مطلوب");
+
+          let result;
+          if (isEdit) {
+            result = await supabase.from("discount_codes").update(payload).eq("id", id);
+          } else {
+            result = await supabase.from("discount_codes").insert(payload);
+          }
+          if (result.error) {
+            if (result.error.code === "23505") throw new Error("هذا الكود مستخدم بالفعل، اختر كودًا مختلفًا");
+            throw result.error;
+          }
+
+          closeModal("discount-modal");
+          showToast(isEdit ? "تم تحديث الكود ✅" : "تم إضافة الكود ✅", "success");
+          await loadDiscounts();
+        } catch (err) {
+          errEl.textContent = err.message;
+          errEl.style.display = "block";
+        } finally {
+          btn.disabled = false;
+          btn.textContent = isEdit ? "حفظ التعديلات" : "إضافة الكود";
+        }
+      }
+
+      async function toggleDiscountActive(dcId, isActive) {
+        try {
+          const { error } = await supabase.from("discount_codes").update({ is_active: !isActive }).eq("id", dcId);
+          if (error) throw error;
+          showToast(isActive ? "تم إيقاف الكود" : "تم تفعيل الكود", "success");
+          await loadDiscounts();
+        } catch (e) {
+          showToast(`خطأ: ${e.message}`, "danger");
+        }
+      }
+
+      async function deleteDiscount(dcId, code) {
+        confirmDialog(`حذف كود "${code}"؟`, async () => {
+          try {
+            const { error } = await supabase.from("discount_codes").delete().eq("id", dcId);
+            if (error) throw error;
+            showToast("تم حذف الكود ✅", "success");
+            await loadDiscounts();
+          } catch (e) {
+            showToast(`خطأ: ${e.message}`, "danger");
+          }
+        });
+      }
+
+      // ══════════════════════════════════════════
+      // ── SUBSCRIPTION REQUESTS (subscription_requests) ──
+      // ══════════════════════════════════════════
+      let allSubRequests = [];
+
+      async function checkPendingSubRequests() {
+        try {
+          const { count, error } = await supabase
+            .from("subscription_requests")
+            .select("*", { count: "exact", head: true })
+            .eq("status", "pending");
+          if (error) throw error;
+          const badge = document.getElementById("sub-req-badge");
+          if (badge) {
+            if (count > 0) {
+              badge.textContent = count > 9 ? "9+" : count;
+              badge.style.display = "";
+            } else {
+              badge.style.display = "none";
+            }
+          }
+        } catch (_) {
+          // تجاهل الخطأ بصمت إن لم يكن الجدول موجودًا بعد
+        }
+      }
+
+      async function loadSubRequests() {
+        const loadEl = document.getElementById("sub-requests-loading");
+        const tableEl = document.getElementById("sub-requests-table");
+        const emptyEl = document.getElementById("sub-requests-empty");
+        loadEl.style.display = "flex";
+        tableEl.style.display = "none";
+        emptyEl.style.display = "none";
+        try {
+          const statusFilter = document.getElementById("sub-requests-filter").value;
+          let query = supabase.from("subscription_requests").select("*").order("created_at", { ascending: false });
+          if (statusFilter) query = query.eq("status", statusFilter);
+          const { data, error } = await query;
+          if (error) throw error;
+          allSubRequests = data || [];
+          document.getElementById("sub-requests-count").textContent = allSubRequests.length;
+          renderSubRequests();
+          await checkPendingSubRequests();
+        } catch (e) {
+          showConnError(`خطأ في تحميل طلبات الاشتراك: ${e.message} — تأكد من تشغيل join_subscription_setup.sql`);
+          emptyEl.style.display = "";
+          emptyEl.innerHTML = `<div class="empty-icon">❌</div><div class="empty-title">خطأ في تحميل البيانات</div><div class="empty-text">${e.message}</div>`;
+        } finally {
+          loadEl.style.display = "none";
+        }
+      }
+
+      function renderSubRequests() {
+        const tableEl = document.getElementById("sub-requests-table");
+        const emptyEl = document.getElementById("sub-requests-empty");
+        if (!allSubRequests.length) {
+          tableEl.style.display = "none";
+          emptyEl.style.display = "";
+          return;
+        }
+        tableEl.style.display = "";
+        emptyEl.style.display = "none";
+
+        const statusMap = {
+          pending: '<span class="inline-badge badge-pending">⏳ قيد المراجعة</span>',
+          active: '<span class="inline-badge badge-active">✅ مفعّل</span>',
+          rejected: '<span class="inline-badge badge-rejected">❌ مرفوض</span>',
+        };
+
+        document.getElementById("sub-requests-tbody").innerHTML = allSubRequests
+          .map((r) => {
+            const durText = r.duration_months === 1 ? "شهر" : r.duration_months + " شهور";
+            return `<tr>
+              <td><strong>${escapeHtml(r.full_name)}</strong>${r.email ? `<br><span style="font-size:.75rem;color:var(--text-muted)">${escapeHtml(r.email)}</span>` : ""}</td>
+              <td style="direction:ltr;text-align:right">${escapeHtml(r.phone || "—")}</td>
+              <td>${escapeHtml(r.plan_name)}<br><span style="font-size:.75rem;color:var(--text-muted)">${durText}</span></td>
+              <td>${formatPrice(r.original_price)}</td>
+              <td>${r.discount_amount > 0 ? `<span style="color:var(--success)">- ${formatPrice(r.discount_amount)}</span>${r.discount_code ? `<br><code style="font-size:.72rem">${escapeHtml(r.discount_code)}</code>` : ""}` : "—"}</td>
+              <td style="font-weight:700;color:var(--primary)">${formatPrice(r.final_price)}</td>
+              <td>${statusMap[r.status] || r.status}</td>
+              <td style="font-size:.8rem;color:var(--text-muted)">${timeAgo(r.created_at)}</td>
+              <td>
+                <div class="table-actions">
+                  ${r.status !== "active" ? `<button class="btn btn-success btn-sm" onclick="changeSubRequestStatus('${r.id}','active')" title="تفعيل">✅</button>` : ""}
+                  ${r.status !== "rejected" ? `<button class="btn btn-danger btn-sm" onclick="changeSubRequestStatus('${r.id}','rejected')" title="رفض">❌</button>` : ""}
+                  ${r.status !== "pending" ? `<button class="btn btn-warning btn-sm" onclick="changeSubRequestStatus('${r.id}','pending')" title="إعادة للمراجعة">⏳</button>` : ""}
+                  ${r.phone ? `<a class="btn btn-whatsapp btn-sm" href="https://wa.me/${String(r.phone).replace(/[^0-9]/g, "")}" target="_blank" title="واتساب">💬</a>` : ""}
+                  <button class="btn btn-ghost btn-sm" onclick="deleteSubRequest('${r.id}')" title="حذف">🗑</button>
+                </div>
+              </td>
+            </tr>`;
+          })
+          .join("");
+      }
+
+      async function changeSubRequestStatus(reqId, status) {
+        try {
+          const { error } = await supabase
+            .from("subscription_requests")
+            .update({ status })
+            .eq("id", reqId);
+          if (error) throw error;
+          const labels = { active: "✅ تم التفعيل", rejected: "❌ تم الرفض", pending: "⏳ إعادة للمراجعة" };
+          showToast(labels[status] || "تم التحديث", "success");
+          await loadSubRequests();
+        } catch (e) {
+          showToast(`خطأ: ${e.message}`, "danger");
+        }
+      }
+
+      async function deleteSubRequest(reqId) {
+        confirmDialog("حذف هذا الطلب نهائيًا؟", async () => {
+          try {
+            const { error } = await supabase.from("subscription_requests").delete().eq("id", reqId);
+            if (error) throw error;
+            showToast("تم حذف الطلب", "success");
+            await loadSubRequests();
+          } catch (e) {
+            showToast(`خطأ: ${e.message}`, "danger");
+          }
+        });
+      }
+
       // ── Plans / Renewals ──
       function applyPlanDefaults() {
         const plan = getPlan(document.getElementById("t-plan-type").value);
@@ -2951,7 +3526,7 @@
         if (paneId === "pane-achievements")  loadAdminAchievements();
         if (paneId === "pane-challenges")    loadAdminChallenges();
         if (paneId === "pane-packages")      loadPackages();
-        if (paneId === "pane-discounts")     loadDiscountCodes();
+        if (paneId === "pane-discounts")     loadDiscounts();
         if (paneId === "pane-sub-requests")  loadSubRequests();
         return false;
       }
@@ -3119,7 +3694,7 @@
       }
 
       // Close modals on overlay click
-      ["teacher-modal", "edit-ad-modal"].forEach((id) => {
+      ["teacher-modal", "edit-ad-modal", "package-modal", "discount-modal"].forEach((id) => {
         document.getElementById(id).addEventListener("click", (e) => {
           if (e.target === e.currentTarget) closeModal(id);
         });
@@ -3479,673 +4054,6 @@
         </div>
       </div>
     </div>
-
-    <!-- ── Package Modal ── -->
-    <div class="modal-overlay" id="pkg-modal">
-      <div class="modal">
-        <div class="modal-header">
-          <h3 class="modal-title" id="pkg-modal-title">إضافة باقة جديدة</h3>
-          <button class="modal-close" onclick="closeModal('pkg-modal')">✕</button>
-        </div>
-        <div class="modal-body">
-          <form id="pkg-form" onsubmit="submitPkg(event)">
-            <input type="hidden" id="pkg-id" />
-            <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
-              <div class="form-group">
-                <label class="form-label">اسم الباقة <span class="required">*</span></label>
-                <input type="text" id="pkg-name" class="form-control" required placeholder="مثال: باقة الشهر" />
-              </div>
-              <div class="form-group">
-                <label class="form-label">المفتاح البرمجي (plan_key) <span class="required">*</span></label>
-                <input type="text" id="pkg-key" class="form-control" required placeholder="monthly" dir="ltr" />
-                <div class="form-hint">حروف إنجليزية وشرطة سفلية فقط، بدون مسافات — يُستخدم داخليًا ولا يظهر للمستخدم.</div>
-              </div>
-            </div>
-            <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
-              <div class="form-group">
-                <label class="form-label">السعر (جنيه) <span class="required">*</span></label>
-                <input type="number" id="pkg-price" class="form-control" min="0" step="0.01" required placeholder="40" />
-              </div>
-              <div class="form-group">
-                <label class="form-label">المدة (بالشهور) <span class="required">*</span></label>
-                <input type="number" id="pkg-duration" class="form-control" min="1" required placeholder="1" />
-              </div>
-            </div>
-            <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
-              <div class="form-group">
-                <label class="form-label">اللون</label>
-                <select id="pkg-color" class="form-control form-select">
-                  <option value="green">أخضر</option>
-                  <option value="blue">أزرق</option>
-                  <option value="purple">بنفسجي</option>
-                </select>
-              </div>
-              <div class="form-group">
-                <label class="form-label">ترتيب الظهور</label>
-                <input type="number" id="pkg-sort" class="form-control" min="0" value="0" />
-              </div>
-            </div>
-            <div class="form-group">
-              <label class="form-label">المميزات (كل ميزة في سطر منفصل)</label>
-              <textarea id="pkg-features" class="form-control" rows="5" placeholder="إعلان واحد
-3 تعديلات لكل إعلان
-ظهور في نتائج البحث"></textarea>
-            </div>
-            <div class="form-group">
-              <label class="form-label" style="display:flex;align-items:center;gap:8px;cursor:pointer">
-                <input type="checkbox" id="pkg-active" checked style="width:16px;height:16px" />
-                الباقة مفعّلة (تظهر في صفحة الانضمام)
-              </label>
-            </div>
-            <div id="pkg-modal-error" class="alert alert-danger" style="display:none"></div>
-            <div style="display:flex;gap:10px;justify-content:flex-end">
-              <button type="button" class="btn btn-ghost" onclick="closeModal('pkg-modal')">إلغاء</button>
-              <button type="submit" class="btn btn-primary" id="pkg-submit-btn">إضافة الباقة</button>
-            </div>
-          </form>
-        </div>
-      </div>
-    </div>
-
-    <!-- ── Discount Code Modal ── -->
-    <div class="modal-overlay" id="dc-modal">
-      <div class="modal">
-        <div class="modal-header">
-          <h3 class="modal-title" id="dc-modal-title">إضافة كود خصم</h3>
-          <button class="modal-close" onclick="closeModal('dc-modal')">✕</button>
-        </div>
-        <div class="modal-body">
-          <form id="dc-form" onsubmit="submitDc(event)">
-            <input type="hidden" id="dc-id" />
-            <div class="form-group">
-              <label class="form-label">الكود <span class="required">*</span></label>
-              <input type="text" id="dc-code" class="form-control" required placeholder="EARLY20" dir="ltr" style="text-transform:uppercase" />
-            </div>
-            <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
-              <div class="form-group">
-                <label class="form-label">نوع الخصم <span class="required">*</span></label>
-                <select id="dc-type" class="form-control form-select">
-                  <option value="percentage">نسبة مئوية %</option>
-                  <option value="fixed">مبلغ ثابت (جنيه)</option>
-                </select>
-              </div>
-              <div class="form-group">
-                <label class="form-label">قيمة الخصم <span class="required">*</span></label>
-                <input type="number" id="dc-value" class="form-control" min="0" step="0.01" required placeholder="20" />
-              </div>
-            </div>
-            <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
-              <div class="form-group">
-                <label class="form-label">الحد الأقصى للاستخدام</label>
-                <input type="number" id="dc-max-uses" class="form-control" min="1" placeholder="اتركه فارغًا لاستخدام غير محدود" />
-              </div>
-              <div class="form-group">
-                <label class="form-label">تاريخ انتهاء الصلاحية</label>
-                <input type="date" id="dc-expires" class="form-control" />
-                <div class="form-hint">اتركه فارغًا لصلاحية دائمة</div>
-              </div>
-            </div>
-            <div class="form-group">
-              <label class="form-label">ملاحظات</label>
-              <input type="text" id="dc-notes" class="form-control" placeholder="مثال: خصم المدرسين الأوائل" />
-            </div>
-            <div class="form-group">
-              <label class="form-label" style="display:flex;align-items:center;gap:8px;cursor:pointer">
-                <input type="checkbox" id="dc-active" checked style="width:16px;height:16px" />
-                الكود مفعّل
-              </label>
-            </div>
-            <div id="dc-modal-error" class="alert alert-danger" style="display:none"></div>
-            <div style="display:flex;gap:10px;justify-content:flex-end">
-              <button type="button" class="btn btn-ghost" onclick="closeModal('dc-modal')">إلغاء</button>
-              <button type="submit" class="btn btn-primary" id="dc-submit-btn">إضافة الكود</button>
-            </div>
-          </form>
-        </div>
-      </div>
-    </div>
-
-    <!-- ── Subscription Request Detail Modal ── -->
-    <div class="modal-overlay" id="sr-modal">
-      <div class="modal">
-        <div class="modal-header">
-          <h3 class="modal-title">📝 تفاصيل طلب الاشتراك</h3>
-          <button class="modal-close" onclick="closeModal('sr-modal')">✕</button>
-        </div>
-        <div class="modal-body" id="sr-modal-body"></div>
-      </div>
-    </div>
-
-    <script>
-      /* ══════════════════════════════════════════
-         PACKAGE SETTINGS (package_settings)
-      ══════════════════════════════════════════ */
-      let allPackages = [];
-      const PKG_COLOR_LABEL = { green: "أخضر", blue: "أزرق", purple: "بنفسجي" };
-      const PKG_HEAD_CLASS = { green: "plan-green", blue: "plan-blue", purple: "plan-purple" };
-
-      async function loadPackages() {
-        const loadEl = document.getElementById("pkg-loading");
-        loadEl.style.display = "flex";
-        try {
-          const { data, error } = await supabase
-            .from("package_settings")
-            .select("*")
-            .order("sort_order", { ascending: true });
-          if (error) throw error;
-          allPackages = data || [];
-          renderPackages();
-        } catch (e) {
-          console.error("Packages load error:", e);
-          showConnError(`خطأ في تحميل الباقات: ${e.message}`);
-        } finally {
-          loadEl.style.display = "none";
-        }
-      }
-
-      function pkgFeaturesArray(pkg) {
-        if (Array.isArray(pkg.features)) return pkg.features;
-        if (typeof pkg.features === "string") {
-          try {
-            const parsed = JSON.parse(pkg.features || "[]");
-            return Array.isArray(parsed) ? parsed : [];
-          } catch (_) {
-            return [];
-          }
-        }
-        return [];
-      }
-
-      function renderPackages() {
-        const list = document.getElementById("pkg-list");
-        const empty = document.getElementById("pkg-empty");
-        document.getElementById("pkg-count").textContent = allPackages.length;
-
-        if (!allPackages.length) {
-          list.innerHTML = "";
-          empty.style.display = "";
-          return;
-        }
-        empty.style.display = "none";
-
-        list.innerHTML = allPackages
-          .map((pkg) => {
-            const feats = pkgFeaturesArray(pkg);
-            return `
-        <div class="panel" style="overflow:hidden">
-          <div style="display:flex;align-items:center;gap:14px;padding:16px 20px;flex-wrap:wrap;border-bottom:1px solid var(--border)">
-            <div style="width:8px;height:40px;border-radius:6px;background:${pkg.color === "green" ? "#059669" : pkg.color === "purple" ? "#7C3AED" : "#2563EB"}"></div>
-            <div style="flex:1;min-width:160px">
-              <div style="font-family:'Cairo',sans-serif;font-weight:800;font-size:1.02rem">${escapeHtml(pkg.name)}
-                <code style="background:var(--bg-soft);padding:2px 8px;border-radius:4px;font-size:.75rem;margin-right:6px;color:var(--text-muted)">${escapeHtml(pkg.plan_key)}</code>
-              </div>
-              <div style="font-size:.82rem;color:var(--text-muted);margin-top:2px">${feats.length} ميزة مُدرجة</div>
-            </div>
-            <div style="text-align:center">
-              <div style="font-family:'Cairo',sans-serif;font-weight:900;font-size:1.3rem;color:var(--primary)">${Number(pkg.price).toLocaleString("ar-EG")} ج</div>
-              <div style="font-size:.75rem;color:var(--text-muted)">/ ${pkg.duration_months === 1 ? "شهر" : pkg.duration_months + " شهور"}</div>
-            </div>
-            <span class="inline-badge ${pkg.is_active ? "badge-active" : "badge-rejected"}">${pkg.is_active ? "✅ مفعّلة" : "⛔ مخفية"}</span>
-            <div class="table-actions">
-              <button class="btn btn-outline btn-sm" onclick="openPkgModal('${pkg.id}')">✏️</button>
-              <button class="btn btn-${pkg.is_active ? "warning" : "success"} btn-sm" onclick="togglePkgActive('${pkg.id}', ${pkg.is_active})">${pkg.is_active ? "⛔ إخفاء" : "✅ تفعيل"}</button>
-              <button class="btn btn-danger btn-sm" onclick="deletePkg('${pkg.id}', '${escapeHtml(pkg.name).replace(/'/g, "\\'")}')">🗑</button>
-            </div>
-          </div>
-          ${feats.length ? `<div style="padding:12px 20px;display:flex;flex-wrap:wrap;gap:8px">${feats.map((f) => `<span class="inline-badge" style="background:var(--bg-soft);color:var(--text-secondary)">✓ ${escapeHtml(String(f))}</span>`).join("")}</div>` : ""}
-        </div>`;
-          })
-          .join("");
-      }
-
-      function openPkgModal(pkgId) {
-        const errEl = document.getElementById("pkg-modal-error");
-        errEl.style.display = "none";
-        if (!pkgId) {
-          document.getElementById("pkg-modal-title").textContent = "➕ إضافة باقة جديدة";
-          document.getElementById("pkg-submit-btn").textContent = "إضافة الباقة";
-          document.getElementById("pkg-id").value = "";
-          document.getElementById("pkg-form").reset();
-          document.getElementById("pkg-color").value = "blue";
-          document.getElementById("pkg-sort").value = allPackages.length;
-          document.getElementById("pkg-active").checked = true;
-        } else {
-          const pkg = allPackages.find((p) => p.id === pkgId);
-          if (!pkg) return;
-          document.getElementById("pkg-modal-title").textContent = "✏️ تعديل الباقة";
-          document.getElementById("pkg-submit-btn").textContent = "حفظ التعديلات";
-          document.getElementById("pkg-id").value = pkg.id;
-          document.getElementById("pkg-name").value = pkg.name || "";
-          document.getElementById("pkg-key").value = pkg.plan_key || "";
-          document.getElementById("pkg-price").value = pkg.price || 0;
-          document.getElementById("pkg-duration").value = pkg.duration_months || 1;
-          document.getElementById("pkg-color").value = pkg.color || "blue";
-          document.getElementById("pkg-sort").value = pkg.sort_order || 0;
-          document.getElementById("pkg-features").value = pkgFeaturesArray(pkg).join("\n");
-          document.getElementById("pkg-active").checked = pkg.is_active !== false;
-        }
-        openModal("pkg-modal");
-      }
-
-      async function submitPkg(e) {
-        e.preventDefault();
-        const btn = document.getElementById("pkg-submit-btn");
-        const errEl = document.getElementById("pkg-modal-error");
-        errEl.style.display = "none";
-        btn.disabled = true;
-        btn.innerHTML = '<span class="spinner"></span> جارٍ الحفظ...';
-
-        const isEdit = !!document.getElementById("pkg-id").value;
-        try {
-          const key = document.getElementById("pkg-key").value.trim().toLowerCase().replace(/\s+/g, "_");
-          if (!/^[a-z0-9_]+$/.test(key)) throw new Error("المفتاح البرمجي يجب أن يحتوي على حروف إنجليزية وأرقام وشرطة سفلية فقط");
-
-          const features = document
-            .getElementById("pkg-features")
-            .value.split("\n")
-            .map((f) => f.trim())
-            .filter(Boolean);
-
-          const payload = {
-            plan_key: key,
-            name: document.getElementById("pkg-name").value.trim(),
-            price: parseFloat(document.getElementById("pkg-price").value) || 0,
-            duration_months: parseInt(document.getElementById("pkg-duration").value) || 1,
-            features,
-            color: document.getElementById("pkg-color").value,
-            sort_order: parseInt(document.getElementById("pkg-sort").value) || 0,
-            is_active: document.getElementById("pkg-active").checked,
-          };
-          if (!payload.name) throw new Error("اسم الباقة مطلوب");
-
-          let result;
-          if (isEdit) {
-            result = await supabase.from("package_settings").update(payload).eq("id", document.getElementById("pkg-id").value);
-          } else {
-            result = await supabase.from("package_settings").insert(payload);
-          }
-          if (result.error) {
-            if (result.error.code === "23505") throw new Error("المفتاح البرمجي مستخدم بالفعل، اختر مفتاحًا مختلفًا");
-            throw result.error;
-          }
-
-          closeModal("pkg-modal");
-          showToast(isEdit ? "تم تحديث الباقة ✅" : "تم إضافة الباقة ✅", "success");
-          await loadPackages();
-        } catch (err) {
-          errEl.textContent = err.message;
-          errEl.style.display = "block";
-        } finally {
-          btn.disabled = false;
-          btn.textContent = isEdit ? "حفظ التعديلات" : "إضافة الباقة";
-        }
-      }
-
-      async function togglePkgActive(pkgId, isActive) {
-        try {
-          const { error } = await supabase.from("package_settings").update({ is_active: !isActive }).eq("id", pkgId);
-          if (error) throw error;
-          showToast(isActive ? "⛔ تم إخفاء الباقة" : "✅ تم تفعيل الباقة", "success");
-          await loadPackages();
-        } catch (e) {
-          showToast(`خطأ: ${e.message}`, "danger");
-        }
-      }
-
-      async function deletePkg(pkgId, name) {
-        confirmDialog(`حذف باقة "${name}" نهائيًا؟ لن تظهر بعد ذلك في صفحة الانضمام.`, async () => {
-          try {
-            const { error } = await supabase.from("package_settings").delete().eq("id", pkgId);
-            if (error) throw error;
-            showToast("تم حذف الباقة ✅", "success");
-            await loadPackages();
-          } catch (e) {
-            showToast(`خطأ: ${e.message}`, "danger");
-          }
-        });
-      }
-
-      /* ══════════════════════════════════════════
-         DISCOUNT CODES (discount_codes)
-      ══════════════════════════════════════════ */
-      let allDiscountCodes = [];
-
-      async function loadDiscountCodes() {
-        const loadEl = document.getElementById("dc-loading");
-        const tableEl = document.getElementById("dc-table");
-        const emptyEl = document.getElementById("dc-empty");
-        loadEl.style.display = "flex";
-        tableEl.style.display = "none";
-        emptyEl.style.display = "none";
-        try {
-          const { data, error } = await supabase
-            .from("discount_codes")
-            .select("*")
-            .order("created_at", { ascending: false });
-          if (error) throw error;
-          allDiscountCodes = data || [];
-          renderDiscountCodes();
-        } catch (e) {
-          console.error("Discount codes load error:", e);
-          showConnError(`خطأ في تحميل أكواد الخصم: ${e.message}`);
-        } finally {
-          loadEl.style.display = "none";
-        }
-      }
-
-      function renderDiscountCodes() {
-        const tableEl = document.getElementById("dc-table");
-        const emptyEl = document.getElementById("dc-empty");
-        document.getElementById("dc-count").textContent = allDiscountCodes.length;
-
-        if (!allDiscountCodes.length) {
-          tableEl.style.display = "none";
-          emptyEl.style.display = "";
-          return;
-        }
-        tableEl.style.display = "";
-        emptyEl.style.display = "none";
-
-        document.getElementById("dc-tbody").innerHTML = allDiscountCodes
-          .map((dc) => {
-            const expired = dc.expires_at && new Date(dc.expires_at) < new Date();
-            const usageLimitReached = dc.max_uses !== null && dc.used_count >= dc.max_uses;
-            const valueLabel = dc.discount_type === "percentage" ? `${dc.discount_value}%` : `${Number(dc.discount_value).toLocaleString("ar-EG")} ج`;
-            const usesLabel = dc.max_uses !== null ? `${dc.used_count} / ${dc.max_uses}` : `${dc.used_count} / بلا حد`;
-            const expiryLabel = dc.expires_at ? new Date(dc.expires_at).toLocaleDateString("ar-EG") : "دائم";
-            let statusBadge = dc.is_active
-              ? '<span class="inline-badge badge-active">✅ نشط</span>'
-              : '<span class="inline-badge badge-rejected">⛔ معطّل</span>';
-            if (dc.is_active && expired) statusBadge = '<span class="inline-badge badge-rejected">⌛ منتهي</span>';
-            else if (dc.is_active && usageLimitReached) statusBadge = '<span class="inline-badge" style="background:#FEF3C7;color:#92400E">🚫 اكتمل الحد</span>';
-            return `
-        <tr>
-          <td><code style="background:var(--bg-soft);padding:3px 10px;border-radius:6px;font-weight:700;letter-spacing:.5px">${escapeHtml(dc.code)}</code>${dc.notes ? `<div style="font-size:.76rem;color:var(--text-muted);margin-top:3px">${escapeHtml(dc.notes)}</div>` : ""}</td>
-          <td>${dc.discount_type === "percentage" ? "نسبة %" : "مبلغ ثابت"}</td>
-          <td style="font-weight:700;color:var(--primary)">${valueLabel}</td>
-          <td>${usesLabel}</td>
-          <td style="font-size:.85rem">${expiryLabel}</td>
-          <td>${statusBadge}</td>
-          <td>
-            <div class="table-actions">
-              <button class="btn btn-outline btn-sm" onclick="openDcModal('${dc.id}')">✏️</button>
-              <button class="btn btn-${dc.is_active ? "warning" : "success"} btn-sm" onclick="toggleDcActive('${dc.id}', ${dc.is_active})">${dc.is_active ? "⛔" : "✅"}</button>
-              <button class="btn btn-danger btn-sm" onclick="deleteDc('${dc.id}', '${escapeHtml(dc.code).replace(/'/g, "\\'")}')">🗑</button>
-            </div>
-          </td>
-        </tr>`;
-          })
-          .join("");
-      }
-
-      function openDcModal(dcId) {
-        const errEl = document.getElementById("dc-modal-error");
-        errEl.style.display = "none";
-        if (!dcId) {
-          document.getElementById("dc-modal-title").textContent = "➕ إضافة كود خصم";
-          document.getElementById("dc-submit-btn").textContent = "إضافة الكود";
-          document.getElementById("dc-id").value = "";
-          document.getElementById("dc-form").reset();
-          document.getElementById("dc-type").value = "percentage";
-          document.getElementById("dc-active").checked = true;
-        } else {
-          const dc = allDiscountCodes.find((d) => d.id === dcId);
-          if (!dc) return;
-          document.getElementById("dc-modal-title").textContent = "✏️ تعديل كود الخصم";
-          document.getElementById("dc-submit-btn").textContent = "حفظ التعديلات";
-          document.getElementById("dc-id").value = dc.id;
-          document.getElementById("dc-code").value = dc.code || "";
-          document.getElementById("dc-type").value = dc.discount_type || "percentage";
-          document.getElementById("dc-value").value = dc.discount_value || 0;
-          document.getElementById("dc-max-uses").value = dc.max_uses ?? "";
-          document.getElementById("dc-expires").value = toDateOnlyInput(dc.expires_at);
-          document.getElementById("dc-notes").value = dc.notes || "";
-          document.getElementById("dc-active").checked = dc.is_active !== false;
-        }
-        openModal("dc-modal");
-      }
-
-      async function submitDc(e) {
-        e.preventDefault();
-        const btn = document.getElementById("dc-submit-btn");
-        const errEl = document.getElementById("dc-modal-error");
-        errEl.style.display = "none";
-        btn.disabled = true;
-        btn.innerHTML = '<span class="spinner"></span> جارٍ الحفظ...';
-
-        const isEdit = !!document.getElementById("dc-id").value;
-        try {
-          const code = document.getElementById("dc-code").value.trim().toUpperCase();
-          if (!code) throw new Error("الكود مطلوب");
-          const maxUsesRaw = document.getElementById("dc-max-uses").value;
-          const expiresRaw = document.getElementById("dc-expires").value;
-
-          const payload = {
-            code,
-            discount_type: document.getElementById("dc-type").value,
-            discount_value: parseFloat(document.getElementById("dc-value").value) || 0,
-            max_uses: maxUsesRaw ? parseInt(maxUsesRaw) : null,
-            expires_at: expiresRaw ? new Date(expiresRaw + "T23:59:59").toISOString() : null,
-            notes: document.getElementById("dc-notes").value.trim(),
-            is_active: document.getElementById("dc-active").checked,
-          };
-
-          let result;
-          if (isEdit) {
-            result = await supabase.from("discount_codes").update(payload).eq("id", document.getElementById("dc-id").value);
-          } else {
-            result = await supabase.from("discount_codes").insert(payload);
-          }
-          if (result.error) {
-            if (result.error.code === "23505") throw new Error("هذا الكود مستخدم بالفعل، اختر كودًا مختلفًا");
-            throw result.error;
-          }
-
-          closeModal("dc-modal");
-          showToast(isEdit ? "تم تحديث الكود ✅" : "تم إضافة الكود ✅", "success");
-          await loadDiscountCodes();
-        } catch (err) {
-          errEl.textContent = err.message;
-          errEl.style.display = "block";
-        } finally {
-          btn.disabled = false;
-          btn.textContent = isEdit ? "حفظ التعديلات" : "إضافة الكود";
-        }
-      }
-
-      async function toggleDcActive(dcId, isActive) {
-        try {
-          const { error } = await supabase.from("discount_codes").update({ is_active: !isActive }).eq("id", dcId);
-          if (error) throw error;
-          showToast(isActive ? "⛔ تم تعطيل الكود" : "✅ تم تفعيل الكود", "success");
-          await loadDiscountCodes();
-        } catch (e) {
-          showToast(`خطأ: ${e.message}`, "danger");
-        }
-      }
-
-      async function deleteDc(dcId, code) {
-        confirmDialog(`حذف كود الخصم "${code}" نهائيًا؟`, async () => {
-          try {
-            const { error } = await supabase.from("discount_codes").delete().eq("id", dcId);
-            if (error) throw error;
-            showToast("تم حذف الكود ✅", "success");
-            await loadDiscountCodes();
-          } catch (e) {
-            showToast(`خطأ: ${e.message}`, "danger");
-          }
-        });
-      }
-
-      /* ══════════════════════════════════════════
-         SUBSCRIPTION REQUESTS (subscription_requests)
-      ══════════════════════════════════════════ */
-      let allSubRequests = [];
-      const SR_STATUS_LABEL = { pending: "قيد المراجعة", active: "تم التفعيل", rejected: "مرفوض" };
-      const SR_STATUS_CLASS = { pending: "badge-pending", active: "badge-active", rejected: "badge-rejected" };
-
-      async function loadSubRequests() {
-        const loadEl = document.getElementById("sr-loading");
-        const tableEl = document.getElementById("sr-table");
-        const emptyEl = document.getElementById("sr-empty");
-        loadEl.style.display = "flex";
-        tableEl.style.display = "none";
-        emptyEl.style.display = "none";
-        try {
-          const { data, error } = await supabase
-            .from("subscription_requests")
-            .select("*")
-            .order("created_at", { ascending: false });
-          if (error) throw error;
-          allSubRequests = data || [];
-          updateSrPendingBadge();
-          renderSubRequests();
-        } catch (e) {
-          console.error("Subscription requests load error:", e);
-          showConnError(`خطأ في تحميل طلبات الاشتراك: ${e.message}`);
-        } finally {
-          loadEl.style.display = "none";
-        }
-      }
-
-      function updateSrPendingBadge() {
-        const pendingCount = allSubRequests.filter((r) => r.status === "pending").length;
-        const badge = document.getElementById("sr-pending-badge");
-        if (!badge) return;
-        if (pendingCount > 0) {
-          badge.textContent = pendingCount > 9 ? "9+" : pendingCount;
-          badge.style.display = "";
-        } else {
-          badge.style.display = "none";
-        }
-      }
-
-      function renderSubRequests() {
-        const tableEl = document.getElementById("sr-table");
-        const emptyEl = document.getElementById("sr-empty");
-        const statusFilter = document.getElementById("sr-status-filter").value;
-        const list = statusFilter ? allSubRequests.filter((r) => r.status === statusFilter) : allSubRequests;
-
-        document.getElementById("sr-count").textContent = list.length;
-
-        if (!list.length) {
-          tableEl.style.display = "none";
-          emptyEl.style.display = "";
-          return;
-        }
-        tableEl.style.display = "";
-        emptyEl.style.display = "none";
-
-        document.getElementById("sr-tbody").innerHTML = list
-          .map((r) => {
-            const waPhone = String(r.phone || "").replace(/[^0-9]/g, "");
-            const waMsg = encodeURIComponent(`مرحبًا ${r.full_name}، بخصوص طلب اشتراكك في باقة ${r.plan_name} على منصة مدرسك`);
-            return `
-        <tr>
-          <td><strong>${escapeHtml(r.full_name)}</strong>${r.email ? `<div style="font-size:.76rem;color:var(--text-muted)">${escapeHtml(r.email)}</div>` : ""}</td>
-          <td style="direction:ltr;text-align:right">${escapeHtml(r.phone || "—")}</td>
-          <td><span class="inline-badge badge-grade">${escapeHtml(r.plan_name)}</span><div style="font-size:.75rem;color:var(--text-muted);margin-top:2px">${r.duration_months === 1 ? "شهر" : r.duration_months + " شهور"}</div></td>
-          <td>${Number(r.original_price).toLocaleString("ar-EG")} ج</td>
-          <td>${r.discount_amount > 0 ? `<span style="color:var(--success);font-weight:700">- ${Number(r.discount_amount).toLocaleString("ar-EG")} ج</span>${r.discount_code ? `<div style="font-size:.72rem;color:var(--text-muted)">${escapeHtml(r.discount_code)}</div>` : ""}` : "—"}</td>
-          <td style="font-weight:800;color:var(--primary)">${Number(r.final_price).toLocaleString("ar-EG")} ج</td>
-          <td><span class="inline-badge ${SR_STATUS_CLASS[r.status] || ""}">${SR_STATUS_LABEL[r.status] || r.status}</span></td>
-          <td style="font-size:.8rem;color:var(--text-muted)">${timeAgo(r.created_at)}</td>
-          <td>
-            <div class="table-actions">
-              ${waPhone ? `<a class="btn btn-whatsapp btn-sm" href="https://wa.me/${waPhone}?text=${waMsg}" target="_blank" title="واتساب">💬</a>` : ""}
-              <button class="btn btn-outline btn-sm" onclick="openSrDetail('${r.id}')" title="التفاصيل">👁</button>
-              ${r.status !== "active" ? `<button class="btn btn-success btn-sm" onclick="changeSrStatus('${r.id}','active')" title="تفعيل">✅</button>` : ""}
-              ${r.status !== "rejected" ? `<button class="btn btn-danger btn-sm" onclick="changeSrStatus('${r.id}','rejected')" title="رفض">❌</button>` : ""}
-              ${r.status !== "pending" ? `<button class="btn btn-warning btn-sm" onclick="changeSrStatus('${r.id}','pending')" title="إرجاع للمراجعة">⏳</button>` : ""}
-            </div>
-          </td>
-        </tr>`;
-          })
-          .join("");
-      }
-
-      async function changeSrStatus(reqId, status) {
-        try {
-          const { error } = await supabase
-            .from("subscription_requests")
-            .update({ status })
-            .eq("id", reqId);
-          if (error) throw error;
-          showToast(`تم تحديث الحالة إلى: ${SR_STATUS_LABEL[status]} ✅`, "success");
-          await loadSubRequests();
-        } catch (e) {
-          showToast(`خطأ: ${e.message}`, "danger");
-        }
-      }
-
-      function openSrDetail(reqId) {
-        const r = allSubRequests.find((x) => x.id === reqId);
-        if (!r) return;
-        const waPhone = String(r.phone || "").replace(/[^0-9]/g, "");
-        const waMsg = encodeURIComponent(`مرحبًا ${r.full_name}، بخصوص طلب اشتراكك في باقة ${r.plan_name} على منصة مدرسك`);
-        const body = document.getElementById("sr-modal-body");
-        body.innerHTML = `
-          <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:16px">
-            <div class="form-group"><label class="form-label">الاسم</label><div class="form-control" style="background:var(--bg-soft)">${escapeHtml(r.full_name)}</div></div>
-            <div class="form-group"><label class="form-label">الهاتف</label><div class="form-control" style="background:var(--bg-soft);direction:ltr;text-align:right">${escapeHtml(r.phone || "—")}</div></div>
-            <div class="form-group"><label class="form-label">البريد الإلكتروني</label><div class="form-control" style="background:var(--bg-soft)">${escapeHtml(r.email || "—")}</div></div>
-            <div class="form-group"><label class="form-label">الباقة</label><div class="form-control" style="background:var(--bg-soft)">${escapeHtml(r.plan_name)} (${r.duration_months === 1 ? "شهر" : r.duration_months + " شهور"})</div></div>
-          </div>
-          <div style="background:var(--primary-bg);border:1px solid var(--primary-border);border-radius:var(--radius-md);padding:14px;margin-bottom:16px">
-            <div style="display:flex;justify-content:space-between;padding:4px 0;font-size:.88rem"><span>السعر الأصلي</span><strong>${Number(r.original_price).toLocaleString("ar-EG")} ج</strong></div>
-            ${r.discount_amount > 0 ? `<div style="display:flex;justify-content:space-between;padding:4px 0;font-size:.88rem;color:var(--success)"><span>الخصم ${r.discount_code ? "(" + escapeHtml(r.discount_code) + ")" : ""}</span><strong>- ${Number(r.discount_amount).toLocaleString("ar-EG")} ج</strong></div>` : ""}
-            <div style="display:flex;justify-content:space-between;padding:8px 0 0;margin-top:6px;border-top:1px solid var(--primary-border);font-size:1rem"><span style="font-weight:700">السعر النهائي</span><strong style="color:var(--primary);font-family:'Cairo',sans-serif;font-size:1.15rem">${Number(r.final_price).toLocaleString("ar-EG")} ج</strong></div>
-          </div>
-          <div class="form-group">
-            <label class="form-label">الحالة</label>
-            <select id="sr-detail-status" class="form-control form-select">
-              <option value="pending" ${r.status === "pending" ? "selected" : ""}>قيد المراجعة</option>
-              <option value="active" ${r.status === "active" ? "selected" : ""}>تم التفعيل</option>
-              <option value="rejected" ${r.status === "rejected" ? "selected" : ""}>مرفوض</option>
-            </select>
-          </div>
-          <div class="form-group">
-            <label class="form-label">ملاحظات الإدارة</label>
-            <textarea id="sr-detail-notes" class="form-control" rows="3" placeholder="ملاحظات داخلية...">${escapeHtml(r.admin_notes || "")}</textarea>
-          </div>
-          <div style="font-size:.78rem;color:var(--text-muted);margin-bottom:16px">📅 تاريخ الطلب: ${new Date(r.created_at).toLocaleString("ar-EG")}</div>
-          <div id="sr-detail-error" class="alert alert-danger" style="display:none"></div>
-          <div style="display:flex;gap:10px;justify-content:space-between;flex-wrap:wrap">
-            ${waPhone ? `<a class="btn btn-whatsapp" href="https://wa.me/${waPhone}?text=${waMsg}" target="_blank">💬 تواصل واتساب</a>` : "<span></span>"}
-            <div style="display:flex;gap:10px">
-              <button type="button" class="btn btn-ghost" onclick="closeModal('sr-modal')">إغلاق</button>
-              <button type="button" class="btn btn-primary" onclick="saveSrDetail('${r.id}')">💾 حفظ</button>
-            </div>
-          </div>`;
-        openModal("sr-modal");
-      }
-
-      async function saveSrDetail(reqId) {
-        const errEl = document.getElementById("sr-detail-error");
-        errEl.style.display = "none";
-        try {
-          const status = document.getElementById("sr-detail-status").value;
-          const admin_notes = document.getElementById("sr-detail-notes").value.trim();
-          const { error } = await supabase
-            .from("subscription_requests")
-            .update({ status, admin_notes })
-            .eq("id", reqId);
-          if (error) throw error;
-          closeModal("sr-modal");
-          showToast("تم حفظ التعديلات ✅", "success");
-          await loadSubRequests();
-        } catch (e) {
-          errEl.textContent = e.message;
-          errEl.style.display = "block";
-        }
-      }
-
-      // Close new modals on overlay click
-      ["pkg-modal", "dc-modal", "sr-modal"].forEach((id) => {
-        const el = document.getElementById(id);
-        if (el) el.addEventListener("click", (e) => { if (e.target === el) closeModal(id); });
-      });
-    </script>
 
   </body>
 </html>
