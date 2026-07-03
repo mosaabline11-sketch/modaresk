@@ -335,7 +335,7 @@
 <section class="hero">
   <div class="container">
     <div class="hero-content">
-      <div class="hero-badge" id="hero-badge">🚀 مدرسك في مرحلة الانطلاق — <span id="hero-count">0</span> مدرس متاح الآن</div>
+      <div class="hero-badge" id="hero-badge" style="display:none">🚀 مدرسك في مرحلة الانطلاق — <span id="hero-count">0</span> مدرس متاح الآن</div>
       <h1>
         ابحث عن <span class="highlight">مدرسك</span><br>المثالي بسهولة
       </h1>
@@ -363,7 +363,7 @@
       </div>
 
       <!-- Stats -->
-      <div class="hero-stats">
+      <div class="hero-stats" id="hero-stats" style="display:none">
         <div class="hero-stat"><div class="num" id="stat-ads">0</div><div class="lbl">إعلان نشط</div></div>
         <div class="hero-stat"><div class="num" id="stat-teachers">0</div><div class="lbl">مدرس متاح</div></div>
         <div class="hero-stat"><div class="num">10+</div><div class="lbl">مادة دراسية</div></div>
@@ -473,6 +473,7 @@
           <li><a href="login.html">تسجيل الدخول</a></li>
           <li><a href="privacy.html">سياسة الخصوصية</a></li>
           <li><a href="terms.html">شروط الاستخدام</a></li>
+          <li><a href="refund-policy.html">سياسة الاسترجاع</a></li>
         </ul>
       </div>
       <div>
@@ -518,6 +519,10 @@
   let searchQuery = '';
   let filterSubject = '';
   let filterGrade = '';
+
+  // الحد الأدنى لعدد المدرسين لإظهار شارة "أكثر من X مدرس" وإحصائيات "إعلان نشط / مدرس متاح"
+  // قبل الوصول لهذا الرقم تُخفى الشارة والإحصائيات تلقائيًا لتفادي إظهار أرقام صغيرة
+  const MIN_TEACHERS_TO_SHOW_COUNT = 30;
 
   // ── On Load ──
   document.addEventListener('DOMContentLoaded', async () => {
@@ -595,6 +600,16 @@
     }
   }
 
+  // إظهار/إخفاء شارة "أكثر من X مدرس" وإحصائيات "إعلان نشط / مدرس متاح"
+  // إلى حين وصول عدد المدرسين للحد الأدنى المحدد في MIN_TEACHERS_TO_SHOW_COUNT
+  function updateTeacherCountVisibility(teacherCount) {
+    const badge = document.getElementById('hero-badge');
+    const stats = document.getElementById('hero-stats');
+    const shouldShow = teacherCount >= MIN_TEACHERS_TO_SHOW_COUNT;
+    if (badge) badge.style.display = shouldShow ? '' : 'none';
+    if (stats) stats.style.display = shouldShow ? '' : 'none';
+  }
+
   async function updateNavAuth() {
     const teacher = Auth.getTeacherSession();
     let admin = null;
@@ -637,6 +652,9 @@
       document.getElementById('stat-ads').textContent = allAds.length;
       document.getElementById('stat-teachers').textContent = teacherIds.size;
       document.getElementById('hero-count').textContent = teacherIds.size;
+
+      // إظهار/إخفاء الشارة والإحصائيات حسب عدد المدرسين
+      updateTeacherCountVisibility(teacherIds.size);
 
     } catch (e) {
       console.error(e);
@@ -815,12 +833,14 @@
       }, 40);
     };
     setTimeout(() => {
+      const teacherCount = new Set(allAds.map(a => a.teacher_id)).size;
+      if (teacherCount < MIN_TEACHERS_TO_SHOW_COUNT) return; // العداد مخفي، لا داعي للأنيميشن
       const adsEl = document.getElementById('stat-ads');
       const teachersEl = document.getElementById('stat-teachers');
       const heroCount = document.getElementById('hero-count');
       animateNum(adsEl, allAds.length);
-      animateNum(teachersEl, new Set(allAds.map(a => a.teacher_id)).size);
-      animateNum(heroCount, new Set(allAds.map(a => a.teacher_id)).size);
+      animateNum(teachersEl, teacherCount);
+      animateNum(heroCount, teacherCount);
     }, 500);
   }
 
