@@ -254,6 +254,19 @@
   .hero-stats{grid-template-columns:repeat(2,1fr);}
   .home-kpi-grid{grid-template-columns:1fr 1fr;}
 }
+
+/* ── V9: إصلاحات overflow إضافية على الجوال ── */
+.hero-left, .kpi-card, .stats-kpi-card, .ads-stat, .astat, .hstat { min-width: 0; }
+.kpi-card, .stats-kpi-card { overflow: hidden; }
+.kpi-val, .stats-kpi-val, .hstat-val { overflow-wrap: anywhere; }
+.notif-dropdown, .more-dropdown { max-width: calc(100vw - 32px); }
+@media(max-width:480px){
+  .hero-left{min-width:0 !important;width:100%;}
+  .notif-dropdown{width:calc(100vw - 32px);max-width:320px;}
+  .dash-nav-right{gap:6px;}
+  .notif-btn,.more-btn{width:36px;height:36px;font-size:1rem;}
+  #nav-teacher-name{display:none;}
+}
 </style>
 </head>
 <body>
@@ -339,6 +352,9 @@
       </div>
     </div>
   </div>
+
+  <!-- Announcements Banner -->
+  <div id="ann-banner-wrap" style="margin-bottom:14px"></div>
 
   <!-- Subscription Banner -->
   <div id="subscription-banner"></div>

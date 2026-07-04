@@ -1135,3 +1135,302 @@ if (document.readyState === 'loading') {
 } else {
   applyAdminVisibility();
 }
+
+// ══════════════════════════════════════════════════════
+// نظام الرسائل الهامة (Announcements)
+// تُدار بالكامل من لوحة الإدارة: نص، نوع (بانر/عاجل)،
+// مدة الظهور، عدد مرات الظهور المسموحة لكل مدرس
+// ══════════════════════════════════════════════════════
+const Announcements = {
+
+  // جلب كل الرسائل السارية حاليًا (نشطة + ضمن الفترة الزمنية)
+  async fetchActive() {
+    try {
+      const nowIso = new Date().toISOString();
+      const { data, error } = await supabase
+        .from('announcements')
+        .select('*')
+        .eq('is_active', true)
+        .lte('start_date', nowIso)
+        .order('created_at', { ascending: false });
+      if (error) throw error;
+      return (data || []).filter(a => !a.end_date || new Date(a.end_date) >= new Date());
+    } catch (_) { return []; }
+  },
+
+  // جلب/إنشاء سجل المشاهدة الخاص بمدرس لرسالة معينة
+  async _getViewRecord(annId, teacherId) {
+    try {
+      const { data } = await supabase
+        .from('announcement_views')
+        .select('*')
+        .eq('announcement_id', annId)
+        .eq('teacher_id', teacherId)
+        .maybeSingle();
+      return data || null;
+    } catch (_) { return null; }
+  },
+
+  // هل يُسمح بعرض هذه الرسالة لهذا المدرس الآن؟
+  async canShow(ann, teacherId) {
+    if (!teacherId) return false;
+    const rec = await this._getViewRecord(ann.id, teacherId);
+    if (rec?.dismissed) return false; // المدرس أغلقها نهائيًا (خاص بالرسائل العاجلة)
+    if (ann.max_views != null && rec && rec.view_count >= ann.max_views) return false;
+    return true;
+  },
+
+  // تسجيل مشاهدة جديدة (تزيد العداد)
+  async recordView(annId, teacherId) {
+    if (!teacherId) return;
+    try {
+      const rec = await this._getViewRecord(annId, teacherId);
+      if (rec) {
+        await supabase.from('announcement_views')
+          .update({ view_count: rec.view_count + 1, last_viewed_at: new Date().toISOString() })
+          .eq('id', rec.id);
+      } else {
+        await supabase.from('announcement_views').insert({
+          announcement_id: annId, teacher_id: teacherId, view_count: 1,
+        });
+      }
+    } catch (_) {}
+  },
+
+  // تعليم الرسالة كمغلقة نهائيًا (لل urgent فقط، عند ضغط المدرس "فهمت")
+  async dismiss(annId, teacherId) {
+    if (!teacherId) return;
+    try {
+      const rec = await this._getViewRecord(annId, teacherId);
+      if (rec) {
+        await supabase.from('announcement_views').update({ dismissed: true }).eq('id', rec.id);
+      } else {
+        await supabase.from('announcement_views').insert({
+          announcement_id: annId, teacher_id: teacherId, view_count: 1, dismissed: true,
+        });
+      }
+    } catch (_) {}
+  },
+
+  // نقطة الدخول: تُستدعى من لوحة المدرس عند التحميل
+  // تعرض أول رسالة عاجلة صالحة كـ Popup، وكل الرسائل العادية كبانرات
+  async renderForTeacher(teacherId, bannerContainerId = 'ann-banner-wrap') {
+    if (!teacherId) return;
+    const all = await this.fetchActive();
+    if (!all.length) return;
+
+    const eligible = [];
+    for (const ann of all) {
+      if (await this.canShow(ann, teacherId)) eligible.push(ann);
+    }
+    if (!eligible.length) return;
+
+    const banners = eligible.filter(a => a.type === 'normal');
+    const urgents = eligible.filter(a => a.type === 'urgent');
+
+    // ── البانرات العادية ──
+    const box = document.getElementById(bannerContainerId);
+    if (box && banners.length) {
+      box.innerHTML = banners.map(a => `
+        <div class="ann-banner" data-ann-id="${a.id}">
+          <span class="ann-ico">📢</span>
+          <div class="ann-body">
+            <div class="ann-title">${escapeHtml(a.title)}</div>
+            <div>${nl2br(a.message)}</div>
+            ${a.link_url ? `<a href="${escapeHtml(a.link_url)}" target="_blank" class="ann-link">${escapeHtml(a.link_label || 'معرفة المزيد')} ←</a>` : ''}
+          </div>
+          <button class="ann-close" onclick="Announcements.closeBanner('${a.id}', this)" aria-label="إغلاق">✕</button>
+        </div>`).join('');
+      banners.forEach(a => this.recordView(a.id, teacherId));
+    }
+
+    // ── الرسالة العاجلة (Popup) — نعرض أول واحدة فقط لتفادي إزعاج المستخدم ──
+    if (urgents.length) {
+      this._showUrgentModal(urgents[0], teacherId);
+      this.recordView(urgents[0].id, teacherId);
+    }
+  },
+
+  closeBanner(annId, btnEl) {
+    btnEl.closest('.ann-banner')?.remove();
+  },
+
+  _showUrgentModal(ann, teacherId) {
+    const overlay = document.createElement('div');
+    overlay.className = 'ann-modal-overlay';
+    overlay.innerHTML = `
+      <div class="ann-modal">
+        <div class="ann-modal-head">
+          <span class="ico">🚨</span>
+          <h3>${escapeHtml(ann.title)}</h3>
+        </div>
+        <div class="ann-modal-body">${nl2br(ann.message)}</div>
+        <div class="ann-modal-foot">
+          ${ann.link_url ? `<a href="${escapeHtml(ann.link_url)}" target="_blank" class="btn btn-outline">${escapeHtml(ann.link_label || 'معرفة المزيد')}</a>` : ''}
+          <button class="btn btn-primary" id="ann-urgent-ok">فهمت ✓</button>
+        </div>
+      </div>`;
+    document.body.appendChild(overlay);
+    document.body.style.overflow = 'hidden';
+    const close = () => {
+      overlay.remove();
+      document.body.style.overflow = '';
+      this.dismiss(ann.id, teacherId);
+    };
+    overlay.querySelector('#ann-urgent-ok').onclick = close;
+  },
+};
+
+// ══════════════════════════════════════════════════════
+// نظام الاستطلاعات (Surveys) — تقييم بالنجوم + أسئلة مخصصة
+// يظهر للمدرس بعد مرور مدة محددة من تاريخ اشتراكه
+// ══════════════════════════════════════════════════════
+const Surveys = {
+
+  async fetchActive() {
+    try {
+      const { data, error } = await supabase
+        .from('surveys')
+        .select('*')
+        .eq('is_active', true)
+        .order('created_at', { ascending: false });
+      if (error) throw error;
+      return data || [];
+    } catch (_) { return []; }
+  },
+
+  async hasResponded(surveyId, teacherId) {
+    try {
+      const { data } = await supabase
+        .from('survey_responses')
+        .select('id')
+        .eq('survey_id', surveyId)
+        .eq('teacher_id', teacherId)
+        .maybeSingle();
+      return !!data;
+    } catch (_) { return false; }
+  },
+
+  async hasDismissed(surveyId, teacherId) {
+    try {
+      const { data } = await supabase
+        .from('survey_dismissals')
+        .select('id')
+        .eq('survey_id', surveyId)
+        .eq('teacher_id', teacherId)
+        .maybeSingle();
+      return !!data;
+    } catch (_) { return false; }
+  },
+
+  // نقطة الدخول: تُستدعى من لوحة المدرس. تعرض أول استطلاع مستحق
+  async checkAndShow(teacher) {
+    if (!teacher?.id) return;
+    const subStart = teacher.subscription_start ? new Date(teacher.subscription_start) : null;
+    if (!subStart) return;
+    const daysSince = Math.floor((Date.now() - subStart.getTime()) / 86400000);
+
+    const surveys = await this.fetchActive();
+    for (const s of surveys) {
+      if (daysSince < (s.trigger_days_after_subscription ?? 7)) continue;
+      if (await this.hasResponded(s.id, teacher.id)) continue;
+      if (await this.hasDismissed(s.id, teacher.id)) continue;
+      this._showModal(s, teacher.id);
+      return; // استطلاع واحد فقط في المرة الواحدة
+    }
+  },
+
+  _showModal(survey, teacherId) {
+    const questions = Array.isArray(survey.questions) ? survey.questions : [];
+    let selectedStar = 0;
+
+    const overlay = document.createElement('div');
+    overlay.className = 'survey-modal-overlay';
+    overlay.innerHTML = `
+      <div class="survey-modal">
+        <div class="survey-modal-head">
+          <h3>📝 ${escapeHtml(survey.title)}</h3>
+          ${survey.description ? `<p>${escapeHtml(survey.description)}</p>` : ''}
+        </div>
+        <div class="survey-modal-body">
+          ${survey.show_star_rating ? `
+            <div class="survey-stars" id="survey-stars">
+              ${[1,2,3,4,5].map(n => `<button type="button" class="survey-star-btn" data-v="${n}">★</button>`).join('')}
+            </div>` : ''}
+          <div id="survey-questions">
+            ${questions.map((q, i) => `
+              <div class="survey-q" data-qid="${escapeAttr(q.id || String(i))}">
+                <div class="survey-q-label">${escapeHtml(q.text || '')}</div>
+                ${q.type === 'text' ? `
+                  <textarea class="form-control" placeholder="اكتب إجابتك هنا..."></textarea>
+                ` : `
+                  <div class="survey-q-options">
+                    ${(q.options || []).map(opt => `
+                      <label class="survey-q-opt">
+                        <input type="radio" name="survey-q-${i}" value="${escapeAttr(opt)}">
+                        <span>${escapeHtml(opt)}</span>
+                      </label>`).join('')}
+                  </div>
+                `}
+              </div>`).join('')}
+          </div>
+        </div>
+        <div class="survey-modal-foot">
+          <button class="btn btn-ghost" id="survey-skip-btn">لاحقًا</button>
+          <button class="btn btn-primary" id="survey-submit-btn">إرسال التقييم</button>
+        </div>
+      </div>`;
+    document.body.appendChild(overlay);
+    document.body.style.overflow = 'hidden';
+
+    if (survey.show_star_rating) {
+      overlay.querySelectorAll('.survey-star-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          selectedStar = Number(btn.dataset.v);
+          overlay.querySelectorAll('.survey-star-btn').forEach(b => b.classList.toggle('active', Number(b.dataset.v) <= selectedStar));
+        });
+      });
+    }
+    overlay.querySelectorAll('.survey-q-opt').forEach(opt => {
+      opt.addEventListener('click', () => {
+        opt.closest('.survey-q-options').querySelectorAll('.survey-q-opt').forEach(o => o.classList.remove('checked'));
+        opt.classList.add('checked');
+      });
+    });
+
+    const close = () => { overlay.remove(); document.body.style.overflow = ''; };
+
+    overlay.querySelector('#survey-skip-btn').onclick = async () => {
+      try {
+        await supabase.from('survey_dismissals').insert({ survey_id: survey.id, teacher_id: teacherId });
+      } catch (_) {}
+      close();
+    };
+
+    overlay.querySelector('#survey-submit-btn').onclick = async () => {
+      const btn = overlay.querySelector('#survey-submit-btn');
+      btn.disabled = true; btn.textContent = 'جارٍ الإرسال...';
+      try {
+        const answers = [];
+        overlay.querySelectorAll('.survey-q').forEach(qEl => {
+          const qid = qEl.dataset.qid;
+          const textarea = qEl.querySelector('textarea');
+          const checked = qEl.querySelector('input[type="radio"]:checked');
+          const answer = textarea ? textarea.value.trim() : (checked ? checked.value : '');
+          if (answer) answers.push({ question_id: qid, answer });
+        });
+        await supabase.from('survey_responses').insert({
+          survey_id: survey.id,
+          teacher_id: teacherId,
+          star_rating: survey.show_star_rating ? (selectedStar || null) : null,
+          answers,
+        });
+        showToast('شكرًا لتقييمك! ✅', 'success');
+        close();
+      } catch (e) {
+        btn.disabled = false; btn.textContent = 'إرسال التقييم';
+        showToast('تعذّر إرسال التقييم، حاول مرة أخرى', 'danger');
+      }
+    };
+  },
+};

@@ -60,6 +60,9 @@ document.addEventListener('DOMContentLoaded', async () => {
   setupMainImagePositionControls();
   setupAvatarPreview();
   loadNotifDropdown();
+  // نظام الرسائل الهامة والاستطلاعات — بعد استقرار بيانات المدرس
+  try { await Announcements.renderForTeacher(teacher.id); } catch (_) {}
+  try { await Surveys.checkAndShow(teacher); } catch (_) {}
   // Load home stats async
   setTimeout(loadHomeStats, 600);
   // Close dropdowns on outside click

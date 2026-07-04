@@ -488,6 +488,20 @@
             >
           </li>
         </ul>
+        <div class="sidebar-divider"></div>
+        <div class="sidebar-section-title">التواصل مع المدرسين</div>
+        <ul class="sidebar-nav">
+          <li>
+            <a href="#" onclick="return showPane('pane-announcements', this);"
+              ><span class="icon">📢</span> الرسائل الهامة</a
+            >
+          </li>
+          <li>
+            <a href="#" onclick="return showPane('pane-surveys', this);"
+              ><span class="icon">📝</span> الاستطلاعات والتقييم</a
+            >
+          </li>
+        </ul>
       </aside>
 
       <!-- Content -->
@@ -855,7 +869,7 @@
             <h1>💳 طلبات الاسترجاع</h1>
             <p>راجع طلبات استرداد الاشتراكات، اقبل أو ارفض الطلب، وتابع حالته حتى الحل النهائي.</p>
           </div>
-          <div class="stats-row" id="rf-stats-row" style="grid-template-columns: repeat(4, 1fr)">
+          <div class="stats-row" id="rf-stats-row">
             <div class="astat">
               <div class="astat-icon" style="background: #eff6ff">📋</div>
               <div><div class="astat-num text-primary-color" id="rf-stat-total">0</div><div class="astat-label">إجمالي الطلبات</div></div>
@@ -1224,7 +1238,179 @@
           </div>
         </div>
 
+        <!-- ── Announcements Pane ── -->
+        <div class="admin-pane" id="pane-announcements">
+          <div class="admin-header">
+            <h1>📢 الرسائل الهامة</h1>
+            <p>رسائل تظهر للمدرسين عند دخول لوحتهم — كبانر عادي أو كنافذة عاجلة لازم يقفلها.</p>
+          </div>
+          <div class="panel">
+            <div class="panel-header">
+              <span class="panel-title">قائمة الرسائل (<span id="ann-count">0</span>)</span>
+              <button class="btn btn-primary btn-sm" onclick="openAnnModal()">+ إضافة رسالة</button>
+            </div>
+            <div id="ann-loading" class="loading-spinner" style="padding: 30px"><div class="spinner-lg"></div></div>
+            <div id="ann-list" style="padding: 20px; display: grid; gap: 14px"></div>
+            <div id="ann-empty" class="empty-state" style="display: none; padding: 40px">
+              <div class="empty-icon">📢</div>
+              <div class="empty-title">لا توجد رسائل بعد</div>
+              <button class="btn btn-primary mt-16" onclick="openAnnModal()">+ إضافة رسالة</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- ── Surveys Pane ── -->
+        <div class="admin-pane" id="pane-surveys">
+          <div class="admin-header">
+            <h1>📝 الاستطلاعات والتقييم</h1>
+            <p>استطلاعات تظهر للمدرس بعد مدة محددة من اشتراكه، مع تقييم بالنجوم وأسئلة مخصصة.</p>
+          </div>
+          <div class="panel">
+            <div class="panel-header">
+              <span class="panel-title">قائمة الاستطلاعات (<span id="srv-count">0</span>)</span>
+              <button class="btn btn-primary btn-sm" onclick="openSrvModal()">+ إضافة استطلاع</button>
+            </div>
+            <div id="srv-loading" class="loading-spinner" style="padding: 30px"><div class="spinner-lg"></div></div>
+            <div id="srv-list" style="padding: 20px; display: grid; gap: 14px"></div>
+            <div id="srv-empty" class="empty-state" style="display: none; padding: 40px">
+              <div class="empty-icon">📝</div>
+              <div class="empty-title">لا توجد استطلاعات بعد</div>
+              <button class="btn btn-primary mt-16" onclick="openSrvModal()">+ إضافة استطلاع</button>
+            </div>
+          </div>
+          <div class="panel" style="margin-top: 24px">
+            <div class="panel-header">
+              <span class="panel-title">📊 نتائج الاستطلاعات</span>
+              <select class="form-control form-select" id="srv-results-select" onchange="loadSurveyResults()" style="width: auto; padding: 8px 32px 8px 12px">
+                <option value="">اختر استطلاعاً لعرض نتائجه</option>
+              </select>
+            </div>
+            <div id="srv-results-content" style="padding: 20px">
+              <div class="empty-text" style="text-align:center;padding:20px">اختر استطلاعاً من القائمة أعلاه لعرض النتائج</div>
+            </div>
+          </div>
+        </div>
+
       </main>
+    </div>
+
+    <!-- ── Announcement Modal ── -->
+    <div class="modal-overlay" id="ann-modal">
+      <div class="modal">
+        <div class="modal-header">
+          <h3 class="modal-title" id="ann-modal-title">إضافة رسالة هامة</h3>
+          <button class="modal-close" onclick="closeModal('ann-modal')">✕</button>
+        </div>
+        <div class="modal-body">
+          <form id="ann-form" onsubmit="submitAnn(event)">
+            <input type="hidden" id="ann-id" />
+            <div class="form-group">
+              <label class="form-label">عنوان الرسالة <span class="required">*</span></label>
+              <input type="text" id="ann-title" class="form-control" required placeholder="مثال: صيانة مجدولة الليلة" />
+            </div>
+            <div class="form-group">
+              <label class="form-label">نص الرسالة <span class="required">*</span></label>
+              <textarea id="ann-message" class="form-control" rows="4" required placeholder="اكتب تفاصيل الرسالة..."></textarea>
+            </div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+              <div class="form-group">
+                <label class="form-label">نوع الرسالة <span class="required">*</span></label>
+                <select id="ann-type" class="form-control form-select">
+                  <option value="normal">📌 عادية (بانر أعلى اللوحة)</option>
+                  <option value="urgent">🚨 عاجلة (نافذة منبثقة لازم تُغلق)</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label class="form-label">عدد مرات الظهور لكل مدرس</label>
+                <input type="number" id="ann-max-views" class="form-control" min="1" placeholder="اتركه فارغاً لغير محدود" />
+              </div>
+            </div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+              <div class="form-group">
+                <label class="form-label">تاريخ البداية</label>
+                <input type="datetime-local" id="ann-start" class="form-control" />
+              </div>
+              <div class="form-group">
+                <label class="form-label">تاريخ النهاية</label>
+                <input type="datetime-local" id="ann-end" class="form-control" />
+                <div class="form-hint">اتركه فارغاً لعرض دائم بدون تاريخ انتهاء</div>
+              </div>
+            </div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+              <div class="form-group">
+                <label class="form-label">رابط إضافي (اختياري)</label>
+                <input type="url" id="ann-link-url" class="form-control" placeholder="https://..." dir="ltr" />
+              </div>
+              <div class="form-group">
+                <label class="form-label">نص زر الرابط</label>
+                <input type="text" id="ann-link-label" class="form-control" placeholder="معرفة المزيد" />
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="form-label" style="display:flex;align-items:center;gap:8px;cursor:pointer">
+                <input type="checkbox" id="ann-active" checked style="width:16px;height:16px" />
+                الرسالة مفعّلة (تظهر للمدرسين)
+              </label>
+            </div>
+            <div id="ann-modal-error" class="alert alert-danger" style="display:none"></div>
+            <div style="display:flex;gap:10px;justify-content:flex-end">
+              <button type="button" class="btn btn-ghost" onclick="closeModal('ann-modal')">إلغاء</button>
+              <button type="submit" class="btn btn-primary" id="ann-submit-btn">إضافة الرسالة</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── Survey Modal ── -->
+    <div class="modal-overlay" id="srv-modal">
+      <div class="modal" style="max-width:640px">
+        <div class="modal-header">
+          <h3 class="modal-title" id="srv-modal-title">إضافة استطلاع</h3>
+          <button class="modal-close" onclick="closeModal('srv-modal')">✕</button>
+        </div>
+        <div class="modal-body">
+          <form id="srv-form" onsubmit="submitSrv(event)">
+            <input type="hidden" id="srv-id" />
+            <div class="form-group">
+              <label class="form-label">عنوان الاستطلاع <span class="required">*</span></label>
+              <input type="text" id="srv-title" class="form-control" required placeholder="مثال: رأيك في تجربتك مع مدرسك" />
+            </div>
+            <div class="form-group">
+              <label class="form-label">وصف مختصر (اختياري)</label>
+              <input type="text" id="srv-description" class="form-control" placeholder="جملة قصيرة تشجّع المدرس على التقييم" />
+            </div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+              <div class="form-group">
+                <label class="form-label">يظهر بعد (أيام من الاشتراك) <span class="required">*</span></label>
+                <input type="number" id="srv-trigger-days" class="form-control" min="0" value="7" required />
+              </div>
+              <div class="form-group">
+                <label class="form-label" style="display:flex;align-items:center;gap:8px;cursor:pointer;margin-top:30px">
+                  <input type="checkbox" id="srv-show-stars" checked style="width:16px;height:16px" />
+                  تفعيل تقييم النجوم (1-5)
+                </label>
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="form-label">الأسئلة</label>
+              <div id="srv-questions-box" style="display:grid;gap:10px;margin-bottom:8px"></div>
+              <button type="button" class="btn btn-outline btn-sm" onclick="addSrvQuestion()">+ إضافة سؤال</button>
+            </div>
+            <div class="form-group">
+              <label class="form-label" style="display:flex;align-items:center;gap:8px;cursor:pointer">
+                <input type="checkbox" id="srv-active" checked style="width:16px;height:16px" />
+                الاستطلاع مفعّل
+              </label>
+            </div>
+            <div id="srv-modal-error" class="alert alert-danger" style="display:none"></div>
+            <div style="display:flex;gap:10px;justify-content:flex-end">
+              <button type="button" class="btn btn-ghost" onclick="closeModal('srv-modal')">إلغاء</button>
+              <button type="submit" class="btn btn-primary" id="srv-submit-btn">إضافة الاستطلاع</button>
+            </div>
+          </form>
+        </div>
+      </div>
     </div>
 
     <!-- ── Add/Edit Teacher Modal ── -->
@@ -3039,6 +3225,8 @@
         if (paneId === "pane-discounts")     loadDiscountCodes();
         if (paneId === "pane-sub-requests")  loadSubRequests();
         if (paneId === "pane-refunds")       loadRefundRequests();
+        if (paneId === "pane-announcements") loadAnnouncements();
+        if (paneId === "pane-surveys")       loadSurveys();
         return false;
       }
 
@@ -4436,6 +4624,473 @@
 
       // Close new modals on overlay click
       ["pkg-modal", "dc-modal", "sr-modal", "rf-modal"].forEach((id) => {
+        const el = document.getElementById(id);
+        if (el) el.addEventListener("click", (e) => { if (e.target === el) closeModal(id); });
+      });
+    </script>
+
+    <script>
+      /* ══════════════════════════════════════════════════
+         ANNOUNCEMENTS — الرسائل الهامة
+      ══════════════════════════════════════════════════ */
+      let allAnnouncements = [];
+
+      function toDatetimeLocalValue(dateLike) {
+        if (!dateLike) return "";
+        const d = new Date(dateLike);
+        if (isNaN(d)) return "";
+        const pad = (n) => String(n).padStart(2, "0");
+        return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
+      }
+
+      async function loadAnnouncements() {
+        const loadEl = document.getElementById("ann-loading");
+        loadEl.style.display = "flex";
+        try {
+          const { data, error } = await supabase
+            .from("announcements")
+            .select("*")
+            .order("created_at", { ascending: false });
+          if (error) throw error;
+          allAnnouncements = data || [];
+          renderAnnouncements();
+        } catch (e) {
+          showConnError(`خطأ في تحميل الرسائل: ${e.message}`);
+        } finally {
+          loadEl.style.display = "none";
+        }
+      }
+
+      function renderAnnouncements() {
+        const list = document.getElementById("ann-list");
+        const empty = document.getElementById("ann-empty");
+        document.getElementById("ann-count").textContent = allAnnouncements.length;
+
+        if (!allAnnouncements.length) {
+          list.innerHTML = "";
+          empty.style.display = "";
+          return;
+        }
+        empty.style.display = "none";
+
+        const now = new Date();
+        list.innerHTML = allAnnouncements
+          .map((a) => {
+            const expired = a.end_date && new Date(a.end_date) < now;
+            const notStarted = a.start_date && new Date(a.start_date) > now;
+            let statusBadge = a.is_active
+              ? '<span class="inline-badge badge-active">✅ مفعّلة</span>'
+              : '<span class="inline-badge badge-rejected">⛔ معطّلة</span>';
+            if (a.is_active && expired) statusBadge = '<span class="inline-badge badge-rejected">⌛ منتهية</span>';
+            else if (a.is_active && notStarted) statusBadge = '<span class="inline-badge" style="background:#FEF3C7;color:#92400E">⏳ لم تبدأ بعد</span>';
+            const typeTag = a.type === "urgent"
+              ? '<span class="inline-badge" style="background:#FEE2E2;color:#991B1B">🚨 عاجلة</span>'
+              : '<span class="inline-badge badge-blue">📌 عادية</span>';
+            return `
+        <div class="panel" style="overflow:hidden">
+          <div style="padding:16px 20px">
+            <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:10px;flex-wrap:wrap">
+              <div style="flex:1;min-width:200px">
+                <div style="font-family:'Cairo',sans-serif;font-weight:800;font-size:1rem;margin-bottom:6px">${escapeHtml(a.title)}</div>
+                <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px">${typeTag}${statusBadge}${a.max_views ? `<span class="inline-badge" style="background:var(--bg-soft);color:var(--text-secondary)">👁 ${a.max_views} مرة/مدرس</span>` : '<span class="inline-badge" style="background:var(--bg-soft);color:var(--text-secondary)">👁 غير محدود</span>'}</div>
+                <div style="font-size:.86rem;color:var(--text-secondary);overflow-wrap:anywhere">${escapeHtml(a.message)}</div>
+                <div style="font-size:.76rem;color:var(--text-muted);margin-top:8px">
+                  ${a.start_date ? `من ${new Date(a.start_date).toLocaleString("ar-EG")}` : ""}
+                  ${a.end_date ? ` — إلى ${new Date(a.end_date).toLocaleString("ar-EG")}` : " — بدون تاريخ انتهاء"}
+                </div>
+              </div>
+              <div class="table-actions">
+                <button class="btn btn-outline btn-sm" onclick="openAnnModal('${a.id}')">✏️</button>
+                <button class="btn btn-${a.is_active ? "warning" : "success"} btn-sm" onclick="toggleAnnActive('${a.id}', ${a.is_active})">${a.is_active ? "⛔" : "✅"}</button>
+                <button class="btn btn-danger btn-sm" onclick="deleteAnn('${a.id}', '${escapeHtml(a.title).replace(/'/g, "\\'")}')">🗑</button>
+              </div>
+            </div>
+          </div>
+        </div>`;
+          })
+          .join("");
+      }
+
+      function openAnnModal(annId) {
+        const errEl = document.getElementById("ann-modal-error");
+        errEl.style.display = "none";
+        if (!annId) {
+          document.getElementById("ann-modal-title").textContent = "➕ إضافة رسالة هامة";
+          document.getElementById("ann-submit-btn").textContent = "إضافة الرسالة";
+          document.getElementById("ann-id").value = "";
+          document.getElementById("ann-form").reset();
+          document.getElementById("ann-type").value = "normal";
+          document.getElementById("ann-active").checked = true;
+          document.getElementById("ann-start").value = toDatetimeLocalValue(new Date());
+          document.getElementById("ann-end").value = "";
+        } else {
+          const a = allAnnouncements.find((x) => x.id === annId);
+          if (!a) return;
+          document.getElementById("ann-modal-title").textContent = "✏️ تعديل الرسالة";
+          document.getElementById("ann-submit-btn").textContent = "حفظ التعديلات";
+          document.getElementById("ann-id").value = a.id;
+          document.getElementById("ann-title").value = a.title || "";
+          document.getElementById("ann-message").value = a.message || "";
+          document.getElementById("ann-type").value = a.type || "normal";
+          document.getElementById("ann-max-views").value = a.max_views ?? "";
+          document.getElementById("ann-start").value = toDatetimeLocalValue(a.start_date);
+          document.getElementById("ann-end").value = toDatetimeLocalValue(a.end_date);
+          document.getElementById("ann-link-url").value = a.link_url || "";
+          document.getElementById("ann-link-label").value = a.link_label || "";
+          document.getElementById("ann-active").checked = a.is_active !== false;
+        }
+        openModal("ann-modal");
+      }
+
+      async function submitAnn(e) {
+        e.preventDefault();
+        const btn = document.getElementById("ann-submit-btn");
+        const errEl = document.getElementById("ann-modal-error");
+        errEl.style.display = "none";
+        btn.disabled = true;
+        btn.innerHTML = '<span class="spinner"></span> جارٍ الحفظ...';
+
+        const isEdit = !!document.getElementById("ann-id").value;
+        try {
+          const maxViewsRaw = document.getElementById("ann-max-views").value;
+          const startRaw = document.getElementById("ann-start").value;
+          const endRaw = document.getElementById("ann-end").value;
+
+          const payload = {
+            title: document.getElementById("ann-title").value.trim(),
+            message: document.getElementById("ann-message").value.trim(),
+            type: document.getElementById("ann-type").value,
+            max_views: maxViewsRaw ? parseInt(maxViewsRaw) : null,
+            start_date: startRaw ? new Date(startRaw).toISOString() : new Date().toISOString(),
+            end_date: endRaw ? new Date(endRaw).toISOString() : null,
+            link_url: document.getElementById("ann-link-url").value.trim() || null,
+            link_label: document.getElementById("ann-link-label").value.trim() || null,
+            is_active: document.getElementById("ann-active").checked,
+          };
+          if (!payload.title) throw new Error("عنوان الرسالة مطلوب");
+          if (!payload.message) throw new Error("نص الرسالة مطلوب");
+
+          let result;
+          if (isEdit) {
+            result = await supabase.from("announcements").update(payload).eq("id", document.getElementById("ann-id").value);
+          } else {
+            result = await supabase.from("announcements").insert(payload);
+          }
+          if (result.error) throw result.error;
+
+          closeModal("ann-modal");
+          showToast(isEdit ? "تم تحديث الرسالة ✅" : "تم إضافة الرسالة ✅", "success");
+          await loadAnnouncements();
+        } catch (err) {
+          errEl.textContent = err.message;
+          errEl.style.display = "block";
+        } finally {
+          btn.disabled = false;
+          btn.textContent = isEdit ? "حفظ التعديلات" : "إضافة الرسالة";
+        }
+      }
+
+      async function toggleAnnActive(annId, isActive) {
+        try {
+          const { error } = await supabase.from("announcements").update({ is_active: !isActive }).eq("id", annId);
+          if (error) throw error;
+          showToast(isActive ? "⛔ تم تعطيل الرسالة" : "✅ تم تفعيل الرسالة", "success");
+          await loadAnnouncements();
+        } catch (e) {
+          showToast(`خطأ: ${e.message}`, "danger");
+        }
+      }
+
+      async function deleteAnn(annId, title) {
+        confirmDialog(`حذف رسالة "${title}" نهائيًا؟`, async () => {
+          try {
+            const { error } = await supabase.from("announcements").delete().eq("id", annId);
+            if (error) throw error;
+            showToast("تم حذف الرسالة ✅", "success");
+            await loadAnnouncements();
+          } catch (e) {
+            showToast(`خطأ: ${e.message}`, "danger");
+          }
+        });
+      }
+
+      /* ══════════════════════════════════════════════════
+         SURVEYS — الاستطلاعات والتقييم
+      ══════════════════════════════════════════════════ */
+      let allSurveys = [];
+      let srvQuestionCounter = 0;
+
+      async function loadSurveys() {
+        const loadEl = document.getElementById("srv-loading");
+        loadEl.style.display = "flex";
+        try {
+          const { data, error } = await supabase
+            .from("surveys")
+            .select("*")
+            .order("created_at", { ascending: false });
+          if (error) throw error;
+          allSurveys = data || [];
+          renderSurveys();
+          populateSurveyResultsSelect();
+        } catch (e) {
+          showConnError(`خطأ في تحميل الاستطلاعات: ${e.message}`);
+        } finally {
+          loadEl.style.display = "none";
+        }
+      }
+
+      function srvQuestionsArray(s) {
+        if (Array.isArray(s.questions)) return s.questions;
+        if (typeof s.questions === "string") {
+          try { const p = JSON.parse(s.questions || "[]"); return Array.isArray(p) ? p : []; }
+          catch (_) { return []; }
+        }
+        return [];
+      }
+
+      function renderSurveys() {
+        const list = document.getElementById("srv-list");
+        const empty = document.getElementById("srv-empty");
+        document.getElementById("srv-count").textContent = allSurveys.length;
+
+        if (!allSurveys.length) {
+          list.innerHTML = "";
+          empty.style.display = "";
+          return;
+        }
+        empty.style.display = "none";
+
+        list.innerHTML = allSurveys
+          .map((s) => {
+            const qs = srvQuestionsArray(s);
+            const statusBadge = s.is_active
+              ? '<span class="inline-badge badge-active">✅ مفعّل</span>'
+              : '<span class="inline-badge badge-rejected">⛔ معطّل</span>';
+            return `
+        <div class="panel" style="overflow:hidden">
+          <div style="padding:16px 20px">
+            <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:10px;flex-wrap:wrap">
+              <div style="flex:1;min-width:200px">
+                <div style="font-family:'Cairo',sans-serif;font-weight:800;font-size:1rem;margin-bottom:6px">${escapeHtml(s.title)}</div>
+                <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px">
+                  ${statusBadge}
+                  <span class="inline-badge" style="background:var(--bg-soft);color:var(--text-secondary)">⏱ بعد ${s.trigger_days_after_subscription} يوم من الاشتراك</span>
+                  ${s.show_star_rating ? '<span class="inline-badge" style="background:#FFFBEB;color:#92400E">⭐ تقييم نجوم</span>' : ""}
+                  <span class="inline-badge" style="background:var(--bg-soft);color:var(--text-secondary)">❓ ${qs.length} سؤال</span>
+                </div>
+                ${s.description ? `<div style="font-size:.85rem;color:var(--text-secondary)">${escapeHtml(s.description)}</div>` : ""}
+              </div>
+              <div class="table-actions">
+                <button class="btn btn-outline btn-sm" onclick="openSrvModal('${s.id}')">✏️</button>
+                <button class="btn btn-${s.is_active ? "warning" : "success"} btn-sm" onclick="toggleSrvActive('${s.id}', ${s.is_active})">${s.is_active ? "⛔" : "✅"}</button>
+                <button class="btn btn-danger btn-sm" onclick="deleteSrv('${s.id}', '${escapeHtml(s.title).replace(/'/g, "\\'")}')">🗑</button>
+              </div>
+            </div>
+          </div>
+        </div>`;
+          })
+          .join("");
+      }
+
+      function openSrvModal(srvId) {
+        const errEl = document.getElementById("srv-modal-error");
+        errEl.style.display = "none";
+        document.getElementById("srv-questions-box").innerHTML = "";
+        srvQuestionCounter = 0;
+
+        if (!srvId) {
+          document.getElementById("srv-modal-title").textContent = "➕ إضافة استطلاع";
+          document.getElementById("srv-submit-btn").textContent = "إضافة الاستطلاع";
+          document.getElementById("srv-id").value = "";
+          document.getElementById("srv-form").reset();
+          document.getElementById("srv-trigger-days").value = 7;
+          document.getElementById("srv-show-stars").checked = true;
+          document.getElementById("srv-active").checked = true;
+        } else {
+          const s = allSurveys.find((x) => x.id === srvId);
+          if (!s) return;
+          document.getElementById("srv-modal-title").textContent = "✏️ تعديل الاستطلاع";
+          document.getElementById("srv-submit-btn").textContent = "حفظ التعديلات";
+          document.getElementById("srv-id").value = s.id;
+          document.getElementById("srv-title").value = s.title || "";
+          document.getElementById("srv-description").value = s.description || "";
+          document.getElementById("srv-trigger-days").value = s.trigger_days_after_subscription ?? 7;
+          document.getElementById("srv-show-stars").checked = !!s.show_star_rating;
+          document.getElementById("srv-active").checked = s.is_active !== false;
+          srvQuestionsArray(s).forEach((q) => addSrvQuestion(q));
+        }
+        openModal("srv-modal");
+      }
+
+      function addSrvQuestion(existing) {
+        srvQuestionCounter++;
+        const qid = existing?.id || `q${Date.now()}_${srvQuestionCounter}`;
+        const box = document.getElementById("srv-questions-box");
+        const wrap = document.createElement("div");
+        wrap.className = "srv-question-item";
+        wrap.dataset.qid = qid;
+        wrap.style.cssText = "border:1px solid var(--border);border-radius:var(--radius-md);padding:12px;background:var(--bg-light)";
+        const isText = existing?.type === "text";
+        wrap.innerHTML = `
+          <div style="display:flex;gap:8px;margin-bottom:8px">
+            <input type="text" class="form-control srv-q-text" placeholder="نص السؤال" value="${existing ? escapeAttr(existing.text || "") : ""}" style="flex:1">
+            <select class="form-control form-select srv-q-type" style="max-width:150px" onchange="toggleSrvQOptions(this)">
+              <option value="choice" ${!isText ? "selected" : ""}>اختيار من متعدد</option>
+              <option value="text" ${isText ? "selected" : ""}>إجابة نصية حرة</option>
+            </select>
+            <button type="button" class="btn btn-danger btn-sm" onclick="this.closest('.srv-question-item').remove()">🗑</button>
+          </div>
+          <div class="srv-q-options-wrap" style="${isText ? "display:none" : ""}">
+            <input type="text" class="form-control srv-q-options" placeholder="الخيارات مفصولة بفاصلة، مثال: ممتاز، جيد، ضعيف" value="${existing && existing.options ? escapeAttr(existing.options.join("، ")) : ""}">
+          </div>`;
+        box.appendChild(wrap);
+      }
+
+      function toggleSrvQOptions(selectEl) {
+        const wrap = selectEl.closest(".srv-question-item").querySelector(".srv-q-options-wrap");
+        wrap.style.display = selectEl.value === "text" ? "none" : "";
+      }
+
+      async function submitSrv(e) {
+        e.preventDefault();
+        const btn = document.getElementById("srv-submit-btn");
+        const errEl = document.getElementById("srv-modal-error");
+        errEl.style.display = "none";
+        btn.disabled = true;
+        btn.innerHTML = '<span class="spinner"></span> جارٍ الحفظ...';
+
+        const isEdit = !!document.getElementById("srv-id").value;
+        try {
+          const questions = Array.from(document.querySelectorAll("#srv-questions-box .srv-question-item")).map((item) => {
+            const text = item.querySelector(".srv-q-text").value.trim();
+            const type = item.querySelector(".srv-q-type").value;
+            const optionsRaw = item.querySelector(".srv-q-options")?.value || "";
+            const options = type === "choice" ? optionsRaw.split(/[،,]/).map((o) => o.trim()).filter(Boolean) : [];
+            return { id: item.dataset.qid, text, type, options };
+          }).filter((q) => q.text);
+
+          const payload = {
+            title: document.getElementById("srv-title").value.trim(),
+            description: document.getElementById("srv-description").value.trim() || null,
+            trigger_days_after_subscription: parseInt(document.getElementById("srv-trigger-days").value) || 0,
+            show_star_rating: document.getElementById("srv-show-stars").checked,
+            questions,
+            is_active: document.getElementById("srv-active").checked,
+          };
+          if (!payload.title) throw new Error("عنوان الاستطلاع مطلوب");
+
+          let result;
+          if (isEdit) {
+            result = await supabase.from("surveys").update(payload).eq("id", document.getElementById("srv-id").value);
+          } else {
+            result = await supabase.from("surveys").insert(payload);
+          }
+          if (result.error) throw result.error;
+
+          closeModal("srv-modal");
+          showToast(isEdit ? "تم تحديث الاستطلاع ✅" : "تم إضافة الاستطلاع ✅", "success");
+          await loadSurveys();
+        } catch (err) {
+          errEl.textContent = err.message;
+          errEl.style.display = "block";
+        } finally {
+          btn.disabled = false;
+          btn.textContent = isEdit ? "حفظ التعديلات" : "إضافة الاستطلاع";
+        }
+      }
+
+      async function toggleSrvActive(srvId, isActive) {
+        try {
+          const { error } = await supabase.from("surveys").update({ is_active: !isActive }).eq("id", srvId);
+          if (error) throw error;
+          showToast(isActive ? "⛔ تم تعطيل الاستطلاع" : "✅ تم تفعيل الاستطلاع", "success");
+          await loadSurveys();
+        } catch (e) {
+          showToast(`خطأ: ${e.message}`, "danger");
+        }
+      }
+
+      async function deleteSrv(srvId, title) {
+        confirmDialog(`حذف استطلاع "${title}" نهائيًا؟ سيتم حذف جميع الردود المرتبطة به.`, async () => {
+          try {
+            const { error } = await supabase.from("surveys").delete().eq("id", srvId);
+            if (error) throw error;
+            showToast("تم حذف الاستطلاع ✅", "success");
+            await loadSurveys();
+          } catch (e) {
+            showToast(`خطأ: ${e.message}`, "danger");
+          }
+        });
+      }
+
+      function populateSurveyResultsSelect() {
+        const sel = document.getElementById("srv-results-select");
+        if (!sel) return;
+        const current = sel.value;
+        sel.innerHTML = '<option value="">اختر استطلاعاً لعرض نتائجه</option>' +
+          allSurveys.map((s) => `<option value="${s.id}">${escapeHtml(s.title)}</option>`).join("");
+        if (current) sel.value = current;
+      }
+
+      async function loadSurveyResults() {
+        const srvId = document.getElementById("srv-results-select").value;
+        const box = document.getElementById("srv-results-content");
+        if (!srvId) {
+          box.innerHTML = '<div class="empty-text" style="text-align:center;padding:20px">اختر استطلاعاً من القائمة أعلاه لعرض النتائج</div>';
+          return;
+        }
+        box.innerHTML = '<div class="loading-spinner" style="padding:20px"><div class="spinner-lg"></div></div>';
+        try {
+          const survey = allSurveys.find((s) => s.id === srvId);
+          const { data, error } = await supabase
+            .from("survey_responses")
+            .select("*, teachers(name)")
+            .eq("survey_id", srvId)
+            .order("created_at", { ascending: false });
+          if (error) throw error;
+          const responses = data || [];
+
+          if (!responses.length) {
+            box.innerHTML = '<div class="empty-text" style="text-align:center;padding:20px">لا توجد ردود على هذا الاستطلاع بعد</div>';
+            return;
+          }
+
+          const withStars = responses.filter((r) => r.star_rating);
+          const avgStar = withStars.length
+            ? (withStars.reduce((a, r) => a + r.star_rating, 0) / withStars.length).toFixed(1)
+            : null;
+
+          const questions = srvQuestionsArray(survey || {});
+
+          let html = `<div style="display:flex;gap:14px;flex-wrap:wrap;margin-bottom:18px">
+            <div class="stat-mini-card" style="flex:1;min-width:140px"><div class="num">${responses.length}</div><div class="lbl">إجمالي الردود</div></div>
+            ${avgStar ? `<div class="stat-mini-card" style="flex:1;min-width:140px"><div class="num">⭐ ${avgStar}</div><div class="lbl">متوسط التقييم</div></div>` : ""}
+          </div>`;
+
+          html += `<div class="table-wrapper"><table class="table"><thead><tr>
+            <th>المدرس</th><th>التقييم</th>${questions.map((q) => `<th>${escapeHtml(q.text)}</th>`).join("")}<th>التاريخ</th>
+          </tr></thead><tbody>`;
+
+          html += responses.map((r) => {
+            const answersMap = {};
+            (r.answers || []).forEach((a) => { answersMap[a.question_id] = a.answer; });
+            return `<tr>
+              <td><strong>${escapeHtml(r.teachers?.name || "—")}</strong></td>
+              <td>${r.star_rating ? "⭐".repeat(r.star_rating) : "—"}</td>
+              ${questions.map((q) => `<td style="max-width:200px;overflow-wrap:anywhere">${escapeHtml(answersMap[q.id] || "—")}</td>`).join("")}
+              <td style="font-size:.8rem;color:var(--text-muted)">${timeAgo(r.created_at)}</td>
+            </tr>`;
+          }).join("");
+
+          html += "</tbody></table></div>";
+          box.innerHTML = html;
+        } catch (e) {
+          box.innerHTML = `<div class="alert alert-danger">❌ تعذّر تحميل النتائج: ${escapeHtml(e.message)}</div>`;
+        }
+      }
+
+      // Close new modals on overlay click
+      ["ann-modal", "srv-modal"].forEach((id) => {
         const el = document.getElementById(id);
         if (el) el.addEventListener("click", (e) => { if (e.target === el) closeModal(id); });
       });
