@@ -1073,3 +1073,10 @@ function openTeacherProfile() {
   else if (anyAd) window.open('teacher.html?ad=' + anyAd.id + '&preview=1', '_blank');
   else window.open('teacher.html?id=' + teacher.id, '_blank');
 }
+
+function logout() {
+  confirmDialog('هل تريد تسجيل الخروج من حسابك؟', () => {
+    Auth.clearTeacher();
+    window.location.href = 'login.html?role=teacher';
+  });
+}
