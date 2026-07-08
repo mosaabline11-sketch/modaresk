@@ -766,11 +766,10 @@
         });
         if (error) throw error;
 
-        // 2) تحديث عداد كود الخصم
+        // 2) تسجيل استخدام كود الخصم عبر RPC آمن (يتحقق من الصلاحية والحد الأقصى
+        //    ويزيد العداد بشكل ذري من داخل قاعدة البيانات بدل تعديل الصف مباشرة)
         if (appliedDiscount) {
-          await supabase.from('discount_codes')
-            .update({ used_count: (appliedDiscount.used_count || 0) + 1 })
-            .eq('id', appliedDiscount.id);
+          await supabase.rpc('redeem_discount_code', { p_code: appliedDiscount.code });
         }
 
         // 3) بناء رسالة واتساب

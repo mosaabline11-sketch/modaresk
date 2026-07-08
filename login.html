@@ -304,20 +304,22 @@
   async function loginTeacher(username, password) {
     const passwordHash = await sha256(password);
 
-    const { data, error } = await supabase
-      .from('teachers')
-      .select('id, username, name, ads_limit, is_active')
-      .eq('username', username)
-      .eq('password_hash', passwordHash)
-      .eq('is_active', true)
-      .single();
+    // ملاحظة أمان: تسجيل الدخول لم يعد يقرأ password_hash مباشرة من الجدول.
+    // المطابقة تتم داخل دالة teacher_login (SECURITY DEFINER) في Supabase،
+    // حتى لا يحتاج مفتاح anon العام لصلاحية قراءة أي عمود بيانات اعتماد.
+    const { data, error } = await supabase.rpc('teacher_login', {
+      p_username: username,
+      p_password_hash: passwordHash,
+    });
 
-    if (error || !data) {
+    const row = Array.isArray(data) ? data[0] : data;
+
+    if (error || !row) {
       throw new Error('اسم المستخدم أو كلمة المرور غير صحيحة');
     }
 
-    Auth.setTeacherSession(data);
-    showToast(`أهلاً ${data.name}! ✅`, 'success');
+    Auth.setTeacherSession(row);
+    showToast(`أهلاً ${row.name}! ✅`, 'success');
     setTimeout(() => window.location.href = 'dashboard.html', 800);
   }
 
