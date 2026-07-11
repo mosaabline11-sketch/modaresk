@@ -9,7 +9,7 @@
   <title>لوحة المدرس - مدرسك</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800;900&family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="style.css?v=7.6.0">
+  <link rel="stylesheet" href="style.css?v=7.9.0">
   <link rel="icon" type="image/png" href="logo.png">
   <link rel="manifest" href="manifest.webmanifest">
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
@@ -30,9 +30,19 @@
 .notif-item{padding:11px 16px;border-bottom:1px solid var(--border-light);transition:background .15s;}
 .notif-item:hover{background:var(--bg-soft);}
 .notif-item:last-child{border-bottom:none;}
-.notif-item-title{font-weight:600;font-size:.83rem;color:var(--text-primary);margin-bottom:2px;}
+.notif-item.notif-item-unread{background:var(--primary-bg);}
+.notif-item-title{font-weight:600;font-size:.83rem;color:var(--text-primary);margin-bottom:2px;display:flex;align-items:center;gap:6px;}
 .notif-item-msg{font-size:.77rem;color:var(--text-secondary);line-height:1.5;overflow-wrap:anywhere;}
 .notif-item-date{font-size:.68rem;color:var(--text-muted);margin-top:3px;}
+.notif-dot{width:7px;height:7px;border-radius:50%;background:var(--danger);flex-shrink:0;display:inline-block;}
+
+/* ══ AD PICKER MODAL ══ */
+.ad-picker-item{width:100%;display:flex;align-items:center;justify-content:space-between;gap:10px;padding:13px 15px;border:1.5px solid var(--border);border-radius:var(--radius-md);background:white;cursor:pointer;transition:var(--transition);text-align:right;font-family:'Tajawal',sans-serif;margin-bottom:9px;}
+.ad-picker-item:last-child{margin-bottom:0;}
+.ad-picker-item:hover{border-color:var(--primary);background:var(--primary-bg);}
+.ad-picker-item-main{display:flex;flex-direction:column;gap:3px;min-width:0;flex:1;text-align:right;}
+.ad-picker-item-title{font-weight:700;font-size:.92rem;color:var(--text-primary);overflow-wrap:anywhere;}
+.ad-picker-item-meta{font-size:.78rem;color:var(--text-muted);}
 .notif-empty{padding:26px 16px;text-align:center;color:var(--text-muted);font-size:.86rem;}
 
 /* ══ MORE MENU ══ */
@@ -567,6 +577,17 @@
   <span id="teacher-points" style="display:none">0</span>
 </div>
 
+<!-- ══ AD PICKER MODAL ══ -->
+<div class="modal-overlay" id="ad-picker-modal">
+  <div class="modal" style="max-width:480px">
+    <div class="modal-header">
+      <h3 class="modal-title" id="ad-picker-title">اختر إعلانًا</h3>
+      <button class="modal-close" onclick="closeModal('ad-picker-modal')">✕</button>
+    </div>
+    <div class="modal-body" id="ad-picker-list"></div>
+  </div>
+</div>
+
 <!-- ══ AD MODAL ══ -->
 <div class="modal-overlay" id="ad-modal">
   <div class="modal">
@@ -613,7 +634,7 @@
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="config.js?v=7.6.0"></script>
-<script src="dashboard_logic.js?v=7.6.0"></script>
+<script src="config.js?v=7.9.0"></script>
+<script src="dashboard_logic.js?v=7.9.0"></script>
 </body>
 </html>

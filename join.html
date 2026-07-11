@@ -23,7 +23,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800;900&family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet" />
-    <link rel="stylesheet" href="style.css?v=7.8.0" />
+    <link rel="stylesheet" href="style.css?v=7.9.0" />
     <link rel="icon" type="image/png" href="logo.png" />
     <link rel="manifest" href="manifest.webmanifest" />
 
@@ -473,7 +473,7 @@
     </footer>
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <script src="config.js?v=7.8.0"></script>
+    <script src="config.js?v=7.9.0"></script>
     <script>
     /* ══════════════════════════════════════════════
        Join Page — Subscription System
@@ -742,15 +742,26 @@
       if (errEl) errEl.style.display = 'none';
 
       const price    = Number(selectedPlan.price);
-      const discAmt  = appliedDiscount ? calcDiscountAmt(price, appliedDiscount) : 0;
-      const final    = Math.max(0, price - discAmt);
 
       const btn = document.getElementById('subscribe-btn');
       btn.disabled = true;
       btn.innerHTML = '<span class="spinner"></span> جارٍ الإرسال...';
 
       try {
-        // 1) حفظ الطلب في Supabase
+        // 1) استرداد كود الخصم بأمان: يتحقق من صلاحيته ويزيد عدّاد استخدامه
+        //    ذرّيًا عبر دالة قاعدة بيانات (RPC)، بدل تحديث مباشر لم يعد
+        //    مسموحًا به لحماية الأكواد من التلاعب.
+        let discAmt = 0;
+        if (code) {
+          try {
+            const { data: redeemed, error: redeemErr } = await supabase.rpc('redeem_discount_code', { p_code: code });
+            const row = Array.isArray(redeemed) ? redeemed[0] : redeemed;
+            discAmt = (!redeemErr && row) ? calcDiscountAmt(price, row) : 0;
+          } catch (_) { discAmt = 0; }
+        }
+        const final = Math.max(0, price - discAmt);
+
+        // 2) حفظ الطلب في Supabase
         const { error } = await supabase.from('subscription_requests').insert({
           full_name:       name,
           phone:           phone,
@@ -759,18 +770,12 @@
           plan_name:       selectedPlan.name,
           duration_months: selectedPlan.duration_months,
           original_price:  price,
-          discount_code:   code || null,
+          discount_code:   (code && discAmt > 0) ? code : null,
           discount_amount: discAmt,
           final_price:     final,
           status:          'pending'
         });
         if (error) throw error;
-
-        // 2) تسجيل استخدام كود الخصم عبر RPC آمن (يتحقق من الصلاحية والحد الأقصى
-        //    ويزيد العداد بشكل ذري من داخل قاعدة البيانات بدل تعديل الصف مباشرة)
-        if (appliedDiscount) {
-          await supabase.rpc('redeem_discount_code', { p_code: appliedDiscount.code });
-        }
 
         // 3) بناء رسالة واتساب
         const waMsg = buildWhatsAppMessage({ name, phone, email, code, discAmt, final });

@@ -843,11 +843,18 @@ const _supabaseReady = (function () {
 })();
 
 // ── Auth Helpers ──
+// ملاحظة مهمة: جلسة المدرس تُحفظ في localStorage (وليس sessionStorage) حتى:
+//  1) تبقى موجودة بعد إغلاق المتصفح تمامًا وإعادة فتحه.
+//  2) تظهر في أي تاب/نافذة جديدة يفتحها المدرس لنفس الموقع، لا تاب واحد فقط.
+// مدة الصلاحية 30 يومًا، وتتجدد تلقائيًا مع أي نشاط (setTeacherSession تُستدعى
+// عند كل تحديث لبيانات المدرس، فتُعيد ضبط عداد الوقت).
+const TEACHER_SESSION_KEY = "teacher_session";
+const TEACHER_SESSION_MAX_AGE = 30 * 24 * 60 * 60 * 1000; // 30 يوم
+
 const Auth = {
-  // Store teacher session (old teacher login kept temporarily)
   setTeacherSession(teacher) {
-    sessionStorage.setItem(
-      "teacher_session",
+    localStorage.setItem(
+      TEACHER_SESSION_KEY,
       JSON.stringify({
         id: teacher.id,
         username: teacher.username,
@@ -859,9 +866,9 @@ const Auth = {
   },
   getTeacherSession() {
     try {
-      const s = JSON.parse(sessionStorage.getItem("teacher_session") || "null");
+      const s = JSON.parse(localStorage.getItem(TEACHER_SESSION_KEY) || "null");
       if (!s) return null;
-      if (Date.now() - s.ts > 8 * 60 * 60 * 1000) {
+      if (Date.now() - s.ts > TEACHER_SESSION_MAX_AGE) {
         this.clearTeacher();
         return null;
       }
@@ -871,7 +878,7 @@ const Auth = {
     }
   },
   clearTeacher() {
-    sessionStorage.removeItem("teacher_session");
+    localStorage.removeItem(TEACHER_SESSION_KEY);
   },
 
   // Admin now uses Supabase Auth + profiles.role = admin
@@ -1272,10 +1279,14 @@ const Announcements = {
       </div>`;
     document.body.appendChild(overlay);
     document.body.style.overflow = 'hidden';
+    // ملاحظة: لا نستدعي dismiss() هنا. الغلق بـ"فهمت" يُخفي النافذة لهذه
+    // الزيارة فقط؛ عدد مرات الظهور المسموحة (max_views) + view_count هو ما
+    // يتحكم فعليًا في متى تختفي الرسالة نهائيًا. سابقًا كان يُستدعى dismiss()
+    // هنا فيُسجَّل dismissed=true من أول ضغطة، فتختفي الرسالة العاجلة نهائيًا
+    // حتى لو كانت مضبوطة لتظهر 3 مرات مثلاً.
     const close = () => {
       overlay.remove();
       document.body.style.overflow = '';
-      this.dismiss(ann.id, teacherId);
     };
     overlay.querySelector('#ann-urgent-ok').onclick = close;
   },

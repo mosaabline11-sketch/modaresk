@@ -79,15 +79,27 @@ document.addEventListener('DOMContentLoaded', async () => {
 /* ══════════════════════════════════════
    NOTIFICATIONS
 ══════════════════════════════════════ */
+let notifReadIds = new Set();
+
 async function loadNotifDropdown() {
   try {
     const { data } = await supabase.from('notifications').select('*')
       .or('target.eq.teachers,target.eq.all')
       .order('created_at', {ascending: false}).limit(20);
     notifData = data || [];
-    const unread = notifData.length;
+
+    // جلب الإشعارات التي سبق للمدرس تعليمها كمقروءة (محفوظة في قاعدة
+    // البيانات وليس محليًا فقط، فتبقى صحيحة حتى بعد إغلاق المتصفح)
+    try {
+      const { data: reads } = await supabase.from('notification_reads')
+        .select('notification_id').eq('teacher_id', teacher.id);
+      notifReadIds = new Set((reads || []).map(r => r.notification_id));
+    } catch (_) { notifReadIds = new Set(); }
+
+    const unread = notifData.filter(n => !notifReadIds.has(n.id)).length;
     const badge = document.getElementById('notif-count');
     if (unread > 0) { badge.textContent = unread > 9 ? '9+' : unread; badge.classList.add('show'); }
+    else { badge.classList.remove('show'); }
     renderNotifList();
   } catch(_) {}
 }
@@ -97,8 +109,9 @@ function renderNotifList() {
   if (!notifData.length) { list.innerHTML = '<div class="notif-empty">لا توجد إشعارات</div>'; return; }
   list.innerHTML = notifData.map(n => {
     const date = new Date(n.created_at).toLocaleDateString('ar-EG', {month:'short', day:'numeric'});
-    return `<div class="notif-item">
-      ${n.title ? `<div class="notif-item-title">${escapeHtml(n.title)}</div>` : ''}
+    const isUnread = !notifReadIds.has(n.id);
+    return `<div class="notif-item${isUnread ? ' notif-item-unread' : ''}">
+      ${n.title ? `<div class="notif-item-title">${isUnread ? '<span class="notif-dot" aria-hidden="true"></span> ' : ''}${escapeHtml(n.title)}</div>` : ''}
       <div class="notif-item-msg">${escapeHtml(n.message)}</div>
       <div class="notif-item-date">${date}</div>
     </div>`;
@@ -117,9 +130,20 @@ function toggleMoreMenu() {
 }
 function closeMoreMenu() { document.getElementById('more-dropdown').classList.remove('open'); }
 
-function markAllRead() {
+async function markAllRead() {
+  const unreadIds = notifData.filter(n => !notifReadIds.has(n.id)).map(n => n.id);
   document.getElementById('notif-count').classList.remove('show');
   closeNotifDropdown();
+  if (!unreadIds.length) return;
+  unreadIds.forEach(id => notifReadIds.add(id));
+  renderNotifList();
+  try {
+    await supabase.from('notification_reads')
+      .upsert(
+        unreadIds.map(id => ({ notification_id: id, teacher_id: teacher.id })),
+        { onConflict: 'notification_id,teacher_id', ignoreDuplicates: true }
+      );
+  } catch (_) { /* حتى لو فشل الحفظ، الواجهة تبقى محدَّثة لهذه الزيارة */ }
 }
 
 /* ══════════════════════════════════════
@@ -373,9 +397,37 @@ async function openEditAdModal(adId) {
 }
 
 function quickEditFirstAd() {
-  const ad = teacherAds.find(a => a.status === 'active') || teacherAds[0];
-  if (!ad) { showToast('لا توجد إعلانات للتعديل', 'warning'); return; }
-  switchTab('ads'); openEditAdModal(ad.id);
+  if (!teacherAds.length) { showToast('لا توجد إعلانات للتعديل', 'warning'); return; }
+  // لو عنده إعلان واحد بس، افتح تعديله فورًا بدون شاشة اختيار زيادة
+  if (teacherAds.length === 1) { switchTab('ads'); openEditAdModal(teacherAds[0].id); return; }
+  openAdPickerModal('edit');
+}
+
+/* ══════════════════════════════════════
+   AD PICKER — لاختيار إعلان محدد عند وجود
+   أكثر من إعلان، سواء للتعديل أو للمعاينة
+══════════════════════════════════════ */
+function openAdPickerModal(purpose) {
+  const list = document.getElementById('ad-picker-list');
+  const title = document.getElementById('ad-picker-title');
+  if (!list || !title) return;
+  title.textContent = purpose === 'edit' ? '✏️ اختر الإعلان المطلوب تعديله' : '👁 اختر الإعلان لعرضه كما يراه الطلاب';
+  list.innerHTML = teacherAds.map(ad => `
+    <button type="button" class="ad-picker-item" onclick="pickAd('${ad.id}','${purpose}')">
+      <span class="ad-picker-item-main">
+        <span class="ad-picker-item-title">${escapeHtml(ad.title || ad.subject)}</span>
+        <span class="ad-picker-item-meta">${escapeHtml(ad.subject)} · ${escapeHtml(gradeDisplay(ad))}</span>
+      </span>
+      <span class="tc-badge ${statusBadgeClass(ad.status)}">${statusLabel(ad.status)}</span>
+    </button>`).join('');
+  openModal('ad-picker-modal');
+}
+
+function pickAd(adId, purpose) {
+  closeModal('ad-picker-modal');
+  if (purpose === 'edit') { switchTab('ads'); openEditAdModal(adId); return; }
+  const ad = teacherAds.find(a => a.id === adId);
+  window.open('teacher.html?ad=' + adId + (ad && ad.status !== 'active' ? '&preview=1' : ''), '_blank');
 }
 
 async function submitAd(e) {
@@ -1067,11 +1119,16 @@ function closeModal(id) { document.getElementById(id).classList.remove('open'); 
 function closeAdModal() { closeModal('ad-modal'); }
 
 function openTeacherProfile() {
-  const activeAd = teacherAds.find(a => a.status === 'active');
-  const anyAd = teacherAds[0];
-  if (activeAd) window.open('teacher.html?ad=' + activeAd.id, '_blank');
-  else if (anyAd) window.open('teacher.html?ad=' + anyAd.id + '&preview=1', '_blank');
-  else window.open('teacher.html?id=' + teacher.id, '_blank');
+  if (!teacherAds.length) { window.open('teacher.html?id=' + teacher.id, '_blank'); return; }
+  // لو عنده إعلان واحد بس، افتحه مباشرة زي ما كان يحصل
+  if (teacherAds.length === 1) {
+    const ad = teacherAds[0];
+    window.open('teacher.html?ad=' + ad.id + (ad.status !== 'active' ? '&preview=1' : ''), '_blank');
+    return;
+  }
+  // لو عنده أكثر من إعلان، خليه يختار أي واحد يعرض بدل ما نفتح آخر واحد
+  // نُشئ دائمًا بدون سؤاله (وده كان يظهر إعلان غير اللي يقصده)
+  openAdPickerModal('preview');
 }
 
 function logout() {

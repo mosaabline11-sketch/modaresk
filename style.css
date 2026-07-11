@@ -974,7 +974,7 @@ pre, code { white-space: pre-wrap; word-break: break-word; }
   color: white; padding: 18px 22px; display: flex; align-items: center; gap: 10px;
 }
 .ann-modal-head .ico { font-size: 1.4rem; }
-.ann-modal-head h3 { font-family: 'Cairo', sans-serif; font-size: 1.05rem; font-weight: 800; margin: 0; }
+.ann-modal-head h3 { font-family: 'Cairo', sans-serif; font-size: 1.05rem; font-weight: 800; margin: 0; overflow-wrap: anywhere; word-break: break-word; min-width: 0; }
 .ann-modal-body { padding: 20px 22px; overflow-wrap: anywhere; word-break: break-word; color: var(--text-secondary); line-height: 1.8; max-height: 50vh; overflow-y: auto; }
 .ann-modal-foot { padding: 14px 22px 22px; display: flex; gap: 10px; justify-content: flex-end; }
 
@@ -990,8 +990,8 @@ pre, code { white-space: pre-wrap; word-break: break-word; }
   overflow: hidden; max-height: 88vh; display: flex; flex-direction: column;
 }
 .survey-modal-head { background: linear-gradient(135deg, #0D1B4B, #2563EB); color: white; padding: 20px 22px; }
-.survey-modal-head h3 { font-family: 'Cairo', sans-serif; font-weight: 800; font-size: 1.1rem; margin-bottom: 4px; }
-.survey-modal-head p { color: rgba(255,255,255,.75); font-size: .85rem; margin: 0; }
+.survey-modal-head h3 { font-family: 'Cairo', sans-serif; font-weight: 800; font-size: 1.1rem; margin-bottom: 4px; overflow-wrap: anywhere; word-break: break-word; }
+.survey-modal-head p { color: rgba(255,255,255,.75); font-size: .85rem; margin: 0; overflow-wrap: anywhere; word-break: break-word; }
 .survey-modal-body { padding: 20px 22px; overflow-y: auto; flex: 1; }
 .survey-stars { display: flex; gap: 8px; justify-content: center; margin-bottom: 18px; }
 .survey-star-btn { font-size: 2.2rem; background: none; border: none; cursor: pointer; color: #D1D5DB; transition: color .15s, transform .1s; padding: 2px; }

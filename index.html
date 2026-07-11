@@ -23,7 +23,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800;900&family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css?v=7.5.0">
+<link rel="stylesheet" href="style.css?v=7.9.0">
   <link rel="icon" type="image/png" href="logo.png">
   <link rel="manifest" href="manifest.webmanifest">
 
@@ -138,10 +138,14 @@
       flex-wrap: wrap;
     }
     .search-row .form-control { flex: 2; min-width: 200px; }
-    .search-row select { flex: 1; min-width: 150px; }
+    /* أولوية أعلى عمدًا من الأعلى: بدونها كانت #hero-subject/#hero-grade
+       (اللي عليهم class="form-control form-select") بياخدوا flex:2 بدل
+       flex:1 بسبب تعارض في الأولوية، فتتضخم قوائم المادة/الصف وتزاحم
+       صندوق البحث الرئيسي بجانبها. */
+    .search-row select.form-control { flex: 1; min-width: 150px; }
     .search-row .btn { white-space: nowrap; }
-    .search-row .search-main { position: relative; flex: 2; }
-    .search-row .search-main input { padding-right: 44px; width: 100%; }
+    .search-row .search-main { position: relative; flex: 2; min-width: 220px; }
+    .search-row .search-main input { padding-right: 40px; padding-left: 40px; width: 100%; }
     .search-row .search-main .sicon {
       position: absolute;
       right: 14px;
@@ -151,6 +155,9 @@
       font-size: 1rem;
       pointer-events: none;
     }
+    /* زر المايك كان بنفس موضع أيقونة 🔍 تقريبًا فيتراكبوا فوق بعض؛
+       ننقله لأقصى الطرف الآخر (يسار في RTL) بدل تكديسه فوق أيقونة البحث. */
+    .search-row .search-main .mic-btn { right: auto; left: 8px; }
 
     /* ── Filters Bar ── */
     .filters-bar {
@@ -509,7 +516,7 @@
 
 <!-- Scripts -->
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="config.js?v=7.5.0"></script>
+  <script src="config.js?v=7.9.0"></script>
 <script>
   let allAds = [];
   const PAGE_SIZE = 8;
