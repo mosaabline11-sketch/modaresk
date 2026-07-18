@@ -18,7 +18,7 @@ const CONFIG = {
   CONTACT_EMAIL: "",
   APP_NAME: "مدرسك",
   APP_TAGLINE: "ابحث عن مدرسك المثالي",
-  DEFAULT_ADS_LIMIT: 3,
+  DEFAULT_ADS_LIMIT: 1, // احتياطي فقط؛ كل الباقات الحالية تحدد ads_limit الخاص بها صراحة
 };
 
 
@@ -208,9 +208,9 @@ function buildContactButtons(teacher = {}, ad = {}, size = 'btn-sm', options = {
   const stop = "event.stopPropagation();";
   if (teacher.whatsapp) {
     const wa = `https://wa.me/${String(teacher.whatsapp).replace(/[^0-9]/g,'')}`;
-    btns.push(`<a href="${escapeHtml(wa)}" target="_blank" onclick="${stop} trackEvent('whatsapp_click',{ad_id:'${escapeHtml(adId)}',teacher_id:'${escapeHtml(teacherId)}'})" class="btn btn-whatsapp ${size}">واتساب</a>`);
+    btns.push(`<a href="${escapeHtml(wa)}" target="_blank" rel="noopener" onclick="${stop} trackEvent('whatsapp_click',{ad_id:'${escapeHtml(adId)}',teacher_id:'${escapeHtml(teacherId)}'})" class="btn btn-whatsapp ${size}">واتساب</a>`);
   }
-  if (teacher.facebook) btns.push(`<a href="${escapeHtml(teacher.facebook)}" target="_blank" onclick="${stop} trackEvent('facebook_click',{ad_id:'${escapeHtml(adId)}',teacher_id:'${escapeHtml(teacherId)}'})" class="btn btn-facebook ${size}">فيسبوك</a>`);
+  if (teacher.facebook) btns.push(`<a href="${escapeHtml(teacher.facebook)}" target="_blank" rel="noopener" onclick="${stop} trackEvent('facebook_click',{ad_id:'${escapeHtml(adId)}',teacher_id:'${escapeHtml(teacherId)}'})" class="btn btn-facebook ${size}">فيسبوك</a>`);
   if (teacher.phone) btns.push(`<a href="tel:${escapeHtml(teacher.phone)}" onclick="${stop} trackEvent('phone_click',{ad_id:'${escapeHtml(adId)}',teacher_id:'${escapeHtml(teacherId)}'})" class="btn btn-ghost ${size}">📞 اتصال</a>`);
 
   const extras = [...parseExtraContacts(teacher.contact_methods), ...parseExtraContacts(ad.extra_contact)];
@@ -456,8 +456,10 @@ const AntiSpam = {
   // maxPerDay  : أقصى عدد مرات يُحتسب هذا الحدث يوميًا (بنفس الإعلان)
   // cooldownSec: فترة الانتظار بين كل تفاعلَين من نفس النوع (ثانية)
   EVENT_RULES: {
-    ad_card_view:        { maxPerDay: 3,  cooldownSec: 45  },
-    ad_detail_view:      { maxPerDay: 3,  cooldownSec: 30  },
+    // ملاحظة: ad_card_view/ad_detail_view ما عندهاش قاعدة هنا لأن _viewedToday
+    // (تحت) بيقفلهم على مرة واحدة يوميًا لكل إعلان قبل ما توصل الأحداث دي هنا
+    // أصلاً؛ وأي حاجة خاصة بمنح النقاط بقت تتحقق فعليًا من السيرفر (upsert_interaction_safe)
+    // مش من هنا، فمفيش داعي لقاعدة محلية بتضارب مع نفسها.
     whatsapp_click:      { maxPerDay: 1,  cooldownSec: 90  },
     facebook_click:      { maxPerDay: 1,  cooldownSec: 90  },
     phone_click:         { maxPerDay: 1,  cooldownSec: 90  },
@@ -627,7 +629,13 @@ const _viewedToday = {
 };
 try { _viewedToday.cleanup(); } catch(_) {}
 
-// ── trackEvent المحمي بنظام AntiSpam + مشاهدات حقيقية ──
+// ── trackEvent المحمي: تسجيل الحدث + منح النقاط بالكامل من السيرفر ──
+// ملاحظة أمان مهمة: منح النقاط ما عادش بيحصل بتحديث مباشر من المتصفح على
+// teachers.xp/points/reward_points (ده كان بيسمح لأي زائر يغيّر نقاط أي مدرس
+// مباشرة). دلوقتي كل قرار "هل يُمنح نقاط ولا لأ وقد إيه؟" بيتحسم جوه دالة
+// upsert_interaction_safe على السيرفر (بتتحقق من الـcooldown والحد اليومي
+// وتقرأ قيمة النقطة من site_settings بنفسها)، والفحص المحلي هنا (AntiSpam)
+// بقى مجرد تسريع/تقليل نداءات شبكة غير ضرورية، مش خط الدفاع الحقيقي.
 async function trackEvent(eventType, payload = {}) {
   try {
     if (!window.supabase || !eventType) return;
@@ -642,13 +650,11 @@ async function trackEvent(eventType, payload = {}) {
       _viewedToday.mark(adId, eventType);
     }
 
-    // ── فحص AntiSpam قبل أي عملية ──
+    // ── فحص محلي سريع (مجرد تقليل نداءات مش حماية فعلية) ──
     const verdict = AntiSpam.check(eventType, teacherId, adId);
-
-    // إذا رفض الإدراج كليًا (cooldown لم ينتهِ) → توقف
     if (!verdict.insertDB) return;
 
-    // ── إدراج الحدث في analytics_events ──
+    // ── إدراج الحدث في analytics_events (لأغراض الإحصائيات والعرض) ──
     await window.supabase.from('analytics_events').insert({
       event_type: eventType,
       teacher_id: teacherId,
@@ -659,16 +665,17 @@ async function trackEvent(eventType, payload = {}) {
       meta:       payload.meta || {},
     });
 
-    // ── إضافة النقاط فقط إذا أجازها AntiSpam ──
-    if (verdict.awardPts && teacherId) {
+    // ── منح النقاط: نداء واحد لدالة سيرفر آمنة تتحقق من كل حاجة بنفسها ──
+    if (teacherId) {
       try {
-        const cfg   = await _getPointsConfig();
-        const delta = cfg[eventType] || 0;
-        if (delta > 0) {
-          AntiSpam.trackLocalPts(teacherId, delta);
-          await incrementTeacherPoints(teacherId, delta);
-        }
-      } catch (_) {}
+        const { data: awarded } = await window.supabase.rpc('upsert_interaction_safe', {
+          p_session_id: getSessionId(),
+          p_teacher_id: teacherId,
+          p_ad_id: adId,
+          p_event_type: eventType,
+        });
+        if (awarded) AntiSpam.trackLocalPts(teacherId, awarded);
+      } catch (_) { /* فشل منح النقاط لا يجب أن يوقف باقي تدفق الصفحة */ }
     }
 
   } catch (e) {
@@ -1016,6 +1023,10 @@ function timeAgo(dateStr) {
 //   XP (xp)           : نقاط الخبرة — تحدد المستوى، لا تنقص أبداً
 //   RP (reward_points) : نقاط المكافآت — قابلة للصرف، تُضاف مع XP وتُخصم عند الاسترداد
 //   points             : legacy = XP (للتوافق مع الكود القديم)
+// ⚠️ هذه الدالة الآن **للإدارة فقط** (تعديل نقاط يدوي من admin.html). قاعدة
+// البيانات ما عادتش تسمح لزائر anon بتحديث هذه الأعمدة مباشرة (تم سحب الصلاحية
+// عمدًا)، فأي نداء لها من صفحة عامة/لوحة مدرس هيفشل بصمت. نقاط التفاعل
+// (مشاهدة/واتساب/إلخ) بقت تُمنح فقط عبر trackEvent → RPC upsert_interaction_safe.
 async function incrementTeacherPoints(teacherId, delta = 1) {
   if (!window.supabase || !teacherId) return;
   try {
@@ -1107,13 +1118,15 @@ function confirmDialog(message, onConfirm) {
       </div>
     </div>`;
   document.body.appendChild(overlay);
+  document.body.style.overflow = 'hidden';
+  const closeConfirm = () => { overlay.remove(); document.body.style.overflow = ''; };
   overlay.querySelector("#confirm-yes").onclick = () => {
-    overlay.remove();
+    closeConfirm();
     onConfirm();
   };
-  overlay.querySelector("#confirm-no").onclick = () => overlay.remove();
+  overlay.querySelector("#confirm-no").onclick = closeConfirm;
   overlay.onclick = (e) => {
-    if (e.target === overlay) overlay.remove();
+    if (e.target === overlay) closeConfirm();
   };
 }
 

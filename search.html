@@ -28,7 +28,7 @@
       href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800;900&family=Cairo:wght@400;600;700;800&display=swap"
       rel="stylesheet"
     />
-    <link rel="stylesheet" href="style.css?v=7.6.0" />
+    <link rel="stylesheet" href="style.css?v=8.0.0" />
     <link rel="icon" type="image/png" href="logo.png" />
     <link rel="manifest" href="manifest.webmanifest" />
     <style>
@@ -457,7 +457,7 @@
       <div class="container">
         <div class="s-brand">
           <img src="logo.png" alt="مدرسك" />
-          <span>مدرسك — فهم أفضل .. مستقبل أفضل</span>
+          <span>مدرسك — ابحث عن مدرسك المثالي</span>
         </div>
         <h1>🔍 ابحث عن مدرسك المثالي</h1>
         <p id="hero-sub">جارٍ تحميل الإعلانات...</p>
@@ -611,7 +611,7 @@
     </footer>
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <script src="config.js?v=7.6.0"></script>
+    <script src="config.js?v=8.0.0"></script>
     <script>
       const PG = 12;
       let allAds = [],
@@ -654,18 +654,12 @@
         return false;
       }
 
-      const STAGES = {
-        الابتدائي: [
-          "أول ابتدائي",
-          "ثاني ابتدائي",
-          "ثالث ابتدائي",
-          "رابع ابتدائي",
-          "خامس ابتدائي",
-          "سادس ابتدائي",
-        ],
-        الإعدادي: ["أول إعدادي", "ثاني إعدادي", "ثالث إعدادي"],
-        الثانوي: ["أول ثانوي", "ثاني ثانوي", "ثالث ثانوي"],
-      };
+      // مبنية من GRADE_SECTIONS (نفس المصدر المُستخدم في كل صفحات الموقع، من
+      // config.js) بدل تكرار قائمة المراحل والصفوف من جديد هنا — لو اتغيّرت
+      // الصفوف مستقبلاً، مكان واحد بس محتاج يتعدّل بدل مكانين مختلفين.
+      const STAGES = Object.fromEntries(
+        Object.values(GRADE_SECTIONS).map(section => [section.label, section.grades])
+      );
 
       // ── Init ──
       document.addEventListener("DOMContentLoaded", async () => {

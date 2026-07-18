@@ -46,6 +46,7 @@ let curMetric = 'views';
 let homeMetric = 'views';
 let notifData = [];
 let statsLoaded = false;
+let teacherClaims = new Set(); // "reward_key|period_key" لكل مكافأة استلمها المدرس فعليًا
 
 /* ══ INIT ══ */
 document.addEventListener('DOMContentLoaded', async () => {
@@ -61,8 +62,10 @@ document.addEventListener('DOMContentLoaded', async () => {
   setupAvatarPreview();
   loadNotifDropdown();
   // نظام الرسائل الهامة والاستطلاعات — بعد استقرار بيانات المدرس
+  // ملاحظة UX: بينهم تأخير بسيط عمدًا حتى ما يظهروش فوق بعض في نفس اللحظة
+  // (لو فيه رسالة عاجلة، إديها فرصة تتقرأ وتتقفل قبل ما يظهر الاستطلاع).
   try { await Announcements.renderForTeacher(teacher.id); } catch (_) {}
-  try { await Surveys.checkAndShow(teacher); } catch (_) {}
+  setTimeout(() => { Surveys.checkAndShow(teacher).catch(() => {}); }, 1800);
   // Load home stats async
   setTimeout(loadHomeStats, 600);
   // Close dropdowns on outside click
@@ -83,10 +86,14 @@ let notifReadIds = new Set();
 
 async function loadNotifDropdown() {
   try {
+    // مهم: نجيب الرسائل العامة + أي رسالة موجهة لهذا المدرس بالذات، وبعدين
+    // فلترة إضافية من جهة العميل (طبقة أمان ثانية) تستبعد نهائيًا أي رسالة
+    // خاصة بمدرس تاني. قبل كده كان الاستعلام بيجيب كل رسالة target='teachers'
+    // من غير فلترة، فأي "رسالة خاصة" لمدرس معيّن كانت تظهر لكل المدرسين.
     const { data } = await supabase.from('notifications').select('*')
-      .or('target.eq.teachers,target.eq.all')
-      .order('created_at', {ascending: false}).limit(20);
-    notifData = data || [];
+      .or(`target.eq.all,target.eq.teachers,teacher_id.eq.${teacher.id}`)
+      .order('created_at', {ascending: false}).limit(50);
+    notifData = (data || []).filter(n => !n.teacher_id || n.teacher_id === teacher.id);
 
     // جلب الإشعارات التي سبق للمدرس تعليمها كمقروءة (محفوظة في قاعدة
     // البيانات وليس محليًا فقط، فتبقى صحيحة حتى بعد إغلاق المتصفح)
@@ -251,14 +258,20 @@ function calcStreak(events) {
    PROFILE COMPLETION
 ══════════════════════════════════════ */
 function renderProfileCompletion() {
+  // "وسيلة تواصل" بند واحد يتحقق لو أي وسيلة منها موجودة (بدل ما كل وسيلة
+  // تُحسب لوحدها)، ونفس المنطق المستخدم في renderHomeAlerts تمامًا — فيسبوك
+  // كان قبل كده مش محسوب هنا رغم إنه وسيلة تواصل فعلية ومقبولة في كل مكان تاني.
+  const hasContact = !!(teacher.whatsapp || teacher.facebook || teacher.phone);
   const fields = [
-    {key:'avatar_url', label:'الصورة', icon:'📷'}, {key:'name', label:'الاسم', icon:'👤'},
-    {key:'bio', label:'النبذة', icon:'✍️'}, {key:'whatsapp', label:'واتساب', icon:'💬'},
-    {key:'phone', label:'الهاتف', icon:'📞'}, {key:'contact_methods', label:'تواصل', icon:'🔗'},
+    {key:'avatar_url', label:'الصورة', icon:'📷', done: !!teacher.avatar_url},
+    {key:'name', label:'الاسم', icon:'👤', done: !!teacher.name},
+    {key:'bio', label:'النبذة', icon:'✍️', done: !!teacher.bio},
+    {key:'contact', label:'وسيلة تواصل', icon:'💬', done: hasContact},
+    {key:'contact_methods', label:'تواصل إضافي', icon:'🔗', done: !!teacher.contact_methods},
   ];
-  const filled = fields.filter(f => !!(teacher[f.key]));
+  const filled = fields.filter(f => f.done);
   const pct = Math.round((filled.length / fields.length) * 100);
-  const missing = fields.filter(f => !(teacher[f.key]));
+  const missing = fields.filter(f => !f.done);
   const color = pct >= 80 ? '#0EA672' : pct >= 50 ? '#F59E0B' : '#EF4444';
   const box = document.getElementById('home-profile-completion');
   if (!box) return;
@@ -301,9 +314,16 @@ function updateAdsStats() {
   document.getElementById('stat-rejected').textContent = teacherAds.filter(a => a.status === 'rejected').length;
 }
 
+// الإعلان المرفوض ما بيستهلكش سلوت من حد الإعلانات المسموح — بس النشط والمعلّق
+// (اللي لسه ممكن يتفعّل) هما اللي بيتحسبوا. كان قبل كده أي رفض بيقفل السلوت
+// للأبد لحد ما المدرس يمسحه يدويًا بنفسه بدون أي توضيح لسبب الرسالة.
+function countUsedAdSlots() {
+  return teacherAds.filter(a => a.status !== 'rejected').length;
+}
+
 function updateLimitDisplay() {
   const limit = getTeacherFeatures(teacher).ads_limit;
-  const used = teacherAds.length;
+  const used = countUsedAdSlots();
   const addBtn = document.getElementById('add-ad-btn');
   if (!addBtn) return;
   if (!isSubscriptionActive(teacher)) { addBtn.disabled = true; addBtn.textContent = '🚫 منتهي'; }
@@ -353,7 +373,7 @@ function renderAds() {
 ══════════════════════════════════════ */
 function openAddAdModal() {
   if (!isSubscriptionActive(teacher)) { showToast('اشتراكك منتهي. جدّد أولاً', 'danger'); return; }
-  if (teacherAds.length >= getTeacherFeatures(teacher).ads_limit) { showToast('وصلت للحد الأقصى من الإعلانات', 'warning'); return; }
+  if (countUsedAdSlots() >= getTeacherFeatures(teacher).ads_limit) { showToast('وصلت للحد الأقصى من الإعلانات النشطة/المعلّقة. احذف إعلانًا قديمًا لو محتاج تضيف جديد', 'warning', 6000); return; }
   document.getElementById('modal-title').textContent = '+ إعلان جديد';
   document.getElementById('ad-submit-btn').textContent = 'نشر الإعلان';
   document.getElementById('ad-id').value = '';
@@ -439,7 +459,7 @@ async function submitAd(e) {
   const currentAd = isEdit ? teacherAds.find(a => a.id === adId) : null;
   try {
     if (!isEdit) {
-      const { count: lc } = await supabase.from('ads').select('*', {count:'exact', head:true}).eq('teacher_id', teacher.id);
+      const { count: lc } = await supabase.from('ads').select('*', {count:'exact', head:true}).eq('teacher_id', teacher.id).neq('status', 'rejected');
       if ((lc || 0) >= getTeacherFeatures(teacher).ads_limit) throw new Error('وصلت للحد الأقصى');
     }
     const folder = `ads/${teacher.id}`;
@@ -475,14 +495,21 @@ async function submitAd(e) {
     }
     if (error) throw error;
     if (!isEdit) {
-      let bonus = 5;
-      if ((payload.description || '').trim().length >= 100) bonus += 5;
-      if (payload.main_image_url) bonus += 3;
-      bonus += (payload.gallery_images?.length || 0);
-      try { await incrementTeacherPoints(teacher.id, bonus); } catch(_) {}
+      // بونص "أكمل إعلانك الأول" — بيُمنح مرة واحدة فقط طول عمر الحساب عبر
+      // دالة سيرفر تتحقق بنفسها (claim_first_ad_bonus)، مش بحساب مباشر من
+      // المتصفح زي الأول (اللي كان ممكن يتفرم بحذف الإعلان وإعادة نشره).
+      try {
+        await supabase.rpc('claim_first_ad_bonus', {
+          p_teacher_id: teacher.id,
+          p_desc_len: (payload.description || '').trim().length,
+          p_has_image: !!payload.main_image_url,
+          p_gallery_count: payload.gallery_images?.length || 0,
+        });
+      } catch (_) {}
     }
     closeModal('ad-modal');
     showToast(isEdit ? 'تم تعديل الإعلان ✅' : 'تم الإضافة وهو قيد المراجعة ⏳', 'success');
+    statsLoaded = false;
     await loadAds();
   } catch (err) {
     const msg = String(err?.message || '');
@@ -499,7 +526,7 @@ async function deleteAd(adId) {
   confirmDialog('هل أنت متأكد من حذف هذا الإعلان؟', async () => {
     const { error } = await supabase.from('ads').delete().eq('id', adId).eq('teacher_id', teacher.id);
     if (error) { showToast('حدث خطأ عند الحذف', 'danger'); return; }
-    showToast('تم حذف الإعلان', 'success'); await loadAds();
+    showToast('تم حذف الإعلان', 'success'); statsLoaded = false; await loadAds();
   });
 }
 
@@ -716,6 +743,11 @@ async function loadTeacherStats() {
       .order('created_at', {ascending: false}).limit(5000);
     if (error) throw error;
     gamEvents = data || [];
+    try {
+      const { data: claims } = await supabase.from('teacher_reward_claims')
+        .select('reward_key,period_key').eq('teacher_id', teacher.id);
+      teacherClaims = new Set((claims || []).map(c => `${c.reward_key}|${c.period_key}`));
+    } catch (_) { teacherClaims = new Set(); }
     const cnt = t => gamEvents.filter(e => e.event_type === t).length;
     const totalViews = cnt('ad_card_view'), totalDetails = cnt('ad_detail_view');
     const totalWa = cnt('whatsapp_click'), totalFb = cnt('facebook_click'), totalPhone = cnt('phone_click');
@@ -869,13 +901,19 @@ function buildAchievements(events, xp) {
     '10_wa':{v:Math.min(totalWa,10),t:10}, lv_3:{v:Math.min(xp,2000),t:2000}, lv_4:{v:Math.min(xp,5000),t:5000},
   };
   const unlocked = ACH_DEFS.filter(a => checkMap[a.id]).length;
-  const earnedPts = ACH_DEFS.filter(a => checkMap[a.id]).reduce((s,a) => s+a.pts, 0);
+  const earnedPts = ACH_DEFS.filter(a => checkMap[a.id] && teacherClaims.has(`${a.id}|lifetime`)).reduce((s,a) => s+a.pts, 0);
   document.getElementById('ach-summary').innerHTML = `
     <div style="background:linear-gradient(135deg,#0D1B4B,#2563EB);border-radius:10px;padding:10px 14px;color:white;display:flex;align-items:center;gap:9px"><span>🏆</span><div><div style="font-family:Cairo,sans-serif;font-weight:900;font-size:1.15rem">${unlocked}/${ACH_DEFS.length}</div><div style="opacity:.7;font-size:.66rem">إنجاز مكتمل</div></div></div>
-    <div style="background:linear-gradient(135deg,#0EA672,#20C997);border-radius:10px;padding:10px 14px;color:white;display:flex;align-items:center;gap:9px"><span>⭐</span><div><div style="font-family:Cairo,sans-serif;font-weight:900;font-size:1.15rem">${earnedPts}</div><div style="opacity:.7;font-size:.66rem">نقطة مكتسبة</div></div></div>`;
+    <div style="background:linear-gradient(135deg,#0EA672,#20C997);border-radius:10px;padding:10px 14px;color:white;display:flex;align-items:center;gap:9px"><span>⭐</span><div><div style="font-family:Cairo,sans-serif;font-weight:900;font-size:1.15rem">${earnedPts}</div><div style="opacity:.7;font-size:.66rem">نقطة مُستلمة فعليًا</div></div></div>`;
   document.getElementById('ach-grid').innerHTML = ACH_DEFS.map(a => {
     const done = !!checkMap[a.id], pg = progMap[a.id];
+    const claimed = teacherClaims.has(`${a.id}|lifetime`);
     const progHtml = !done && pg ? `<div class="ach-prog-bar"><div class="ach-prog-fill" style="background:${a.color};width:${Math.min((pg.v/pg.t)*100,100)}%"></div></div><div style="font-size:.62rem;color:#94A3B8">${pg.v}/${pg.t}</div>` : '';
+    const ptsBtn = claimed
+      ? `<div class="ach-pts" style="background:${a.color}14"><span style="font-size:.57rem">✅</span><span style="font-size:.66rem;font-weight:700;color:${a.color}">استُلمت +${a.pts}</span></div>`
+      : done
+        ? `<button type="button" class="ach-pts" style="background:${a.color};color:white;border:none;cursor:pointer;font-family:inherit" onclick="claimReward('${a.id}', this)"><span style="font-size:.57rem">🎁</span><span style="font-size:.66rem;font-weight:700">استلم +${a.pts}</span></button>`
+        : `<div class="ach-pts" style="background:#F1F5F9"><span style="font-size:.57rem">⭐</span><span style="font-size:.66rem;font-weight:700;color:#94A3B8">+${a.pts}</span></div>`;
     return `<div class="ach-card ${done?'':'locked'}" style="border-color:${done?a.color+'40':'#E2E8F0'};box-shadow:${done?`0 4px 13px ${a.color}18`:'none'}">
       ${done ? '<div class="ach-check">✓</div>' : ''}
       <div class="ach-ico" style="background:${done?a.color+'18':'#F1F5F9'};filter:${done?'none':'grayscale(1)'}">
@@ -884,11 +922,46 @@ function buildAchievements(events, xp) {
       <div class="ach-title" style="color:${done?'#0F172A':'#94A3B8'}">${a.title}</div>
       <div class="ach-desc">${a.desc}</div>
       ${progHtml}
-      <div class="ach-pts" style="background:${done?a.color+'14':'#F1F5F9'}">
-        <span style="font-size:.57rem">⭐</span><span style="font-size:.66rem;font-weight:700;color:${done?a.color:'#94A3B8'}">+${a.pts}</span>
-      </div>
+      ${ptsBtn}
     </div>`;
   }).join('');
+}
+
+// نقطة الأربعاء ISO (نفس منطق date_trunc('week', now()) في بوستجرس)
+function isoWeekMonday(d = new Date()) {
+  const day = d.getDay();
+  const diff = (day === 0 ? -6 : 1 - day);
+  const monday = new Date(d);
+  monday.setDate(d.getDate() + diff);
+  return monday.toISOString().slice(0,10);
+}
+
+// استلام مكافأة إنجاز/تحدي فعليًا — السيرفر بيتحقق من الشرط بنفسه من بياناته
+// الحقيقية (مش من كلام العميل)، فمينفعش حد "يستلم" حاجة معملهاش فعلاً.
+async function claimReward(rewardKey, btnEl) {
+  if (btnEl) { btnEl.disabled = true; btnEl.style.opacity = '.6'; }
+  try {
+    const { data: awarded } = await supabase.rpc('claim_teacher_reward', {
+      p_teacher_id: teacher.id, p_reward_key: rewardKey,
+    });
+    if (awarded && awarded > 0) {
+      showToast(`🎉 استلمت +${awarded} نقطة!`, 'success');
+      teacher.xp = (teacher.xp || 0) + awarded;
+      teacher.reward_points = (teacher.reward_points || 0) + awarded;
+      teacher.points = teacher.xp;
+      Auth.setTeacherSession({...teacher});
+      statsLoaded = false;
+      await loadTeacherStats();
+      updateHeroGamification(teacher.xp, teacher.reward_points);
+    } else {
+      showToast('تم استلامها من قبل أو الشرط مش مكتمل بعد', 'warning');
+      statsLoaded = false;
+      await loadTeacherStats();
+    }
+  } catch (e) {
+    showToast('تعذّر استلام المكافأة، حاول مرة أخرى', 'danger');
+    if (btnEl) { btnEl.disabled = false; btnEl.style.opacity = ''; }
+  }
 }
 
 /* ══ Challenges ══ */
@@ -896,11 +969,17 @@ function buildChallenges(events) {
   const today = new Date().toISOString().slice(0,10);
   const weekAgo = new Date(Date.now()-7*86400000).toISOString();
   document.getElementById('ch-grid').innerHTML = CH_DEFS.map(ch => {
-    let prog = 0;
-    if (ch.metric==='streak') prog = calcStreak(events);
+    let prog = 0, periodKey = today;
+    if (ch.metric==='streak') { prog = calcStreak(events); periodKey = today.slice(0,7); }
     else if (ch.period==='daily') prog = events.filter(e=>e.event_type===ch.metric&&(e.created_at||'').startsWith(today)).length;
-    else if (ch.period==='weekly') prog = events.filter(e=>e.event_type===ch.metric&&e.created_at>=weekAgo).length;
+    else if (ch.period==='weekly') { prog = events.filter(e=>e.event_type===ch.metric&&e.created_at>=weekAgo).length; periodKey = isoWeekMonday(); }
     const pct=Math.min((prog/ch.target)*100,100), done=pct>=100, cc=PERIOD_CLR[ch.period]||'#2563EB';
+    const claimed = teacherClaims.has(`${ch.id}|${periodKey}`);
+    const rewardHtml = claimed
+      ? `<div class="ch-reward"><span>✅</span><span style="font-size:.69rem;font-weight:700;color:#0EA672">استُلمت +${ch.reward}</span></div>`
+      : done
+        ? `<button type="button" class="ch-reward" style="border:none;cursor:pointer;background:#FFFBEB;font-family:inherit" onclick="claimReward('${ch.id}', this)"><span>🎁</span><span style="font-size:.69rem;font-weight:700;color:#B45309">استلم +${ch.reward} نقطة</span></button>`
+        : `<div class="ch-reward"><span>🎁</span><span style="font-size:.69rem;font-weight:700;color:#B45309">+${ch.reward} نقطة</span></div>`;
     return `<div class="ch-card ${done?'done':''}">
       ${done ? '<div class="ch-done-lbl">✅ مكتمل!</div>' : ''}
       <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:10px">
@@ -908,7 +987,7 @@ function buildChallenges(events) {
         <span class="ch-type-tag" style="background:${cc}14;color:${cc}">${PERIOD_LBL[ch.period]}</span>
       </div>
       <div class="ch-title">${ch.title}</div>
-      <div class="ch-reward"><span>🎁</span><span style="font-size:.69rem;font-weight:700;color:#B45309">+${ch.reward} نقطة</span></div>
+      ${rewardHtml}
       <div class="ch-bar-t"><div class="ch-bar-f" style="background:${done?'#20C997':`linear-gradient(90deg,${cc},${cc}cc)`};width:${pct}%"></div></div>
       <div style="display:flex;justify-content:space-between;font-size:.7rem;margin-top:4px">
         <span style="color:#64748B">${prog}/${ch.target}</span>
@@ -1037,7 +1116,6 @@ async function loadTeacherEvents() {
    TAB SWITCHING
 ══════════════════════════════════════ */
 function switchTab(tab, clickedBtn) {
-  statsLoaded = statsLoaded && tab !== 'stats' ? statsLoaded : (tab === 'stats' ? false : statsLoaded);
   const allTabs = ['home','ads','stats','leaderboard','profile','features','events'];
   allTabs.forEach(name => {
     const pane = document.getElementById('tab-' + name);
@@ -1047,7 +1125,11 @@ function switchTab(tab, clickedBtn) {
   const mainTabMap = {home:'tab-btn-home', ads:'tab-btn-ads', stats:'tab-btn-stats', leaderboard:'tab-btn-leaderboard'};
   if (mainTabMap[tab]) document.getElementById(mainTabMap[tab])?.classList.add('active');
   if (clickedBtn) clickedBtn.classList.add('active');
-  if (tab === 'stats') { statsLoaded = false; loadTeacherStats(); }
+  // ملاحظة أداء: statsLoaded ما بيتصفّرش هنا تلقائيًا زي الأول (كان بيلغي فايدة
+  // الكاش خالص فيعمل استعلام كامل لـ5000 صف كل ضغطة على تبويب التحليلات حتى
+  // لو زاره المدرس قبل كده بثانية). التحديث الفعلي بيحصل بس لما البيانات تتغيّر
+  // فعلاً (بعد نشر/حذف إعلان — شوف submitAd وdeleteAd).
+  if (tab === 'stats') loadTeacherStats();
   else if (tab === 'leaderboard') loadLeaderboard();
   else if (tab === 'events') loadTeacherEvents();
   else if (tab === 'features') renderFeatures();

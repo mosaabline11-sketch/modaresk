@@ -160,6 +160,15 @@
   ══════════════════════════════════════════════════ */
   function run() {
 
+    /* إتاحة: المستخدمين اللي مفعّلين "تقليل الحركة" في نظام تشغيلهم بيشوفوا
+       الشعار مباشرة بدون الأنيميشن الكامل (كان بيشتغل كامل بتجاهل هذا الإعداد) */
+    try {
+      if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+        setTimeout(end, 300);
+        return;
+      }
+    } catch (_) {}
+
     /* Fallback إذا لم يُحمَّل GSAP */
     if (typeof gsap === 'undefined') {
       setTimeout(end, 2300);

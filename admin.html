@@ -43,7 +43,7 @@
       href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800;900&family=Cairo:wght@400;600;700;800&display=swap"
       rel="stylesheet"
     />
-    <link rel="stylesheet" href="style.css?v=7.6.0" />
+    <link rel="stylesheet" href="style.css?v=8.0.0" />
     <link rel="icon" type="image/png" href="logo.png" />
     <link rel="manifest" href="manifest.webmanifest" />
     <style>
@@ -1843,7 +1843,7 @@
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <script src="config.js?v=7.6.0"></script>
+    <script src="config.js?v=8.0.0"></script>
     <script>
       let allTeachers = [];
       let allAds = [];
@@ -2326,10 +2326,13 @@
         const msg = prompt(`اكتب رسالتك للمدرس ${teacherName}:`);
         if (!msg || !msg.trim()) return;
         try {
+          // مربوطة بـteacher_id فعليًا الآن — قبل كده كانت بترسل بـtarget:'teachers'
+          // العام، يعني "الرسالة الخاصة" كانت تظهر لكل المدرسين مش بس المقصود بيه.
           const { error } = await supabase.from("notifications").insert({
             target: "teachers",
-            title: `رسالة خاصة لـ ${teacherName}`,
-            message: `[خاص] ${msg.trim()}`,
+            teacher_id: teacherId,
+            title: `رسالة خاصة لك`,
+            message: msg.trim(),
           });
           if (error) throw error;
           showToast("تم إرسال الرسالة الخاصة ✅", "success");
@@ -2726,6 +2729,7 @@
         document.getElementById('rn-plan').value = planType || 'monthly_40';
         document.getElementById('rn-price').value = getPlan(planType || 'monthly_40').price;
         document.getElementById('rn-start').value = new Date().toISOString().slice(0,10);
+        document.getElementById('rn-payment-status').value = 'paid';
         onRenewPlanChange(); // حساب تاريخ الانتهاء تلقائياً
 
         document.getElementById('renew-modal').classList.add('open');
@@ -2750,7 +2754,8 @@
         const start  = document.getElementById('rn-start').value;
         const end    = document.getElementById('rn-end').value;
         const price  = document.getElementById('rn-price').value;
-        const notes  = document.getElementById('rn-notes').value.trim();
+        const payStatus = document.getElementById('rn-payment-status').value; // paid | compensation | promo
+        let notes  = document.getElementById('rn-notes').value.trim();
 
         if (!start || !end) { showToast('يرجى تحديد تاريخ البداية والنهاية', 'warning'); return; }
 
@@ -2774,21 +2779,28 @@
           if (error) throw error;
 
           // حفظ في جدول الاشتراكات المالية إن وُجد
+          // لو التجديد تعويض/عرض ترويجي (مش دفعة حقيقية)، السعر المسجَّل = 0
+          // حتى ما تتضخّمش أرقام الإيرادات في اللوحة المالية بدون داعي.
+          const isRealPayment = payStatus === 'paid';
+          if (!isRealPayment) {
+            const tag = payStatus === 'compensation' ? '[تعويض/مجاني] ' : '[عرض ترويجي] ';
+            notes = tag + notes;
+          }
           const teacherObj = allTeachers.find(t => t.id === _renewTeacherId);
           if (teacherObj) {
             await supabase.from('fin_subscriptions').insert({
               teacher_id:     _renewTeacherId,
               teacher_name:   teacherObj.name,
               plan_type:      plan === 'monthly_40' ? 'monthly' : plan === 'quarter_100' ? '3months' : '9months',
-              price:          parseFloat(price) || planObj.price,
+              price:          isRealPayment ? (parseFloat(price) || planObj.price) : 0,
               addons_price:   0,
               addons:         [],
               start_date:     start,
               end_date:       end,
               client_type:    'renewed',
               client_source:  'other',
-              payment_method: 'cash',
-              payment_status: 'paid',
+              payment_method: isRealPayment ? 'cash' : 'other',
+              payment_status: isRealPayment ? 'paid' : 'pending',
               notes:          notes,
             }).select();
           }
@@ -2898,12 +2910,17 @@
                 .delete()
                 .neq("id", "00000000-0000-0000-0000-000000000000");
               if (err1) throw err1;
-              // إعادة تعيين نقاط المدرسين إلى 0
+              // إعادة تعيين نقاط المدرسين إلى 0 (النظام المزدوج بالكامل: النقاط
+              // القديمة + XP + نقاط المكافآت — قبل كده كان بيصفّر points بس
+              // ويسيب xp/reward_points زي ما هم، فالزر مكنش بيعمل اللي بيوعد بيه)
               const { error: err2 } = await supabase
                 .from("teachers")
-                .update({ points: 0 })
+                .update({ points: 0, xp: 0, reward_points: 0, first_ad_bonus_claimed: false })
                 .neq("id", "00000000-0000-0000-0000-000000000000");
               if (err2) throw err2;
+              // تنظيف سجل المطالبات بالمكافآت (الإنجازات/التحديات) عشان تتاح
+              // للاستلام من جديد بعد التصفير الكامل، مش تفضل "مستلمة" لنقاط اتصفّرت
+              await supabase.from("teacher_reward_claims").delete().neq("id", "00000000-0000-0000-0000-000000000000");
               showToast(
                 "تم مسح جميع الإحصائيات وإعادة تعيين النقاط ✅",
                 "success",
@@ -3121,7 +3138,7 @@
         try {
           const { data, error } = await supabase
             .from("notifications")
-            .select("*")
+            .select("*, teachers(name)")
             .order("created_at", { ascending: false });
           if (error) throw error;
           const notes = data || [];
@@ -3141,9 +3158,9 @@
                 ? `<strong>${escapeHtml(n.title)}</strong><br>`
                 : "";
               let target;
-              if (n.target === "teachers") target = "المدرسين";
+              if (n.teacher_id) target = `🔒 خاص بـ ${escapeHtml(n.teachers?.name || "مدرس محذوف")}`;
+              else if (n.target === "teachers") target = "المدرسين (الكل)";
               else if (n.target === "students") target = "الطلاب";
-              else if (n.target === "teacher") target = "مدرس محدد";
               else target = "الكل";
               return `<div class="notification-item" style="margin-bottom:16px;border-bottom:1px solid var(--border);padding-bottom:12px;overflow-wrap:anywhere;word-break:break-word">
           <div style="font-size:.8rem;color:var(--text-secondary)">${date} — إلى: ${target}</div>
@@ -3715,6 +3732,16 @@
             <div class="form-group">
               <label class="form-label">تاريخ الانتهاء *</label>
               <input type="date" id="rn-end" class="form-control">
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">حالة هذا التجديد *</label>
+              <select id="rn-payment-status" class="form-control form-select">
+                <option value="paid">💰 مدفوع فعليًا</option>
+                <option value="compensation">🎁 تعويض/تجديد مجاني (سياسة الاسترجاع)</option>
+                <option value="promo">✨ عرض ترويجي مجاني</option>
+              </select>
+              <div class="form-hint">مهم لدقة أرقام الإيرادات في اللوحة المالية — اختر "تعويض" أو "ترويجي" لو مفيش مبلغ اتحصّل فعليًا.</div>
             </div>
 
             <div class="form-group" style="grid-column:1/-1">
@@ -4769,6 +4796,9 @@
           };
           if (!payload.title) throw new Error("عنوان الرسالة مطلوب");
           if (!payload.message) throw new Error("نص الرسالة مطلوب");
+          if (payload.end_date && new Date(payload.end_date) <= new Date(payload.start_date)) {
+            throw new Error("تاريخ النهاية لازم يكون بعد تاريخ البداية، وإلا الرسالة مش هتظهر لأي مدرس أبدًا");
+          }
 
           let result;
           if (isEdit) {

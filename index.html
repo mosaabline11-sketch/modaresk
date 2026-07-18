@@ -23,7 +23,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800;900&family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css?v=7.9.0">
+<link rel="stylesheet" href="style.css?v=8.0.0">
   <link rel="icon" type="image/png" href="logo.png">
   <link rel="manifest" href="manifest.webmanifest">
 
@@ -310,7 +310,7 @@
   <div id="ms-brand">
     <div id="ms-name">مدرسك</div>
     <div id="ms-line"></div>
-    <div id="ms-tagline">فهم أفضل... مستقبل أفضل</div>
+    <div id="ms-tagline">ابحث عن مدرسك المثالي</div>
   </div>
   <div id="ms-skip">اضغط للمتابعة</div>
 </div>
@@ -516,7 +516,7 @@
 
 <!-- Scripts -->
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="config.js?v=7.9.0"></script>
+  <script src="config.js?v=8.0.0"></script>
 <script>
   let allAds = [];
   const PAGE_SIZE = 8;
@@ -535,7 +535,9 @@
   document.addEventListener('DOMContentLoaded', async () => {
     await updateNavAuth();
     trackEvent('site_visit', {page:'index.html'});
-    await applyGlobalLaunchVisibility();
+    // ملاحظة: applyGlobalLaunchVisibility() بتتنفذ تلقائيًا من config.js نفسه
+    // عند تحميل أي صفحة (scheduleGlobalLaunchVisibility) — نداءها هنا تاني
+    // كان بيكرر نفس استعلام site_settings من غير أي فايدة إضافية.
     await loadSubjectsSafe();
     populateAllSubjectAndGradeSelects();
     await loadAds();
