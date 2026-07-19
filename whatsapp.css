@@ -1,0 +1,205 @@
+/* ============================================================
+   مدرسك — WhatsApp Chat Widget (Stylesheet)
+   مستقل بالكامل — لا يعتمد على ولا يتعارض مع style.css الأساسي
+   كل المتغيرات مبدوءة بـ --wa- لضمان عدم التعارض مع أي كلاسات تانية
+   ============================================================ */
+
+:root {
+  --wa-primary: #2563EB;
+  --wa-secondary: #1E40AF;
+  --wa-accent: #22C55E;
+  --wa-accent-dark: #16A34A;
+  --wa-bg: #FFFFFF;
+  --wa-surface: #F8FAFC;
+  --wa-text: #1E293B;
+  --wa-text-muted: #64748B;
+  --wa-radius-lg: 22px;
+  --wa-radius-md: 14px;
+  --wa-shadow: 0 24px 60px rgba(15, 23, 42, .16), 0 6px 18px rgba(15, 23, 42, .08);
+  --wa-shadow-btn: 0 10px 28px rgba(34, 197, 94, .38);
+  --wa-transition: .32s cubic-bezier(.4, 0, .2, 1);
+}
+
+/* الوضع الداكن — يتبع إعداد نظام تشغيل الزائر تلقائيًا */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --wa-bg: #16202E;
+    --wa-surface: #1E293B;
+    --wa-text: #F1F5F9;
+    --wa-text-muted: #94A3B8;
+  }
+}
+
+#mdrsk-wa-widget, #mdrsk-wa-widget * { box-sizing: border-box; }
+
+#mdrsk-wa-widget {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  z-index: 999990;
+  direction: rtl;
+  font-family: 'Tajawal', 'Cairo', sans-serif;
+}
+
+/* ── الزر العائم ── */
+.mdrsk-wa-fab {
+  position: relative;
+  width: 62px;
+  height: 62px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--wa-accent), var(--wa-accent-dark));
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: var(--wa-shadow-btn);
+  transition: transform var(--wa-transition), box-shadow var(--wa-transition);
+  opacity: 0;
+  transform: scale(.4);
+  animation: mdrskWaEntrance .55s cubic-bezier(.34, 1.56, .64, 1) .3s forwards;
+}
+.mdrsk-wa-fab:hover { transform: scale(1.07); box-shadow: 0 14px 34px rgba(34, 197, 94, .48); }
+.mdrsk-wa-fab:active { transform: scale(.96); }
+.mdrsk-wa-fab svg { width: 28px; height: 28px; color: #fff; position: relative; z-index: 2; }
+
+.mdrsk-wa-fab-ring {
+  position: absolute;
+  inset: -8px;
+  border-radius: 50%;
+  border: 2.5px solid var(--wa-accent);
+  opacity: 0;
+  pointer-events: none;
+}
+.mdrsk-wa-fab.mdrsk-wa-pulse .mdrsk-wa-fab-ring { animation: mdrskWaRing 1.4s ease-out; }
+
+.mdrsk-wa-fab-badge {
+  position: absolute;
+  top: -3px; left: -3px;
+  min-width: 20px; height: 20px;
+  border-radius: 50px;
+  background: #EF4444;
+  color: #fff;
+  font-size: .68rem;
+  font-weight: 800;
+  display: flex; align-items: center; justify-content: center;
+  border: 2px solid #fff;
+  padding: 0 4px;
+  transition: opacity .2s, transform .2s;
+}
+.mdrsk-wa-fab-badge.mdrsk-wa-hidden { opacity: 0; transform: scale(.5); pointer-events: none; }
+
+@keyframes mdrskWaEntrance {
+  0%   { opacity: 0; transform: scale(.3) translateY(20px); }
+  60%  { opacity: 1; transform: scale(1.08) translateY(-4px); }
+  100% { opacity: 1; transform: scale(1) translateY(0); }
+}
+@keyframes mdrskWaRing {
+  0%   { opacity: .55; transform: scale(1); }
+  100% { opacity: 0; transform: scale(1.55); }
+}
+
+/* ── نافذة الدردشة ── */
+.mdrsk-wa-panel {
+  position: absolute;
+  bottom: 78px;
+  right: 0;
+  width: 340px;
+  max-width: calc(100vw - 32px);
+  background: var(--wa-bg);
+  border-radius: var(--wa-radius-lg);
+  box-shadow: var(--wa-shadow);
+  overflow: hidden;
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transform: translateY(18px) scale(.96);
+  transform-origin: bottom right;
+  transition: opacity var(--wa-transition), transform var(--wa-transition), visibility 0s linear var(--wa-transition);
+}
+.mdrsk-wa-panel.mdrsk-wa-open {
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+  transform: translateY(0) scale(1);
+  transition: opacity var(--wa-transition), transform var(--wa-transition);
+}
+
+.mdrsk-wa-header {
+  background: linear-gradient(135deg, var(--wa-primary), var(--wa-secondary));
+  padding: 16px 18px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.mdrsk-wa-avatar {
+  width: 42px; height: 42px;
+  border-radius: 12px;
+  background: #fff;
+  padding: 3px;
+  object-fit: contain;
+  flex-shrink: 0;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, .15);
+}
+.mdrsk-wa-header-info { flex: 1; min-width: 0; }
+.mdrsk-wa-name { color: #fff; font-weight: 800; font-size: .95rem; font-family: 'Cairo', sans-serif; }
+.mdrsk-wa-status { display: flex; align-items: center; gap: 5px; color: rgba(255, 255, 255, .82); font-size: .74rem; margin-top: 2px; }
+.mdrsk-wa-dot { width: 7px; height: 7px; border-radius: 50%; background: #4ADE80; box-shadow: 0 0 0 2px rgba(74, 222, 128, .25); flex-shrink: 0; }
+.mdrsk-wa-close {
+  background: rgba(255, 255, 255, .15);
+  border: none;
+  width: 28px; height: 28px;
+  border-radius: 50%;
+  color: #fff;
+  cursor: pointer;
+  flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center;
+  transition: background .2s;
+}
+.mdrsk-wa-close svg { width: 14px; height: 14px; }
+.mdrsk-wa-close:hover { background: rgba(255, 255, 255, .28); }
+
+.mdrsk-wa-body { background: var(--wa-surface); padding: 16px 18px; }
+.mdrsk-wa-bubble {
+  background: var(--wa-bg);
+  border-radius: var(--wa-radius-md) var(--wa-radius-md) var(--wa-radius-md) 4px;
+  padding: 12px 14px;
+  color: var(--wa-text);
+  font-size: .87rem;
+  line-height: 1.8;
+  box-shadow: 0 2px 8px rgba(15, 23, 42, .06);
+  white-space: pre-line;
+}
+.mdrsk-wa-time { display: block; margin-top: 6px; font-size: .68rem; color: var(--wa-text-muted); }
+
+.mdrsk-wa-footer { padding: 4px 18px 18px; background: var(--wa-surface); }
+.mdrsk-wa-cta {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+  width: 100%;
+  padding: 13px 16px;
+  border-radius: var(--wa-radius-md);
+  background: var(--wa-accent);
+  color: #fff;
+  font-weight: 700;
+  font-size: .9rem;
+  text-decoration: none;
+  transition: background var(--wa-transition), transform var(--wa-transition);
+  box-shadow: 0 8px 20px rgba(34, 197, 94, .3);
+}
+.mdrsk-wa-cta:hover { background: var(--wa-accent-dark); transform: translateY(-1px); }
+.mdrsk-wa-cta svg { width: 18px; height: 18px; flex-shrink: 0; }
+
+@media (max-width: 480px) {
+  #mdrsk-wa-widget { right: 14px; bottom: 14px; }
+  .mdrsk-wa-panel { width: calc(100vw - 28px); bottom: 74px; }
+  .mdrsk-wa-fab { width: 56px; height: 56px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .mdrsk-wa-fab, .mdrsk-wa-panel, .mdrsk-wa-cta { animation: none !important; transition: none !important; }
+  .mdrsk-wa-fab { opacity: 1; transform: none; }
+  .mdrsk-wa-fab-ring { display: none; }
+}
