@@ -3,28 +3,32 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="google-site-verification" content="S8fdmcMVIHOVgqxc7MBG02PlNYvdBsOHhylFs6qCdYc">
   <title>مدرسك - ابحث عن مدرسك المثالي</title>
   <meta name="description" content="منصة مدرسك تساعد الطلاب على العثور على مدرسين خصوصيين مناسبين حسب المادة والصف ونوع الدرس، مع تواصل مباشر عبر واتساب أو فيسبوك.">
-  <meta name="keywords" content="مدرسك, مدرس خصوصي, دروس خصوصية, مدرسين, مدرس أونلاين, مدرس حضوري, منصة مدرسين, تعليم, طلاب, مصر">
+  <meta name="keywords" content="مدرسك, Modaresk, منصة مدرسك, منصة تعليمية, منصة للمدرسين, البحث عن مدرس, ملف تعريفي للمدرس, بروفايل مدرس, مدرس خصوصي, مدرس رياضيات, مدرس لغة عربية, مدرس لغة إنجليزية, مدرس علوم, مدرس فيزياء, مدرس كيمياء, مدرس أحياء, دروس خصوصية, الدروس الخصوصية, مدرس أونلاين, مدرس حضوري, التعليم في مصر, مصر">
   <meta name="author" content="مدرسك">
   <meta name="robots" content="index, follow">
   <meta name="theme-color" content="#2563EB">
-  <link rel="canonical" href="https://mosaabline11-sketch.github.io/modaresk/">
+  <link rel="canonical" href="https://www.modaresk.com/">
   <meta property="og:locale" content="ar_AR">
   <meta property="og:type" content="website">
-  <meta property="og:url" content="https://mosaabline11-sketch.github.io/modaresk/">
+  <meta property="og:url" content="https://www.modaresk.com/">
   <meta property="og:site_name" content="مدرسك">
   <meta property="og:title" content="مدرسك - ابحث عن مدرسك المثالي">
   <meta property="og:description" content="منصة مدرسك تساعد الطلاب على العثور على مدرسين خصوصيين مناسبين حسب المادة والصف ونوع الدرس، مع تواصل مباشر عبر واتساب أو فيسبوك.">
-  <meta property="og:image" content="logo.png">
+  <meta property="og:image" content="https://www.modaresk.com/logo.png">
+  <meta property="og:image:alt" content="شعار منصة مدرسك">
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:title" content="مدرسك - ابحث عن مدرسك المثالي">
   <meta name="twitter:description" content="منصة مدرسك تساعد الطلاب على العثور على مدرسين خصوصيين مناسبين حسب المادة والصف ونوع الدرس، مع تواصل مباشر عبر واتساب أو فيسبوك.">
+  <meta name="twitter:image" content="https://www.modaresk.com/logo.png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800;900&family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css?v=8.0.0">
+<link rel="stylesheet" href="style.css?v=8.1.0">
   <link rel="icon" type="image/png" href="logo.png">
+  <link rel="apple-touch-icon" href="icon-512.png">
   <link rel="manifest" href="manifest.webmanifest">
 
   <!-- أسلوب خاص للبحث الصوتي -->
@@ -277,6 +281,19 @@
       .filters-inner { padding: 12px 16px; }
       .hero-stats { gap: 24px; }
     }
+    @media (max-width: 640px) {
+      /* على الموبايل: بدل الشريط الأفقي المزحوم، نلف العناصر في صفوف منظمة */
+      .filters-inner {
+        flex-wrap: wrap;
+        overflow-x: visible;
+        gap: 8px;
+        padding: 12px 14px;
+      }
+      .filters-inner .filter-label { width: 100%; margin: 4px 0 0 !important; }
+      .filter-chip { flex: 1 1 auto; justify-content: center; font-size: 0.82rem; padding: 8px 10px; }
+      .filter-select { flex: 1 1 100%; width: 100%; }
+      .filters-count { width: 100%; text-align: center; margin-top: 4px; }
+    }
   </style>
 
   <!-- ══ Splash: Anti-FOUC — يمنع ظهور الصفحة قبل شاشة الافتتاح ══ -->
@@ -465,6 +482,24 @@
   </div>
 </section>
 
+<!-- ── الأسئلة الشائعة ── -->
+<section class="section" id="faq" style="background:var(--bg-white)">
+  <div class="container">
+    <div style="text-align:center;margin-bottom:36px">
+      <h2 class="section-title">الأسئلة الشائعة ❓</h2>
+      <p class="section-sub" style="margin-bottom:0">أكثر الأسئلة التي ترد إلينا من الطلاب والمدرسين</p>
+    </div>
+    <div class="faq-wrap">
+      <div class="faq-list" id="faq-home-list">
+        <div class="loading-spinner" style="padding:30px"><div class="spinner-lg"></div></div>
+      </div>
+      <div class="faq-more-wrap" id="faq-home-more" style="display:none">
+        <a href="faq.html" class="btn btn-outline">عرض كل الأسئلة</a>
+      </div>
+    </div>
+  </div>
+</section>
+
 <!-- ── Footer ── -->
 <footer class="footer">
   <div class="container">
@@ -477,6 +512,7 @@
         <div class="footer-title">روابط سريعة</div>
         <ul class="footer-links">
           <li><a href="index.html">الرئيسية</a></li>
+          <li><a href="faq.html">الأسئلة الشائعة</a></li>
           <li><a href="login.html">تسجيل الدخول</a></li>
           <li><a href="privacy.html">سياسة الخصوصية</a></li>
           <li><a href="terms.html">شروط الاستخدام</a></li>
@@ -486,8 +522,9 @@
       <div>
         <div class="footer-title">تواصل معنا</div>
         <ul class="footer-links">
-          <li><a href="mailto:" id="footer-email-link">📧 البريد الإلكتروني</a></li>
+          <li><a href="mailto:support@modaresk.com" id="footer-email-link">📧 support@modaresk.com</a></li>
           <li><a href="#" data-admin-contact data-message="مرحبًا، أريد الاستفسار عن منصة مدرسك">💬 واتساب الإدارة</a></li>
+          <li><span class="footer-location">📍 الفيوم، مصر</span></li>
         </ul>
       </div>
     </div>
@@ -497,6 +534,21 @@
   </div>
 </footer>
 
+<!-- ══ Role Modal: طالب/ولي أمر و لا مدرس؟ (تعريفي أول زيارة) ══ -->
+<div class="modal-overlay" id="role-modal">
+  <div class="modal" style="max-width:420px">
+    <div class="modal-body" style="text-align:center;padding:32px 24px">
+      <div style="font-size:2.4rem;margin-bottom:12px">👋</div>
+      <h3 style="font-family:'Cairo',sans-serif;font-weight:800;font-size:1.15rem;margin-bottom:8px">أهلاً بك في مدرسك</h3>
+      <p style="color:var(--text-secondary);font-size:.88rem;margin-bottom:22px">أخبرنا بصفتك هنا لكي نوجّهك بشكل صحيح من البداية</p>
+      <div style="display:flex;flex-direction:column;gap:10px">
+        <button type="button" class="btn btn-primary btn-lg" onclick="chooseRole('student')">🎓 طالب / ولي أمر — أبحث عن مدرس</button>
+        <button type="button" class="btn btn-outline btn-lg" onclick="chooseRole('teacher')">👨‍🏫 أنا مدرس وأريد الانضمام</button>
+      </div>
+      <button type="button" onclick="skipRoleModal()" style="margin-top:16px;background:none;border:none;color:var(--text-muted);font-size:.82rem;cursor:pointer;padding:4px">تخطي</button>
+    </div>
+  </div>
+</div>
 
 <script type="application/ld+json">
 {
@@ -505,18 +557,49 @@
   "name": "مدرسك",
   "description": "منصة لعرض إعلانات المدرسين الخصوصيين والتواصل معهم مباشرة",
   "inLanguage": "ar",
-  "url": "https://mosaabline11-sketch.github.io/modaresk/",
+  "url": "https://www.modaresk.com/",
   "potentialAction": {
     "@type": "SearchAction",
-    "target": "https://mosaabline11-sketch.github.io/modaresk/index.html?q={search_term_string}",
+    "target": "https://www.modaresk.com/index.html?q={search_term_string}",
     "query-input": "required name=search_term_string"
+  }
+}
+</script>
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "EducationalOrganization",
+  "name": "مدرسك",
+  "alternateName": "Modaresk",
+  "description": "منصة مدرسك منصة تعليمية مصرية تربط الطلاب وأولياء الأمور بالمدرسين الخصوصيين حسب المادة والصف ونوع الدرس، مع تواصل مباشر عبر واتساب أو فيسبوك.",
+  "url": "https://www.modaresk.com/",
+  "logo": "https://www.modaresk.com/logo.png",
+  "image": "https://www.modaresk.com/logo.png",
+  "email": "support@modaresk.com",
+  "areaServed": {
+    "@type": "Country",
+    "name": "مصر"
+  },
+  "address": {
+    "@type": "PostalAddress",
+    "addressLocality": "الفيوم",
+    "addressCountry": "EG"
+  },
+  "contactPoint": {
+    "@type": "ContactPoint",
+    "contactType": "customer support",
+    "telephone": "+201080474084",
+    "email": "support@modaresk.com",
+    "availableLanguage": ["Arabic"]
   }
 }
 </script>
 
 <!-- Scripts -->
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="config.js?v=8.0.0"></script>
+  <script src="config.js?v=11.0.0"></script>
+  <script src="tutorial-engine.js?v=1.2.0"></script>
 <script>
   let allAds = [];
   const PAGE_SIZE = 8;
@@ -546,7 +629,56 @@
 
     // إعداد البحث الصوتي والاقتراحات في الصفحة الرئيسية
     setupHeroSearchEnhancements();
+
+    // مربع "طالب و لا مدرس؟" التعريفي + زر "؟" العائم لإعادة العرض
+    initTutorials();
   });
+
+  /* ══ TUTORIALS: خطوات الجولات + مربع اختيار الدور ══ */
+  const TUT_INDEX_STUDENT = [
+    {selector:'.search-card', title:'ابحث عن مدرسك', text:'اكتب اسم المادة أو المدرس أو الصف الدراسي هنا، وتُرشَّح النتائج فورًا.'},
+    {selector:'#filters-bar', title:'فلاتر سريعة', text:'ضيّق نطاق النتائج حسب نوع الدرس والمادة والصف من هنا.'},
+    {selector:'#ads-grid .teacher-card:first-child, #empty-state', title:'اختر مدرسك', text:'اضغط على أي بطاقة لعرض تفاصيل المدرس كاملةً والتواصل معه عبر واتساب أو فيسبوك مباشرةً.'},
+  ];
+  const TUT_INDEX_TEACHER = [
+    {selector:'.cta-section', title:'انضم كمدرس', text:'اضغط على "انضم كمدرس" وسنشرح لك خطوة بخطوة كيفية اختيار باقة وإتمام الاشتراك.'},
+  ];
+
+  function roleModalSeen() { try { return !!localStorage.getItem('mdrsk_tut_role_choice'); } catch (_) { return false; } }
+  function markRoleModalSeen() { try { localStorage.setItem('mdrsk_tut_role_choice', '1'); } catch (_) {} }
+  function closeRoleModalUI() { document.getElementById('role-modal')?.classList.remove('open'); }
+  function skipRoleModal() { markRoleModalSeen(); closeRoleModalUI(); }
+
+  function chooseRole(role) {
+    markRoleModalSeen();
+    closeRoleModalUI();
+    if (typeof Tutorial === 'undefined') return;
+    setTimeout(() => {
+      if (role === 'student') Tutorial.run('index_student', TUT_INDEX_STUDENT, {force:true});
+      else Tutorial.run('index_teacher', TUT_INDEX_TEACHER, {force:true});
+    }, 350);
+  }
+
+  // بيستنى شاشة الترحيب (splash) تخلص الأول قبل ما يظهر مربع الاختيار
+  function tryOpenRoleModal(attempts) {
+    attempts = attempts || 0;
+    if (document.getElementById('ms-sp') && attempts < 8) {
+      setTimeout(() => tryOpenRoleModal(attempts + 1), 300);
+      return;
+    }
+    document.getElementById('role-modal')?.classList.add('open');
+  }
+
+  function initTutorials() {
+    if (typeof Tutorial === 'undefined') return; // لو الملف ما اتحملش، منكسرش الصفحة
+    Tutorial.registerMenu([
+      {label:'🎓 أنا طالب — كيف أبحث؟',  run:() => Tutorial.run('index_student', TUT_INDEX_STUDENT, {force:true})},
+      {label:'👨‍🏫 أنا مدرس — كيف أنضم؟', run:() => Tutorial.run('index_teacher', TUT_INDEX_TEACHER, {force:true})},
+    ]);
+    if (roleModalSeen()) return;
+    if (typeof Auth !== 'undefined' && Auth.getTeacherSession && Auth.getTeacherSession()) { markRoleModalSeen(); return; }
+    setTimeout(() => tryOpenRoleModal(), 2600);
+  }
 
   // ── تحسينات البحث في الصفحة الرئيسية ──
   function setupHeroSearchEnhancements() {
@@ -579,7 +711,7 @@
     }
     if (!heroVoiceRec) {
       heroVoiceRec = new SpeechRec();
-      heroVoiceRec.lang = 'ar-SA';
+      heroVoiceRec.lang = 'ar-EG';
       heroVoiceRec.interimResults = false;
       heroVoiceRec.maxAlternatives = 1;
       heroVoiceRec.onresult = (e) => {
@@ -733,7 +865,7 @@
     }
 
     if (searchQuery) title.textContent = `🔍 نتائج: "${searchQuery}"`;
-    else if (activeType) title.textContent = `🎓 إعلانات ${activeType}`;
+    else if (activeType) title.textContent = `🎓 إعلانات ${lessonTypeLabel(activeType)}`;
     else title.textContent = '🎓 أحدث الإعلانات';
   }
 
@@ -856,6 +988,78 @@
   function toggleMenu() {
     document.getElementById('nav-links').classList.toggle('open');
   }
+</script>
+
+<!-- ── تحميل الأسئلة الشائعة (أكورديون) ── -->
+<script>
+(function () {
+  const HOME_LIMIT = 6;
+  function faqEsc(s) {
+    try { return escapeHtml(s == null ? '' : String(s)); }
+    catch (_) {
+      return (s == null ? '' : String(s)).replace(/[&<>"']/g, function (c) {
+        return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
+      });
+    }
+  }
+
+  function buildFaqItem(f) {
+    const item = document.createElement('div');
+    item.className = 'faq-item';
+    item.innerHTML =
+      '<button type="button" class="faq-q" aria-expanded="false">' +
+        '<span class="faq-q-text">' + faqEsc(f.question) + '</span>' +
+        '<span class="faq-icon" aria-hidden="true">+</span>' +
+      '</button>' +
+      '<div class="faq-a"><div class="faq-a-inner">' + faqEsc(f.answer) + '</div></div>';
+    const btn = item.querySelector('.faq-q');
+    const panel = item.querySelector('.faq-a');
+    btn.addEventListener('click', function () {
+      const isOpen = item.classList.contains('open');
+      if (isOpen) {
+        item.classList.remove('open');
+        btn.setAttribute('aria-expanded', 'false');
+        panel.style.maxHeight = '';
+      } else {
+        item.classList.add('open');
+        btn.setAttribute('aria-expanded', 'true');
+        panel.style.maxHeight = panel.scrollHeight + 'px';
+      }
+    });
+    return item;
+  }
+
+  async function loadHomeFaqs() {
+    const list = document.getElementById('faq-home-list');
+    const moreWrap = document.getElementById('faq-home-more');
+    const section = document.getElementById('faq');
+    if (!list) return;
+    try {
+      if (!window.supabase) throw new Error('supabase not ready');
+      const { data, error } = await window.supabase
+        .from('faqs')
+        .select('id, question, answer')
+        .eq('is_active', true)
+        .order('sort_order', { ascending: true })
+        .order('created_at', { ascending: true });
+      if (error) throw error;
+      const faqs = data || [];
+      if (!faqs.length) { if (section) section.style.display = 'none'; return; }
+      list.innerHTML = '';
+      faqs.slice(0, HOME_LIMIT).forEach(function (f) { list.appendChild(buildFaqItem(f)); });
+      if (moreWrap) moreWrap.style.display = '';
+    } catch (e) {
+      console.error('FAQ load error:', e);
+      if (section) section.style.display = 'none';
+    }
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', loadHomeFaqs);
+  } else {
+    loadHomeFaqs();
+  }
+})();
 </script>
 </body>
 </html>

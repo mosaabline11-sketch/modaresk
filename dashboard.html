@@ -9,22 +9,30 @@
   <title>لوحة المدرس - مدرسك</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800;900&family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="style.css?v=8.0.0">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.24.0/dist/tabler-icons.min.css">
+  <link rel="stylesheet" href="style.css?v=9.0.0">
   <link rel="icon" type="image/png" href="logo.png">
+  <link rel="apple-touch-icon" href="icon-512.png">
   <link rel="manifest" href="manifest.webmanifest">
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 <style>
-/* ══ NAVBAR ADDITIONS ══ */
+/* ══════════════════════════════════════════════════════
+   مدرسك · لوحة المدرس — تصميم محسّن (v11)
+   نفس هوية الموقع (أزرق #2563EB + سماوي #0EA5E9)، أيقونات Tabler،
+   هيرو منظّم بلا تداخل، responsive كامل (موبايل/تابلت/ديسكتوب)
+   ══════════════════════════════════════════════════════ */
+
+/* ══ NAVBAR ══ */
 .dash-nav-right{display:flex;align-items:center;gap:8px;}
 .notif-wrap{position:relative;}
-.notif-btn{position:relative;width:40px;height:40px;border-radius:50%;background:var(--bg-soft);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:1.1rem;transition:var(--transition);flex-shrink:0;outline:none;}
-.notif-btn:hover{background:var(--primary-bg);border-color:var(--primary);}
-.notif-badge{position:absolute;top:-3px;left:-3px;background:var(--danger);color:white;border-radius:50px;font-size:.58rem;font-weight:700;min-width:16px;height:16px;display:none;align-items:center;justify-content:center;padding:0 4px;border:2px solid white;}
+.notif-btn{position:relative;width:40px;height:40px;border-radius:50%;background:var(--bg-soft);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:1.2rem;color:var(--text-secondary);transition:var(--transition);flex-shrink:0;outline:none;}
+.notif-btn:hover{background:var(--primary-bg);border-color:var(--primary);color:var(--primary);}
+.notif-badge{position:absolute;top:-3px;left:-3px;background:var(--danger);color:white;border-radius:50px;font-size:.58rem;font-weight:700;min-width:16px;height:16px;display:none;align-items:center;justify-content:center;padding:0 4px;border:2px solid white;font-family:'Cairo',sans-serif;}
 .notif-badge.show{display:flex;}
 .notif-dropdown{position:absolute;top:calc(100% + 8px);left:0;width:320px;background:white;border:1px solid var(--border);border-radius:var(--radius-lg);box-shadow:var(--shadow-lg);z-index:500;display:none;overflow:hidden;}
 .notif-dropdown.open{display:block;animation:slideDown .2s ease;}
 .notif-dd-header{padding:13px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;}
-.notif-dd-title{font-family:'Cairo',sans-serif;font-weight:700;font-size:.92rem;}
+.notif-dd-title{font-family:'Cairo',sans-serif;font-weight:700;font-size:.92rem;display:flex;align-items:center;gap:7px;}
 .notif-dd-clear{font-size:.76rem;color:var(--primary);cursor:pointer;background:none;border:none;font-family:inherit;}
 .notif-dd-list{max-height:300px;overflow-y:auto;}
 .notif-item{padding:11px 16px;border-bottom:1px solid var(--border-light);transition:background .15s;}
@@ -35,6 +43,7 @@
 .notif-item-msg{font-size:.77rem;color:var(--text-secondary);line-height:1.5;overflow-wrap:anywhere;}
 .notif-item-date{font-size:.68rem;color:var(--text-muted);margin-top:3px;}
 .notif-dot{width:7px;height:7px;border-radius:50%;background:var(--danger);flex-shrink:0;display:inline-block;}
+.notif-empty{padding:26px 16px;text-align:center;color:var(--text-muted);font-size:.86rem;}
 
 /* ══ AD PICKER MODAL ══ */
 .ad-picker-item{width:100%;display:flex;align-items:center;justify-content:space-between;gap:10px;padding:13px 15px;border:1.5px solid var(--border);border-radius:var(--radius-md);background:white;cursor:pointer;transition:var(--transition);text-align:right;font-family:'Tajawal',sans-serif;margin-bottom:9px;}
@@ -43,61 +52,78 @@
 .ad-picker-item-main{display:flex;flex-direction:column;gap:3px;min-width:0;flex:1;text-align:right;}
 .ad-picker-item-title{font-weight:700;font-size:.92rem;color:var(--text-primary);overflow-wrap:anywhere;}
 .ad-picker-item-meta{font-size:.78rem;color:var(--text-muted);}
-.notif-empty{padding:26px 16px;text-align:center;color:var(--text-muted);font-size:.86rem;}
 
 /* ══ MORE MENU ══ */
 .more-menu-wrap{position:relative;}
-.more-btn{width:40px;height:40px;border-radius:50%;background:var(--bg-soft);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:1.2rem;transition:var(--transition);flex-shrink:0;outline:none;}
-.more-btn:hover{background:var(--primary-bg);border-color:var(--primary);}
-.more-dropdown{position:absolute;top:calc(100% + 8px);left:0;min-width:210px;background:white;border:1px solid var(--border);border-radius:var(--radius-lg);box-shadow:var(--shadow-lg);z-index:500;display:none;overflow:hidden;}
+.more-btn{width:40px;height:40px;border-radius:50%;background:var(--bg-soft);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:1.3rem;color:var(--text-secondary);transition:var(--transition);flex-shrink:0;outline:none;}
+.more-btn:hover{background:var(--primary-bg);border-color:var(--primary);color:var(--primary);}
+.more-dropdown{position:absolute;top:calc(100% + 8px);left:0;min-width:220px;background:white;border:1px solid var(--border);border-radius:var(--radius-lg);box-shadow:var(--shadow-lg);z-index:500;display:none;overflow:hidden;}
 .more-dropdown.open{display:block;animation:slideDown .2s ease;}
-.more-dd-item{display:flex;align-items:center;gap:10px;padding:11px 16px;cursor:pointer;transition:background .15s;font-size:.88rem;color:var(--text-primary);border:none;background:none;width:100%;text-align:right;font-family:'Tajawal',sans-serif;}
+.more-dd-item{display:flex;align-items:center;gap:11px;padding:12px 16px;cursor:pointer;transition:background .15s;font-size:.88rem;color:var(--text-primary);border:none;background:none;width:100%;text-align:right;font-family:'Tajawal',sans-serif;}
 .more-dd-item:hover{background:var(--bg-soft);}
+.more-dd-item .ti{font-size:1.15rem;color:var(--text-secondary);width:20px;text-align:center;flex-shrink:0;}
+.more-dd-item:hover .ti{color:var(--primary);}
 .more-dd-divider{height:1px;background:var(--border-light);}
 
-/* ══ HERO DASHBOARD ══ */
-.hero-dashboard{background:linear-gradient(135deg,#0D1B4B 0%,#1E3A8A 55%,#2563EB 100%);border-radius:var(--radius-lg);margin-bottom:18px;overflow:hidden;position:relative;}
-.hero-dashboard::before{content:'';position:absolute;top:-40px;right:-40px;width:150px;height:150px;border-radius:50%;background:rgba(255,255,255,.06);pointer-events:none;}
-.hero-inner{padding:20px 24px;position:relative;z-index:1;display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;}
-.hero-left{flex:1;min-width:200px;}
-.hero-name{font-family:'Cairo',sans-serif;font-size:1.2rem;font-weight:900;color:white;margin-bottom:2px;}
-.hero-sub{font-size:.78rem;color:rgba(255,255,255,.6);margin-bottom:8px;}
-.early-tag{display:inline-flex;align-items:center;gap:4px;background:linear-gradient(135deg,#F59E0B,#EF4444);color:white;border-radius:50px;padding:3px 10px;font-size:.68rem;font-weight:700;margin-bottom:7px;}
-.lv-badge{display:inline-flex;align-items:center;gap:7px;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.2);border-radius:50px;padding:5px 12px;margin-bottom:9px;}
-.lv-badge-name{color:white;font-weight:700;font-size:.78rem;}
-.lv-dot{width:6px;height:6px;border-radius:50%;}
-.lv-prog-labels{display:flex;justify-content:space-between;color:rgba(255,255,255,.45);font-size:.58rem;margin-bottom:3px;max-width:220px;}
-.lv-prog-track{height:5px;border-radius:50px;background:rgba(255,255,255,.15);max-width:220px;}
-.lv-prog-fill{height:100%;border-radius:50px;transition:width .6s ease;}
-.lv-prog-pct{color:rgba(255,255,255,.3);font-size:.56rem;margin-top:2px;}
-.hero-stats{display:flex;gap:8px;flex-wrap:wrap;align-items:center;}
-.hstat{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);border-radius:10px;padding:9px 12px;text-align:center;min-width:66px;backdrop-filter:blur(8px);}
-.hstat-val{color:white;font-family:'Cairo',sans-serif;font-weight:900;font-size:1.1rem;line-height:1;}
-.hstat-lbl{color:rgba(255,255,255,.5);font-size:.56rem;margin-top:2px;}
-.circ-goal-wrap{position:relative;display:inline-flex;align-items:center;justify-content:center;margin-bottom:2px;}
+/* ══ HERO — طبقتان منفصلتان بلا تداخل ══ */
+.hero-dashboard{background:linear-gradient(135deg,#0F172A 0%,#1E3A5F 50%,#1D4ED8 100%);border-radius:var(--radius-lg);margin-bottom:14px;overflow:hidden;position:relative;box-shadow:0 18px 42px rgba(13,27,75,.26);}
+.hero-dashboard::before{content:'';position:absolute;top:-40px;left:-40px;width:150px;height:150px;border-radius:50%;background:rgba(255,255,255,.05);pointer-events:none;}
+.hero-dashboard::after{content:'';position:absolute;bottom:-60px;right:-30px;width:180px;height:180px;border-radius:50%;background:rgba(255,255,255,.04);pointer-events:none;}
+.hero-inner{padding:20px 24px;position:relative;z-index:1;display:flex;align-items:center;justify-content:space-between;gap:22px;flex-wrap:wrap;}
+.hero-left{flex:1;min-width:230px;}
+.hero-top-row{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:11px;}
+.hero-name{font-family:'Cairo',sans-serif;font-size:1.32rem;font-weight:900;color:white;display:flex;align-items:center;gap:8px;line-height:1.2;}
+.hero-name .ti{color:#FCD34D;font-size:1.1rem;}
+.hero-sub{font-size:.78rem;color:rgba(255,255,255,.55);margin-bottom:11px;}
+.early-tag{display:inline-flex;align-items:center;gap:5px;background:linear-gradient(135deg,#F59E0B,#EF4444);color:white;border-radius:50px;padding:4px 11px;font-size:.68rem;font-weight:700;}
+.early-tag .ti{font-size:.8rem;}
+.lv-badge{display:inline-flex;align-items:center;gap:7px;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.2);border-radius:50px;padding:5px 13px;}
+.lv-badge-name{color:white;font-weight:700;font-size:.8rem;}
+.lv-badge #lv-icon{font-size:.95rem;line-height:1;}
+.lv-dot{width:7px;height:7px;border-radius:50%;}
+/* شريط تقدّم المستوى — عرض كامل تحت الترحيب */
+.lv-prog-wrap{max-width:430px;margin-top:4px;}
+.lv-prog-labels{display:flex;justify-content:space-between;align-items:center;color:rgba(255,255,255,.6);font-size:.68rem;font-weight:600;margin-bottom:5px;}
+.lv-prog-labels #lv-pts-lbl{color:white;font-weight:700;font-family:'Cairo',sans-serif;font-size:.72rem;}
+.lv-prog-labels #lv-cur{display:none;}
+.lv-prog-labels #lv-next::before{content:'التالي: ';opacity:.7;}
+.lv-prog-track{height:8px;border-radius:50px;background:rgba(255,255,255,.15);overflow:hidden;}
+.lv-prog-fill{height:100%;border-radius:50px;background:linear-gradient(90deg,#20C997,#0EA5E9);transition:width .6s ease;}
+.lv-prog-pct{color:rgba(255,255,255,.4);font-size:.62rem;margin-top:4px;}
+
+/* شريط إحصائيات الهيرو — grid منفصل، يتكيّف */
+.hero-stats{display:grid;grid-template-columns:repeat(4,minmax(74px,1fr));gap:9px;flex-shrink:0;}
+.hstat{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);border-radius:12px;padding:11px 10px;text-align:center;min-width:0;backdrop-filter:blur(8px);transition:var(--transition);}
+.hstat:hover{background:rgba(255,255,255,.16);transform:translateY(-1px);}
+.hstat-val{color:white;font-family:'Cairo',sans-serif;font-weight:900;font-size:1.15rem;line-height:1;overflow-wrap:anywhere;}
+.hstat-lbl{color:rgba(255,255,255,.55);font-size:.6rem;margin-top:4px;display:flex;align-items:center;justify-content:center;gap:3px;}
+.hstat-lbl .ti{font-size:.72rem;}
+.circ-goal-wrap{position:relative;display:inline-flex;align-items:center;justify-content:center;}
 .circ-inner{position:absolute;text-align:center;}
-.circ-val{color:white;font-family:'Cairo',sans-serif;font-weight:900;font-size:.8rem;line-height:1;}
-.circ-sub{color:rgba(255,255,255,.4);font-size:.46rem;margin-top:1px;}
-.hero-view-btn{background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.25);color:white;font-size:.76rem;font-weight:600;padding:7px 11px;border-radius:8px;cursor:pointer;font-family:inherit;transition:.2s;white-space:nowrap;}
-.hero-view-btn:hover{background:rgba(255,255,255,.28);}
+.circ-val{color:white;font-family:'Cairo',sans-serif;font-weight:900;font-size:.82rem;line-height:1;}
+.circ-sub{color:rgba(255,255,255,.45);font-size:.48rem;margin-top:1px;}
+.hero-view-btn{display:none;}
 
 /* ══ SUBSCRIPTION BANNER ══ */
 #subscription-banner{margin-bottom:14px;}
 
 /* ══ QUICK ACTIONS ══ */
-.quick-actions{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:18px;}
-.qa-btn{background:white;border:1px solid var(--border);border-radius:var(--radius-md);padding:13px 8px;text-align:center;cursor:pointer;transition:var(--transition);display:flex;flex-direction:column;align-items:center;gap:5px;font-family:'Tajawal',sans-serif;}
+.quick-actions{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:16px;}
+.qa-btn{background:white;border:1px solid var(--border);border-radius:var(--radius-lg);padding:14px 10px;cursor:pointer;transition:var(--transition);display:flex;align-items:center;justify-content:center;gap:9px;font-family:'Tajawal',sans-serif;}
 .qa-btn:hover{border-color:var(--primary);box-shadow:var(--shadow-md);transform:translateY(-2px);}
+.qa-btn .qa-icon{font-size:1.3rem;color:var(--primary);display:inline-flex;}
 .qa-primary{background:var(--primary);border-color:var(--primary);}
+.qa-primary:hover{background:var(--primary-dark);}
+.qa-primary .qa-icon{color:white;}
 .qa-primary .qa-label{color:white;}
-.qa-icon{font-size:1.35rem;}
-.qa-label{font-size:.74rem;font-weight:600;color:var(--text-secondary);}
+.qa-label{font-size:.84rem;font-weight:600;color:var(--text-secondary);}
 
 /* ══ MAIN TABS ══ */
-.main-tabs-bar{background:white;border:1px solid var(--border);border-radius:var(--radius-md);padding:4px;display:flex;gap:2px;margin-bottom:18px;overflow-x:auto;scrollbar-width:none;}
+.main-tabs-bar{background:white;border:1px solid var(--border);border-radius:var(--radius-md);padding:5px;display:flex;gap:3px;margin-bottom:18px;overflow-x:auto;scrollbar-width:none;box-shadow:var(--shadow-xs);}
 .main-tabs-bar::-webkit-scrollbar{display:none;}
-.main-tab{flex:1;padding:10px 6px;border:none;background:transparent;border-radius:var(--radius-sm);font-family:'Tajawal',sans-serif;font-size:.84rem;font-weight:500;color:var(--text-secondary);cursor:pointer;transition:var(--transition);white-space:nowrap;display:flex;align-items:center;justify-content:center;gap:4px;min-width:0;}
-.main-tab.active{background:var(--primary);color:white;font-weight:700;box-shadow:0 2px 8px rgba(37,99,235,.3);}
+.main-tab{flex:1;padding:11px 8px;border:none;background:transparent;border-radius:var(--radius-sm);font-family:'Tajawal',sans-serif;font-size:.86rem;font-weight:500;color:var(--text-secondary);cursor:pointer;transition:var(--transition);white-space:nowrap;display:flex;align-items:center;justify-content:center;gap:6px;min-width:0;}
+.main-tab .ti{font-size:1.1rem;}
+.main-tab.active{background:var(--primary);color:white;font-weight:700;box-shadow:0 4px 14px rgba(37,99,235,.35);}
 .main-tab:hover:not(.active){background:var(--primary-bg);color:var(--primary);}
 
 /* ══ PANES ══ */
@@ -105,23 +131,27 @@
 .dash-pane.active{display:block;animation:fadeIn .25s ease;}
 
 /* ══ HOME TAB ══ */
-.home-kpi-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:18px;}
-.kpi-card{background:white;border:1px solid var(--border);border-radius:var(--radius-md);padding:15px;display:flex;gap:11px;align-items:flex-start;box-shadow:var(--shadow-xs);}
-.kpi-icon{width:38px;height:38px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:1.05rem;flex-shrink:0;}
-.kpi-val{font-family:'Cairo',sans-serif;font-size:1.45rem;font-weight:900;line-height:1;}
-.kpi-lbl{font-size:.7rem;color:var(--text-muted);margin-top:2px;}
-.home-chart-wrap{background:white;border:1px solid var(--border);border-radius:var(--radius-md);padding:16px;margin-bottom:14px;}
+.home-kpi-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:18px;}
+.kpi-card{background:white;border:1px solid var(--border);border-radius:var(--radius-lg);padding:15px;display:flex;gap:12px;align-items:center;box-shadow:var(--shadow-sm);transition:var(--transition);min-width:0;overflow:hidden;}
+.kpi-card:hover{box-shadow:var(--shadow-md);transform:translateY(-2px);}
+.kpi-icon{width:42px;height:42px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:1.2rem;flex-shrink:0;}
+.kpi-val{font-family:'Cairo',sans-serif;font-size:1.5rem;font-weight:900;line-height:1;letter-spacing:-.02em;overflow-wrap:anywhere;}
+.kpi-lbl{font-size:.72rem;color:var(--text-muted);margin-top:3px;letter-spacing:.01em;}
+.home-chart-wrap{background:white;border:1px solid var(--border);border-radius:var(--radius-lg);padding:16px;margin-bottom:14px;box-shadow:var(--shadow-sm);}
 .home-chart-hd{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;flex-wrap:wrap;gap:8px;}
-.home-chart-title{font-family:'Cairo',sans-serif;font-weight:700;font-size:.9rem;}
-.profile-completion-bar{background:white;border:1px solid var(--border);border-radius:var(--radius-md);padding:13px;margin-bottom:14px;}
+.home-chart-title{font-family:'Cairo',sans-serif;font-weight:700;font-size:.92rem;display:flex;align-items:center;gap:8px;}
+.home-chart-title .ti{color:var(--primary);font-size:1.1rem;}
+.profile-completion-bar{background:white;border:1px solid var(--border);border-radius:var(--radius-md);padding:14px;margin-bottom:14px;}
 
 /* ══ ADS TAB ══ */
-.ads-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:11px;margin-bottom:16px;}
-.ads-stat{background:white;border:1px solid var(--border);border-radius:var(--radius-md);padding:13px;text-align:center;}
-.ads-stat-num{font-family:'Cairo',sans-serif;font-size:1.55rem;font-weight:800;}
-.ads-stat-lbl{font-size:.72rem;color:var(--text-muted);margin-top:2px;}
-.section-hd{display:flex;align-items:center;justify-content:space-between;margin-bottom:13px;flex-wrap:wrap;gap:9px;}
-.section-hd h2{font-family:'Cairo',sans-serif;font-size:1rem;font-weight:700;}
+.ads-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:16px;}
+.ads-stat{background:white;border:1px solid var(--border);border-radius:var(--radius-lg);padding:14px;text-align:center;box-shadow:var(--shadow-sm);transition:var(--transition);min-width:0;}
+.ads-stat:hover{box-shadow:var(--shadow-md);transform:translateY(-2px);}
+.ads-stat-num{font-family:'Cairo',sans-serif;font-size:1.6rem;font-weight:800;}
+.ads-stat-lbl{font-size:.74rem;color:var(--text-muted);margin-top:3px;}
+.section-hd{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;flex-wrap:wrap;gap:9px;}
+.section-hd h2{font-family:'Cairo',sans-serif;font-size:1.05rem;font-weight:700;display:flex;align-items:center;gap:8px;}
+.section-hd h2 .ti{color:var(--primary);font-size:1.2rem;}
 .ad-card{background:white;border:1px solid var(--border);border-radius:var(--radius-md);overflow:hidden;margin-bottom:11px;transition:var(--transition);}
 .ad-card:hover{box-shadow:var(--shadow-md);}
 .ad-card-hd{padding:13px 15px;display:flex;align-items:flex-start;justify-content:space-between;gap:9px;}
@@ -134,29 +164,32 @@
 .media-preview img{width:76px;height:56px;object-fit:cover;border-radius:8px;border:1px solid var(--border);}
 
 /* ══ STATS TAB ══ */
-.stats-kpi{display:grid;grid-template-columns:repeat(2,1fr);gap:11px;margin-bottom:15px;}
-.stats-kpi-card{background:white;border:1px solid var(--border);border-radius:var(--radius-md);padding:14px;display:flex;gap:11px;align-items:center;}
-.stats-kpi-ico{width:42px;height:42px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:1.15rem;flex-shrink:0;}
-.stats-kpi-val{font-family:'Cairo',sans-serif;font-size:1.55rem;font-weight:900;line-height:1;}
-.stats-kpi-lbl{font-size:.7rem;color:var(--text-secondary);margin-top:2px;}
-.gam-insight{background:linear-gradient(135deg,#0D1B4B,#1E3A8A);border-radius:12px;padding:15px 18px;color:white;margin-bottom:13px;}
-.gam-insight-title{font-family:'Cairo',sans-serif;font-weight:800;font-size:.92rem;margin-bottom:4px;}
-.gam-insight-sub{color:rgba(255,255,255,.6);font-size:.76rem;}
-.chart-card{background:white;border:1px solid var(--border);border-radius:var(--radius-md);padding:16px;margin-bottom:13px;}
-.chart-card-title{font-family:'Cairo',sans-serif;font-weight:700;font-size:.9rem;margin-bottom:13px;}
+.stats-kpi{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-bottom:15px;}
+.stats-kpi-card{background:white;border:1px solid var(--border);border-radius:var(--radius-lg);padding:15px;display:flex;gap:12px;align-items:center;box-shadow:var(--shadow-sm);transition:var(--transition);min-width:0;overflow:hidden;}
+.stats-kpi-card:hover{box-shadow:var(--shadow-md);transform:translateY(-2px);}
+.stats-kpi-ico{width:44px;height:44px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:1.25rem;flex-shrink:0;}
+.stats-kpi-val{font-family:'Cairo',sans-serif;font-size:1.55rem;font-weight:900;line-height:1;overflow-wrap:anywhere;}
+.stats-kpi-lbl{font-size:.72rem;color:var(--text-secondary);margin-top:3px;}
+.gam-insight{background:linear-gradient(135deg,#0F172A,#1E3A8A);border-radius:var(--radius-lg);padding:16px 18px;color:white;margin-bottom:13px;}
+.gam-insight-title{font-family:'Cairo',sans-serif;font-weight:800;font-size:.94rem;margin-bottom:4px;}
+.gam-insight-sub{color:rgba(255,255,255,.6);font-size:.78rem;}
+.chart-card{background:white;border:1px solid var(--border);border-radius:var(--radius-lg);padding:16px;margin-bottom:13px;box-shadow:var(--shadow-sm);}
+.chart-card-title{font-family:'Cairo',sans-serif;font-weight:700;font-size:.92rem;margin-bottom:13px;display:flex;align-items:center;gap:8px;}
+.chart-card-title .ti{color:var(--primary);font-size:1.1rem;}
 .collapsible-section{margin-bottom:10px;}
-.collapsible-hd{display:flex;align-items:center;justify-content:space-between;padding:11px 14px;background:var(--bg-soft);border:1px solid var(--border);border-radius:var(--radius-sm);cursor:pointer;transition:.2s;}
+.collapsible-hd{display:flex;align-items:center;justify-content:space-between;padding:12px 14px;background:var(--bg-soft);border:1px solid var(--border);border-radius:var(--radius-sm);cursor:pointer;transition:.2s;}
 .collapsible-hd:hover{background:var(--primary-bg);}
 .collapsible-hd.open{border-radius:var(--radius-sm) var(--radius-sm) 0 0;}
-.collapsible-title{font-family:'Cairo',sans-serif;font-weight:700;font-size:.86rem;}
-.collapsible-arrow{font-size:.76rem;transition:transform .25s;}
+.collapsible-title{font-family:'Cairo',sans-serif;font-weight:700;font-size:.86rem;display:flex;align-items:center;gap:7px;}
+.collapsible-arrow{font-size:.8rem;transition:transform .25s;color:var(--text-muted);}
 .collapsible-hd.open .collapsible-arrow{transform:rotate(180deg);}
 .collapsible-body{border:1px solid var(--border);border-top:none;border-radius:0 0 var(--radius-sm) var(--radius-sm);padding:14px;background:white;display:none;}
 .collapsible-body.open{display:block;animation:fadeIn .2s ease;}
-.gam-tabs{display:flex;gap:2px;border-bottom:2px solid var(--border);margin-bottom:15px;overflow-x:auto;scrollbar-width:none;}
+.gam-tabs{display:flex;gap:3px;border-bottom:2px solid var(--border);margin-bottom:15px;overflow-x:auto;scrollbar-width:none;}
 .gam-tabs::-webkit-scrollbar{display:none;}
-.gtab{padding:8px 13px;border:none;border-bottom:2.5px solid transparent;margin-bottom:-2px;font-family:inherit;font-size:.8rem;font-weight:500;color:var(--text-muted);cursor:pointer;white-space:nowrap;transition:color .2s;background:none;}
-.gtab.active{color:#0D1B4B;border-bottom-color:#0D1B4B;font-weight:700;}
+.gtab{padding:9px 14px;border:none;border-bottom:2.5px solid transparent;margin-bottom:-2px;font-family:inherit;font-size:.82rem;font-weight:500;color:var(--text-muted);cursor:pointer;white-space:nowrap;transition:color .2s;background:none;display:flex;align-items:center;gap:6px;}
+.gtab .ti{font-size:1.05rem;}
+.gtab.active{color:var(--primary);border-bottom-color:var(--primary);font-weight:700;}
 .gpane{display:none;}
 .gpane.active{display:block;animation:fadeIn .25s ease;}
 .perad-card{background:white;border:1px solid var(--border);border-radius:var(--radius-md);padding:13px;margin-bottom:9px;}
@@ -168,34 +201,37 @@
 .lpath-bar{height:4px;border-radius:50px;margin-top:3px;}
 .lpath-bar-fill{height:100%;border-radius:50px;transition:width .5s;}
 .ach-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:11px;}
-.ach-card{border-radius:12px;padding:15px;border:1px solid var(--border);background:white;position:relative;overflow:hidden;}
-.ach-card.locked{background:#FAFAFA;opacity:.65;}
-.ach-check{position:absolute;top:8px;left:8px;width:17px;height:17px;border-radius:50%;background:#20C997;display:flex;align-items:center;justify-content:center;color:white;font-size:.54rem;font-weight:700;}
-.ach-ico{width:42px;height:42px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:1.35rem;margin-bottom:8px;}
-.ach-title{font-weight:700;font-size:.81rem;margin-bottom:2px;}
-.ach-desc{font-size:.67rem;color:var(--text-secondary);margin-bottom:7px;line-height:1.5;}
-.ach-pts{display:inline-flex;align-items:center;gap:3px;border-radius:50px;padding:2px 8px;}
+.ach-card{border-radius:var(--radius-lg);padding:15px;border:1px solid var(--border);background:white;position:relative;overflow:hidden;}
+.ach-card.locked{background:#FAFAFA;opacity:.7;}
+.ach-check{position:absolute;top:8px;left:8px;width:18px;height:18px;border-radius:50%;background:#20C997;display:flex;align-items:center;justify-content:center;color:white;font-size:.56rem;font-weight:700;}
+.ach-ico{width:44px;height:44px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:1.4rem;margin-bottom:8px;}
+.ach-title{font-weight:700;font-size:.82rem;margin-bottom:2px;}
+.ach-desc{font-size:.68rem;color:var(--text-secondary);margin-bottom:7px;line-height:1.5;}
+.ach-pts{display:inline-flex;align-items:center;gap:3px;border-radius:50px;padding:3px 9px;}
 .ach-prog-bar{height:4px;border-radius:50px;background:#F1F5F9;margin-top:6px;margin-bottom:2px;}
 .ach-prog-fill{height:100%;border-radius:50px;}
 .ch-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:13px;}
-.ch-card{background:white;border-radius:13px;padding:17px;border:1px solid var(--border);position:relative;overflow:hidden;}
+.ch-card{background:white;border-radius:var(--radius-lg);padding:17px;border:1px solid var(--border);position:relative;overflow:hidden;}
 .ch-card.done{border-color:#A7F3D0;}
-.ch-done-lbl{position:absolute;top:10px;left:10px;background:#20C997;color:white;border-radius:50px;padding:2px 7px;font-size:.57rem;font-weight:700;}
-.ch-ico{width:38px;height:38px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:1.05rem;}
-.ch-type-tag{padding:2px 7px;border-radius:50px;font-size:.62rem;font-weight:700;}
-.ch-title{font-family:'Cairo',sans-serif;font-weight:700;font-size:.86rem;margin:8px 0 6px;}
-.ch-reward{display:inline-flex;align-items:center;gap:3px;background:#FFFBEB;border-radius:50px;padding:3px 9px;margin-bottom:11px;}
+.ch-done-lbl{position:absolute;top:10px;left:10px;background:#20C997;color:white;border-radius:50px;padding:2px 9px;font-size:.58rem;font-weight:700;}
+.ch-ico{width:40px;height:40px;border-radius:11px;display:flex;align-items:center;justify-content:center;font-size:1.1rem;}
+.ch-type-tag{padding:3px 9px;border-radius:50px;font-size:.62rem;font-weight:700;}
+.ch-title{font-family:'Cairo',sans-serif;font-weight:700;font-size:.88rem;margin:9px 0 6px;}
+.ch-reward{display:inline-flex;align-items:center;gap:4px;background:#FFFBEB;border-radius:50px;padding:3px 10px;margin-bottom:11px;}
 .ch-bar-t{height:7px;border-radius:50px;background:#F1F5F9;overflow:hidden;}
 .ch-bar-f{height:100%;border-radius:50px;transition:width .5s;}
-.mbtn{padding:5px 10px;border-radius:6px;border:1.5px solid var(--border);background:transparent;color:var(--text-secondary);font-size:.7rem;font-weight:600;cursor:pointer;font-family:inherit;transition:.2s;}
-.mbtn.active{border-color:#2563EB;background:#EFF6FF;color:#2563EB;}
+.mbtn{padding:6px 11px;border-radius:7px;border:1.5px solid var(--border);background:transparent;color:var(--text-secondary);font-size:.72rem;font-weight:600;cursor:pointer;font-family:inherit;transition:.2s;display:inline-flex;align-items:center;gap:4px;}
+.mbtn .ti{font-size:.9rem;}
+.mbtn.active{border-color:var(--primary);background:var(--primary-bg);color:var(--primary);}
 
-/* ══ LEADERBOARD ══ */
-.lb-row{display:flex;align-items:center;gap:11px;padding:10px 13px;border-radius:9px;margin-bottom:5px;}
-.lb-av{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;color:white;font-weight:700;font-size:.82rem;flex-shrink:0;overflow:hidden;background:linear-gradient(135deg,#0D1B4B,#2563EB);}
+/* ══ LEADERBOARD (المتصدرون) ══ */
+.lb-row{display:flex;align-items:center;gap:11px;padding:11px 13px;border-radius:var(--radius-md);margin-bottom:6px;}
+.lb-av{width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;color:white;font-weight:700;font-size:.84rem;flex-shrink:0;overflow:hidden;background:linear-gradient(135deg,#0F172A,#2563EB);}
 
 /* ══ PROFILE ══ */
 .profile-card{background:white;border:1px solid var(--border);border-radius:var(--radius-lg);padding:22px;box-shadow:var(--shadow-sm);}
+.profile-card h3{display:flex;align-items:center;gap:9px;}
+.profile-card h3 .ti{color:var(--primary);font-size:1.2rem;}
 .form-row{display:grid;grid-template-columns:1fr 1fr;gap:13px;}
 .avatar-preview{width:76px;height:76px;border-radius:50%;border:2px solid var(--border);background:var(--bg-soft);overflow:hidden;display:flex;align-items:center;justify-content:center;color:var(--text-muted);font-size:.74rem;text-align:center;margin-top:8px;}
 .avatar-preview img{width:100%;height:100%;object-fit:cover;}
@@ -215,12 +251,23 @@
 .clean-list li::before{content:"✓";color:var(--success);font-weight:900;}
 .addon-grid2{display:grid;grid-template-columns:repeat(auto-fill,minmax(155px,1fr));gap:9px;}
 .addon-card2{background:white;border:1px solid var(--border);border-radius:var(--radius-md);padding:13px;}
-.addon-card2 .ai{font-size:1.25rem;margin-bottom:5px;}
+.addon-card2 .ai{font-size:1.3rem;margin-bottom:5px;color:var(--primary);}
 .addon-card2 h4{font-size:.82rem;font-weight:700;margin-bottom:3px;}
 .addon-card2 .ap{font-family:'Cairo',sans-serif;font-size:1.3rem;font-weight:900;color:var(--primary);}
 .addon-card2 p{font-size:.7rem;color:var(--text-muted);margin-top:3px;line-height:1.5;}
-
-/* ══ EVENTS ══ */
+.addon-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:12px;}
+.addon-card{background:white;border:1px solid var(--border);border-top:4px solid var(--primary);border-radius:var(--radius-lg);padding:16px;display:flex;flex-direction:column;}
+.addon-card .addon-icon{font-size:1.7rem;margin-bottom:8px;color:var(--primary);}
+.addon-card h4{font-family:'Cairo',sans-serif;font-weight:700;font-size:.92rem;margin-bottom:6px;}
+.addon-card .addon-price{font-family:'Cairo',sans-serif;font-weight:900;font-size:1.35rem;color:var(--primary);margin-bottom:6px;}
+.addon-card .addon-price span{font-size:.68rem;color:var(--text-muted);font-weight:700;font-family:'Tajawal',sans-serif;margin-right:4px;}
+.addon-card p{font-size:.78rem;color:var(--text-secondary);line-height:1.6;flex:1;margin-bottom:12px;}
+.addon-green{border-top-color:#059669;} .addon-green .addon-price,.addon-green .addon-icon{color:#059669;}
+.addon-blue{border-top-color:#2563EB;} .addon-blue .addon-price,.addon-blue .addon-icon{color:#2563EB;}
+.addon-purple{border-top-color:#7C3AED;} .addon-purple .addon-price,.addon-purple .addon-icon{color:#7C3AED;}
+.addon-teal{border-top-color:#0D9488;} .addon-teal .addon-price,.addon-teal .addon-icon{color:#0D9488;}
+.addon-indigo{border-top-color:#4F46E5;} .addon-indigo .addon-price,.addon-indigo .addon-icon{color:#4F46E5;}
+.addon-pink{border-top-color:#DB2777;} .addon-pink .addon-price,.addon-pink .addon-icon{color:#DB2777;}
 .event-card{border:1px solid var(--border);border-radius:var(--radius-lg);overflow:hidden;margin-bottom:11px;}
 .rewards-list{display:flex;flex-direction:column;gap:7px;}
 .reward-item{display:flex;align-items:center;justify-content:space-between;padding:10px 13px;border:1.5px solid var(--border);border-radius:var(--radius-md);background:white;}
@@ -244,39 +291,65 @@
 .grade-check.disabled{opacity:.45;cursor:not-allowed;background:var(--bg-soft);}
 .grade-picker-note{font-size:.72rem;color:var(--text-muted);margin-top:5px;}
 
-/* ══ RESPONSIVE ══ */
-@media(max-width:640px){
-  .hero-inner{flex-direction:column;gap:12px;}
-  .hero-stats{width:100%;display:grid;grid-template-columns:repeat(3,1fr);}
-  .hstat{min-width:0;}
-  .quick-actions{grid-template-columns:repeat(2,1fr);}
-  .home-kpi-grid{grid-template-columns:repeat(2,1fr);}
-  .stats-kpi{grid-template-columns:1fr;}
-  .plan-grid{grid-template-columns:1fr;}
-  .form-row{grid-template-columns:1fr;}
-  .ach-grid,.ch-grid{grid-template-columns:1fr;}
-  .notif-dropdown{width:280px;}
-  .main-tab{font-size:.77rem;padding:9px 4px;}
-  .more-dropdown{left:auto;right:0;}
-  .notif-dropdown{left:auto;right:0;}
-}
-@media(max-width:400px){
-  .hero-stats{grid-template-columns:repeat(2,1fr);}
-  .home-kpi-grid{grid-template-columns:1fr 1fr;}
+/* ══════════════════════════════════════════
+   RESPONSIVE — تابلت ثم موبايل
+   ══════════════════════════════════════════ */
+
+/* تابلت (≤ 1024px): الهيرو يفضل صف واحد لو ينفع، الإحصائيات تبقى 4 */
+@media(max-width:1024px){
+  .hero-stats{grid-template-columns:repeat(4,minmax(68px,1fr));}
 }
 
-/* ── V9: إصلاحات overflow إضافية على الجوال ── */
-.hero-left, .kpi-card, .stats-kpi-card, .ads-stat, .astat, .hstat { min-width: 0; }
-.kpi-card, .stats-kpi-card { overflow: hidden; }
-.kpi-val, .stats-kpi-val, .hstat-val { overflow-wrap: anywhere; }
-.notif-dropdown, .more-dropdown { max-width: calc(100vw - 32px); }
-@media(max-width:480px){
-  .hero-left{min-width:0 !important;width:100%;}
-  .notif-dropdown{width:calc(100vw - 32px);max-width:320px;}
-  .dash-nav-right{gap:6px;}
-  .notif-btn,.more-btn{width:36px;height:36px;font-size:1rem;}
-  #nav-teacher-name{display:none;}
+/* تابلت صغير / موبايل أفقي (≤ 820px): الهيرو عمودين طبقات */
+@media(max-width:820px){
+  .hero-inner{flex-direction:column;align-items:stretch;gap:16px;}
+  .hero-left{min-width:0;width:100%;}
+  .lv-prog-wrap{max-width:none;}
+  .hero-stats{grid-template-columns:repeat(4,1fr);width:100%;}
 }
+
+/* موبايل (≤ 640px) */
+@media(max-width:640px){
+  .hero-inner{padding:18px;}
+  .hero-name{font-size:1.18rem;}
+  .hero-stats{grid-template-columns:repeat(2,1fr);gap:9px;}
+  .quick-actions{grid-template-columns:repeat(2,1fr);gap:10px;}
+  .home-kpi-grid{grid-template-columns:repeat(2,1fr);gap:10px;}
+  .stats-kpi{grid-template-columns:1fr 1fr;}
+  .plan-grid{grid-template-columns:1fr;}
+  .form-row{grid-template-columns:1fr;}
+  .ach-grid{grid-template-columns:1fr 1fr;}
+  .ch-grid{grid-template-columns:1fr;}
+  .main-tab{font-size:.78rem;padding:10px 5px;gap:4px;}
+  .main-tab .ti{font-size:1rem;}
+  .more-dropdown{left:0;right:auto;}
+  .notif-dropdown{left:0;right:auto;}
+}
+
+/* موبايل صغير (≤ 480px) */
+@media(max-width:480px){
+  .hero-left{min-width:0!important;width:100%;}
+  .notif-dropdown{width:calc(100vw - 24px);max-width:340px;left:0;right:auto;}
+  .more-dropdown{width:auto;min-width:210px;max-width:calc(100vw - 24px);left:0;right:auto;}
+  .dash-nav-right{gap:6px;}
+  .notif-btn,.more-btn{width:36px;height:36px;}
+  #nav-teacher-name{display:none;}
+  .qa-label{font-size:.8rem;}
+  .ach-grid{grid-template-columns:1fr;}
+}
+
+/* موبايل ضيّق جدًا (≤ 360px) */
+@media(max-width:360px){
+  .hero-stats{grid-template-columns:1fr 1fr;}
+  .main-tab span{display:none;}
+  .main-tab{padding:11px 8px;}
+  .main-tab .ti{font-size:1.15rem;}
+}
+
+/* حماية overflow عامة */
+.hero-left,.kpi-card,.stats-kpi-card,.ads-stat,.hstat{min-width:0;}
+.kpi-val,.stats-kpi-val,.hstat-val{overflow-wrap:anywhere;}
+.notif-dropdown,.more-dropdown{max-width:calc(100vw - 32px);}
 </style>
 </head>
 <body>
@@ -293,12 +366,12 @@
       <!-- Bell Icon -->
       <div class="notif-wrap">
         <button class="notif-btn" id="notif-btn" onclick="toggleNotifDropdown()" aria-label="الإشعارات">
-          🔔
+          <i class="ti ti-bell" aria-hidden="true"></i>
           <span class="notif-badge" id="notif-count">0</span>
         </button>
         <div class="notif-dropdown" id="notif-dropdown">
           <div class="notif-dd-header">
-            <span class="notif-dd-title">🔔 الإشعارات</span>
+            <span class="notif-dd-title"><i class="ti ti-bell" aria-hidden="true"></i> الإشعارات</span>
             <button class="notif-dd-clear" onclick="markAllRead()">تعليم كمقروء</button>
           </div>
           <div class="notif-dd-list" id="notif-dd-list">
@@ -309,15 +382,15 @@
 
       <!-- More Menu -->
       <div class="more-menu-wrap">
-        <button class="more-btn" id="more-btn" onclick="toggleMoreMenu()" aria-label="المزيد">⋮</button>
+        <button class="more-btn" id="more-btn" onclick="toggleMoreMenu()" aria-label="المزيد"><i class="ti ti-dots-vertical" aria-hidden="true"></i></button>
         <div class="more-dropdown" id="more-dropdown">
-          <button class="more-dd-item" onclick="switchTab('profile');closeMoreMenu()">👤 ملفي الشخصي</button>
-          <button class="more-dd-item" onclick="switchTab('features');closeMoreMenu()">💎 الباقة والمميزات</button>
-          <button class="more-dd-item" onclick="switchTab('events');closeMoreMenu()">🎁 الفعاليات والمكافآت</button>
+          <button class="more-dd-item" onclick="switchTab('profile');closeMoreMenu()"><i class="ti ti-user" aria-hidden="true"></i> ملفي الشخصي</button>
+          <button class="more-dd-item" onclick="switchTab('features');closeMoreMenu()"><i class="ti ti-diamond" aria-hidden="true"></i> الباقة والمميزات</button>
+          <button class="more-dd-item" onclick="switchTab('events');closeMoreMenu()"><i class="ti ti-gift" aria-hidden="true"></i> الفعاليات والمكافآت</button>
           <div class="more-dd-divider"></div>
-          <button class="more-dd-item" onclick="openTeacherProfile();closeMoreMenu()">👁 عرض ملفي للطلاب</button>
+          <button class="more-dd-item" onclick="openTeacherProfile();closeMoreMenu()"><i class="ti ti-eye" aria-hidden="true"></i> عرض ملفي للطلاب</button>
           <div class="more-dd-divider"></div>
-          <button class="more-dd-item" onclick="logout()" style="color:var(--danger)">🚪 تسجيل الخروج</button>
+          <button class="more-dd-item" onclick="logout()" style="color:var(--danger)"><i class="ti ti-logout" aria-hidden="true"></i> تسجيل الخروج</button>
         </div>
       </div>
     </div>
@@ -330,35 +403,38 @@
   <div class="hero-dashboard" id="welcome-banner">
     <div class="hero-inner">
       <div class="hero-left">
-        <div class="hero-name">مرحباً، <span id="teacher-name-display">...</span> 👋</div>
-        <div class="hero-sub">لوحة تحكم حسابك في منصة مدرسك</div>
-        <div id="early-adopter-badge" style="display:none"><span class="early-tag">🥇 من المدرسين الأوائل</span></div>
-        <div class="lv-badge" id="lv-badge">
-          <span id="lv-icon">🌱</span>
-          <span class="lv-badge-name" id="lv-name">مبتدئ</span>
-          <div class="lv-dot" id="lv-dot" style="background:#6B7280"></div>
+        <div class="hero-top-row">
+          <div class="hero-name">مرحباً، <span id="teacher-name-display">...</span> <i class="ti ti-hand-stop" aria-hidden="true"></i></div>
+          <div class="lv-badge" id="lv-badge">
+            <span id="lv-icon"><i class="ti ti-seeding" aria-hidden="true"></i></span>
+            <span class="lv-badge-name" id="lv-name">مبتدئ</span>
+            <div class="lv-dot" id="lv-dot" style="background:#6B7280"></div>
+          </div>
+          <div id="early-adopter-badge" style="display:none"><span class="early-tag"><i class="ti ti-medal" aria-hidden="true"></i> من المدرسين الأوائل</span></div>
         </div>
-        <div class="lv-prog-labels"><span id="lv-cur">مبتدئ</span><span id="lv-pts-lbl">0 / 500</span><span id="lv-next">صاعد</span></div>
-        <div class="lv-prog-track"><div class="lv-prog-fill" id="lv-prog-fill" style="width:0%"></div></div>
-        <div class="lv-prog-pct" id="lv-prog-pct">0%</div>
+        <div class="hero-sub">لوحة تحكم حسابك في منصة مدرسك</div>
+        <div class="lv-prog-wrap">
+          <div class="lv-prog-labels"><span id="lv-cur">مبتدئ</span><span id="lv-next">صاعد</span><span id="lv-pts-lbl">0 / 500</span></div>
+          <div class="lv-prog-track"><div class="lv-prog-fill" id="lv-prog-fill" style="width:0%"></div></div>
+          <div class="lv-prog-pct" id="lv-prog-pct">0%</div>
+        </div>
       </div>
       <div class="hero-stats">
         <div class="hstat" style="padding:7px">
           <div class="circ-goal-wrap">
-            <svg width="62" height="62" style="transform:rotate(-90deg)">
-              <circle cx="31" cy="31" r="24" fill="none" stroke="rgba(255,255,255,.15)" stroke-width="5"/>
-              <circle cx="31" cy="31" r="24" fill="none" stroke="#20C997" stroke-width="5"
-                stroke-dasharray="150.8" stroke-dashoffset="150.8" stroke-linecap="round" id="circ-arc"/>
+            <svg width="58" height="58" style="transform:rotate(-90deg)">
+              <circle cx="29" cy="29" r="22" fill="none" stroke="rgba(255,255,255,.15)" stroke-width="5"/>
+              <circle cx="29" cy="29" r="22" fill="none" stroke="#20C997" stroke-width="5"
+                stroke-dasharray="138.2" stroke-dashoffset="138.2" stroke-linecap="round" id="circ-arc"/>
             </svg>
             <div class="circ-inner"><div class="circ-val" id="circ-today">0</div><div class="circ-sub">اليوم</div></div>
           </div>
-          <div class="hstat-lbl">هدف: 100</div>
+          <div class="hstat-lbl">هدف: ١٠٠</div>
         </div>
-        <div class="hstat"><div class="hstat-val" id="teacher-xp">0</div><div class="hstat-lbl">⭐ XP</div></div>
-        <div class="hstat"><div class="hstat-val" id="teacher-rp">0</div><div class="hstat-lbl">🎁 مكافأة</div></div>
-        <div class="hstat" id="rank-hstat" style="display:none"><div class="hstat-val" id="tw-rank">#—</div><div class="hstat-lbl">🏆 ترتيب</div></div>
-        <div class="hstat" title="أيام متتالية فيها تفاعل (مشاهدات/تواصل) على إعلاناتك"><div class="hstat-val" id="tw-streak">0</div><div class="hstat-lbl">🔥 تفاعل يومي</div></div>
-        <button class="hero-view-btn" onclick="openTeacherProfile()">👁 ملفي</button>
+        <div class="hstat"><div class="hstat-val" id="teacher-xp">0</div><div class="hstat-lbl"><i class="ti ti-star" aria-hidden="true"></i> XP</div></div>
+        <div class="hstat"><div class="hstat-val" id="teacher-rp">0</div><div class="hstat-lbl"><i class="ti ti-gift" aria-hidden="true"></i> مكافأة</div></div>
+        <div class="hstat" id="rank-hstat" style="display:none"><div class="hstat-val" id="tw-rank">#—</div><div class="hstat-lbl"><i class="ti ti-trophy" aria-hidden="true"></i> ترتيب</div></div>
+        <div class="hstat" title="أيام متتالية فيها تفاعل (مشاهدات/تواصل) على إعلاناتك"><div class="hstat-val" id="tw-streak">0</div><div class="hstat-lbl"><i class="ti ti-flame" aria-hidden="true"></i> تفاعل يومي</div></div>
       </div>
     </div>
   </div>
@@ -372,54 +448,54 @@
   <!-- Quick Actions -->
   <div class="quick-actions">
     <button class="qa-btn qa-primary" onclick="openAddAdModal()">
-      <span class="qa-icon">➕</span><span class="qa-label">إعلان جديد</span>
+      <span class="qa-icon"><i class="ti ti-plus" aria-hidden="true"></i></span><span class="qa-label">إعلان جديد</span>
     </button>
     <button class="qa-btn" onclick="quickEditFirstAd()">
-      <span class="qa-icon">✏️</span><span class="qa-label">تعديل إعلان</span>
+      <span class="qa-icon"><i class="ti ti-edit" aria-hidden="true"></i></span><span class="qa-label">تعديل إعلان</span>
     </button>
     <button class="qa-btn" onclick="switchTab('stats')">
-      <span class="qa-icon">📊</span><span class="qa-label">إحصائياتي</span>
+      <span class="qa-icon"><i class="ti ti-chart-bar" aria-hidden="true"></i></span><span class="qa-label">إحصائياتي</span>
     </button>
     <button class="qa-btn" onclick="switchTab('features')">
-      <span class="qa-icon">🚀</span><span class="qa-label">ترقية الباقة</span>
+      <span class="qa-icon"><i class="ti ti-rocket" aria-hidden="true"></i></span><span class="qa-label">ترقية الباقة</span>
     </button>
   </div>
 
   <!-- Main Tabs -->
   <div class="main-tabs-bar">
-    <button class="main-tab active" id="tab-btn-home" onclick="switchTab('home',this)">🏠 الرئيسية</button>
-    <button class="main-tab" id="tab-btn-ads" onclick="switchTab('ads',this)">📋 إعلاناتي</button>
-    <button class="main-tab" id="tab-btn-stats" onclick="switchTab('stats',this)">📈 التحليلات</button>
-    <button class="main-tab" id="tab-btn-leaderboard" onclick="switchTab('leaderboard',this)">🏆 الشرف</button>
+    <button class="main-tab active" id="tab-btn-home" onclick="switchTab('home',this)"><i class="ti ti-home" aria-hidden="true"></i> <span>الرئيسية</span></button>
+    <button class="main-tab" id="tab-btn-ads" onclick="switchTab('ads',this)"><i class="ti ti-clipboard-text" aria-hidden="true"></i> <span>إعلاناتي</span></button>
+    <button class="main-tab" id="tab-btn-stats" onclick="switchTab('stats',this)"><i class="ti ti-chart-line" aria-hidden="true"></i> <span>التحليلات</span></button>
+    <button class="main-tab" id="tab-btn-leaderboard" onclick="switchTab('leaderboard',this)"><i class="ti ti-award" aria-hidden="true"></i> <span>المتصدرون</span></button>
   </div>
 
   <!-- ══ HOME ══ -->
   <div class="dash-pane active" id="tab-home">
     <div class="home-kpi-grid">
       <div class="kpi-card">
-        <div class="kpi-icon" style="background:#EFF6FF">👁</div>
+        <div class="kpi-icon" style="background:#EFF6FF;color:#2563EB"><i class="ti ti-eye" aria-hidden="true"></i></div>
         <div><div class="kpi-val" style="color:#2563EB" id="home-views">—</div><div class="kpi-lbl">المشاهدات</div></div>
       </div>
       <div class="kpi-card">
-        <div class="kpi-icon" style="background:#ECFDF5">💬</div>
+        <div class="kpi-icon" style="background:#ECFDF5;color:#059669"><i class="ti ti-message-circle" aria-hidden="true"></i></div>
         <div><div class="kpi-val" style="color:#059669" id="home-contacts">—</div><div class="kpi-lbl">التواصل</div></div>
       </div>
       <div class="kpi-card">
-        <div class="kpi-icon" style="background:#FFF7ED">📋</div>
+        <div class="kpi-icon" style="background:#FFF7ED;color:#EA580C"><i class="ti ti-clipboard-check" aria-hidden="true"></i></div>
         <div><div class="kpi-val" style="color:#EA580C" id="home-active-ads">—</div><div class="kpi-lbl">إعلانات نشطة</div></div>
       </div>
       <div class="kpi-card">
-        <div class="kpi-icon" style="background:#FFFBEB">📈</div>
+        <div class="kpi-icon" style="background:#FFFBEB;color:#D97706"><i class="ti ti-trending-up" aria-hidden="true"></i></div>
         <div><div class="kpi-val" style="color:#D97706" id="home-conv">—</div><div class="kpi-lbl">معدل التحويل</div></div>
       </div>
     </div>
     <div id="home-alerts"></div>
     <div class="home-chart-wrap">
       <div class="home-chart-hd">
-        <div class="home-chart-title">📊 نشاطك آخر 7 أيام</div>
+        <div class="home-chart-title"><i class="ti ti-chart-area" aria-hidden="true"></i> نشاطك آخر ٧ أيام</div>
         <div style="display:flex;gap:5px" id="home-metric-btns">
-          <button class="mbtn active" onclick="switchHomeMetric('views',this)">👁 مشاهدات</button>
-          <button class="mbtn" onclick="switchHomeMetric('contacts',this)">💬 تواصل</button>
+          <button class="mbtn active" onclick="switchHomeMetric('views',this)"><i class="ti ti-eye" aria-hidden="true"></i> مشاهدات</button>
+          <button class="mbtn" onclick="switchHomeMetric('contacts',this)"><i class="ti ti-message-circle" aria-hidden="true"></i> تواصل</button>
         </div>
       </div>
       <div id="home-chart-loading" style="text-align:center;padding:28px;color:var(--text-muted)">
@@ -429,7 +505,7 @@
     </div>
     <div class="profile-completion-bar" id="home-profile-completion" style="display:none">
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:7px">
-        <div style="font-family:'Cairo',sans-serif;font-weight:700;font-size:.86rem">📋 اكتمال الملف الشخصي</div>
+        <div style="font-family:'Cairo',sans-serif;font-weight:700;font-size:.86rem;display:flex;align-items:center;gap:7px"><i class="ti ti-user-check" aria-hidden="true" style="color:var(--primary)"></i> اكتمال الملف الشخصي</div>
         <span id="home-completion-pct" style="font-family:'Cairo',sans-serif;font-weight:900;font-size:1rem">0%</span>
       </div>
       <div style="height:6px;border-radius:50px;background:#F1F5F9;overflow:hidden;margin-bottom:7px">
@@ -447,13 +523,13 @@
       <div class="ads-stat"><div class="ads-stat-num text-danger" id="stat-rejected">0</div><div class="ads-stat-lbl">مرفوض</div></div>
     </div>
     <div class="section-hd">
-      <h2>📋 إعلاناتي</h2>
+      <h2><i class="ti ti-clipboard-text" aria-hidden="true"></i> إعلاناتي</h2>
       <button class="btn btn-primary btn-sm" id="add-ad-btn" onclick="openAddAdModal()">+ إعلان جديد</button>
     </div>
     <div id="ads-loading" class="loading-spinner"><div class="spinner-lg"></div></div>
     <div id="ads-list" style="display:none"></div>
     <div id="ads-empty" class="empty-state" style="display:none">
-      <div class="empty-icon">📭</div>
+      <div class="empty-icon"><i class="ti ti-inbox" aria-hidden="true"></i></div>
       <div class="empty-title">لا توجد إعلانات بعد</div>
       <div class="empty-text">أضف أول إعلان لك ليظهر للطلاب</div>
       <button class="btn btn-primary mt-16" onclick="openAddAdModal()">+ إضافة إعلان</button>
@@ -466,36 +542,36 @@
     <div id="gam-locked" style="display:none"></div>
     <div id="gam-content" style="display:none">
       <div class="stats-kpi">
-        <div class="stats-kpi-card"><div class="stats-kpi-ico" style="background:#EFF6FF">👁</div><div><div class="stats-kpi-val" style="color:#2563EB" id="gsc-views">0</div><div class="stats-kpi-lbl">إجمالي المشاهدات</div></div></div>
-        <div class="stats-kpi-card"><div class="stats-kpi-ico" style="background:#ECFDF5">💬</div><div><div class="stats-kpi-val" style="color:#059669" id="gsc-wa">0</div><div class="stats-kpi-lbl">تواصل واتساب</div></div></div>
-        <div class="stats-kpi-card"><div class="stats-kpi-ico" style="background:#FFFBEB">📈</div><div><div class="stats-kpi-val" style="color:#F59E0B" id="gsc-conv-rate">0%</div><div class="stats-kpi-lbl">معدل التحويل</div></div></div>
-        <div class="stats-kpi-card"><div class="stats-kpi-ico" style="background:#FFF7ED">🔍</div><div><div class="stats-kpi-val" style="color:#EA580C" id="gsc-details">0</div><div class="stats-kpi-lbl">فتح التفاصيل</div></div></div>
+        <div class="stats-kpi-card"><div class="stats-kpi-ico" style="background:#EFF6FF;color:#2563EB"><i class="ti ti-eye" aria-hidden="true"></i></div><div><div class="stats-kpi-val" style="color:#2563EB" id="gsc-views">0</div><div class="stats-kpi-lbl">إجمالي المشاهدات</div></div></div>
+        <div class="stats-kpi-card"><div class="stats-kpi-ico" style="background:#ECFDF5;color:#059669"><i class="ti ti-brand-whatsapp" aria-hidden="true"></i></div><div><div class="stats-kpi-val" style="color:#059669" id="gsc-wa">0</div><div class="stats-kpi-lbl">تواصل واتساب</div></div></div>
+        <div class="stats-kpi-card"><div class="stats-kpi-ico" style="background:#FFFBEB;color:#F59E0B"><i class="ti ti-trending-up" aria-hidden="true"></i></div><div><div class="stats-kpi-val" style="color:#F59E0B" id="gsc-conv-rate">0%</div><div class="stats-kpi-lbl">معدل التحويل</div></div></div>
+        <div class="stats-kpi-card"><div class="stats-kpi-ico" style="background:#FFF7ED;color:#EA580C"><i class="ti ti-zoom-in" aria-hidden="true"></i></div><div><div class="stats-kpi-val" style="color:#EA580C" id="gsc-details">0</div><div class="stats-kpi-lbl">فتح التفاصيل</div></div></div>
       </div>
       <span id="gsc-ads" style="display:none">0</span>
-      <div class="gam-insight"><div class="gam-insight-title" id="gam-insight-title">🌟 مستواك الحالي</div><div class="gam-insight-sub" id="gam-insight-sub">يتم تحميل بياناتك...</div></div>
+      <div class="gam-insight"><div class="gam-insight-title" id="gam-insight-title">مستواك الحالي</div><div class="gam-insight-sub" id="gam-insight-sub">يتم تحميل بياناتك...</div></div>
       <div class="gam-tabs">
-        <button class="gtab active" onclick="switchGTab('g-activity',this)">📊 النشاط</button>
-        <button class="gtab" onclick="switchGTab('g-perad',this)">📋 الإعلانات</button>
-        <button class="gtab" onclick="switchGTab('g-achievements',this)">🏆 الإنجازات</button>
-        <button class="gtab" onclick="switchGTab('g-challenges',this)">🎯 التحديات</button>
-        <button class="gtab" onclick="switchGTab('g-levels',this)">⬆️ المستويات</button>
+        <button class="gtab active" onclick="switchGTab('g-activity',this)"><i class="ti ti-chart-bar" aria-hidden="true"></i> النشاط</button>
+        <button class="gtab" onclick="switchGTab('g-perad',this)"><i class="ti ti-clipboard-list" aria-hidden="true"></i> الإعلانات</button>
+        <button class="gtab" onclick="switchGTab('g-achievements',this)"><i class="ti ti-award" aria-hidden="true"></i> الإنجازات</button>
+        <button class="gtab" onclick="switchGTab('g-challenges',this)"><i class="ti ti-target-arrow" aria-hidden="true"></i> التحديات</button>
+        <button class="gtab" onclick="switchGTab('g-levels',this)"><i class="ti ti-stairs-up" aria-hidden="true"></i> المستويات</button>
       </div>
       <div class="gpane active" id="g-activity">
         <div class="chart-card">
           <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:11px;flex-wrap:wrap;gap:7px">
-            <div class="chart-card-title" style="margin:0">📈 آخر 7 أيام</div>
+            <div class="chart-card-title" style="margin:0"><i class="ti ti-chart-line" aria-hidden="true"></i> آخر ٧ أيام</div>
             <div style="display:flex;gap:5px" id="metric-btns">
-              <button class="mbtn active" onclick="switchMetric('views',this)">👁 مشاهدات</button>
-              <button class="mbtn" onclick="switchMetric('details',this)">🔍 تفاصيل</button>
-              <button class="mbtn" onclick="switchMetric('whatsapp',this)">💬 واتساب</button>
+              <button class="mbtn active" onclick="switchMetric('views',this)"><i class="ti ti-eye" aria-hidden="true"></i> مشاهدات</button>
+              <button class="mbtn" onclick="switchMetric('details',this)"><i class="ti ti-zoom-in" aria-hidden="true"></i> تفاصيل</button>
+              <button class="mbtn" onclick="switchMetric('whatsapp',this)"><i class="ti ti-brand-whatsapp" aria-hidden="true"></i> واتساب</button>
             </div>
           </div>
           <canvas id="area-chart" height="75"></canvas>
         </div>
         <div class="collapsible-section">
           <div class="collapsible-hd" onclick="toggleCollapsible(this)">
-            <span class="collapsible-title">📊 تفاصيل معدل التحويل</span>
-            <span class="collapsible-arrow">▼</span>
+            <span class="collapsible-title"><i class="ti ti-chart-dots" aria-hidden="true"></i> تفاصيل معدل التحويل</span>
+            <span class="collapsible-arrow"><i class="ti ti-chevron-down" aria-hidden="true"></i></span>
           </div>
           <div class="collapsible-body"><div id="conversion-section"></div></div>
         </div>
@@ -507,7 +583,7 @@
       </div>
       <div class="gpane" id="g-challenges"><div class="ch-grid" id="ch-grid"></div></div>
       <div class="gpane" id="g-levels">
-        <div class="chart-card"><div class="chart-card-title">🎯 مسار المستويات</div><div id="lpath-content"></div></div>
+        <div class="chart-card"><div class="chart-card-title"><i class="ti ti-stairs-up" aria-hidden="true"></i> مسار المستويات</div><div id="lpath-content"></div></div>
       </div>
     </div>
   </div>
@@ -515,7 +591,7 @@
   <!-- ══ LEADERBOARD ══ -->
   <div class="dash-pane" id="tab-leaderboard">
     <div class="profile-card">
-      <h3 style="font-family:'Cairo',sans-serif;font-weight:700;margin-bottom:4px">🏆 لوحة الشرف</h3>
+      <h3 style="font-family:'Cairo',sans-serif;font-weight:700;margin-bottom:4px"><i class="ti ti-award" aria-hidden="true"></i> المتصدرون</h3>
       <div style="font-size:.76rem;color:var(--text-secondary);margin-bottom:16px">الترتيب حسب نقاط الخبرة (XP)</div>
       <div id="leaderboard-content"><div class="loading-spinner"><div class="spinner-lg"></div></div></div>
     </div>
@@ -524,20 +600,20 @@
   <!-- ══ PROFILE (via More menu) ══ -->
   <div class="dash-pane" id="tab-profile">
     <div class="profile-card">
-      <h3 style="font-family:'Cairo',sans-serif;font-weight:700;margin-bottom:18px">👤 تعديل الملف الشخصي</h3>
+      <h3 style="font-family:'Cairo',sans-serif;font-weight:700;margin-bottom:18px"><i class="ti ti-user" aria-hidden="true"></i> تعديل الملف الشخصي</h3>
       <form id="profile-form" onsubmit="saveProfile(event)">
         <div class="form-group">
-          <label class="form-label">صورة المعلم</label>
+          <label class="form-label" id="p-avatar-label">صورة المعلم</label>
           <input type="file" id="p-avatar-file" class="form-control" accept="image/*">
           <div class="form-hint">تظهر في كارت الإعلان وصفحة التفاصيل.</div>
           <div id="p-avatar-preview" class="teacher-avatar-preview"></div>
         </div>
         <div class="form-row">
-          <div class="form-group"><label class="form-label">الاسم الكامل <span class="required">*</span></label><input type="text" id="p-name" class="form-control" placeholder="اسمك الكامل" required></div>
-          <div class="form-group"><label class="form-label">رقم الجوال</label><input type="tel" id="p-phone" class="form-control" placeholder="05xxxxxxxx"></div>
+          <div class="form-group"><label class="form-label" id="p-name-label">الاسم الكامل <span class="required">*</span></label><input type="text" id="p-name" class="form-control" placeholder="اسمك الكامل" required></div>
+          <div class="form-group"><label class="form-label">رقم الجوال</label><input type="tel" id="p-phone" class="form-control" placeholder="01012345678"></div>
         </div>
         <div class="form-row">
-          <div class="form-group"><label class="form-label">واتساب</label><input type="text" id="p-whatsapp" class="form-control" placeholder="966501234567"></div>
+          <div class="form-group"><label class="form-label">واتساب</label><input type="text" id="p-whatsapp" class="form-control" placeholder="201012345678"></div>
           <div class="form-group"><label class="form-label">رابط فيسبوك</label><input type="url" id="p-facebook" class="form-control" placeholder="https://facebook.com/..."></div>
         </div>
         <div class="form-group"><label class="form-label">نبذة عنك</label><textarea id="p-bio" class="form-control" rows="4" placeholder="اكتب نبذة مختصرة..."></textarea></div>
@@ -546,7 +622,7 @@
           <textarea id="p-contact-methods" class="form-control" rows="3" placeholder="تيليجرام: @username&#10;إنستجرام: https://..."></textarea>
           <div class="form-hint">تغيير كلمة المرور من لوحة الإدارة فقط.</div>
         </div>
-        <button type="submit" class="btn btn-primary btn-lg" id="profile-save-btn">💾 حفظ التغييرات</button>
+        <button type="submit" class="btn btn-primary btn-lg" id="profile-save-btn"><i class="ti ti-device-floppy" aria-hidden="true"></i> حفظ التغييرات</button>
       </form>
     </div>
   </div>
@@ -557,19 +633,19 @@
   <!-- ══ EVENTS (via More menu) ══ -->
   <div class="dash-pane" id="tab-events">
     <div class="profile-card" style="margin-bottom:13px">
-      <h3 style="font-family:'Cairo',sans-serif;font-weight:700;margin-bottom:13px">🎯 الفعاليات النشطة</h3>
+      <h3 style="font-family:'Cairo',sans-serif;font-weight:700;margin-bottom:13px"><i class="ti ti-calendar-event" aria-hidden="true"></i> الفعاليات النشطة</h3>
       <div id="events-content"><div class="loading-spinner"><div class="spinner-lg"></div></div></div>
     </div>
     <div class="profile-card">
-      <h3 style="font-family:'Cairo',sans-serif;font-weight:700;margin-bottom:10px">🏆 استرداد النقاط</h3>
+      <h3 style="font-family:'Cairo',sans-serif;font-weight:700;margin-bottom:10px"><i class="ti ti-gift" aria-hidden="true"></i> استرداد النقاط</h3>
       <div id="rewards-tiers-content"><div class="loading-spinner"><div class="spinner-lg"></div></div></div>
       <div class="alert alert-info mt-16" style="flex-direction:column;gap:7px;align-items:flex-start">
-        <div>💬 لاسترداد مكافأتك تواصل مع الإدارة.</div>
+        <div><i class="ti ti-message-2" aria-hidden="true" style="vertical-align:-2px"></i> لاسترداد مكافأتك تواصل مع الإدارة.</div>
         <a href="#" data-admin-contact data-message="مرحبًا، أريد استرداد نقاطي في منصة مدرسك" class="btn btn-primary btn-sm">تواصل مع الإدارة</a>
       </div>
       <div style="background:var(--primary-bg);border:1px solid var(--primary-border);border-radius:var(--radius-md);padding:11px;margin-top:11px;display:flex;gap:14px;flex-wrap:wrap">
-        <div style="font-size:.83rem;font-weight:700">⭐ XP: <span id="events-xp-display" style="color:var(--primary);font-family:Cairo,sans-serif;font-size:.96rem">0</span></div>
-        <div style="font-size:.83rem;font-weight:700">🎁 مكافآت: <span id="events-points-display" style="color:#F59E0B;font-family:Cairo,sans-serif;font-size:.96rem">0</span></div>
+        <div style="font-size:.83rem;font-weight:700"><i class="ti ti-star" aria-hidden="true" style="color:var(--primary);vertical-align:-2px"></i> XP: <span id="events-xp-display" style="color:var(--primary);font-family:Cairo,sans-serif;font-size:.96rem">0</span></div>
+        <div style="font-size:.83rem;font-weight:700"><i class="ti ti-gift" aria-hidden="true" style="color:#F59E0B;vertical-align:-2px"></i> مكافآت: <span id="events-points-display" style="color:#F59E0B;font-family:Cairo,sans-serif;font-size:.96rem">0</span></div>
       </div>
     </div>
   </div>
@@ -582,7 +658,7 @@
   <div class="modal" style="max-width:480px">
     <div class="modal-header">
       <h3 class="modal-title" id="ad-picker-title">اختر إعلانًا</h3>
-      <button class="modal-close" onclick="closeModal('ad-picker-modal')">✕</button>
+      <button class="modal-close" onclick="closeModal('ad-picker-modal')"><i class="ti ti-x" aria-hidden="true"></i></button>
     </div>
     <div class="modal-body" id="ad-picker-list"></div>
   </div>
@@ -593,7 +669,7 @@
   <div class="modal">
     <div class="modal-header">
       <h3 class="modal-title" id="modal-title">إضافة إعلان جديد</h3>
-      <button class="modal-close" onclick="closeAdModal()">✕</button>
+      <button class="modal-close" onclick="closeAdModal()"><i class="ti ti-x" aria-hidden="true"></i></button>
     </div>
     <div class="modal-body">
       <form id="ad-form" onsubmit="submitAd(event)">
@@ -601,27 +677,30 @@
         <div class="form-group"><label class="form-label">عنوان الإعلان <span class="required">*</span></label><input type="text" id="ad-title" class="form-control" placeholder="مثال: دروس رياضيات للصف الثالث متوسط" required></div>
         <div class="form-row">
           <div class="form-group"><label class="form-label">المادة <span class="required">*</span></label><select id="ad-subject" class="form-control form-select" required><option value="">اختر المادة</option></select></div>
-          <div class="form-group"><label class="form-label">الفصول الدراسية <span class="required">*</span></label><div id="ad-grades-box"></div><div class="grade-picker-note">يمكن اختيار أكثر من فصل من نفس القسم.</div></div>
+          <div class="form-group"><label class="form-label">الصف الدراسي <span class="required">*</span></label><div id="ad-grades-box"></div><div class="grade-picker-note">اختر صفًا واحدًا لهذا الإعلان — لو بتدرّس أكتر من صف، أضف إعلان منفصل لكل صف.</div></div>
         </div>
         <div class="form-row">
           <div class="form-group"><label class="form-label">السعر (جنيه/الحصة) <span class="required">*</span></label><input type="number" id="ad-price" class="form-control" placeholder="100" min="1" required></div>
           <div class="form-group"><label class="form-label">نوع الدرس <span class="required">*</span></label><select id="ad-lesson-type" class="form-control form-select" required><option value="">اختر</option><option value="online">🌐 أونلاين</option><option value="inperson">🏠 حضوري</option><option value="both">🌐🏠 كلاهما</option></select></div>
         </div>
+        <div class="form-row">
+          <div class="form-group"><label class="form-label">نوع الفصل <span class="required">*</span></label><select id="ad-class-format" class="form-control form-select" required><option value="">اختر</option><option value="private">👤 خصوصي</option><option value="group">👥 مجموعات</option></select></div>
+        </div>
         <div class="form-group"><label class="form-label">وصف الإعلان</label><textarea id="ad-description" class="form-control" rows="3" placeholder="اكتب تفاصيل إضافية..."></textarea></div>
         <div class="form-group">
           <label class="form-label">الصورة الرئيسية</label>
-          <div class="file-note" style="background:var(--primary-bg);border:1px solid #BFDBFE;border-radius:6px;padding:7px 10px;margin-bottom:7px;font-size:.76rem;color:#1D4ED8">📐 الأبعاد المثالية: 800×450 (16:9) — الحجم الأقصى: 6MB</div>
+          <div class="file-note" style="background:var(--primary-bg);border:1px solid #BFDBFE;border-radius:6px;padding:7px 10px;margin-bottom:7px;font-size:.76rem;color:#1D4ED8"><i class="ti ti-ruler-2" aria-hidden="true" style="vertical-align:-2px"></i> الأبعاد المثالية: ٨٠٠×٤٥٠ (١٦:٩) — الحجم الأقصى: ٦ ميجا</div>
           <input type="file" id="ad-main-image" class="form-control" accept="image/*">
           <input type="hidden" id="ad-main-image-position" value="50% 50%">
           <div class="file-note">اتركها فارغة عند التعديل إذا لا تريد تغييرها.</div>
           <div id="ad-main-position-editor" class="image-position-editor" style="display:none">
-            <div class="image-position-preview"><img id="ad-main-position-preview" alt="معاينة"></div>
+            <div class="image-position-preview"><img id="ad-main-position-preview" alt="معاينة" onerror="this.style.display='none'"></div>
             <div class="range-row"><label>أفقي</label><input type="range" id="ad-pos-x" min="0" max="100" value="50"></div>
             <div class="range-row"><label>رأسي</label><input type="range" id="ad-pos-y" min="0" max="100" value="50"></div>
           </div>
           <div id="ad-current-main-image" class="media-preview"></div>
         </div>
-        <div class="form-group"><label class="form-label">صور إضافية (حتى 10)</label><input type="file" id="ad-gallery-images" class="form-control" accept="image/*" multiple><div id="ad-current-gallery" class="media-preview"></div></div>
+        <div class="form-group"><label class="form-label">صور إضافية (حتى ١٠)</label><input type="file" id="ad-gallery-images" class="form-control" accept="image/*" multiple><div id="ad-current-gallery" class="media-preview"></div></div>
         <div class="form-group"><label class="form-label">معلومات تواصل إضافية</label><input type="text" id="ad-extra-contact" class="form-control" placeholder="تيليجرام: @username"></div>
         <div id="modal-error" class="alert alert-danger" style="display:none"></div>
         <div style="display:flex;gap:10px;justify-content:flex-end;margin-top:4px">
@@ -634,7 +713,8 @@
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="config.js?v=8.0.0"></script>
-<script src="dashboard_logic.js?v=8.0.0"></script>
+<script src="config.js?v=11.0.0"></script>
+<script src="tutorial-engine.js?v=1.2.0"></script>
+<script src="dashboard_logic.js?v=11.0.0"></script>
 </body>
 </html>

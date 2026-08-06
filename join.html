@@ -8,10 +8,10 @@
     <meta name="author" content="مدرسك" />
     <meta name="robots" content="index, follow" />
     <meta name="theme-color" content="#2563EB" />
-    <link rel="canonical" href="https://mosaabline11-sketch.github.io/modaresk/join.html" />
+    <link rel="canonical" href="https://www.modaresk.com/join.html" />
     <meta property="og:locale" content="ar_AR" />
     <meta property="og:type" content="website" />
-    <meta property="og:url" content="https://mosaabline11-sketch.github.io/modaresk/join.html" />
+    <meta property="og:url" content="https://www.modaresk.com/join.html" />
     <meta property="og:site_name" content="مدرسك" />
     <meta property="og:title" content="انضم كمدرس - مدرسك" />
     <meta property="og:description" content="انضم إلى منصة مدرسك واعرض دروسك للطلاب من خلال باقات مرنة بأسعار واضحة وشفافة." />
@@ -25,6 +25,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800;900&family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="style.css?v=8.0.0" />
     <link rel="icon" type="image/png" href="logo.png" />
+    <link rel="apple-touch-icon" href="icon-512.png">
     <link rel="manifest" href="manifest.webmanifest" />
 
     <style>
@@ -112,6 +113,41 @@
         position: relative;
         overflow: hidden;
       }
+
+      /* ══ Payment Actions ══ */
+      .payment-actions { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; }
+      .btn-pay-online {
+        background: linear-gradient(135deg, #059669, #10B981);
+        color: #fff; border: none;
+      }
+      .btn-pay-online:hover { filter: brightness(1.05); transform: translateY(-1px); }
+
+      /* ══ Partner Benefits Preview ══ */
+      .partner-benefits-box {
+        background: var(--success-bg, #ECFDF5);
+        border: 1.5px dashed var(--success, #059669);
+        border-radius: var(--radius-md);
+        padding: 12px 14px;
+        margin-top: 10px;
+        font-size: .84rem;
+      }
+      .partner-benefits-box ul { margin: 6px 0 0; padding-inline-start: 18px; }
+
+      /* ══ Payment Return Banner ══ */
+      #payment-return-banner {
+        max-width: 640px; margin: 0 auto 24px; padding: 20px; border-radius: var(--radius-lg);
+        text-align: center; background: white; border: 1px solid var(--border); box-shadow: var(--shadow-md);
+      }
+
+      /* ══ Password visibility toggle (نفس نمط login.html) ══ */
+      .input-icon-wrapper { position: relative; }
+      .input-icon-wrapper input { padding-left: 42px; }
+      .password-toggle {
+        position: absolute; left: 12px; top: 50%; transform: translateY(-50%);
+        background: none; border: none; color: var(--text-muted); cursor: pointer;
+        padding: 4px; font-size: 0.9rem; transition: color 0.2s;
+      }
+      .password-toggle:hover { color: var(--primary); }
     </style>
   </head>
   <body>
@@ -131,6 +167,9 @@
         <button class="nav-menu-btn" onclick="document.getElementById('nav-links').classList.toggle('open')">☰</button>
       </div>
     </nav>
+
+    <!-- ══ Payment Return Banner (يظهر بس لو راجع من صفحة الدفع) ══ -->
+    <div id="payment-return-banner" style="display:none"></div>
 
     <!-- ══ Hero ══ -->
     <section class="page-hero">
@@ -223,8 +262,8 @@
             <p>حدد الباقة المناسبة لك حسب مدة الإعلان والمميزات المطلوبة.</p>
           </div>
           <div class="marketing-card">
-            <h3><span class="step-num">2</span> أرسل طلبك</h3>
-            <p>أكمل نموذج الاشتراك وستنتقل لواتساب لإتمام الدفع وتأكيد الاشتراك.</p>
+            <h3><span class="step-num">2</span> ادفع أونلاين</h3>
+            <p>أكمل نموذج الاشتراك وادفع بالبطاقة مباشرةً — يُفعَّل حسابك فورًا. أو تواصل مع الإدارة يدويًا إذا كنت تفضّل طريقة أخرى.</p>
           </div>
           <div class="marketing-card">
             <h3><span class="step-num">3</span> أضف إعلانك</h3>
@@ -286,7 +325,7 @@
             </div>
           </div>
 
-          <form id="sub-form" onsubmit="handleSubscription(event)">
+          <form id="sub-form" onsubmit="handleOnlinePayment(event)">
             <div class="form-grid">
 
               <!-- Name -->
@@ -308,6 +347,22 @@
                   <span style="color:var(--text-muted);font-weight:400;font-size:.8rem">(اختياري)</span>
                 </label>
                 <input type="email" id="sub-email" class="form-control" placeholder="email@example.com" dir="ltr">
+              </div>
+
+              <!-- Username (للدفع الأونلاين فقط) -->
+              <div class="form-group">
+                <label class="form-label">اسم المستخدم لحسابك</label>
+                <input type="text" id="sub-username" class="form-control" placeholder="username" dir="ltr" minlength="3" autocomplete="username">
+                <div class="form-hint">هيبقى اسم دخولك بعد التفعيل — حروف/أرقام إنجليزي بدون مسافات</div>
+              </div>
+
+              <!-- Password (للدفع الأونلاين فقط) -->
+              <div class="form-group">
+                <label class="form-label">كلمة المرور</label>
+                <div class="input-icon-wrapper">
+                  <input type="password" id="sub-password" class="form-control" placeholder="6 أحرف على الأقل" dir="ltr" minlength="6" autocomplete="new-password">
+                  <button type="button" class="password-toggle" onclick="toggleSubPassword()" aria-label="إظهار/إخفاء كلمة المرور">👁</button>
+                </div>
               </div>
 
               <!-- Plan Select -->
@@ -342,6 +397,23 @@
                 <div id="discount-status"></div>
               </div>
 
+              <!-- Partner Code (كود المكتبة) -->
+              <div class="form-group">
+                <label class="form-label">كود شريك (مكتبة)
+                  <span style="color:var(--text-muted);font-weight:400;font-size:.8rem">(اختياري)</span>
+                </label>
+                <div class="discount-input-wrap">
+                  <input type="text" id="partner-code-input" class="form-control"
+                    placeholder="كود المكتبة" dir="ltr"
+                    oninput="this.value=this.value.toUpperCase()">
+                  <button type="button" class="btn btn-outline btn-sm" onclick="validatePartnerCode()" style="white-space:nowrap">
+                    تحقق ✓
+                  </button>
+                </div>
+                <div id="partner-code-status"></div>
+                <div id="partner-benefits-preview" style="display:none"></div>
+              </div>
+
             </div><!-- /form-grid -->
 
             <!-- Price Summary -->
@@ -362,14 +434,15 @@
             </div>
 
             <div class="alert alert-info" style="font-size:.86rem;margin-bottom:20px">
-              💬 بعد إرسال الطلب، ستنتقل لواتساب برسالة جاهزة تحتوي على بياناتك لإتمام عملية الدفع مع الإدارة.
+              💳 الدفع بالبطاقة (فيزا/ماستركارد)، ويُفعَّل حسابك تلقائيًا فور نجاح العملية.
+              <br>🎁 إذا غطّى كود الخصم أو كود الشريك السعر بالكامل (100%)، فسيُفعَّل حسابك فورًا دون الحاجة إلى إدخال أي بيانات بطاقة.
             </div>
 
             <div id="form-error" class="alert alert-danger" style="display:none;margin-bottom:16px"></div>
 
-            <div style="display:flex;gap:12px;flex-wrap:wrap">
-              <button type="submit" class="btn btn-primary btn-lg" id="subscribe-btn">
-                📨 إرسال طلب الاشتراك
+            <div class="payment-actions">
+              <button type="submit" class="btn btn-pay-online btn-lg" id="pay-online-btn">
+                💳 ادفع الآن وفعّل حسابك
               </button>
               <button type="button" class="btn btn-ghost btn-lg" onclick="closeSubscribeForm()">
                 ✕ إغلاق
@@ -474,7 +547,8 @@
     </footer>
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <script src="config.js?v=8.0.0"></script>
+    <script src="config.js?v=11.0.0"></script>
+    <script src="tutorial-engine.js?v=1.2.0"></script>
     <script>
     /* ══════════════════════════════════════════════
        Join Page — Subscription System
@@ -484,6 +558,7 @@
     let currentPackages = [];
     let selectedPlan    = null;
     let appliedDiscount = null;
+    let appliedPartnerCode = null;
 
     // ── Fallback packages if DB unreachable
     const DEFAULT_PACKAGES = [
@@ -495,8 +570,134 @@
     // ── Init
     document.addEventListener('DOMContentLoaded', async () => {
       await loadPackages();
+      checkPaymentReturn();
       // applyGlobalLaunchVisibility() بتتنفذ تلقائيًا من config.js، مفيش داعي نكررها هنا
+      initTutorials();
     });
+
+    /* ══ تطبيق كود الخصم القادم من الرابط تلقائيًا (مثل teachers.html?code=FIRST26) ══
+       آمن تمامًا: لا يمسّ منطق الدفع، فقط يملأ حقل الكود ويتحقق منه بعد فتح النموذج. */
+    (function () {
+      const _urlCode = (new URLSearchParams(window.location.search).get('code') || '').trim().toUpperCase();
+      if (!_urlCode) return;
+
+      // بانر يوضّح للمدرس أن الكود جاهز
+      window.addEventListener('DOMContentLoaded', function () {
+        try {
+          const bar = document.createElement('div');
+          bar.setAttribute('dir', 'rtl');
+          bar.style.cssText = 'background:#ECFDF5;border-bottom:1px solid #A7F3D0;color:#059669;' +
+            'font-family:Cairo,sans-serif;font-weight:700;text-align:center;padding:11px 16px;font-size:.92rem';
+          bar.innerHTML = '🎁 كود الخصم <b>' + _urlCode + '</b> جاهز — اختر باقتك وهيتطبّق تلقائيًا';
+          document.body.insertBefore(bar, document.body.firstChild);
+        } catch (e) {}
+      });
+
+      // بعد فتح النموذج أو تغيير الباقة (اللذين يعملان reset للكود) نعيد وضع الكود ونتحقق منه
+      function _reapplyUrlCode() {
+        setTimeout(function () {
+          const inp = document.getElementById('discount-code-input');
+          if (inp && !inp.value) {
+            inp.value = _urlCode;
+            if (typeof validateDiscount === 'function') { try { validateDiscount(); } catch (e) {} }
+          }
+        }, 320);
+      }
+      function _wrap(name) {
+        if (typeof window[name] === 'function') {
+          const _orig = window[name];
+          window[name] = function () { const r = _orig.apply(this, arguments); _reapplyUrlCode(); return r; };
+        }
+      }
+      _wrap('openSubscribeForm');
+      _wrap('onFormPlanChange');
+    })();
+
+    /* ══ TUTORIAL: جولات صفحة الانضمام ══ */
+    const TUT_JOIN_PLANS = [
+      {selector:'#plan-cards-dynamic', title:'اختر باقتك', text:'قارن بين الباقات المتاحة واختر ما يناسب ميزانيتك، ثم اضغط على الباقة لإتمام العملية.'},
+    ];
+    const TUT_JOIN_FORM = [
+      {selector:'.selected-plan-preview', title:'الباقة المختارة', text:'هذه هي الباقة والسعر اللذان اخترتهما، ويمكنك تغييرهما من "الباقة المختارة" بالأسفل إذا رغبت.'},
+      {selector:'#sub-name', title:'بياناتك الأساسية', text:'اسمك ورقم جوالك (سيتم التواصل معك عليه لتأكيد الاشتراك).'},
+      {selector:'#discount-code-input, #partner-code-input', title:'كود خصم أو شريك', text:'إذا كان لديك كود خصم أو كود مكتبة شريكة، فأدخله هنا وسيُحتسب السعر تلقائيًا.'},
+      {selector:'.price-summary-box', title:'السعر النهائي', text:'هنا تجد السعر النهائي بعد تطبيق أي خصم.'},
+      {selector:'#pay-online-btn', title:'ادفع وفعّل حسابك', text:'اضغط هنا وادفع بالبطاقة، وسيُفعَّل حسابك تلقائيًا فور نجاح الدفع.'},
+    ];
+
+    function initTutorials() {
+      if (typeof Tutorial === 'undefined') return;
+      // لو المستخدم راجع من صفحة الدفع، مركزه لازم يفضل عند بانر تأكيد الدفع
+      // فوق، مش ينزل تحت لجولة اختيار الباقة (هو أصلاً دفع واختار باقته بالفعل)
+      const isPaymentReturn = new URLSearchParams(window.location.search).get('payment_return') === '1';
+      if (!isPaymentReturn) setTimeout(() => Tutorial.run('join_plans', TUT_JOIN_PLANS), 500);
+      Tutorial.registerMenu([
+        {label:'📦 جولة الباقات', run:() => Tutorial.run('join_plans', TUT_JOIN_PLANS, {force:true})},
+        {label:'📝 جولة نموذج الاشتراك', run:() => {
+          const section = document.getElementById('subscribe-form-section');
+          if ((!section || section.style.display === 'none') && typeof currentPackages !== 'undefined' && currentPackages && currentPackages.length) {
+            openSubscribeForm(currentPackages[0].plan_key);
+          }
+          setTimeout(() => Tutorial.run('join_form', TUT_JOIN_FORM, {force:true}), 550);
+        }},
+      ]);
+    }
+
+    // ── لو المدرس راجع من صفحة الدفع بتاعة Paymob
+    function toggleSubPassword() {
+      const input = document.getElementById('sub-password');
+      if (input) input.type = input.type === 'password' ? 'text' : 'password';
+    }
+
+    async function checkPaymentReturn(attempt = 0) {
+      const params = new URLSearchParams(window.location.search);
+      if (params.get('payment_return') !== '1') return;
+      const requestId = params.get('request_id');
+      const banner = document.getElementById('payment-return-banner');
+      if (!requestId || !banner) return;
+
+      banner.style.display = '';
+      banner.innerHTML = `
+        <div style="font-size:2.4rem;margin-bottom:10px">⏳</div>
+        <h3 style="font-family:'Cairo',sans-serif;font-weight:800;margin-bottom:6px">جارٍ التأكد من حالة الدفع...</h3>
+        <p style="color:var(--text-secondary);font-size:.88rem">لحظات وهتظهر حالة اشتراكك هنا</p>`;
+      banner.scrollIntoView({ behavior: 'smooth', block: 'start' });
+
+      try {
+        const { data, error } = await supabase.rpc('check_subscription_request_status', { p_request_id: requestId });
+        const row = Array.isArray(data) ? data[0] : data;
+
+        if (!error && row?.status === 'active' && row?.username) {
+          banner.innerHTML = `
+            <div style="font-size:3rem;margin-bottom:10px">🎉</div>
+            <h3 style="font-family:'Cairo',sans-serif;font-weight:900;color:var(--success);margin-bottom:8px">تم الدفع وتفعيل حسابك بنجاح!</h3>
+            <div style="background:var(--bg-light);border:1px solid var(--border);border-radius:var(--radius-md);padding:14px;margin:0 auto 18px;max-width:340px;text-align:right">
+              <div style="font-size:.78rem;color:var(--text-muted);margin-bottom:6px">بيانات دخولك (احتفظ بيها):</div>
+              <div style="font-size:.92rem;margin-bottom:4px">👤 اسم المستخدم: <strong dir="ltr">${escapeHtml(row.username)}</strong></div>
+              ${row.plain_password ? `<div style="font-size:.92rem">🔑 كلمة المرور: <strong dir="ltr">${escapeHtml(row.plain_password)}</strong></div>` : ''}
+            </div>
+            <a href="login.html" class="btn btn-primary btn-lg">سجّل دخولك الآن ←</a>`;
+          return;
+        }
+
+        if (!error && (row?.status === 'awaiting_payment' || !row?.status) && attempt < 6) {
+          setTimeout(() => checkPaymentReturn(attempt + 1), 3000);
+          return;
+        }
+
+        banner.innerHTML = `
+          <div style="font-size:2.4rem;margin-bottom:10px">🕐</div>
+          <h3 style="font-family:'Cairo',sans-serif;font-weight:800;margin-bottom:6px">لسه بنستنى تأكيد الدفع</h3>
+          <p style="color:var(--text-secondary);font-size:.88rem;margin-bottom:14px">يستغرق هذا بضع ثوانٍ عادةً. إذا استمرت هذه الحالة لفترة، فحدّث الصفحة أو تواصل مع الإدارة.</p>
+          <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap">
+            <button class="btn btn-outline" onclick="checkPaymentReturn(0)">🔄 تحديث الحالة</button>
+            <a href="#" data-admin-contact data-message="مرحبًا، دفعت اشتراك في مدرسك ومحتاج أتأكد من التفعيل" class="btn btn-whatsapp">💬 تواصل مع الإدارة</a>
+          </div>`;
+        if (typeof bindAdminContactLinks === 'function') bindAdminContactLinks();
+      } catch (_) {
+        banner.innerHTML = `<p style="color:var(--danger)">حدث خطأ في التأكد من الحالة. حدّث الصفحة أو تواصل مع الإدارة.</p>`;
+      }
+    }
 
     // ── Load Packages from DB
     async function loadPackages() {
@@ -587,6 +788,8 @@
             void card.offsetWidth;
             card.classList.add('form-highlight');
           }
+          // جولة تعريفية لنموذج الاشتراك — أول مرة يتفتح فيها بس
+          if (typeof Tutorial !== 'undefined') setTimeout(() => Tutorial.run('join_form', TUT_JOIN_FORM), 500);
         }, 150);
       }
     }
@@ -622,13 +825,120 @@
       setEl('plan-duration-display', durText);
     }
 
-    // ── Reset discount state
+    // ── Reset discount + partner code state
     function resetDiscount() {
       appliedDiscount = null;
+      appliedPartnerCode = null;
       const inp    = document.getElementById('discount-code-input');
       const status = document.getElementById('discount-status');
       if (inp)    inp.value = '';
       if (status) { status.textContent = ''; status.style.color = ''; }
+
+      const pInp    = document.getElementById('partner-code-input');
+      const pStatus = document.getElementById('partner-code-status');
+      const pPreview = document.getElementById('partner-benefits-preview');
+      if (pInp)    pInp.value = '';
+      if (pStatus) { pStatus.textContent = ''; pStatus.style.color = ''; }
+      if (pPreview) pPreview.style.display = 'none';
+    }
+
+    // ── ترجمة مفاتيح المزايا لنص عربي مفهوم
+    const BENEFIT_LABELS = {
+      extra_duration_months: (v) => `+${v} ${v == 1 ? 'شهر' : 'شهور'} إضافية على مدة الاشتراك`,
+      extra_ads_limit:       (v) => `+${v} إعلان إضافي`,
+      allow_basic_stats:     () => 'إحصائيات بسيطة مجانًا',
+      allow_advanced_stats:  () => 'إحصائيات متقدمة مجانًا',
+      allow_unlimited_edits: () => 'تعديل غير محدود للإعلان',
+      allow_fast_support:    () => 'دعم أسرع',
+      professional_design:   () => 'تصميم إعلان احترافي مجاني (ستتواصل معك الإدارة بخصوصه)',
+    };
+
+    function renderBenefitsList(benefits) {
+      if (!benefits || typeof benefits !== 'object') return '';
+      const lines = Object.entries(benefits)
+        .filter(([, v]) => v !== null && v !== false && v !== 0 && v !== '')
+        .map(([k, v]) => BENEFIT_LABELS[k] ? BENEFIT_LABELS[k](v) : null)
+        .filter(Boolean);
+      return lines;
+    }
+
+    // ── Validate Partner Code (كود المكتبة)
+    async function validatePartnerCode() {
+      const code     = (document.getElementById('partner-code-input').value || '').trim().toUpperCase();
+      const statusEl = document.getElementById('partner-code-status');
+      const previewEl = document.getElementById('partner-benefits-preview');
+
+      if (!code) {
+        statusEl.textContent = 'أدخل كود الشريك أولاً';
+        statusEl.style.color = 'var(--warning)';
+        return;
+      }
+      if (!selectedPlan) {
+        statusEl.textContent = 'اختر الباقة أولاً';
+        statusEl.style.color = 'var(--warning)';
+        return;
+      }
+      if ((document.getElementById('discount-code-input').value || '').trim()) {
+        statusEl.textContent = '❌ متقدرش تستخدم كود خصم وكود شريك مع بعض';
+        statusEl.style.color = 'var(--danger)';
+        return;
+      }
+
+      statusEl.textContent = 'جارٍ التحقق...';
+      statusEl.style.color = 'var(--text-muted)';
+      previewEl.style.display = 'none';
+
+      try {
+        const { data: rows, error } = await supabase
+          .rpc('validate_partner_code', { p_code: code });
+        const data = Array.isArray(rows) ? rows[0] : rows;
+
+        if (error || !data) {
+          statusEl.textContent = '❌ كود غير صالح أو غير نشط';
+          statusEl.style.color = 'var(--danger)';
+          appliedPartnerCode = null;
+          updatePriceDisplay();
+          return;
+        }
+        if (data.expires_at && new Date(data.expires_at) < new Date()) {
+          statusEl.textContent = '❌ انتهت صلاحية الكود';
+          statusEl.style.color = 'var(--danger)';
+          appliedPartnerCode = null;
+          updatePriceDisplay();
+          return;
+        }
+        if (data.max_uses !== null && data.used_count >= data.max_uses) {
+          statusEl.textContent = '❌ تم استخدام الكود بالحد الأقصى';
+          statusEl.style.color = 'var(--danger)';
+          appliedPartnerCode = null;
+          updatePriceDisplay();
+          return;
+        }
+
+        appliedPartnerCode = data;
+        const discAmt = calcDiscountAmt(Number(selectedPlan.price), data);
+        const discLabel = data.discount_type === 'percentage'
+          ? `${data.discount_value}%`
+          : `${Number(data.discount_value).toLocaleString('ar-EG')} ج`;
+        statusEl.textContent = discAmt > 0
+          ? `✅ تم تطبيق خصم ${discLabel} — توفير ${discAmt.toLocaleString('ar-EG')} ج`
+          : `✅ كود صالح`;
+        statusEl.style.color = 'var(--success)';
+
+        const benefitLines = renderBenefitsList(data.benefits);
+        if (benefitLines.length) {
+          previewEl.innerHTML = `
+            <div class="partner-benefits-box">
+              🎁 ستحصل أيضًا على:
+              <ul>${benefitLines.map(l => `<li>${escapeHtml(l)}</li>`).join('')}</ul>
+            </div>`;
+          previewEl.style.display = '';
+        }
+        updatePriceDisplay();
+      } catch (_) {
+        statusEl.textContent = '❌ حدث خطأ، حاول مرة أخرى';
+        statusEl.style.color = 'var(--danger)';
+      }
     }
 
     // ── Validate Discount Code
@@ -651,12 +961,9 @@
       statusEl.style.color = 'var(--text-muted)';
 
       try {
-        const { data, error } = await supabase
-          .from('discount_codes')
-          .select('*')
-          .eq('code', code)
-          .eq('is_active', true)
-          .maybeSingle();
+        const { data: rows, error } = await supabase
+          .rpc('validate_discount_code', { p_code: code });
+        const data = Array.isArray(rows) ? rows[0] : rows;
 
         if (error || !data) {
           statusEl.textContent = '❌ كود غير صالح أو غير نشط';
@@ -708,9 +1015,10 @@
 
     // ── Update price display
     function updatePriceDisplay() {
-      const price   = Number(selectedPlan?.price || 0);
-      const discAmt = appliedDiscount ? calcDiscountAmt(price, appliedDiscount) : 0;
-      const final   = Math.max(0, price - discAmt);
+      const price      = Number(selectedPlan?.price || 0);
+      const activeCode = appliedDiscount || appliedPartnerCode;
+      const discAmt    = activeCode ? calcDiscountAmt(price, activeCode) : 0;
+      const final      = Math.max(0, price - discAmt);
 
       const setEl = (id, val) => { const el = document.getElementById(id); if (el) el.textContent = val; };
       setEl('price-original', price.toLocaleString('ar-EG') + ' ج');
@@ -725,152 +1033,112 @@
       }
     }
 
-    // ── Handle Form Submit
-    async function handleSubscription(e) {
+    // ── مسار الدفع الأونلاين (الأساسي) — يوزرنيم/باسورد + Paymob، تفعيل فوري بعد النجاح
+    async function handleOnlinePayment(e) {
       e.preventDefault();
       if (!selectedPlan) { showToast('يرجى اختيار باقة', 'warning'); return; }
 
-      const name    = (document.getElementById('sub-name').value  || '').trim();
-      const phone   = (document.getElementById('sub-phone').value || '').trim();
-      const email   = (document.getElementById('sub-email').value || '').trim();
-      const code    = (document.getElementById('discount-code-input').value || '').trim().toUpperCase();
-      const errEl   = document.getElementById('form-error');
+      const name     = (document.getElementById('sub-name').value  || '').trim();
+      const phone    = (document.getElementById('sub-phone').value || '').trim();
+      const email    = (document.getElementById('sub-email').value || '').trim();
+      const username = (document.getElementById('sub-username').value || '').trim();
+      const password = document.getElementById('sub-password').value || '';
+      const discountCode = (document.getElementById('discount-code-input').value || '').trim().toUpperCase();
+      const partnerCode  = (document.getElementById('partner-code-input').value || '').trim().toUpperCase();
+      const errEl    = document.getElementById('form-error');
 
       if (!name || !phone) {
         if (errEl) { errEl.textContent = 'يرجى ملء الاسم ورقم الجوال'; errEl.style.display = 'flex'; }
         return;
       }
       if (!/^[0-9٠-٩+\s]{8,15}$/.test(phone)) {
-        if (errEl) { errEl.textContent = 'رقم الجوال غير صالح — أدخل أرقامًا فقط (8 أرقام على الأقل) حتى تقدر الإدارة تتواصل معك'; errEl.style.display = 'flex'; }
+        if (errEl) { errEl.textContent = 'رقم الجوال غير صالح — أدخل أرقامًا فقط (8 أرقام على الأقل)'; errEl.style.display = 'flex'; }
+        return;
+      }
+      if (username.length < 3) {
+        if (errEl) { errEl.textContent = 'اكتب اسم مستخدم من 3 أحرف على الأقل لتتمكن من الدفع أونلاين ويُفعَّل حسابك'; errEl.style.display = 'flex'; }
+        return;
+      }
+      if (password.length < 6) {
+        if (errEl) { errEl.textContent = 'كلمة المرور لازم تكون 6 أحرف على الأقل'; errEl.style.display = 'flex'; }
+        return;
+      }
+      if (discountCode && partnerCode) {
+        if (errEl) { errEl.textContent = 'اختر كود خصم أو كود شريك، مش الاتنين مع بعض'; errEl.style.display = 'flex'; }
         return;
       }
       if (errEl) errEl.style.display = 'none';
 
-      const price    = Number(selectedPlan.price);
-
-      const btn = document.getElementById('subscribe-btn');
-      btn.disabled = true;
-      btn.innerHTML = '<span class="spinner"></span> جارٍ الإرسال...';
+      const btn = document.getElementById('pay-online-btn');
+      const btnOriginalHtml = btn ? btn.innerHTML : '';
+      if (btn) { btn.disabled = true; btn.innerHTML = '<span class="spinner"></span> جارٍ التجهيز...'; }
 
       try {
-        // استخدام كود الخصم + حفظ الطلب بقوا عملية واحدة ذرّية عبر RPC واحدة:
-        // لو فشل الحفظ لأي سبب، استهلاك الكود بيتلغي تلقائيًا معاه (رولباك)،
-        // بدل ما يتفرم الكود من غير ما ينتج عنه أي طلب فعلي (كان بيحصل قبل كده).
-        const { data: rows, error } = await supabase.rpc('submit_subscription_request', {
-          p_full_name: name,
-          p_phone: phone,
-          p_email: email || null,
-          p_plan_key: selectedPlan.plan_key,
-          p_plan_name: selectedPlan.name,
-          p_duration_months: selectedPlan.duration_months,
-          p_original_price: price,
-          p_discount_code: code || null,
+        const passwordHash = await sha256(password);
+
+        const { data, error } = await supabase.functions.invoke('create-payment-intention', {
+          body: {
+            full_name: name,
+            phone,
+            email: email || null,
+            plan_key: selectedPlan.plan_key,
+            desired_username: username,
+            password,
+            password_hash: passwordHash,
+            discount_code: discountCode || null,
+            partner_code: partnerCode || null,
+          },
         });
-        if (error) throw error;
-        const row = Array.isArray(rows) ? rows[0] : rows;
-        const discAmt = Number(row?.discount_amount || 0);
-        const final = Number(row?.final_price ?? Math.max(0, price - discAmt));
 
-        // بناء رسالة واتساب
-        const waMsg = buildWhatsAppMessage({ name, phone, email, code, discAmt, final });
-        const waPhone = (CONFIG.CONTACT_WHATSAPP || '').replace(/[^0-9]/g, '');
-
-        // إعادة تعيين النموذج أولاً
-        document.getElementById('sub-form').reset();
-        resetDiscount();
-        updatePriceDisplay();
-
-        // فتح واتساب أو عرض رسالة النجاح
-        if (waPhone) {
-          // رقم الواتساب متاح → افتح واتساب مباشرة
-          window.open(`https://wa.me/${waPhone}?text=${encodeURIComponent(waMsg)}`, '_blank', 'noopener');
-          showSuccessMessage(name, selectedPlan.name, final);
-        } else {
-          // رقم الواتساب غير محدد → اعرض رسالة نجاح مع خيار النسخ
-          showSuccessMessage(name, selectedPlan.name, final, waMsg);
+        if (error) {
+          // مكتبة supabase-js بترجع رسالة عامة زي "non-2xx status code"،
+          // الرسالة الحقيقية اللي بعتناها من الدالة موجودة جوه error.context (الـ Response نفسه)
+          let detail = error.message;
+          try {
+            if (error.context && typeof error.context.json === 'function') {
+              const body = await error.context.clone().json();
+              if (body?.error) detail = body.error;
+            }
+          } catch (_) { /* هنستخدم الرسالة الافتراضية لو فشل الاستخراج */ }
+          throw new Error(detail);
         }
+        if (!data?.success) throw new Error(data?.error || 'تعذّر إتمام العملية، حاول مرة أخرى');
+
+        if (data.activated) {
+          // كود شريك خصمه 100% — الحساب اتفعّل فورًا من غير المرور على Paymob
+          showOnlinePaymentSuccess(username, password);
+          return;
+        }
+        if (data.checkout_url) {
+          window.location.href = data.checkout_url;
+          return;
+        }
+        throw new Error('تعذّر بدء عملية الدفع، حاول مرة أخرى');
 
       } catch (err) {
-        const msg = err?.message || '';
-        const friendly = msg.includes('violates row-level security')
-          ? 'خطأ في إعدادات قاعدة البيانات — يرجى التواصل مع الإدارة مباشرة'
-          : 'حدث خطأ أثناء إرسال الطلب: ' + msg;
-        if (errEl) { errEl.textContent = friendly; errEl.style.display = 'flex'; }
-      } finally {
-        btn.disabled = false;
-        btn.textContent = '📨 إرسال طلب الاشتراك';
+        const msg = err?.message || 'حدث خطأ غير متوقع';
+        if (errEl) { errEl.textContent = msg; errEl.style.display = 'flex'; }
+        if (btn) { btn.disabled = false; btn.innerHTML = btnOriginalHtml; }
       }
     }
 
-    // ── بناء رسالة واتساب
-    function buildWhatsAppMessage({ name, phone, email, code, discAmt, final }) {
-      const dur = selectedPlan.duration_months === 1
-        ? 'شهر واحد'
-        : selectedPlan.duration_months + ' شهور';
-      let msg = `مرحبًا، أريد الاشتراك في منصة مدرسك 🎓\n\n`;
-      msg += `📋 بيانات الطلب:\n`;
-      msg += `• الاسم: ${name}\n`;
-      msg += `• رقم الجوال: ${phone}\n`;
-      if (email) msg += `• البريد الإلكتروني: ${email}\n`;
-      msg += `• الباقة: ${selectedPlan.name}\n`;
-      msg += `• مدة الاشتراك: ${dur}\n`;
-      msg += `• السعر الأصلي: ${Number(selectedPlan.price).toLocaleString('ar-EG')} ج\n`;
-      if (code && discAmt > 0) {
-        msg += `• كود الخصم: ${code}\n`;
-        msg += `• قيمة الخصم: ${discAmt.toLocaleString('ar-EG')} ج\n`;
-      }
-      msg += `• السعر النهائي: ${final.toLocaleString('ar-EG')} ج\n\n`;
-      msg += `يرجى تأكيد الاشتراك وإرشادي لطريقة الدفع 🙏`;
-      return msg;
-    }
-
-    // ── عرض رسالة النجاح بعد الإرسال
-    function showSuccessMessage(name, planName, finalPrice, waMsg) {
+    // ── عرض نجاح التفعيل الفوري (كود شريك خصمه 100%)
+    function showOnlinePaymentSuccess(username, password) {
       const formCard = document.getElementById('subscribe-form-card');
       if (!formCard) return;
-
-      const hasWa = !!(CONFIG.CONTACT_WHATSAPP || '').replace(/[^0-9]/g, '');
-
       formCard.innerHTML = `
         <div style="text-align:center;padding:28px 16px">
           <div style="font-size:3.5rem;margin-bottom:14px">🎉</div>
           <h3 style="font-family:'Cairo',sans-serif;font-weight:900;font-size:1.4rem;color:var(--success);margin-bottom:8px">
-            تم إرسال طلبك بنجاح!
+            تم تفعيل حسابك مباشرة!
           </h3>
-          <p style="color:var(--text-secondary);margin-bottom:6px">
-            شكراً <strong>${escapeHtml(name)}</strong>، تم تسجيل طلبك في باقة <strong>${escapeHtml(planName)}</strong>
-          </p>
-          <p style="color:var(--text-secondary);font-size:.88rem;margin-bottom:24px">
-            ستتواصل معك الإدارة قريباً لتأكيد الاشتراك وإتمام الدفع
-          </p>
-          ${waMsg ? `
-          <div style="background:var(--bg-light);border:1px solid var(--border);border-radius:var(--radius-md);padding:14px;margin-bottom:18px;text-align:right">
-            <div style="font-size:.78rem;color:var(--text-muted);margin-bottom:8px">رسالة واتساب جاهزة للإرسال للإدارة:</div>
-            <pre id="wa-msg-copy" style="font-family:'Tajawal',sans-serif;font-size:.82rem;color:var(--text-primary);white-space:pre-wrap;line-height:1.7;margin:0">${escapeHtml(waMsg)}</pre>
-            <button onclick="copyWaMsg()" class="btn btn-outline btn-sm" style="margin-top:10px">📋 نسخ الرسالة</button>
-          </div>` : ''}
-          <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap">
-            ${!hasWa && waMsg ? `
-            <a href="#" data-admin-contact data-message="${escapeHtml(waMsg)}" class="btn btn-whatsapp">
-              💬 إرسال عبر واتساب
-            </a>` : ''}
-            <button onclick="window.scrollTo({top:0,behavior:'smooth'});document.getElementById('subscribe-form-section').style.display='none'"
-              class="btn btn-primary">
-              العودة للرئيسية ←
-            </button>
+          <div style="background:var(--bg-light);border:1px solid var(--border);border-radius:var(--radius-md);padding:14px;margin:0 auto 20px;max-width:340px;text-align:right">
+            <div style="font-size:.78rem;color:var(--text-muted);margin-bottom:6px">بيانات دخولك (احتفظ بيها):</div>
+            <div style="font-size:.92rem;margin-bottom:4px">👤 اسم المستخدم: <strong dir="ltr">${escapeHtml(username)}</strong></div>
+            <div style="font-size:.92rem">🔑 كلمة المرور: <strong dir="ltr">${escapeHtml(password || '')}</strong></div>
           </div>
+          <a href="login.html" class="btn btn-primary btn-lg">سجّل دخولك الآن ←</a>
         </div>`;
-
-      // إعادة ربط روابط واتساب الجديدة
-      if (typeof bindAdminContactLinks === 'function') bindAdminContactLinks();
-    }
-
-    function copyWaMsg() {
-      const el = document.getElementById('wa-msg-copy');
-      if (!el) return;
-      navigator.clipboard.writeText(el.textContent)
-        .then(() => showToast('✅ تم نسخ الرسالة!', 'success'))
-        .catch(() => showToast('تعذر النسخ، انسخ النص يدوياً', 'warning'));
     }
     </script>
   </body>

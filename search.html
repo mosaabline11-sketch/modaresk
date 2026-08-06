@@ -12,10 +12,10 @@
     <meta name="keywords" content="مدرسك, مدرس خصوصي, دروس خصوصية, مدرسين, مدرس أونلاين, مدرس حضوري, منصة مدرسين, تعليم, طلاب, مصر" />
     <meta name="author" content="مدرسك" />
     <meta name="theme-color" content="#2563EB" />
-    <link rel="canonical" href="https://mosaabline11-sketch.github.io/modaresk/search.html" />
+    <link rel="canonical" href="https://www.modaresk.com/search.html" />
     <meta property="og:locale" content="ar_AR" />
     <meta property="og:type" content="website" />
-    <meta property="og:url" content="https://mosaabline11-sketch.github.io/modaresk/search.html" />
+    <meta property="og:url" content="https://www.modaresk.com/search.html" />
     <meta property="og:site_name" content="مدرسك" />
     <meta property="og:title" content="البحث عن مدرس - مدرسك" />
     <meta property="og:description" content="ابحث عن مدرس خصوصي مناسب حسب المادة والصف ونوع الدرس. تواصل مباشر عبر واتساب أو فيسبوك." />
@@ -30,6 +30,7 @@
     />
     <link rel="stylesheet" href="style.css?v=8.0.0" />
     <link rel="icon" type="image/png" href="logo.png" />
+    <link rel="apple-touch-icon" href="icon-512.png">
     <link rel="manifest" href="manifest.webmanifest" />
     <style>
       .s-hero {
@@ -518,18 +519,41 @@
             "
             >نوع الدرس:</span
           >
-          <button class="f-chip active" onclick="setType(this, '')">
-            الكل
-          </button>
-          <button class="f-chip" onclick="setType(this, 'online')">
-            🖥️ أونلاين
-          </button>
-          <button class="f-chip" onclick="setType(this, 'inperson')">
-            🏫 حضوري
-          </button>
-          <button class="f-chip" onclick="setType(this, 'both')">
-            🔀 الاثنين
-          </button>
+          <span id="type-chips">
+            <button class="f-chip active" onclick="setType(this, '')">
+              الكل
+            </button>
+            <button class="f-chip" onclick="setType(this, 'online')">
+              🖥️ أونلاين
+            </button>
+            <button class="f-chip" onclick="setType(this, 'inperson')">
+              🏫 حضوري
+            </button>
+            <button class="f-chip" onclick="setType(this, 'both')">
+              🔀 الاثنين
+            </button>
+          </span>
+          <span style="width:1px;height:20px;background:#334155;margin:0 4px"></span>
+          <span
+            style="
+              font-size: 0.78rem;
+              font-weight: 700;
+              color: #94a3b8;
+              white-space: nowrap;
+            "
+            >نوع الفصل:</span
+          >
+          <span id="format-chips">
+            <button class="f-chip active" onclick="setFormat(this, '')">
+              الكل
+            </button>
+            <button class="f-chip" onclick="setFormat(this, 'private')">
+              👤 خصوصي
+            </button>
+            <button class="f-chip" onclick="setFormat(this, 'group')">
+              👥 مجموعات
+            </button>
+          </span>
           <div
             style="
               margin-right: auto;
@@ -611,13 +635,15 @@
     </footer>
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <script src="config.js?v=8.0.0"></script>
+    <script src="config.js?v=11.0.0"></script>
+    <script src="tutorial-engine.js?v=1.2.0"></script>
     <script>
       const PG = 12;
       let allAds = [],
         filtered = [],
         curPage = 1,
-        activeType = "";
+        activeType = "",
+        activeFormat = "";
       let selGrades = new Set();
 
       // ── Approximate (Fuzzy) Search Helpers ──
@@ -686,7 +712,26 @@
 
         // إعداد البحث الصوتي والاقتراحات
         setupSearchEnhancements();
+
+        // جولة تعريفية: إزاي تدوّر وتفلتر — أول زيارة بس
+        initTutorials();
       });
+
+      /* ══ TUTORIAL: جولة صفحة البحث ══ */
+      const TUT_SEARCH = [
+        {selector:'#q', title:'ابحث بسهولة', text:'اكتب اسم المادة أو المدرس أو أي كلمة تبحث عنها، وتُرشَّح النتائج فورًا.'},
+        {selector:'#s-subject, #gp-wrap', title:'حدد المادة والصف', text:'اختر المادة والصف الدراسي لتضييق النتائج على ما يناسبك تمامًا.'},
+        {selector:'.f-bar .f-inner', title:'فلاتر إضافية', text:'نوع الدرس (أونلاين/حضوري)، نوع الفصل (خصوصي/مجموعات)، وترتيب النتائج حسب السعر.'},
+        {selector:'#s-grid .teacher-card:first-child, #s-empty', title:'اختر مدرسك', text:'اضغط على أي بطاقة لعرض تفاصيل المدرس كاملةً، وتواصل معه مباشرةً عبر واتساب أو فيسبوك.'},
+      ];
+
+      function initTutorials() {
+        if (typeof Tutorial === 'undefined') return;
+        setTimeout(() => Tutorial.run('search_flow', TUT_SEARCH), 500);
+        Tutorial.registerMenu([
+          {label:'🔍 جولة البحث والفلترة', run:() => Tutorial.run('search_flow', TUT_SEARCH, {force:true})},
+        ]);
+      }
 
       // ── تحسينات البحث: البحث الصوتي والاقتراحات الذكية ──
       function setupSearchEnhancements() {
@@ -735,7 +780,7 @@
         }
         if (!voiceRecognizer) {
           voiceRecognizer = new SpeechRec();
-          voiceRecognizer.lang = "ar-SA";
+          voiceRecognizer.lang = "ar-EG";
           voiceRecognizer.interimResults = false;
           voiceRecognizer.maxAlternatives = 1;
           voiceRecognizer.onresult = (event) => {
@@ -855,6 +900,8 @@
         filtered = allAds.filter((ad) => {
           // فلترة حسب نوع الدرس
           if (activeType && ad.lesson_type !== activeType) return false;
+          // فلترة حسب تصنيف الفصل (خصوصي/مجموعات)
+          if (activeFormat && ad.class_format !== activeFormat) return false;
           // فلترة حسب المادة
           if (sub && ad.subject !== sub) return false;
           // فلترة حسب الصف/المرحلة: قد يكون لدى الإعلان عدة فصول مفصولة بفاصلة (عربية أو إنجليزية)
@@ -894,7 +941,15 @@
       function setType(btn, type) {
         activeType = type;
         document
-          .querySelectorAll(".f-chip")
+          .querySelectorAll("#type-chips .f-chip")
+          .forEach((b) => b.classList.toggle("active", b === btn));
+        doSearch();
+      }
+
+      function setFormat(btn, format) {
+        activeFormat = format;
+        document
+          .querySelectorAll("#format-chips .f-chip")
           .forEach((b) => b.classList.toggle("active", b === btn));
         doSearch();
       }
@@ -903,9 +958,13 @@
         document.getElementById("q").value = "";
         document.getElementById("s-subject").value = "";
         activeType = "";
+        activeFormat = "";
         clearGrades();
         document
-          .querySelectorAll(".f-chip")
+          .querySelectorAll("#type-chips .f-chip")
+          .forEach((b, i) => b.classList.toggle("active", i === 0));
+        document
+          .querySelectorAll("#format-chips .f-chip")
           .forEach((b, i) => b.classList.toggle("active", i === 0));
         doSearch();
       }
@@ -955,6 +1014,7 @@
           parts.push(document.getElementById("s-subject").value);
         if (selGrades.size) parts.push([...selGrades].join(" أو "));
         if (activeType) parts.push(lessonTypeLabel(activeType));
+        if (activeFormat) parts.push(classFormatLabel(activeFormat));
         document.getElementById("res-title").textContent = parts.length
           ? `🔍 ${parts.join(" · ")}`
           : "🎓 جميع الإعلانات";

@@ -6,6 +6,7 @@
 <meta name="robots" content="noindex, nofollow, noarchive">
 <title>الإدارة المالية — مدرسك</title>
 <link rel="icon" type="image/png" href="logo.png">
+<link rel="apple-touch-icon" href="icon-512.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&family=Tajawal:wght@300;400;500;700;800&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
@@ -664,7 +665,7 @@ textarea.form-control { resize: vertical; min-height: 80px; }
 
 <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="config.js?v=8.0.0"></script>
+<script src="config.js?v=11.0.0"></script>
 <script>
 // ══════════════════════════════════════════
 // STATE & CONSTANTS
@@ -868,7 +869,7 @@ async function loadAll() {
       supabase.from('fin_leads').select('*').order('created_at', { ascending: false }),
       supabase.from('teachers').select('id,name,username,phone,whatsapp,plan_type,subscription_start,subscription_end,subscription_status,is_active,allow_basic_stats,allow_advanced_stats,allow_unlimited_edits,allow_fast_support').order('name'),
       supabase.from('ads').select('id,teacher_id,title,subject,grade,status,edit_count').order('created_at'),
-      supabase.from('analytics_events').select('event_type,teacher_id,ad_id,created_at').order('created_at', { ascending: false }).limit(2000)
+      supabase.from('analytics_events').select('event_type,teacher_id,ad_id,created_at,session_id').order('created_at', { ascending: false }).limit(2000)
     ]);
     ST.subs      = sRes.data  || [];
     ST.expenses  = eRes.data  || [];
@@ -888,14 +889,24 @@ async function loadAll() {
   } catch (e) { console.error(e); }
 }
 
+// معرّف الجهاز = الجزء قبل أول شرطة سفلية في session_id (ثابت للجهاز، الزائر = مرة)
+function deviceOf(sid) {
+  const s = String(sid || '');
+  if (!s) return '';
+  if (s.startsWith('fp_')) return s; // حالة عدم توفّر localStorage
+  const i = s.indexOf('_');
+  return i === -1 ? s : s.slice(0, i);
+}
+
 function buildAnalyticsSummary(events) {
   const byTeacher = {}, byAd = {}, monthly = {};
   const uniqueSessionsSet = new Set();
+  const uniqueDevicesSet = new Set();
   const byGrade = {};
 
   events.forEach(e => {
-    // جلسات فريدة للموقع كله
-    if (e.session_id) uniqueSessionsSet.add(e.session_id);
+    // جلسات فريدة (تتجدد كل 30 دقيقة) + أجهزة فريدة (زائر واحد مهما دخل)
+    if (e.session_id) { uniqueSessionsSet.add(e.session_id); uniqueDevicesSet.add(deviceOf(e.session_id)); }
 
     const month = (e.created_at||'').slice(0,7);
     if (!monthly[month]) monthly[month] = { visits:0, views:0, details:0, whatsapp:0, facebook:0, sessions: new Set() };
@@ -929,7 +940,8 @@ function buildAnalyticsSummary(events) {
   Object.values(byAd).forEach(v => { v.uniqueSessions = v.sessions.size; delete v.sessions; });
   Object.values(monthly).forEach(v => { v.uniqueSessions = v.sessions.size; delete v.sessions; });
 
-  return { byTeacher, byAd, monthly, total: events.length, uniqueSessions: uniqueSessionsSet.size };
+  const totalVisits = events.filter(e => e.event_type === 'site_visit').length;
+  return { byTeacher, byAd, monthly, total: events.length, uniqueSessions: uniqueSessionsSet.size, uniqueVisitors: uniqueDevicesSet.size, totalVisits };
 }
 
 function populateTeacherDropdown() {
@@ -996,7 +1008,8 @@ function renderDashboard() {
   const totalViews       = Object.values(ST.analytics.byAd||{}).reduce((a,v)=>a+v.views,0);
   const totalWhatsapp    = Object.values(ST.analytics.byAd||{}).reduce((a,v)=>a+v.whatsapp,0);
   const totalDetails     = Object.values(ST.analytics.byAd||{}).reduce((a,v)=>a+v.details,0);
-  const uniqueVisitors   = ST.analytics.uniqueSessions || 0; // زوار فريدون (session_id مختلف)
+  const uniqueVisitors   = ST.analytics.uniqueVisitors || 0; // زوار فريدون (جهاز واحد = مرة)
+  const totalVisits      = ST.analytics.totalVisits || 0;    // إجمالي زيارات الموقع
 
   document.getElementById('stats-grid').innerHTML = `
     <div class="stat-card"><div class="stat-icon green">💰</div><div><div class="stat-label">إجمالي الإيرادات</div><div class="stat-value">${fmt(totalRev)}</div></div></div>
@@ -1007,7 +1020,8 @@ function renderDashboard() {
     <div class="stat-card"><div class="stat-icon purple">🔄</div><div><div class="stat-label">مجددين هذا الشهر</div><div class="stat-value">${fmtNum(renewedM)}</div></div></div>
     <div class="stat-card"><div class="stat-icon red">⚠️</div><div><div class="stat-label">متأخرون في الدفع</div><div class="stat-value">${fmtNum(overdueCount)}</div></div></div>
     <div class="stat-card"><div class="stat-icon yellow">⏰</div><div><div class="stat-label">تنتهي خلال 7 أيام</div><div class="stat-value">${fmtNum(expiringCount)}</div></div></div>
-    <div class="stat-card"><div class="stat-icon info">👁️</div><div><div class="stat-label">ظهور الإعلانات (إجمالي)</div><div class="stat-value">${fmtNum(totalViews)}</div><div class="stat-sub">زوار فريدون: ${fmtNum(uniqueVisitors)}</div></div></div>
+    <div class="stat-card"><div class="stat-icon info">👁️</div><div><div class="stat-label">ظهور الإعلانات (إجمالي)</div><div class="stat-value">${fmtNum(totalViews)}</div></div></div>
+    <div class="stat-card"><div class="stat-icon blue">🚶</div><div><div class="stat-label">إجمالي الزيارات</div><div class="stat-value">${fmtNum(totalVisits)}</div><div class="stat-sub">زوّار فريدون: ${fmtNum(uniqueVisitors)}</div></div></div>
     <div class="stat-card"><div class="stat-icon green">💬</div><div><div class="stat-label">ضغطات واتساب</div><div class="stat-value">${fmtNum(totalWhatsapp)}</div><div class="stat-sub">${fmtNum(totalDetails)} فتح تفاصيل إعلان</div></div></div>
     <div class="stat-card"><div class="stat-icon info">💎</div><div><div class="stat-label">متوسط قيمة العميل</div><div class="stat-value">${fmt(avgValue)}</div></div></div>
     <div class="stat-card"><div class="stat-icon green">🚀</div><div><div class="stat-label">توقع إيرادات قادمة</div><div class="stat-value">${fmt(expRev)}</div><div class="stat-sub">من الاشتراكات النشطة</div></div></div>

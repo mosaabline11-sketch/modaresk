@@ -8,10 +8,10 @@
   <meta name="author" content="مدرسك">
   <meta name="robots" content="index, follow">
   <meta name="theme-color" content="#2563EB">
-  <link rel="canonical" href="https://mosaabline11-sketch.github.io/modaresk/teacher.html">
+  <link rel="canonical" href="https://www.modaresk.com/teacher.html">
   <meta property="og:locale" content="ar_AR">
   <meta property="og:type" content="website">
-  <meta property="og:url" content="https://mosaabline11-sketch.github.io/modaresk/teacher.html">
+  <meta property="og:url" content="https://www.modaresk.com/teacher.html">
   <meta property="og:site_name" content="مدرسك">
   <meta property="og:title" content="تفاصيل الإعلان - مدرسك">
   <meta property="og:description" content="اطلع على تفاصيل إعلان المدرس، المادة، الصف، السعر، الصور، الفيديوهات وطرق التواصل المباشر.">
@@ -24,6 +24,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800;900&family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css?v=8.0.0">
   <link rel="icon" type="image/png" href="logo.png">
+  <link rel="apple-touch-icon" href="icon-512.png">
   <link rel="manifest" href="manifest.webmanifest">
   <style>
     .detail-hero{background:linear-gradient(135deg,#0F172A,#1D4ED8);color:white;padding:54px 0 90px;position:relative;overflow:hidden}.detail-hero:before{content:"";position:absolute;inset:-40%;background:radial-gradient(circle,rgba(96,165,250,.25),transparent 45%);pointer-events:none}.detail-hero .container{position:relative;z-index:1}.detail-card{background:white;border:1px solid var(--border);border-radius:var(--radius-xl);box-shadow:var(--shadow-xl);padding:30px;margin-top:-52px;position:relative}.teacher-mini{display:flex;align-items:center;gap:14px;background:var(--bg-light);border:1px solid var(--border);border-radius:var(--radius-lg);padding:16px;margin:20px 0}.mini-avatar{width:58px;height:58px;border-radius:50%;background:linear-gradient(135deg,var(--primary),var(--sky));color:white;display:flex;align-items:center;justify-content:center;font-family:Cairo,sans-serif;font-weight:800;font-size:1.3rem;overflow:hidden;flex-shrink:0}.mini-avatar img{width:100%;height:100%;object-fit:cover}.detail-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin:20px 0}.detail-item{background:var(--bg-light);border:1px solid var(--border);border-radius:var(--radius-md);padding:14px}.detail-label{font-size:.78rem;color:var(--text-muted);margin-bottom:4px}.detail-value{font-weight:800;font-family:Cairo,sans-serif}.contact-row{display:flex;gap:10px;flex-wrap:wrap;margin-top:20px}.description-box{line-height:1.9;color:var(--text-secondary);font-size:1rem;background:white;border-top:1px solid var(--border-light);padding-top:20px;overflow-wrap:anywhere;word-break:break-word}@media(max-width:760px){.detail-grid{grid-template-columns:1fr 1fr}.detail-card{padding:20px}.teacher-mini{align-items:flex-start}}@media(max-width:460px){.detail-grid{grid-template-columns:1fr}}
@@ -52,7 +53,7 @@
 </main>
 <footer class="footer" style="margin-top:0"><div class="container"><div class="footer-bottom" style="border-top:none;margin-top:0">© 2026 مدرسك — جميع الحقوق محفوظة · <a href="privacy.html">سياسة الخصوصية</a> · <a href="terms.html">شروط الاستخدام</a></div></div></footer>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="config.js?v=8.0.0"></script>
+<script src="config.js?v=11.0.0"></script>
 <script>
   document.addEventListener('DOMContentLoaded', async () => {
     const params = new URLSearchParams(location.search);
@@ -61,6 +62,12 @@
     if (adId) return loadAdDetails(adId);
     if (teacherId) return loadFirstTeacherAd(teacherId);
     showNotFound();
+  });
+
+  // فتح عارض الصور بأمان عبر تفويض الحدث (بدل onclick المضمّن) — يمنع حقن JS عبر رابط صورة معدّ
+  document.addEventListener('click', (e) => {
+    const btn = e.target.closest('.image-open-btn');
+    if (btn && btn.dataset.imgUrl) openImageViewer(btn.dataset.imgUrl, btn.dataset.imgAlt || 'صورة');
   });
 
   async function loadFirstTeacherAd(teacherId){
@@ -74,39 +81,49 @@
 
   async function loadAdDetails(adId){
     try{
-      // allow preview of pending ads when the URL contains a preview query parameter
       const params = new URLSearchParams(location.search);
       const preview = params.has('preview');
-      let query = supabase
-        .from('ads')
-        .select('*, teachers(id, name, bio, avatar_url, whatsapp, facebook, phone, contact_methods, is_active, plan_type, subscription_status, subscription_end)')
-        .eq('id', adId);
-      // limit to active ads unless preview mode is enabled
-      if (!preview) query = query.eq('status','active');
-      const { data: ad, error } = await query.single();
-      // if not found or not active (and not preview), show not found
-      if (error || !ad || (!preview && !isSubscriptionActive(ad.teachers))) return showNotFound();
-      // تسجيل مشاهدة واحدة لكل إعلان لكل جهاز خلال 24 ساعة
-      try {
-        const today  = new Date().toISOString().slice(0,10);
-        const vKey   = `mdrsk_vd_${ad.id}_${today}`;
-        const alreadySeen = localStorage.getItem(vKey);
-        if (!alreadySeen) {
-          trackEvent('ad_detail_view', {ad_id: ad.id, teacher_id: ad.teacher_id, page:'teacher.html'});
-          localStorage.setItem(vKey, '1');
-          // تنظيف مفاتيح قديمة (أكثر من يومين)
-          try {
-            const yesterday = new Date(Date.now()-86400000).toISOString().slice(0,10);
-            for (let i = localStorage.length-1; i >= 0; i--) {
-              const k = localStorage.key(i);
-              if (k && k.startsWith('mdrsk_vd_') && !k.endsWith(today) && !k.endsWith(yesterday)) {
-                localStorage.removeItem(k);
+      let ad;
+      if (preview) {
+        // وضع المعاينة: نقرأ إعلان المدرّس نفسه (حتى لو غير منشور) عبر دالة متحقّقة برمز الجلسة
+        const token = (typeof Auth !== 'undefined' && Auth.getToken) ? Auth.getToken() : null;
+        if (!token) return showNotFound();
+        const { data: rows, error } = await supabase.rpc('get_ad_owned', { p_token: token, p_ad_id: adId });
+        ad = Array.isArray(rows) ? rows[0] : rows;
+        if (error || !ad) return showNotFound();
+        // نجيب بيانات المدرّس المالك لعرض البطاقة
+        const { data: t } = await supabase
+          .from('teachers')
+          .select('id, name, bio, avatar_url, whatsapp, facebook, phone, contact_methods, is_active, plan_type, subscription_status, subscription_end')
+          .eq('id', ad.teacher_id).single();
+        ad.teachers = t || null;
+      } else {
+        const { data, error } = await supabase
+          .from('ads')
+          .select('*, teachers(id, name, bio, avatar_url, whatsapp, facebook, phone, contact_methods, is_active, plan_type, subscription_status, subscription_end)')
+          .eq('id', adId).eq('status','active').single();
+        ad = data;
+        if (error || !ad || !isSubscriptionActive(ad.teachers)) return showNotFound();
+      }
+      // تسجيل مشاهدة واحدة لكل إعلان لكل جهاز خلال 24 ساعة (ليس في وضع المعاينة)
+      if (!preview) {
+        try {
+          const today  = new Date().toISOString().slice(0,10);
+          const vKey   = `mdrsk_vd_${ad.id}_${today}`;
+          if (!localStorage.getItem(vKey)) {
+            trackEvent('ad_detail_view', {ad_id: ad.id, teacher_id: ad.teacher_id, page:'teacher.html'});
+            localStorage.setItem(vKey, '1');
+            try {
+              const yesterday = new Date(Date.now()-86400000).toISOString().slice(0,10);
+              for (let i = localStorage.length-1; i >= 0; i--) {
+                const k = localStorage.key(i);
+                if (k && k.startsWith('mdrsk_vd_') && !k.endsWith(today) && !k.endsWith(yesterday)) localStorage.removeItem(k);
               }
-            }
-          } catch(_) {}
+            } catch(_) {}
+          }
+        } catch (_) {
+          trackEvent('ad_detail_view', {ad_id: ad.id, teacher_id: ad.teacher_id, page:'teacher.html'});
         }
-      } catch (_) {
-        trackEvent('ad_detail_view', {ad_id: ad.id, teacher_id: ad.teacher_id, page:'teacher.html'});
       }
       renderAd(ad);
     }catch(e){console.error(e);showNotFound();}
@@ -115,7 +132,7 @@
   function renderAd(ad){
     const t=ad.teachers || {};
     // تحديث canonical و meta ديناميكياً حسب الإعلان
-    const baseUrl = 'https://mosaabline11-sketch.github.io/modaresk/teacher.html';
+    const baseUrl = 'https://www.modaresk.com/teacher.html';
     const canonicalEl = document.querySelector('link[rel="canonical"]');
     if (canonicalEl) canonicalEl.href = `${baseUrl}?ad=${ad.id}`;
     document.title = `${escapeHtml(ad.title || ad.subject)} - ${escapeHtml(t.name || 'مدرس')} | مدرسك`;
@@ -126,7 +143,7 @@
     document.getElementById('hero-content').innerHTML=`
       <div style="color:#BFDBFE;font-weight:700;margin-bottom:8px">📋 تفاصيل الإعلان</div>
       <h1 style="font-family:Cairo,sans-serif;font-size:clamp(1.8rem,4vw,2.7rem);font-weight:900;margin-bottom:10px">${escapeHtml(ad.title || ad.subject)}</h1>
-      <p style="color:#CBD5E1">${escapeHtml(ad.subject)} • ${escapeHtml(gradeDisplay(ad))} • ${lessonTypeLabel(ad.lesson_type)}</p>`;
+      <p style="color:#CBD5E1">${escapeHtml(ad.subject)} • ${escapeHtml(gradeDisplay(ad))} • ${lessonTypeLabel(ad.lesson_type)}${ad.class_format ? ' • ' + classFormatLabel(ad.class_format) : ''}</p>`;
 
     const initial=getInitials(t.name);
     const avatar=t.avatar_url?`<img src="${escapeHtml(t.avatar_url)}" alt="${escapeHtml(t.name)}" onerror="this.style.display='none'">`:initial;
@@ -134,7 +151,7 @@
     document.getElementById('detail-content').style.display='';
     document.getElementById('detail-content').innerHTML=`
       <article class="detail-card animate-in">
-        ${ad.main_image_url ? `<button class="image-open-btn" type="button" onclick="openImageViewer('${escapeHtml(ad.main_image_url)}','${escapeHtml(ad.title || ad.subject)}')">${mediaImage(ad.main_image_url, ad.title || ad.subject, 'ad-main-detail-image')}</button>` : ''}
+        ${ad.main_image_url ? `<button class="image-open-btn" type="button" data-img-url="${escapeHtml(ad.main_image_url)}" data-img-alt="${escapeHtml(ad.title || ad.subject)}">${mediaImage(ad.main_image_url, ad.title || ad.subject, 'ad-main-detail-image')}</button>` : ''}
         <div class="teacher-mini">
           <div class="mini-avatar">${avatar}</div>
           <div style="flex:1">
@@ -146,6 +163,7 @@
           <div class="detail-item"><div class="detail-label">المادة</div><div class="detail-value">${escapeHtml(ad.subject)}</div></div>
           <div class="detail-item"><div class="detail-label">الصف/المرحلة</div><div class="detail-value">${escapeHtml(gradeDisplay(ad))}</div></div>
           <div class="detail-item"><div class="detail-label">نوع الدرس</div><div class="detail-value">${lessonTypeLabel(ad.lesson_type)}</div></div>
+          ${ad.class_format ? `<div class="detail-item"><div class="detail-label">نوع الفصل</div><div class="detail-value">${classFormatLabel(ad.class_format)}</div></div>` : ''}
           <div class="detail-item"><div class="detail-label">السعر</div><div class="detail-value" style="color:var(--primary)">${formatPrice(ad.price)} / الحصة</div></div>
         </div>
         <div class="description-box">
@@ -155,7 +173,7 @@
         ${normalizeList(ad.gallery_images).length ? `
           <div class="description-box">
             <h3 style="margin-bottom:10px;color:var(--text-primary)">صور إضافية</h3>
-            <div class="gallery-grid">${normalizeList(ad.gallery_images).map(url => `<button class="image-open-btn" type="button" onclick="openImageViewer('${escapeHtml(url)}','صورة إضافية للإعلان')">${mediaImage(url, 'صورة إضافية للإعلان')}</button>`).join('')}</div>
+            <div class="gallery-grid">${normalizeList(ad.gallery_images).map(url => `<button class="image-open-btn" type="button" data-img-url="${escapeHtml(url)}" data-img-alt="صورة إضافية للإعلان">${mediaImage(url, 'صورة إضافية للإعلان')}</button>`).join('')}</div>
           </div>` : ''}
         ${normalizeList(ad.video_links).length ? `
           <div class="description-box">

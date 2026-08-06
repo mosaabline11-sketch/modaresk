@@ -12,10 +12,10 @@ const CONFIG = {
 
   // ── App Settings ──
   // غيّر SITE_BASE_URL إلى رابط موقعك الحقيقي بعد النشر لتحسين SEO وملف sitemap.xml
-  SITE_BASE_URL: "https://mosaabline11-sketch.github.io/modaresk",
+  SITE_BASE_URL: "https://www.modaresk.com",
   // ضع رقم واتساب الإدارة بصيغة دولية بدون + لتفعيل أزرار التواصل، مثال: 201234567890
-  CONTACT_WHATSAPP: "+966 54 839 0129",
-  CONTACT_EMAIL: "",
+  CONTACT_WHATSAPP: "+20 10 80474084",
+  CONTACT_EMAIL: "support@modaresk.com",
   APP_NAME: "مدرسك",
   APP_TAGLINE: "ابحث عن مدرسك المثالي",
   DEFAULT_ADS_LIMIT: 1, // احتياطي فقط؛ كل الباقات الحالية تحدد ads_limit الخاص بها صراحة
@@ -125,6 +125,14 @@ function escapeAttr(str = "") {
 }
 function nl2br(str = "") { return escapeHtml(str).replace(/\n/g, "<br>"); }
 
+// يسمح فقط بمخططات روابط آمنة (http/https/mailto/tel) ويمنع javascript:/data: وغيرها،
+// ويهرّب الناتج ليكون آمنًا داخل سمة href. أي رابط غير آمن يرجع "#".
+function safeUrl(url = "") {
+  const s = String(url).trim();
+  if (/^(https?:\/\/|mailto:|tel:)/i.test(s)) return escapeHtml(s);
+  return "#";
+}
+
 
 // ── Platform Contact Helpers ──
 function adminContactUrl(message = "") {
@@ -210,7 +218,7 @@ function buildContactButtons(teacher = {}, ad = {}, size = 'btn-sm', options = {
     const wa = `https://wa.me/${String(teacher.whatsapp).replace(/[^0-9]/g,'')}`;
     btns.push(`<a href="${escapeHtml(wa)}" target="_blank" rel="noopener" onclick="${stop} trackEvent('whatsapp_click',{ad_id:'${escapeHtml(adId)}',teacher_id:'${escapeHtml(teacherId)}'})" class="btn btn-whatsapp ${size}">واتساب</a>`);
   }
-  if (teacher.facebook) btns.push(`<a href="${escapeHtml(teacher.facebook)}" target="_blank" rel="noopener" onclick="${stop} trackEvent('facebook_click',{ad_id:'${escapeHtml(adId)}',teacher_id:'${escapeHtml(teacherId)}'})" class="btn btn-facebook ${size}">فيسبوك</a>`);
+  if (teacher.facebook) btns.push(`<a href="${safeUrl(teacher.facebook)}" target="_blank" rel="noopener" onclick="${stop} trackEvent('facebook_click',{ad_id:'${escapeHtml(adId)}',teacher_id:'${escapeHtml(teacherId)}'})" class="btn btn-facebook ${size}">فيسبوك</a>`);
   if (teacher.phone) btns.push(`<a href="tel:${escapeHtml(teacher.phone)}" onclick="${stop} trackEvent('phone_click',{ad_id:'${escapeHtml(adId)}',teacher_id:'${escapeHtml(teacherId)}'})" class="btn btn-ghost ${size}">📞 اتصال</a>`);
 
   const extras = [...parseExtraContacts(teacher.contact_methods), ...parseExtraContacts(ad.extra_contact)];
@@ -287,10 +295,9 @@ function mediaImage(url, alt = "صورة الإعلان", className = "") {
 }
 
 function videoEmbedHtml(url) {
-  const safe = escapeHtml(url);
   let yt = String(url).match(/(?:youtube\.com\/(?:watch\?v=|embed\/|shorts\/)|youtu\.be\/)([A-Za-z0-9_-]{6,})/);
   if (yt) return `<div class="video-frame"><iframe src="https://www.youtube.com/embed/${yt[1]}" title="فيديو الإعلان" allowfullscreen loading="lazy"></iframe></div>`;
-  return `<a class="media-link" href="${safe}" target="_blank" rel="noopener">🎬 فتح الفيديو</a>`;
+  return `<a class="media-link" href="${safeUrl(url)}" target="_blank" rel="noopener">🎬 فتح الفيديو</a>`;
 }
 
 
@@ -778,7 +785,7 @@ function eventTypeLabel(type = '') {
 }
 
 function trackedContactHref(href, eventType, adId, teacherId) {
-  const safeHref = escapeAttr(href || "#");
+  const safeHref = safeUrl(href || "#");
   const safeEvent = escapeAttr(eventType || "");
   const safeAd = escapeAttr(adId || "");
   const safeTeacher = escapeAttr(teacherId || "");
@@ -860,6 +867,17 @@ const TEACHER_SESSION_MAX_AGE = 30 * 24 * 60 * 60 * 1000; // 30 يوم
 
 const Auth = {
   setTeacherSession(teacher) {
+    // نحافظ على توكن الجلسة الصادر من السيرفر:
+    //  - وقت الدخول بيجي في teacher.session_token
+    //  - عند تحديث بيانات الجلسة (spread للكائن الحالي) بيجي في teacher.token
+    //  - وكـ fallback أخير بنقرأ التوكن المخزّن مسبقًا حتى لا يضيع
+    let token = teacher.session_token || teacher.token || null;
+    if (!token) {
+      try {
+        const prev = JSON.parse(localStorage.getItem(TEACHER_SESSION_KEY) || "null");
+        if (prev && prev.token) token = prev.token;
+      } catch (_) {}
+    }
     localStorage.setItem(
       TEACHER_SESSION_KEY,
       JSON.stringify({
@@ -867,6 +885,7 @@ const Auth = {
         username: teacher.username,
         name: teacher.name,
         ads_limit: teacher.ads_limit,
+        token: token,
         ts: Date.now(),
       }),
     );
@@ -883,6 +902,11 @@ const Auth = {
     } catch {
       return null;
     }
+  },
+  // توكن جلسة السيرفر المطلوب لكل عمليات الكتابة المتحقّقة (حفظ ملف/إعلانات/مكافآت)
+  getToken() {
+    const s = this.getTeacherSession();
+    return s && s.token ? s.token : null;
   },
   clearTeacher() {
     localStorage.removeItem(TEACHER_SESSION_KEY);
@@ -988,6 +1012,16 @@ function lessonTypeBadgeClass(type) {
   return map[type] || "";
 }
 
+function classFormatLabel(type) {
+  const map = { private: "👤 خصوصي", group: "👥 مجموعات" };
+  return map[type] || "";
+}
+
+function classFormatBadgeClass(type) {
+  const map = { private: "badge-private", group: "badge-group" };
+  return map[type] || "";
+}
+
 function statusLabel(status) {
   const map = { pending: "قيد المراجعة", active: "مقبول", rejected: "مرفوض" };
   return map[status] || status;
@@ -1076,6 +1110,7 @@ function buildTeacherCard(ad, teacher) {
       <div class="tc-meta">
         <span class="tc-badge badge-grade">📗 ${escapeHtml(ad.grade || '')}</span>
         <span class="tc-badge ${lessonTypeBadgeClass(ad.lesson_type)}">${lessonTypeLabel(ad.lesson_type)}</span>
+        ${ad.class_format ? `<span class="tc-badge ${classFormatBadgeClass(ad.class_format)}">${classFormatLabel(ad.class_format)}</span>` : ''}
       </div>
       <div class="tc-desc">${escapeHtml(ad.description || "لا يوجد وصف")}</div>
       <div class="tc-price">${formatPrice(ad.price)} <span>/ الحصة</span></div>
@@ -1092,7 +1127,7 @@ function openImageViewer(url, alt = 'صورة') {
   overlay.className = 'image-viewer open';
   overlay.innerHTML = `
     <button class="image-viewer-close" type="button" aria-label="إغلاق">✕</button>
-    <img src="${escapeHtml(url)}" alt="${escapeHtml(alt)}">
+    <img src="${escapeHtml(url)}" alt="${escapeHtml(alt)}" onerror="this.closest('.image-viewer')?.remove(); document.body.style.overflow='';">
   `;
   document.body.appendChild(overlay);
   document.body.style.overflow = 'hidden';
@@ -1110,7 +1145,7 @@ function confirmDialog(message, onConfirm) {
     <div class="modal" style="max-width:420px">
       <div class="modal-body" style="padding:28px;text-align:center">
         <div style="font-size:2.5rem;margin-bottom:12px">⚠️</div>
-        <h3 style="margin-bottom:12px;font-family:'Cairo',sans-serif">${message}</h3>
+        <h3 style="margin-bottom:12px;font-family:'Cairo',sans-serif">${escapeHtml(message)}</h3>
         <div style="display:flex;gap:12px;justify-content:center;margin-top:20px">
           <button class="btn btn-danger" id="confirm-yes">تأكيد</button>
           <button class="btn btn-ghost" id="confirm-no">إلغاء</button>
@@ -1257,7 +1292,7 @@ const Announcements = {
           <div class="ann-body">
             <div class="ann-title">${escapeHtml(a.title)}</div>
             <div>${nl2br(a.message)}</div>
-            ${a.link_url ? `<a href="${escapeHtml(a.link_url)}" target="_blank" class="ann-link">${escapeHtml(a.link_label || 'معرفة المزيد')} ←</a>` : ''}
+            ${a.link_url ? `<a href="${safeUrl(a.link_url)}" target="_blank" class="ann-link">${escapeHtml(a.link_label || 'معرفة المزيد')} ←</a>` : ''}
           </div>
           <button class="ann-close" onclick="Announcements.closeBanner('${a.id}', this)" aria-label="إغلاق">✕</button>
         </div>`).join('');
@@ -1286,7 +1321,7 @@ const Announcements = {
         </div>
         <div class="ann-modal-body">${nl2br(ann.message)}</div>
         <div class="ann-modal-foot">
-          ${ann.link_url ? `<a href="${escapeHtml(ann.link_url)}" target="_blank" class="btn btn-outline">${escapeHtml(ann.link_label || 'معرفة المزيد')}</a>` : ''}
+          ${ann.link_url ? `<a href="${safeUrl(ann.link_url)}" target="_blank" class="btn btn-outline">${escapeHtml(ann.link_label || 'معرفة المزيد')}</a>` : ''}
           <button class="btn btn-primary" id="ann-urgent-ok">فهمت ✓</button>
         </div>
       </div>`;

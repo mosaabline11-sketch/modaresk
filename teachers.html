@@ -1,0 +1,607 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>سجّل كمدرس في مدرسك — طلاب جُدد بيدوّروا عليك</title>
+  <meta name="description" content="انضم لمنصة مدرسك كمدرس خصوصي: بروفايل احترافي يعرض خبرتك، وطلاب وأولياء أمور يتواصلوا معك مباشرة. باقة الشهر مجانًا 100% لأول 100 مدرس مؤسس بكود FIRST26.">
+  <meta name="keywords" content="سجل كمدرس, انضم كمدرس, مدرس خصوصي, مدرسك, Modaresk, وظيفة تدريس, دخل إضافي للمدرسين, بروفايل مدرس, دروس خصوصية مصر">
+  <meta name="author" content="مدرسك">
+  <link rel="canonical" href="https://www.modaresk.com/teachers.html">
+
+  <!-- Open Graph -->
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="مدرسك">
+  <meta property="og:locale" content="ar_EG">
+  <meta property="og:title" content="سجّل كمدرس في مدرسك — طلاب جُدد بيدوّروا عليك">
+  <meta property="og:description" content="بروفايل احترافي يعرض خبرتك + طلاب يتواصلوا معك مباشرة. باقة الشهر مجانًا 100% لأول 100 مدرس مؤسس.">
+  <meta property="og:url" content="https://www.modaresk.com/teachers.html">
+  <meta property="og:image" content="https://www.modaresk.com/logo.png">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="سجّل كمدرس في مدرسك">
+  <meta name="twitter:description" content="بروفايل احترافي + طلاب يتواصلوا معك مباشرة. باقة الشهر مجانًا لأول 100 مدرس مؤسس.">
+  <meta name="twitter:image" content="https://www.modaresk.com/logo.png">
+
+  <link rel="icon" type="image/png" href="logo.png">
+
+  <!-- ===================================================================
+       Meta Pixel — الصق كود البكسل بتاعك هنا لاحقًا لتتبّع التسجيلات
+       استبدل PIXEL_ID برقم البكسل من Meta Events Manager، وأزل التعليق.
+  ====================================================================
+  <script>
+    !function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+    n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;
+    n.push=n;n.loaded=!0;n.version='2.0';n.queue=[];t=b.createElement(e);t.async=!0;
+    t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}(window,
+    document,'script','https://connect.facebook.net/en_US/fbevents.js');
+    fbq('init', 'PIXEL_ID');
+    fbq('track', 'PageView');
+  </script>
+  -->
+
+  <!-- خطوط ومتغيّرات الموقع الأساسية -->
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800;900&family=Cairo:wght@400;600;700;800;900&display=swap">
+
+  <style>
+    :root{
+      --primary:#2563EB; --primary-light:#3B82F6; --primary-dark:#1D4ED8;
+      --primary-bg:#EFF6FF; --primary-border:#BFDBFE;
+      --sky:#0EA5E9; --sky-bg:#F0F9FF;
+      --success:#10B981; --success-dark:#059669; --success-bg:#ECFDF5;
+      --gold:#F59E0B; --gold-bg:#FFFBEB;
+      --ink:#0F172A; --text-2:#475569; --text-3:#94A3B8;
+      --border:#E2E8F0; --border-light:#F1F5F9;
+      --white:#FFFFFF; --bg:#F8FAFC; --bg-soft:#F1F5F9;
+      --shadow-sm:0 1px 6px rgba(15,23,42,.07);
+      --shadow-md:0 6px 22px rgba(15,23,42,.09);
+      --shadow-lg:0 14px 40px rgba(37,99,235,.16);
+      --r-sm:10px; --r-md:14px; --r-lg:20px; --r-xl:28px; --r-full:999px;
+      --maxw:1140px;
+    }
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    html{scroll-behavior:smooth}
+    body{
+      font-family:'Tajawal',sans-serif; background:var(--bg); color:var(--ink);
+      line-height:1.7; overflow-x:hidden; -webkit-font-smoothing:antialiased;
+    }
+    h1,h2,h3,h4{font-family:'Cairo',sans-serif; font-weight:800; line-height:1.3}
+    a{text-decoration:none; color:inherit}
+    img{max-width:100%; display:block}
+    .wrap{max-width:var(--maxw); margin:0 auto; padding:0 20px}
+
+    /* ── Buttons ── */
+    .btn{
+      display:inline-flex; align-items:center; justify-content:center; gap:9px;
+      font-family:'Cairo',sans-serif; font-weight:700; font-size:1rem;
+      padding:15px 30px; border-radius:var(--r-full); border:2px solid transparent;
+      cursor:pointer; transition:transform .18s ease, box-shadow .18s ease, background .18s ease;
+      white-space:nowrap;
+    }
+    .btn-primary{background:var(--primary); color:#fff; box-shadow:var(--shadow-lg)}
+    .btn-primary:hover{background:var(--primary-dark); transform:translateY(-2px)}
+    .btn-success{background:var(--success); color:#fff; box-shadow:0 12px 30px rgba(16,185,129,.28)}
+    .btn-success:hover{background:var(--success-dark); transform:translateY(-2px)}
+    .btn-wa{background:#25D366; color:#fff}
+    .btn-wa:hover{background:#1eb959; transform:translateY(-2px)}
+    .btn-ghost{background:var(--white); color:var(--primary); border-color:var(--primary-border)}
+    .btn-ghost:hover{background:var(--primary-bg)}
+    .btn-lg{padding:18px 40px; font-size:1.08rem}
+    .btn-block{width:100%}
+
+    /* ── Top bar ── */
+    .topbar{
+      position:sticky; top:0; z-index:50; background:rgba(255,255,255,.88);
+      backdrop-filter:blur(10px); border-bottom:1px solid var(--border);
+    }
+    .topbar .wrap{display:flex; align-items:center; justify-content:space-between; height:66px}
+    .brand{display:flex; align-items:center; gap:10px; font-family:'Cairo',sans-serif; font-weight:900; font-size:1.25rem; color:var(--primary)}
+    .brand img{width:38px; height:38px; object-fit:contain}
+    .topbar .btn{padding:10px 22px; font-size:.92rem}
+
+    /* ── Hero ── */
+    .hero{position:relative; padding:60px 0 70px; overflow:hidden}
+    .hero::before{
+      content:""; position:absolute; inset:0; z-index:-1;
+      background:
+        radial-gradient(60% 55% at 85% 8%, rgba(37,99,235,.10), transparent 60%),
+        radial-gradient(50% 50% at 8% 95%, rgba(14,165,233,.10), transparent 60%),
+        var(--bg);
+    }
+    .hero-grid{display:grid; grid-template-columns:1.05fr .95fr; gap:50px; align-items:center}
+    .eyebrow{
+      display:inline-flex; align-items:center; gap:7px; font-family:'Cairo',sans-serif;
+      font-weight:700; font-size:.82rem; color:var(--primary);
+      background:var(--primary-bg); border:1px solid var(--primary-border);
+      padding:6px 15px; border-radius:var(--r-full); margin-bottom:18px;
+    }
+    .hero h1{font-size:2.7rem; font-weight:900; letter-spacing:-.5px; margin-bottom:16px}
+    .hero h1 .hl{color:var(--primary); position:relative; white-space:nowrap}
+    .hero h1 .hl::after{
+      content:""; position:absolute; right:0; left:0; bottom:2px; height:12px;
+      background:rgba(37,99,235,.16); border-radius:6px; z-index:-1;
+    }
+    .hero .lede{font-size:1.15rem; color:var(--text-2); margin-bottom:24px; max-width:520px}
+
+    .offer-pill{
+      display:flex; align-items:center; gap:12px; background:var(--success-bg);
+      border:1.5px solid #A7F3D0; border-radius:var(--r-md); padding:12px 16px;
+      margin-bottom:26px; max-width:520px;
+    }
+    .offer-pill .gift{font-size:1.5rem; line-height:1}
+    .offer-pill b{font-family:'Cairo',sans-serif; color:var(--success-dark); font-size:1rem}
+    .offer-pill .code{
+      font-family:'Cairo',monospace; background:#fff; color:var(--success-dark);
+      border:1.5px dashed var(--success); border-radius:8px; padding:2px 10px;
+      font-weight:800; letter-spacing:1px; margin:0 3px;
+    }
+    .hero-cta{display:flex; flex-wrap:wrap; gap:12px; margin-bottom:20px}
+    .microtrust{display:flex; flex-wrap:wrap; gap:16px 22px; color:var(--text-2); font-size:.9rem}
+    .microtrust span{display:inline-flex; align-items:center; gap:6px}
+    .microtrust .tick{color:var(--success); font-weight:800}
+
+    /* ── Signature: teacher profile card mock ── */
+    .profile-card{
+      position:relative; background:#fff; border:1px solid var(--border);
+      border-radius:var(--r-xl); box-shadow:var(--shadow-md); padding:26px 24px 22px;
+      max-width:380px; margin-inline:auto; transform:rotate(-1.4deg);
+      transition:transform .3s ease;
+    }
+    .profile-card:hover{transform:rotate(0deg) translateY(-4px)}
+    .profile-card .ribbon{
+      position:absolute; top:16px; left:-8px; background:var(--primary); color:#fff;
+      font-family:'Cairo',sans-serif; font-weight:700; font-size:.72rem;
+      padding:5px 14px; border-radius:6px; box-shadow:var(--shadow-sm);
+    }
+    .pc-top{display:flex; align-items:center; gap:14px; margin-bottom:16px}
+    .pc-avatar{
+      width:64px; height:64px; border-radius:50%; flex:none;
+      background:linear-gradient(135deg,var(--primary),var(--sky));
+      display:flex; align-items:center; justify-content:center;
+      color:#fff; font-family:'Cairo',sans-serif; font-weight:800; font-size:1.5rem;
+    }
+    .pc-name{font-family:'Cairo',sans-serif; font-weight:800; font-size:1.15rem}
+    .pc-sub{color:var(--text-2); font-size:.86rem; margin-top:2px}
+    .pc-badges{display:flex; flex-wrap:wrap; gap:7px; margin-bottom:14px}
+    .pc-badge{
+      font-size:.78rem; font-weight:700; font-family:'Cairo',sans-serif;
+      padding:4px 11px; border-radius:var(--r-full);
+      background:var(--primary-bg); color:var(--primary-dark);
+    }
+    .pc-badge.sky{background:var(--sky-bg); color:#0369A1}
+    .pc-badge.gold{background:var(--gold-bg); color:#B45309}
+    .pc-meta{display:flex; align-items:center; gap:6px; color:var(--text-2); font-size:.85rem; margin-bottom:6px}
+    .pc-stars{color:var(--gold); letter-spacing:2px; font-size:.95rem}
+    .pc-rate{color:var(--text-3); font-size:.8rem}
+    .pc-divider{height:1px; background:var(--border-light); margin:14px 0}
+    .pc-wa{
+      display:flex; align-items:center; justify-content:center; gap:8px;
+      background:#25D366; color:#fff; font-family:'Cairo',sans-serif; font-weight:700;
+      border-radius:var(--r-full); padding:11px; font-size:.92rem;
+    }
+    .pc-float{
+      position:absolute; background:#fff; border:1px solid var(--border);
+      border-radius:var(--r-md); box-shadow:var(--shadow-md); padding:9px 13px;
+      font-family:'Cairo',sans-serif; font-weight:700; font-size:.82rem;
+      display:flex; align-items:center; gap:8px;
+    }
+    .pc-float .dot{width:9px; height:9px; border-radius:50%; background:var(--success); box-shadow:0 0 0 4px rgba(16,185,129,.18)}
+    .pc-float.f1{bottom:-16px; right:-14px}
+    .pc-float.f2{top:40px; left:-26px; color:var(--primary)}
+
+    /* ── Trust strip ── */
+    .strip{background:var(--ink); color:#fff; padding:18px 0}
+    .strip .wrap{display:grid; grid-template-columns:repeat(4,1fr); gap:14px}
+    .strip-item{display:flex; align-items:center; gap:10px; justify-content:center; font-family:'Cairo',sans-serif; font-weight:600; font-size:.92rem}
+    .strip-item .ic{font-size:1.25rem}
+
+    /* ── Sections ── */
+    section{padding:72px 0}
+    .sec-head{text-align:center; max-width:640px; margin:0 auto 46px}
+    .sec-tag{font-family:'Cairo',sans-serif; font-weight:700; color:var(--primary); font-size:.9rem; margin-bottom:8px}
+    .sec-head h2{font-size:2.05rem; margin-bottom:12px}
+    .sec-head p{color:var(--text-2); font-size:1.08rem}
+
+    /* Features */
+    .feat-grid{display:grid; grid-template-columns:repeat(3,1fr); gap:22px}
+    .feat{
+      background:#fff; border:1px solid var(--border); border-radius:var(--r-lg);
+      padding:30px 26px; transition:transform .2s ease, box-shadow .2s ease;
+    }
+    .feat:hover{transform:translateY(-5px); box-shadow:var(--shadow-md); border-color:var(--primary-border)}
+    .feat .ic{
+      width:56px; height:56px; border-radius:var(--r-md); display:flex;
+      align-items:center; justify-content:center; font-size:1.7rem; margin-bottom:16px;
+      background:var(--primary-bg);
+    }
+    .feat h3{font-size:1.25rem; margin-bottom:9px}
+    .feat p{color:var(--text-2); font-size:.98rem}
+
+    /* Steps */
+    .steps{background:var(--white)}
+    .step-grid{display:grid; grid-template-columns:repeat(3,1fr); gap:26px; position:relative}
+    .step{text-align:center; position:relative}
+    .step-num{
+      width:62px; height:62px; margin:0 auto 18px; border-radius:50%;
+      background:var(--primary); color:#fff; font-family:'Cairo',sans-serif;
+      font-weight:900; font-size:1.7rem; display:flex; align-items:center; justify-content:center;
+      box-shadow:var(--shadow-lg); position:relative; z-index:2;
+    }
+    .step h3{font-size:1.2rem; margin-bottom:8px}
+    .step p{color:var(--text-2); font-size:.97rem; max-width:280px; margin:0 auto}
+
+    /* Offer band */
+    .offer-band{
+      background:linear-gradient(135deg,var(--success),var(--success-dark));
+      color:#fff; text-align:center; border-radius:var(--r-xl); padding:52px 30px;
+      box-shadow:0 20px 50px rgba(16,185,129,.28); position:relative; overflow:hidden;
+    }
+    .offer-band::before{content:""; position:absolute; top:-40%; left:-10%; width:340px; height:340px; background:rgba(255,255,255,.08); border-radius:50%}
+    .offer-band::after{content:""; position:absolute; bottom:-45%; right:-8%; width:300px; height:300px; background:rgba(255,255,255,.07); border-radius:50%}
+    .offer-band .in{position:relative; z-index:2}
+    .offer-band .kicker{font-family:'Cairo',sans-serif; font-weight:700; opacity:.92; margin-bottom:8px}
+    .offer-band h2{color:#fff; font-size:2.2rem; margin-bottom:10px}
+    .offer-band p{opacity:.95; font-size:1.08rem; margin-bottom:24px; max-width:560px; margin-inline:auto}
+    .code-box{
+      display:inline-flex; align-items:center; gap:12px; background:rgba(255,255,255,.15);
+      border:2px dashed rgba(255,255,255,.75); border-radius:var(--r-md);
+      padding:12px 22px; margin-bottom:26px;
+    }
+    .code-box .lbl{font-size:.9rem; opacity:.9}
+    .code-box .val{font-family:'Cairo',monospace; font-weight:900; font-size:1.5rem; letter-spacing:2px}
+    .offer-band .btn-primary{background:#fff; color:var(--success-dark)}
+    .offer-band .btn-primary:hover{background:#F0FDF4}
+
+    /* Safety */
+    .safety{background:var(--primary-bg)}
+    .safe-grid{display:grid; grid-template-columns:repeat(4,1fr); gap:20px}
+    .safe{background:#fff; border-radius:var(--r-lg); padding:26px 22px; text-align:center; border:1px solid var(--border)}
+    .safe .ic{font-size:2rem; margin-bottom:12px}
+    .safe h4{font-family:'Cairo',sans-serif; font-size:1.05rem; margin-bottom:6px}
+    .safe p{color:var(--text-2); font-size:.9rem}
+
+    /* FAQ */
+    .faq-list{max-width:780px; margin:0 auto; display:flex; flex-direction:column; gap:12px}
+    details.faq{
+      background:#fff; border:1px solid var(--border); border-radius:var(--r-md);
+      padding:0; overflow:hidden; transition:box-shadow .2s ease;
+    }
+    details.faq[open]{box-shadow:var(--shadow-sm); border-color:var(--primary-border)}
+    details.faq summary{
+      list-style:none; cursor:pointer; padding:19px 22px; font-family:'Cairo',sans-serif;
+      font-weight:700; font-size:1.05rem; display:flex; align-items:center; justify-content:space-between; gap:14px;
+    }
+    details.faq summary::-webkit-details-marker{display:none}
+    details.faq summary .plus{
+      flex:none; width:26px; height:26px; border-radius:50%; background:var(--primary-bg);
+      color:var(--primary); display:flex; align-items:center; justify-content:center;
+      font-weight:900; transition:transform .2s ease;
+    }
+    details.faq[open] summary .plus{transform:rotate(45deg)}
+    details.faq .ans{padding:0 22px 20px; color:var(--text-2); font-size:.98rem; line-height:1.8}
+
+    /* Final CTA */
+    .final{text-align:center; background:var(--white)}
+    .final h2{font-size:2.1rem; margin-bottom:12px}
+    .final p{color:var(--text-2); font-size:1.1rem; margin-bottom:26px; max-width:540px; margin-inline:auto}
+    .final .hero-cta{justify-content:center}
+
+    /* Footer */
+    footer{background:var(--ink); color:#cbd5e1; padding:44px 0 26px}
+    .foot-top{display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:20px; padding-bottom:24px; border-bottom:1px solid rgba(255,255,255,.1)}
+    .foot-brand{display:flex; align-items:center; gap:10px; color:#fff; font-family:'Cairo',sans-serif; font-weight:900; font-size:1.2rem}
+    .foot-brand img{width:34px; height:34px}
+    .foot-links{display:flex; flex-wrap:wrap; gap:8px 22px}
+    .foot-links a{color:#cbd5e1; font-size:.94rem; transition:color .15s}
+    .foot-links a:hover{color:#fff}
+    .foot-bottom{text-align:center; padding-top:20px; font-size:.86rem; color:#94a3b8}
+
+    /* Floating WhatsApp */
+    .wa-float{
+      position:fixed; bottom:22px; left:22px; z-index:60;
+      display:flex; align-items:center; gap:10px; background:#25D366; color:#fff;
+      font-family:'Cairo',sans-serif; font-weight:700; font-size:.92rem;
+      padding:13px 20px; border-radius:var(--r-full); box-shadow:0 10px 30px rgba(37,211,102,.4);
+      transition:transform .2s ease;
+    }
+    .wa-float:hover{transform:scale(1.05)}
+    .wa-float .wa-ic{font-size:1.3rem; line-height:1}
+
+    /* ── Responsive ── */
+    @media (max-width:900px){
+      .hero-grid{grid-template-columns:1fr; gap:44px}
+      .hero .lede, .offer-pill{margin-inline:auto}
+      .hero{text-align:center; padding:44px 0 56px}
+      .hero-cta, .microtrust{justify-content:center}
+      .strip .wrap{grid-template-columns:repeat(2,1fr); gap:16px}
+      .feat-grid, .step-grid, .safe-grid{grid-template-columns:1fr}
+      .safe-grid{grid-template-columns:repeat(2,1fr)}
+      .profile-card{transform:rotate(0)}
+    }
+    @media (max-width:560px){
+      .hero h1{font-size:2.05rem}
+      .sec-head h2{font-size:1.65rem}
+      .offer-band h2{font-size:1.65rem}
+      section{padding:54px 0}
+      .safe-grid{grid-template-columns:1fr}
+      .topbar .btn span.hide-xs{display:none}
+      .wa-float span.hide-xs{display:none}
+      .foot-top{flex-direction:column; align-items:flex-start}
+    }
+    @media (prefers-reduced-motion:reduce){
+      *{transition:none !important; scroll-behavior:auto !important}
+      .profile-card{transform:none}
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ── Top bar ── -->
+  <header class="topbar">
+    <div class="wrap">
+      <a href="index.html" class="brand">
+        <img src="logo.png" alt="مدرسك">
+        <span>مدرسك</span>
+      </a>
+      <a href="join.html?code=FIRST26" class="btn btn-primary">سجّل <span class="hide-xs">كمدرس</span></a>
+    </div>
+  </header>
+
+  <!-- ── Hero ── -->
+  <section class="hero">
+    <div class="wrap hero-grid">
+      <div class="hero-text">
+        <span class="eyebrow">📚 لكل مدرس خصوصي في مصر</span>
+        <h1>طلاب جُدد بيدوّروا على <span class="hl">مدرس زيّك</span></h1>
+        <p class="lede">اعرض خبرتك في بروفايل احترافي على مدرسك، وخلّي الطلاب وأولياء الأمور يوصلوك ويكلّموك مباشرة على الواتساب. إنت اللي بتحدّد مواعيدك وأسعارك.</p>
+
+        <div class="offer-pill">
+          <span class="gift">🎁</span>
+          <b>باقة الشهر مجانًا 100% لأول 100 مدرس مؤسس — بكود <span class="code">FIRST26</span></b>
+        </div>
+
+        <div class="hero-cta">
+          <a href="join.html?code=FIRST26" class="btn btn-primary btn-lg">سجّل مجاناً كمدرس ←</a>
+          <a href="https://wa.me/201080474084?text=مرحبًا،%20عايز%20أعرف%20أكتر%20عن%20التسجيل%20كمدرس%20في%20مدرسك" target="_blank" rel="noopener" class="btn btn-ghost btn-lg">💬 اسألنا على واتساب</a>
+        </div>
+
+        <div class="microtrust">
+          <span><span class="tick">✓</span> التسجيل مجاني</span>
+          <span><span class="tick">✓</span> بدون عمولة على دروسك</span>
+          <span><span class="tick">✓</span> تحكّم كامل في مواعيدك</span>
+        </div>
+      </div>
+
+      <!-- Signature: بطاقة بروفايل المدرس -->
+      <div class="hero-visual">
+        <div class="profile-card">
+          <span class="ribbon">مدرس موثّق ✓</span>
+          <div class="pc-top">
+            <div class="pc-avatar">أ.م</div>
+            <div>
+              <div class="pc-name">أ. أحمد محمود</div>
+              <div class="pc-sub">مدرس رياضيات · خبرة 8 سنوات</div>
+            </div>
+          </div>
+          <div class="pc-badges">
+            <span class="pc-badge">ثانوي</span>
+            <span class="pc-badge sky">إعدادي</span>
+            <span class="pc-badge gold">أونلاين + حضوري</span>
+          </div>
+          <div class="pc-meta">📍 القاهرة، مصر</div>
+          <div class="pc-meta">
+            <span class="pc-stars">★★★★★</span>
+            <span class="pc-rate">تقييم ممتاز من الطلاب</span>
+          </div>
+          <div class="pc-divider"></div>
+          <div class="pc-wa">💬 تواصل مع المدرس</div>
+
+          <div class="pc-float f1"><span class="dot"></span> متاح لطلاب جدد</div>
+          <div class="pc-float f2">👁️ 240 مشاهدة للبروفايل</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── Trust strip ── -->
+  <div class="strip">
+    <div class="wrap">
+      <div class="strip-item"><span class="ic">🎓</span> بروفايل احترافي مجاني</div>
+      <div class="strip-item"><span class="ic">🤝</span> بدون عمولة على الدروس</div>
+      <div class="strip-item"><span class="ic">💬</span> دعم مباشر على واتساب</div>
+      <div class="strip-item"><span class="ic">🗓️</span> مواعيدك وأسعارك بإيدك</div>
+    </div>
+  </div>
+
+  <!-- ── Features ── -->
+  <section>
+    <div class="wrap">
+      <div class="sec-head">
+        <div class="sec-tag">ليه تنضم لمدرسك؟</div>
+        <h2>منصة تشتغل لصالحك إنت</h2>
+        <p>مدرسك مش مجرد إعلان — دي أداة بتوصّلك بطلاب جادّين وبتبني سمعتك كمدرس.</p>
+      </div>
+      <div class="feat-grid">
+        <div class="feat">
+          <div class="ic">🎯</div>
+          <h3>طلاب جُدد بيوصلوك</h3>
+          <p>الطلاب وأولياء الأمور بيدوّروا على مدرسين حسب المادة والمنطقة، ولمّا يلاقوك بيكلّموك مباشرة على الواتساب. إنت بتستقبل، مش بتلاحق.</p>
+        </div>
+        <div class="feat">
+          <div class="ic">🪪</div>
+          <h3>بروفايل احترافي يعرض خبرتك</h3>
+          <p>صفحة كاملة باسمك: موادك، صفوفك، خبرتك، أسعارك، وطريقة تواصلك. تبني ثقة الطالب فيك قبل ما يكلّمك، وتفرق بينك وبين أي مدرس تاني.</p>
+        </div>
+        <div class="feat">
+          <div class="ic">🎛️</div>
+          <h3>تحكّم كامل في كل حاجة</h3>
+          <p>إنت اللي بتحدّد مواعيدك، أسعارك، وطريقة الشرح (أونلاين أو حضوري). ومفيش أي عمولة بتتاخد من دروسك — اللي بتكسبه يفضل كله ليك.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── Steps ── -->
+  <section class="steps">
+    <div class="wrap">
+      <div class="sec-head">
+        <div class="sec-tag">أبسط من ما تتخيّل</div>
+        <h2>تبدأ في 3 خطوات</h2>
+        <p>من التسجيل لاستقبال أول طالب — دقايق معدودة.</p>
+      </div>
+      <div class="step-grid">
+        <div class="step">
+          <div class="step-num">١</div>
+          <h3>سجّل مجاناً</h3>
+          <p>اعمل حسابك واستخدم كود <b>FIRST26</b> عشان باقة الشهر تبقى مجانية 100%.</p>
+        </div>
+        <div class="step">
+          <div class="step-num">٢</div>
+          <h3>اعمل بروفايلك</h3>
+          <p>ضيف موادك وصفوفك وخبرتك وأسعارك — وخلّي ملفك جاهز يجذب الطلاب.</p>
+        </div>
+        <div class="step">
+          <div class="step-num">٣</div>
+          <h3>استقبل طلابك</h3>
+          <p>الطلاب المهتمين بيتواصلوا معاك مباشرة على واتساب، وإنت بتتفق معاهم على راحتك.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── Offer band ── -->
+  <section>
+    <div class="wrap">
+      <div class="offer-band">
+        <div class="in">
+          <div class="kicker">🎁 عرض المدرسين المؤسّسين</div>
+          <h2>باقة الشهر مجانًا 100%</h2>
+          <p>إحنا لسه في البداية، وعايزين أحسن المدرسين يكونوا معانا من أول يوم. أول 100 مدرس بيسجّلوا بياخدوا باقة الشهر ببلاش تمامًا — استخدم الكود عند التسجيل.</p>
+          <div class="code-box">
+            <span class="lbl">كود الخصم:</span>
+            <span class="val">FIRST26</span>
+          </div>
+          <div>
+            <a href="join.html?code=FIRST26" class="btn btn-primary btn-lg">فعّل العرض وسجّل دلوقتي ←</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── Safety / Trust ── -->
+  <section class="safety">
+    <div class="wrap">
+      <div class="sec-head">
+        <div class="sec-tag">إنت في أمان معانا</div>
+        <h2>منصة مصرية تفهم شغلك</h2>
+        <p>بنيناها عشان نخدم المدرس المصري، وإحنا معاك خطوة بخطوة.</p>
+      </div>
+      <div class="safe-grid">
+        <div class="safe">
+          <div class="ic">🇪🇬</div>
+          <h4>منصة مصرية</h4>
+          <p>متعملة لسوق الدروس الخصوصية في مصر، وبتفهم احتياجاتك.</p>
+        </div>
+        <div class="safe">
+          <div class="ic">💬</div>
+          <h4>دعم مباشر</h4>
+          <p>فريق الدعم معاك على الواتساب لأي سؤال أو مساعدة في أي وقت.</p>
+        </div>
+        <div class="safe">
+          <div class="ic">🤝</div>
+          <h4>بدون عمولة</h4>
+          <p>مابناخدش أي نسبة من دروسك — الاتفاق بينك وبين الطالب مباشرة.</p>
+        </div>
+        <div class="safe">
+          <div class="ic">🔒</div>
+          <h4>بياناتك آمنة</h4>
+          <p>بياناتك محفوظة، وإنت اللي بتتحكّم في اللي بيظهر في بروفايلك.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── FAQ ── -->
+  <section>
+    <div class="wrap">
+      <div class="sec-head">
+        <div class="sec-tag">أسئلة بتيجي في بالك</div>
+        <h2>الأسئلة الشائعة</h2>
+      </div>
+      <div class="faq-list">
+        <details class="faq" open>
+          <summary>التسجيل فعلاً مجاني؟ <span class="plus">+</span></summary>
+          <div class="ans">أيوة. باقة الشهر مجانية 100% لأول 100 مدرس مؤسس باستخدام كود <b>FIRST26</b> عند التسجيل. بتعمل حسابك، تختار باقة الشهر، وتحط الكود — والسعر بيبقى صفر.</div>
+        </details>
+        <details class="faq">
+          <summary>إزاي الطلاب بيوصلوني؟ <span class="plus">+</span></summary>
+          <div class="ans">لما تعمل بروفايلك، بيظهر للطلاب وأولياء الأمور اللي بيدوّروا على مدرس في مادتك ومنطقتك. اللي يهتمّ بيك بيكلّمك مباشرة على الواتساب، وإنت بتتفق معاه على الميعاد والسعر.</div>
+        </details>
+        <details class="faq">
+          <summary>هل بتاخدوا عمولة من دروسي؟ <span class="plus">+</span></summary>
+          <div class="ans">لأ خالص. مدرسك مابتاخدش أي نسبة من دروسك أو من فلوسك. الاتفاق المادي بينك وبين الطالب بشكل مباشر، والمنصة دورها إنها توصّلكم ببعض بس.</div>
+        </details>
+        <details class="faq">
+          <summary>أنا بدرّس أونلاين وحضوري — ينفع الاتنين؟ <span class="plus">+</span></summary>
+          <div class="ans">طبعًا. تقدر تحدّد في بروفايلك إنك بتدرّس أونلاين، حضوري، أو الاتنين، وفي أنهي مناطق — والطلاب بيلاقوك حسب اللي يناسبهم.</div>
+        </details>
+        <details class="faq">
+          <summary>محتاج إيه عشان أسجّل؟ <span class="plus">+</span></summary>
+          <div class="ans">بس بياناتك الأساسية (اسمك، رقم موبايلك، وموادك). التسجيل بياخد دقايق، وبعدها تكمّل بروفايلك وقت ما تحب.</div>
+        </details>
+        <details class="faq">
+          <summary>ولو اتلغبطت في التسجيل؟ <span class="plus">+</span></summary>
+          <div class="ans">كلّمنا على الواتساب في أي وقت وإحنا هنساعدك خطوة بخطوة لحد ما حسابك يبقى شغّال. اضغط زر واتساب في أي مكان في الصفحة.</div>
+        </details>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── Final CTA ── -->
+  <section class="final">
+    <div class="wrap">
+      <h2>جاهز تبدأ تستقبل طلاب؟</h2>
+      <p>سجّل دلوقتي مجانًا كمدرس مؤسّس في مدرسك — قبل ما العرض يخلص.</p>
+      <div class="hero-cta">
+        <a href="join.html?code=FIRST26" class="btn btn-success btn-lg">سجّل مجاناً كمدرس ←</a>
+        <a href="https://wa.me/201080474084?text=مرحبًا،%20عايز%20أعرف%20أكتر%20عن%20التسجيل%20كمدرس%20في%20مدرسك" target="_blank" rel="noopener" class="btn btn-wa btn-lg">💬 كلّمنا على واتساب</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── Footer ── -->
+  <footer>
+    <div class="wrap">
+      <div class="foot-top">
+        <a href="index.html" class="foot-brand">
+          <img src="logo.png" alt="مدرسك"> مدرسك
+        </a>
+        <nav class="foot-links">
+          <a href="index.html">الرئيسية</a>
+          <a href="join.html?code=FIRST26">التسجيل كمدرس</a>
+          <a href="faq.html">الأسئلة الشائعة</a>
+          <a href="privacy.html">سياسة الخصوصية</a>
+          <a href="terms.html">الشروط والأحكام</a>
+        </nav>
+      </div>
+      <div class="foot-bottom">© <span id="year"></span> مدرسك — منصة الدروس الخصوصية في مصر. جميع الحقوق محفوظة.</div>
+    </div>
+  </footer>
+
+  <!-- Floating WhatsApp -->
+  <a href="https://wa.me/201080474084?text=مرحبًا،%20عايز%20أعرف%20أكتر%20عن%20التسجيل%20كمدرس%20في%20مدرسك" target="_blank" rel="noopener" class="wa-float" aria-label="تواصل عبر واتساب">
+    <span class="wa-ic">💬</span> <span class="hide-xs">محتاج مساعدة؟</span>
+  </a>
+
+  <script>
+    document.getElementById('year').textContent = new Date().getFullYear();
+
+    // تتبّع ضغطات زر التسجيل عبر Meta Pixel (لو البكسل مفعّل)
+    document.querySelectorAll('a[href*="join.html"]').forEach(function(a){
+      a.addEventListener('click', function(){
+        if (typeof fbq === 'function') { try { fbq('track', 'Lead'); } catch(e){} }
+      });
+    });
+  </script>
+</body>
+</html>

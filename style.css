@@ -258,6 +258,8 @@ h1, h2, h3, h4, h5 { font-family: 'Cairo', sans-serif; font-weight: 700; }
 .badge-online { background: var(--success-bg); color: #059669; }
 .badge-inperson { background: var(--warning-bg); color: #92400E; }
 .badge-both { background: var(--sky-bg); color: #0369A1; }
+.badge-private { background: #EDE9FE; color: #6D28D9; }
+.badge-group { background: #FCE7F3; color: #BE185D; }
 .badge-pending { background: var(--pending-bg); color: #5B21B6; }
 .badge-active { background: var(--success-bg); color: #065F46; }
 .badge-rejected { background: var(--danger-bg); color: #9B1C1C; }
@@ -469,6 +471,8 @@ textarea.form-control { resize: vertical; min-height: 100px; }
 .footer-links { list-style: none; display: flex; flex-direction: column; gap: 8px; }
 .footer-links a { font-size: 0.88rem; transition: color 0.2s; }
 .footer-links a:hover { color: white; }
+.footer-location { font-size: 0.88rem; display: inline-block; }
+.footer-location { font-size: 0.88rem; display: inline-block; }
 .footer-bottom { border-top: 1px solid rgba(255,255,255,0.1); margin-top: 32px; padding-top: 20px; text-align: center; font-size: 0.85rem; }
 
 /* ── Animations ── */
@@ -572,13 +576,10 @@ textarea.form-control { resize: vertical; min-height: 100px; }
 
 /* ── مدرسك Logo Polish ── */
 .site-logo {
-  width: 44px;
-  height: 44px;
+  width: 42px;
+  height: 42px;
   object-fit: contain;
-  border-radius: 12px;
-  background: #fff;
-  box-shadow: 0 4px 14px rgba(37, 99, 235, 0.12);
-  padding: 2px;
+  display: block;
 }
 .nav-brand .site-logo { flex-shrink: 0; }
 .footer-logo { width: 64px; height: 64px; object-fit: contain; margin-bottom: 10px; }
@@ -1009,4 +1010,98 @@ pre, code { white-space: pre-wrap; word-break: break-word; }
   .ann-modal, .survey-modal { max-width: 100%; }
   .survey-stars { gap: 4px; }
   .survey-star-btn { font-size: 1.9rem; }
+}
+
+/* ===================================================
+   الأسئلة الشائعة (FAQ / Accordion)
+   =================================================== */
+.faq-wrap { max-width: 840px; margin: 0 auto; }
+.faq-list { display: flex; flex-direction: column; gap: 14px; }
+.faq-item {
+  background: var(--bg-white);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-xs);
+  overflow: hidden;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+.faq-item:hover { border-color: var(--primary-border); }
+.faq-item.open { border-color: var(--primary); box-shadow: var(--shadow-md); }
+.faq-q {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  padding: 20px 22px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  text-align: right;
+  font-family: 'Tajawal', sans-serif;
+  font-size: 1.02rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  line-height: 1.6;
+  transition: color 0.2s ease;
+}
+.faq-q:hover { color: var(--primary); }
+.faq-item.open .faq-q { color: var(--primary); }
+.faq-q-text { flex: 1; }
+.faq-icon {
+  flex-shrink: 0;
+  width: 30px;
+  height: 30px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: var(--primary-bg);
+  color: var(--primary);
+  font-size: 1.2rem;
+  font-weight: 800;
+  line-height: 1;
+  transition: transform 0.3s ease, background 0.2s ease, color 0.2s ease;
+}
+.faq-item.open .faq-icon { transform: rotate(45deg); background: var(--primary); color: #fff; }
+.faq-a { max-height: 0; overflow: hidden; transition: max-height 0.32s ease; }
+.faq-a-inner {
+  padding: 0 22px 22px;
+  color: var(--text-secondary);
+  font-size: 0.95rem;
+  line-height: 1.9;
+  white-space: pre-line;
+  overflow-wrap: anywhere;
+}
+.faq-empty { text-align: center; color: var(--text-muted); padding: 30px; }
+
+/* صندوق البحث في صفحة الأسئلة */
+.faq-search-box { position: relative; max-width: 840px; margin: 0 auto 28px; }
+.faq-search-box input {
+  width: 100%;
+  padding: 14px 46px 14px 18px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-full);
+  font-family: 'Tajawal', sans-serif;
+  font-size: 0.98rem;
+  background: var(--bg-white);
+  box-shadow: var(--shadow-xs);
+  color: var(--text-primary);
+}
+.faq-search-box input:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px var(--primary-bg); }
+.faq-search-box .fs-icon {
+  position: absolute;
+  top: 50%;
+  right: 16px;
+  transform: translateY(-50%);
+  color: var(--text-muted);
+  font-size: 1.1rem;
+  pointer-events: none;
+}
+
+/* زر "عرض كل الأسئلة" في الصفحة الرئيسية */
+.faq-more-wrap { text-align: center; margin-top: 28px; }
+
+@media (max-width: 600px) {
+  .faq-q { padding: 16px; font-size: 0.96rem; }
+  .faq-a-inner { padding: 0 16px 18px; }
 }

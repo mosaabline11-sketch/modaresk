@@ -4,4 +4,4 @@ Disallow: /admin.html
 Disallow: /dashboard.html
 Disallow: /login.html
 Disallow: /404.html
-Sitemap: https://mosaabline11-sketch.github.io/modaresk/sitemap.xml
+Sitemap: https://www.modaresk.com/sitemap.xml

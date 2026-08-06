@@ -1,0 +1,597 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>لوحة إدارة الأكاديمية | مدرسك</title>
+<meta name="robots" content="noindex, nofollow">
+<link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800;900&family=Cairo:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css?v=8.0.0">
+<style>
+  body { background: var(--bg-light); }
+
+  /* ══ Shell: Sidebar + Main ══ */
+  .ac-shell { display: flex; min-height: 100vh; }
+
+  .ac-sidebar {
+    width: 264px; flex-shrink: 0; background: #0D1B4B; color: #fff;
+    display: flex; flex-direction: column; padding: 24px 18px; position: sticky; top: 0; height: 100vh;
+  }
+  .ac-brand { display: flex; align-items: center; gap: 10px; margin-bottom: 6px; padding: 0 6px; }
+  .ac-brand img { width: 34px; height: 34px; border-radius: 8px; }
+  .ac-brand-name { font-family: 'Cairo', sans-serif; font-weight: 900; font-size: 1.05rem; }
+  .ac-brand-tag { font-size: .68rem; color: #93A5D1; margin-bottom: 22px; padding: 0 6px; }
+
+  .ac-identity { background: rgba(255,255,255,.06); border-radius: var(--radius-lg); padding: 16px 14px; margin-bottom: 22px; text-align: center; }
+  .ac-identity .ac-logo { width: 56px; height: 56px; border-radius: 50%; background: rgba(255,255,255,.12); margin: 0 auto 10px; display: flex; align-items: center; justify-content: center; font-family: 'Cairo', sans-serif; font-weight: 800; font-size: 1.2rem; overflow: hidden; }
+  .ac-identity .ac-logo img { width: 100%; height: 100%; object-fit: cover; }
+  .ac-identity h2 { font-family: 'Cairo', sans-serif; font-weight: 800; font-size: .95rem; margin-bottom: 6px; word-break: break-word; }
+  .ac-sub-badge { display: inline-flex; align-items: center; gap: 4px; background: rgba(16,185,129,.18); color: #6EE7B7; border-radius: 50px; padding: 3px 10px; font-size: .68rem; font-weight: 700; }
+  .ac-sub-badge.expired { background: rgba(239,68,68,.18); color: #FCA5A5; }
+
+  .ac-nav { display: flex; flex-direction: column; gap: 4px; flex: 1; }
+  .ac-nav-item {
+    display: flex; align-items: center; gap: 10px; padding: 11px 14px; border-radius: var(--radius-md);
+    color: #C7D2E8; text-decoration: none; font-family: 'Tajawal', sans-serif; font-weight: 700; font-size: .87rem;
+    background: none; border: none; cursor: pointer; text-align: right; width: 100%; transition: .15s;
+  }
+  .ac-nav-item .icon { font-size: 1.05rem; width: 22px; text-align: center; }
+  .ac-nav-item:hover { background: rgba(255,255,255,.06); color: #fff; }
+  .ac-nav-item.active { background: var(--primary); color: #fff; }
+
+  .ac-logout { margin-top: auto; padding-top: 14px; border-top: 1px solid rgba(255,255,255,.1); }
+
+  .ac-main { flex: 1; padding: 30px 34px; min-width: 0; }
+  .ac-page-title { font-family: 'Cairo', sans-serif; font-weight: 800; font-size: 1.4rem; margin-bottom: 4px; }
+  .ac-page-sub { color: var(--text-secondary); font-size: .87rem; margin-bottom: 26px; }
+
+  .ac-stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 14px; margin-bottom: 26px; }
+  .ac-stat-card { background: #fff; border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 18px; }
+  .ac-stat-card .val { font-family: 'Cairo', sans-serif; font-weight: 900; font-size: 1.7rem; color: var(--primary); }
+  .ac-stat-card .lbl { font-size: .78rem; color: var(--text-muted); margin-top: 2px; }
+
+  .ac-panel { display: none; }
+  .ac-panel.active { display: block; animation: acFade .25s ease; }
+  @keyframes acFade { from{opacity:0;transform:translateY(6px)} to{opacity:1;transform:translateY(0)} }
+
+  .tm-card { background:#fff; border:1px solid var(--border); border-radius:var(--radius-lg); padding:14px 16px; display:flex; align-items:center; gap:12px; flex-wrap:wrap; margin-bottom: 10px; }
+  .tm-card .tm-avatar { width:44px; height:44px; border-radius:50%; background:var(--primary-bg); color:var(--primary); display:flex; align-items:center; justify-content:center; font-weight:800; flex-shrink:0; overflow:hidden; }
+  .tm-card .tm-avatar img { width:100%; height:100%; object-fit:cover; }
+
+  .input-icon-wrapper { position: relative; }
+  .input-icon-wrapper input { padding-left: 42px; }
+  .password-toggle { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); background: none; border: none; color: var(--text-muted); cursor: pointer; padding: 4px; font-size: .9rem; }
+  .password-toggle:hover { color: var(--primary); }
+
+  .perm-row { display:flex; align-items:center; justify-content:space-between; padding:10px 0; border-bottom:1px solid var(--border-light); }
+  .perm-row:last-child { border-bottom: none; }
+  .perm-switch { position:relative; width:42px; height:24px; flex-shrink:0; }
+  .perm-switch input { opacity:0; width:0; height:0; }
+  .perm-slider { position:absolute; inset:0; background:#CBD5E1; border-radius:24px; cursor:pointer; transition:.2s; }
+  .perm-slider::before { content:''; position:absolute; width:18px; height:18px; right:3px; top:3px; background:#fff; border-radius:50%; transition:.2s; }
+  .perm-switch input:checked + .perm-slider { background: var(--primary); }
+  .perm-switch input:checked + .perm-slider::before { transform: translateX(-18px); }
+
+  @media (max-width: 860px) {
+    .ac-shell { flex-direction: column; }
+    .ac-sidebar { width: 100%; height: auto; position: relative; flex-direction: row; align-items: center; padding: 12px 14px; gap: 14px; overflow-x: auto; }
+    .ac-brand-tag, .ac-identity { display: none; }
+    .ac-nav { flex-direction: row; flex: none; }
+    .ac-logout { margin: 0; padding: 0; border: none; }
+    .ac-main { padding: 20px 16px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="ac-shell">
+  <!-- ══ Sidebar ══ -->
+  <aside class="ac-sidebar">
+    <div class="ac-brand">
+      <img src="logo.png" alt="مدرسك" onerror="this.style.display='none'">
+      <span class="ac-brand-name">مدرسك</span>
+    </div>
+    <div class="ac-brand-tag">لوحة إدارة الأكاديمية</div>
+
+    <div class="ac-identity">
+      <div class="ac-logo" id="ac-sidebar-logo">—</div>
+      <h2 id="ac-sidebar-name">—</h2>
+      <span class="ac-sub-badge" id="ac-sidebar-sub-badge">—</span>
+    </div>
+
+    <nav class="ac-nav">
+      <button class="ac-nav-item active" data-panel="overview" onclick="goToAcademyPanel('overview')"><span class="icon">📊</span> نظرة عامة</button>
+      <button class="ac-nav-item" data-panel="teachers" onclick="goToAcademyPanel('teachers')"><span class="icon">🧑‍🏫</span> المدرسون</button>
+      <button class="ac-nav-item" data-panel="settings" onclick="goToAcademyPanel('settings')"><span class="icon">⚙️</span> الإعدادات</button>
+    </nav>
+
+    <div class="ac-logout">
+      <button class="ac-nav-item" onclick="logout()"><span class="icon">🚪</span> تسجيل الخروج</button>
+    </div>
+  </aside>
+
+  <!-- ══ Main ══ -->
+  <main class="ac-main">
+
+    <!-- ══ نظرة عامة ══ -->
+    <div class="ac-panel active" id="ac-panel-overview">
+      <div id="ac-sub-expired-banner"></div>
+      <div class="ac-page-title">📊 نظرة عامة</div>
+      <div class="ac-page-sub">ملخص سريع لحالة أكاديميتك على مدرسك</div>
+
+      <div class="ac-stats-grid">
+        <div class="ac-stat-card"><div class="val" id="ov-teachers">—</div><div class="lbl">المدرسون (من <span id="ov-slots">—</span>)</div></div>
+        <div class="ac-stat-card"><div class="val" id="ov-ads">—</div><div class="lbl">إجمالي الإعلانات</div></div>
+        <div class="ac-stat-card"><div class="val" id="ov-xp">—</div><div class="lbl">إجمالي نقاط الخبرة</div></div>
+        <div class="ac-stat-card"><div class="val" id="ov-expiry">—</div><div class="lbl">نهاية الاشتراك</div></div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-header"><span class="panel-title">آخر المدرسين المضافين</span></div>
+        <div id="ov-recent-teachers" style="padding:18px"></div>
+      </div>
+    </div>
+
+    <!-- ══ المدرسون ══ -->
+    <div class="ac-panel" id="ac-panel-teachers">
+      <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;margin-bottom:6px">
+        <div>
+          <div class="ac-page-title" style="margin-bottom:0">🧑‍🏫 المدرسون (<span id="tm-count">0</span> / <span id="tm-slots">0</span>)</div>
+        </div>
+        <button class="btn btn-primary btn-sm" id="tm-add-btn" onclick="openAddTeacherModal()">+ إضافة مدرس</button>
+      </div>
+      <div class="ac-page-sub">كل مدرس بياخد نفس حد الإعلانات والمزايا اللي دفعتِ فيها وقت الاشتراك.</div>
+
+      <div id="tm-list"></div>
+      <div id="tm-empty" class="empty-state" style="display:none;padding:30px">
+        <div class="empty-icon">🧑‍🏫</div>
+        <div class="empty-title">لسه مضفتش أي مدرس</div>
+        <p style="color:var(--text-muted);font-size:.86rem">دوس "+ إضافة مدرس" عشان تبدأ.</p>
+      </div>
+    </div>
+
+    <!-- ══ الإعدادات ══ -->
+    <div class="ac-panel" id="ac-panel-settings">
+      <div class="ac-page-title">⚙️ إعدادات الأكاديمية</div>
+      <div class="ac-page-sub">بيانات أكاديميتك المعروضة للطلاب، وتفاصيل اشتراكك الحالي.</div>
+
+      <div class="panel" style="margin-bottom:18px">
+        <div class="panel-header"><span class="panel-title">بيانات الأكاديمية</span></div>
+        <form id="ac-settings-form" onsubmit="saveAcademySettings(event)" style="padding:20px">
+          <div class="form-group">
+            <label class="form-label">شعار الأكاديمية</label>
+            <input type="file" id="as-logo-file" class="form-control" accept="image/*">
+            <div class="form-hint">يظهر في كارت إعلاناتك وصفحة التفاصيل للطلاب.</div>
+          </div>
+          <div class="form-group"><label class="form-label">اسم الأكاديمية <span class="required">*</span></label><input type="text" id="as-name" class="form-control" required></div>
+          <div class="form-group"><label class="form-label">رقم الجوال</label><input type="tel" id="as-phone" class="form-control" dir="ltr"></div>
+          <div class="form-group"><label class="form-label">واتساب</label><input type="tel" id="as-whatsapp" class="form-control" dir="ltr"></div>
+          <div class="form-group"><label class="form-label">فيسبوك</label><input type="text" id="as-facebook" class="form-control" dir="ltr"></div>
+          <div class="form-group"><label class="form-label">نبذة عن الأكاديمية</label><textarea id="as-bio" class="form-control" rows="3"></textarea></div>
+          <button type="submit" class="btn btn-primary" id="as-save-btn">💾 حفظ التغييرات</button>
+        </form>
+      </div>
+
+      <div class="panel">
+        <div class="panel-header"><span class="panel-title">تفاصيل الاشتراك</span></div>
+        <div style="padding:20px;font-size:.88rem;line-height:2.1" id="ac-sub-details"></div>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<!-- Add/Edit Teacher Modal -->
+<div class="modal-overlay" id="tm-modal">
+  <div class="modal">
+    <div class="modal-header">
+      <h3 class="modal-title" id="tm-modal-title">إضافة مدرس</h3>
+      <button class="modal-close" onclick="closeModal('tm-modal')">✕</button>
+    </div>
+    <div class="modal-body">
+      <form id="tm-form" onsubmit="submitTeacherForm(event)">
+        <input type="hidden" id="tm-id">
+
+        <div class="form-group" id="tm-avatar-group" style="display:none">
+          <label class="form-label">صورة المدرس</label>
+          <input type="file" id="tm-avatar-file" class="form-control" accept="image/*">
+        </div>
+        <div class="form-group"><label class="form-label">اسم المدرس <span class="required">*</span></label><input type="text" id="tm-name" class="form-control" required></div>
+        <div class="form-group"><label class="form-label">رقم الجوال</label><input type="tel" id="tm-phone" class="form-control" dir="ltr"></div>
+        <div class="form-group"><label class="form-label">نبذة</label><input type="text" id="tm-bio" class="form-control"></div>
+
+        <div class="form-group" id="tm-access-group">
+          <label class="form-label" style="display:flex;align-items:center;gap:8px;cursor:pointer">
+            <input type="checkbox" id="tm-can-self-manage" style="width:16px;height:16px" onchange="toggleTmLoginFields()">
+            المدرس عنده دخول خاص بيه (بدل ما تدير حسابه بنفسك بالكامل)
+          </label>
+        </div>
+        <div id="tm-login-fields" style="display:none">
+          <div class="form-group"><label class="form-label">اسم المستخدم</label><input type="text" id="tm-username" class="form-control" dir="ltr" placeholder="3 أحرف على الأقل"></div>
+          <div class="form-group">
+            <label class="form-label">كلمة المرور</label>
+            <div class="input-icon-wrapper">
+              <input type="password" id="tm-password" class="form-control" dir="ltr" placeholder="6 أحرف على الأقل">
+              <button type="button" class="password-toggle" onclick="toggleTmPassword()">👁</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="form-group" id="tm-perms-group" style="display:none">
+          <label class="form-label" style="margin-bottom:2px">مزايا يقدر يعدّلها بنفسه في لوحته</label>
+          <div class="perm-row">
+            <span>تغيير الصورة الشخصية</span>
+            <label class="perm-switch"><input type="checkbox" id="tm-perm-avatar" checked><span class="perm-slider"></span></label>
+          </div>
+          <div class="perm-row">
+            <span>تعديل النبذة</span>
+            <label class="perm-switch"><input type="checkbox" id="tm-perm-bio" checked><span class="perm-slider"></span></label>
+          </div>
+          <div class="perm-row">
+            <span>تعديل بيانات التواصل (واتساب/فيسبوك)</span>
+            <label class="perm-switch"><input type="checkbox" id="tm-perm-contact" checked><span class="perm-slider"></span></label>
+          </div>
+        </div>
+
+        <div id="tm-modal-error" class="alert alert-danger" style="display:none"></div>
+        <div style="display:flex;gap:10px;justify-content:flex-end">
+          <button type="button" class="btn btn-ghost" onclick="closeModal('tm-modal')">إلغاء</button>
+          <button type="submit" class="btn btn-primary" id="tm-submit-btn">حفظ</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<div class="toast-container" id="toast-container"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="config.js?v=8.0.0"></script>
+<script src="tutorial-engine.js?v=1.2.0"></script>
+<script>
+let teacher = null; // الأكاديمية نفسها، بنفس الاسم عشان نفس الدوال المشتركة في config.js تشتغل من غير تعديل
+let academyTeachersList = [];
+
+function openModal(id) { document.getElementById(id).classList.add('open'); document.body.style.overflow = 'hidden'; }
+function closeModal(id) { document.getElementById(id).classList.remove('open'); document.body.style.overflow = ''; }
+
+document.addEventListener('DOMContentLoaded', async () => {
+  if (!Auth.requireTeacher()) return;
+  teacher = Auth.getTeacherSession();
+  if (teacher.account_type !== 'academy') { window.location.href = 'dashboard.html'; return; }
+
+  await loadAcademyData();
+  await loadAcademyTeachers();
+  initTutorials();
+});
+
+async function loadAcademyData() {
+  try {
+    const { data, error } = await supabase.from('teachers')
+      .select('name,bio,avatar_url,whatsapp,facebook,phone,is_active,subscription_end,subscription_status,academy_teacher_slots,academy_ads_per_teacher,allow_basic_stats,allow_advanced_stats,allow_unlimited_edits,allow_fast_support,account_type')
+      .eq('id', teacher.id).single();
+    if (error) throw error;
+    Object.assign(teacher, data);
+    if (teacher.account_type !== 'academy') { window.location.href = 'dashboard.html'; return; }
+  } catch (e) {
+    showToast('تعذّر تحميل بيانات الأكاديمية', 'danger');
+  }
+  renderAcademyIdentity();
+  renderAcademySettingsForm();
+  renderSubscriptionDetails();
+}
+
+function renderAcademyIdentity() {
+  document.getElementById('ac-sidebar-name').textContent = teacher.name || 'أكاديميتي';
+  const logoEl = document.getElementById('ac-sidebar-logo');
+  logoEl.innerHTML = teacher.avatar_url
+    ? `<img src="${escapeHtml(teacher.avatar_url)}" alt="">`
+    : getInitials(teacher.name || 'أ');
+
+  const badge = document.getElementById('ac-sidebar-sub-badge');
+  const active = isSubscriptionActive(teacher);
+  badge.textContent = active ? '✅ اشتراك نشط' : '⛔ الاشتراك منتهي';
+  badge.classList.toggle('expired', !active);
+
+  const banner = document.getElementById('ac-sub-expired-banner');
+  if (banner) {
+    banner.innerHTML = active ? '' : `<div class="alert alert-danger" style="margin-bottom:20px">
+      🚫 اشتراك أكاديميتك منتهي. مدرسينك الحاليين ما زالوا موجودين لكن إعلاناتهم مخفية عن الطلاب مؤقتًا، ومش هتقدر تضيف مدرسين جدد لحد ما تجدّد الاشتراك.
+    </div>`;
+  }
+}
+
+function renderAcademySettingsForm() {
+  document.getElementById('as-name').value = teacher.name || '';
+  document.getElementById('as-phone').value = teacher.phone || '';
+  document.getElementById('as-whatsapp').value = teacher.whatsapp || '';
+  document.getElementById('as-facebook').value = teacher.facebook || '';
+  document.getElementById('as-bio').value = teacher.bio || '';
+}
+
+function renderSubscriptionDetails() {
+  const box = document.getElementById('ac-sub-details');
+  const end = teacher.subscription_end ? new Date(teacher.subscription_end).toLocaleDateString('ar-EG') : '—';
+  box.innerHTML = `
+    <div style="display:flex;justify-content:space-between"><span style="color:var(--text-muted)">عدد المدرسين المسموح بيه</span><strong>${teacher.academy_teacher_slots ?? '—'}</strong></div>
+    <div style="display:flex;justify-content:space-between"><span style="color:var(--text-muted)">الإعلانات المتاحة لكل مدرس</span><strong>${teacher.academy_ads_per_teacher ?? '—'}</strong></div>
+    <div style="display:flex;justify-content:space-between"><span style="color:var(--text-muted)">نهاية الاشتراك</span><strong>${end}</strong></div>
+    <div style="display:flex;justify-content:space-between"><span style="color:var(--text-muted)">إحصائيات متقدمة</span><strong>${teacher.allow_advanced_stats ? '✅ متاحة' : '⛔ غير متاحة'}</strong></div>
+    <div style="display:flex;justify-content:space-between"><span style="color:var(--text-muted)">دعم أسرع</span><strong>${teacher.allow_fast_support ? '✅ متاح' : '⛔ غير متاح'}</strong></div>
+    <div class="form-hint" style="margin-top:10px">لزيادة عدد المدرسين أو تغيير مزايا اشتراكك، تواصل مع إدارة مدرسك.</div>
+  `;
+}
+
+async function saveAcademySettings(e) {
+  e.preventDefault();
+  const btn = document.getElementById('as-save-btn');
+  btn.disabled = true; btn.innerHTML = '<span class="spinner"></span> جارٍ الحفظ...';
+  try {
+    const uploadedLogo = await uploadImageInput('as-logo-file', `teachers/${teacher.id}`);
+    const updates = {
+      name: document.getElementById('as-name').value.trim(),
+      phone: document.getElementById('as-phone').value.trim(),
+      whatsapp: document.getElementById('as-whatsapp').value.trim(),
+      facebook: document.getElementById('as-facebook').value.trim(),
+      bio: document.getElementById('as-bio').value.trim(),
+      avatar_url: uploadedLogo || teacher.avatar_url || null,
+    };
+    const { error } = await supabase.from('teachers').update(updates).eq('id', teacher.id);
+    if (error) throw error;
+    Object.assign(teacher, updates);
+    Auth.setTeacherSession({...teacher, name: updates.name});
+    renderAcademyIdentity();
+    showToast('تم حفظ بيانات الأكاديمية ✅', 'success');
+  } catch (err) {
+    showToast(err.message || 'حدث خطأ', 'danger');
+  } finally {
+    btn.disabled = false; btn.textContent = '💾 حفظ التغييرات';
+  }
+}
+
+/* ══ التنقل بين الأقسام ══ */
+function goToAcademyPanel(panel) {
+  document.querySelectorAll('.ac-panel').forEach(p => p.classList.toggle('active', p.id === `ac-panel-${panel}`));
+  document.querySelectorAll('.ac-nav-item[data-panel]').forEach(b => b.classList.toggle('active', b.dataset.panel === panel));
+  if (typeof Tutorial !== 'undefined') {
+    if (panel === 'teachers') setTimeout(() => Tutorial.run('academy_teachers', TUT_ACADEMY_TEACHERS), 500);
+    else if (panel === 'settings') setTimeout(() => Tutorial.run('academy_settings', TUT_ACADEMY_SETTINGS), 500);
+  }
+}
+
+/* ══ المدرسون: تحميل وعرض ══ */
+async function loadAcademyTeachers() {
+  try {
+    const { data, error } = await supabase.rpc('get_academy_teachers', { p_academy_id: teacher.id });
+    if (error) throw error;
+    academyTeachersList = data || [];
+  } catch (e) {
+    academyTeachersList = [];
+  }
+  renderAcademyTeachersList();
+  renderOverview();
+}
+
+function renderOverview() {
+  const slots = teacher.academy_teacher_slots || 0;
+  document.getElementById('ov-teachers').textContent = academyTeachersList.length;
+  document.getElementById('ov-slots').textContent = slots;
+  document.getElementById('ov-ads').textContent = academyTeachersList.reduce((s, t) => s + Number(t.ads_count || 0), 0);
+  document.getElementById('ov-xp').textContent = '—'; // XP مش راجعة من get_academy_teachers حاليًا
+  document.getElementById('ov-expiry').textContent = teacher.subscription_end ? new Date(teacher.subscription_end).toLocaleDateString('ar-EG') : '—';
+
+  const recentBox = document.getElementById('ov-recent-teachers');
+  if (!academyTeachersList.length) {
+    recentBox.innerHTML = '<div style="color:var(--text-muted);font-size:.86rem">لسه مضفتش أي مدرس. دوس على "المدرسون" من القائمة عشان تبدأ.</div>';
+    return;
+  }
+  recentBox.innerHTML = academyTeachersList.slice(0, 3).map(t => `
+    <div class="tm-card">
+      <div class="tm-avatar">${t.avatar_url ? `<img src="${escapeHtml(t.avatar_url)}">` : getInitials(t.name)}</div>
+      <div style="flex:1"><strong>${escapeHtml(t.name)}</strong><div style="font-size:.78rem;color:var(--text-muted)">${t.ads_count}/${t.ads_limit} إعلانات</div></div>
+    </div>`).join('');
+}
+
+function renderAcademyTeachersList() {
+  const list = document.getElementById('tm-list');
+  const empty = document.getElementById('tm-empty');
+  const slots = teacher.academy_teacher_slots || 0;
+  document.getElementById('tm-count').textContent = academyTeachersList.length;
+  document.getElementById('tm-slots').textContent = slots;
+  const addBtn = document.getElementById('tm-add-btn');
+  const expired = !isSubscriptionActive(teacher);
+  const full = academyTeachersList.length >= slots;
+  addBtn.disabled = full || expired;
+  addBtn.textContent = expired ? '🚫 جدّد الاشتراك أولاً' : full ? '🚫 وصلت للحد الأقصى' : '+ إضافة مدرس';
+
+  if (!academyTeachersList.length) { list.innerHTML = ''; empty.style.display = ''; return; }
+  empty.style.display = 'none';
+
+  list.innerHTML = academyTeachersList.map(t => {
+    const accessLabel = !t.has_login
+      ? '👤 بتديره الأكاديمية بالكامل'
+      : (t.can_self_manage ? '🔓 عنده دخول خاص بيه' : '🔒 دخوله موقوف مؤقتًا');
+    return `
+    <div class="tm-card">
+      <div class="tm-avatar">${t.avatar_url ? `<img src="${escapeHtml(t.avatar_url)}">` : getInitials(t.name)}</div>
+      <div style="flex:1;min-width:170px">
+        <div style="font-weight:700">${escapeHtml(t.name)} ${!t.is_active ? '<span class="inline-badge badge-rejected">معطّل</span>' : ''}</div>
+        <div style="font-size:.8rem;color:var(--text-muted)">${t.ads_count}/${t.ads_limit} إعلانات · ${accessLabel}</div>
+      </div>
+      <div style="display:flex;gap:6px;flex-wrap:wrap">
+        <button class="btn btn-outline btn-sm" onclick="openEditTeacherModal('${t.id}')">✏️ تعديل ودخول</button>
+        <button class="btn btn-${t.is_active ? 'warning' : 'success'} btn-sm" onclick="toggleAcademyTeacherActive('${t.id}')">${t.is_active ? '⛔ تعطيل' : '✅ تفعيل'}</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function toggleTmLoginFields() {
+  const on = document.getElementById('tm-can-self-manage').checked;
+  document.getElementById('tm-login-fields').style.display = on ? '' : 'none';
+  document.getElementById('tm-perms-group').style.display = on ? '' : 'none';
+}
+function toggleTmPassword() {
+  const input = document.getElementById('tm-password');
+  if (input) input.type = input.type === 'password' ? 'text' : 'password';
+}
+
+function openAddTeacherModal() {
+  document.getElementById('tm-modal-title').textContent = '➕ إضافة مدرس';
+  document.getElementById('tm-submit-btn').textContent = 'إضافة';
+  document.getElementById('tm-form').reset();
+  document.getElementById('tm-id').value = '';
+  document.getElementById('tm-avatar-group').style.display = 'none';
+  document.getElementById('tm-login-fields').style.display = 'none';
+  document.getElementById('tm-perms-group').style.display = 'none';
+  openModal('tm-modal');
+}
+
+function openEditTeacherModal(teacherId) {
+  const t = academyTeachersList.find(x => x.id === teacherId);
+  if (!t) return;
+  document.getElementById('tm-modal-title').textContent = '✏️ تعديل بيانات المدرس';
+  document.getElementById('tm-submit-btn').textContent = 'حفظ التعديلات';
+  document.getElementById('tm-id').value = t.id;
+  document.getElementById('tm-name').value = t.name || '';
+  document.getElementById('tm-phone').value = t.phone || '';
+  document.getElementById('tm-bio').value = t.bio || '';
+  document.getElementById('tm-avatar-group').style.display = '';
+  document.getElementById('tm-can-self-manage').checked = !!t.can_self_manage;
+  document.getElementById('tm-username').value = '';
+  document.getElementById('tm-password').value = '';
+  document.getElementById('tm-login-fields').style.display = t.can_self_manage ? '' : 'none';
+  document.getElementById('tm-perms-group').style.display = t.can_self_manage ? '' : 'none';
+
+  const perms = t.feature_permissions || { avatar: true, bio: true, contact: true };
+  document.getElementById('tm-perm-avatar').checked = perms.avatar !== false;
+  document.getElementById('tm-perm-bio').checked = perms.bio !== false;
+  document.getElementById('tm-perm-contact').checked = perms.contact !== false;
+
+  const oldHint = document.getElementById('tm-login-fields').querySelector('.form-hint');
+  if (oldHint) oldHint.remove();
+  if (t.has_login) {
+    const hint = document.createElement('div');
+    hint.className = 'form-hint';
+    hint.textContent = 'عنده بيانات دخول بالفعل — اكتب هنا بس لو عايز تغيّرها.';
+    document.getElementById('tm-login-fields').appendChild(hint);
+  }
+  openModal('tm-modal');
+}
+
+async function submitTeacherForm(e) {
+  e.preventDefault();
+  const btn = document.getElementById('tm-submit-btn');
+  const errEl = document.getElementById('tm-modal-error');
+  errEl.style.display = 'none';
+  btn.disabled = true;
+  const originalText = btn.textContent;
+  btn.innerHTML = '<span class="spinner"></span> جارٍ الحفظ...';
+
+  try {
+    const id = document.getElementById('tm-id').value;
+    const name = document.getElementById('tm-name').value.trim();
+    const phone = document.getElementById('tm-phone').value.trim();
+    const bio = document.getElementById('tm-bio').value.trim();
+    const canSelfManage = document.getElementById('tm-can-self-manage').checked;
+    const username = document.getElementById('tm-username').value.trim();
+    const password = document.getElementById('tm-password').value;
+
+    let passwordHash = null;
+    if (canSelfManage && username && password) {
+      if (password.length < 6) throw new Error('كلمة المرور يجب أن تكون 6 أحرف على الأقل');
+      passwordHash = await sha256(password);
+    }
+
+    if (!id) {
+      const { error } = await supabase.rpc('create_academy_teacher', {
+        p_academy_id: teacher.id, p_name: name, p_phone: phone || null,
+        p_can_self_manage: canSelfManage,
+        p_username: (canSelfManage && username) ? username : null,
+        p_password: (canSelfManage && username) ? password : null,
+        p_password_hash: passwordHash,
+      });
+      if (error) throw error;
+    } else {
+      const uploadedAvatar = await uploadImageInput('tm-avatar-file', `teachers/${id}`);
+      const { error: updErr } = await supabase.rpc('update_academy_teacher', {
+        p_teacher_id: id, p_academy_id: teacher.id, p_name: name, p_phone: phone || null, p_bio: bio || null,
+        p_avatar_url: uploadedAvatar || null,
+      });
+      if (updErr) throw updErr;
+
+      const { error: accErr } = await supabase.rpc('set_academy_teacher_access', {
+        p_teacher_id: id, p_academy_id: teacher.id, p_can_self_manage: canSelfManage,
+        p_username: (canSelfManage && username) ? username : null,
+        p_password: (canSelfManage && username) ? password : null,
+        p_password_hash: passwordHash,
+      });
+      if (accErr) throw accErr;
+
+      const permissions = {
+        avatar: document.getElementById('tm-perm-avatar').checked,
+        bio: document.getElementById('tm-perm-bio').checked,
+        contact: document.getElementById('tm-perm-contact').checked,
+      };
+      const { error: permErr } = await supabase.rpc('set_academy_teacher_permissions', {
+        p_teacher_id: id, p_academy_id: teacher.id, p_permissions: permissions,
+      });
+      if (permErr) throw permErr;
+    }
+
+    closeModal('tm-modal');
+    showToast(id ? 'تم تحديث بيانات المدرس ✅' : 'تم إضافة المدرس ✅', 'success');
+    await loadAcademyTeachers();
+  } catch (err) {
+    errEl.textContent = err.message || 'حصل خطأ، حاول تاني';
+    errEl.style.display = 'block';
+  } finally {
+    btn.disabled = false;
+    btn.textContent = originalText;
+  }
+}
+
+async function toggleAcademyTeacherActive(teacherId) {
+  try {
+    const { error } = await supabase.rpc('toggle_academy_teacher_active', { p_teacher_id: teacherId, p_academy_id: teacher.id });
+    if (error) throw error;
+    showToast('تم تحديث حالة المدرس ✅', 'success');
+    await loadAcademyTeachers();
+  } catch (e) {
+    showToast(`خطأ: ${e.message}`, 'danger');
+  }
+}
+
+function logout() {
+  confirmDialog('هل تريد تسجيل الخروج من حسابك؟', () => {
+    Auth.clearTeacher();
+    window.location.href = 'login.html?role=teacher';
+  });
+}
+
+/* ══ جولات "مش فاهم الموقع" التعريفية ══ */
+const TUT_ACADEMY_OVERVIEW = [
+  {selector:'.ac-stats-grid', title:'نظرة عامة على أكاديميتك', text:'عدد مدرسينك، إجمالي إعلاناتهم، ونهاية اشتراكك — كله قدامك هنا.'},
+  {selector:'.ac-nav', title:'أقسام لوحتك', text:'من هنا تنقل بين النظرة العامة، إدارة المدرسين، وإعدادات أكاديميتك.'},
+];
+const TUT_ACADEMY_TEACHERS = [
+  {selector:'#tm-add-btn', title:'إضافة مدرس', text:'دوس هنا لإضافة مدرس جديد، طالما لسه عندك مكان متاح في اشتراكك.'},
+  {selector:'#tm-list, #tm-empty', title:'إدارة مدرسيك', text:'من هنا تعدّل بيانات أي مدرس، تحدد هل عنده دخول خاص بيه ومزاياه، أو تعطّل حسابه مؤقتًا.'},
+];
+const TUT_ACADEMY_SETTINGS = [
+  {selector:'#ac-settings-form', title:'بيانات أكاديميتك', text:'الاسم والشعار وبيانات التواصل اللي بتظهر للطلاب.'},
+  {selector:'#ac-sub-details', title:'تفاصيل اشتراكك', text:'حدود اشتراكك الحالية، ولو محتاج تزوّدها تواصل مع إدارة مدرسك.'},
+];
+
+function initTutorials() {
+  if (typeof Tutorial === 'undefined') return;
+  setTimeout(() => Tutorial.run('academy_overview', TUT_ACADEMY_OVERVIEW), 1200);
+  Tutorial.registerMenu([
+    {label:'📊 جولة النظرة العامة', run:() => { goToAcademyPanel('overview'); setTimeout(() => Tutorial.run('academy_overview', TUT_ACADEMY_OVERVIEW, {force:true}), 300); }},
+    {label:'🧑‍🏫 جولة إدارة المدرسين', run:() => { goToAcademyPanel('teachers'); setTimeout(() => Tutorial.run('academy_teachers', TUT_ACADEMY_TEACHERS, {force:true}), 300); }},
+    {label:'⚙️ جولة الإعدادات', run:() => { goToAcademyPanel('settings'); setTimeout(() => Tutorial.run('academy_settings', TUT_ACADEMY_SETTINGS, {force:true}), 300); }},
+  ]);
+}
+</script>
+</body>
+</html>

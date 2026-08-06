@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="الأسئلة الشائعة عن منصة مدرسك — كيفية البحث عن مدرس خصوصي والتواصل معه والانضمام كمدرس، وكل ما تحتاج إلى معرفته عن المنصة.">
+  <meta name="keywords" content="مدرسك, الأسئلة الشائعة, مدرس خصوصي, دروس خصوصية, مدرسين, منصة مدرسين, تعليم, طلاب, مصر">
+  <meta name="author" content="مدرسك">
+  <meta name="robots" content="index, follow">
+  <meta name="theme-color" content="#2563EB">
+  <link rel="canonical" href="https://www.modaresk.com/faq.html">
+  <meta property="og:locale" content="ar_AR">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://www.modaresk.com/faq.html">
+  <meta property="og:site_name" content="مدرسك">
+  <meta property="og:title" content="الأسئلة الشائعة - مدرسك">
+  <meta property="og:description" content="إجابات عن أكثر الأسئلة التي ترد إلينا من الطلاب والمدرسين عن منصة مدرسك.">
+  <meta property="og:image" content="logo.png">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="الأسئلة الشائعة - مدرسك">
+  <meta name="twitter:description" content="إجابات عن أكثر الأسئلة التي ترد إلينا من الطلاب والمدرسين عن منصة مدرسك.">
+  <title>الأسئلة الشائعة - مدرسك</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800;900&family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css?v=8.1.0">
+  <link rel="icon" type="image/png" href="logo.png">
+  <link rel="apple-touch-icon" href="icon-512.png">
+  <link rel="manifest" href="manifest.webmanifest">
+</head>
+<body>
+<nav class="navbar">
+  <div class="nav-container" style="max-width:1200px;margin:0 auto">
+    <a href="index.html" class="nav-brand"><img src="logo.png" alt="مدرسك" class="site-logo"> مدرسك</a>
+    <ul class="nav-links" id="nav-links">
+      <li><a href="index.html">الرئيسية</a></li>
+      <li><a href="index.html#features">كيف يعمل؟</a></li>
+      <li><a href="join.html">انضم كمدرس</a></li>
+      <li><a href="faq.html" class="active">الأسئلة الشائعة</a></li>
+    </ul>
+    <div class="nav-actions"><a href="login.html" class="btn btn-outline btn-sm">تسجيل الدخول</a></div>
+    <button class="nav-menu-btn" onclick="document.getElementById('nav-links').classList.toggle('open')">☰</button>
+  </div>
+</nav>
+
+<section class="page-hero">
+  <div class="container">
+    <div class="breadcrumb"><a href="index.html">الرئيسية</a> / الأسئلة الشائعة</div>
+    <h1>الأسئلة الشائعة</h1>
+    <p>جمعنا لك هنا إجابات عن أكثر الأسئلة التي ترد إلينا من الطلاب والمدرسين. إذا وجدت سؤالك فاضغط عليه لعرض إجابته.</p>
+  </div>
+</section>
+
+<main class="section">
+  <div class="container">
+    <div class="faq-search-box">
+      <span class="fs-icon">🔍</span>
+      <input type="text" id="faq-search" placeholder="ابحث في الأسئلة..." autocomplete="off" aria-label="ابحث في الأسئلة الشائعة">
+    </div>
+    <div class="faq-wrap">
+      <div class="faq-list" id="faq-page-list">
+        <div class="loading-spinner" style="padding:40px"><div class="spinner-lg"></div></div>
+      </div>
+      <div class="faq-empty" id="faq-no-results" style="display:none">لا توجد نتائج مطابقة لبحثك 🔎</div>
+    </div>
+
+    <div style="text-align:center;margin-top:44px">
+      <p style="color:var(--text-secondary);margin-bottom:14px">هل لا يزال لديك سؤال لم تجد إجابته؟</p>
+      <a href="#" data-admin-contact data-message="مرحبًا، لديّ سؤال عن منصة مدرسك" class="btn btn-primary">تواصل مع الإدارة</a>
+    </div>
+  </div>
+</main>
+
+<footer class="footer">
+  <div class="container">
+    <div class="grid grid-3" style="gap:40px;margin-bottom:0">
+      <div>
+        <img src="logo.png" alt="مدرسك" class="footer-logo"><div class="footer-brand">مدرسك</div>
+        <div class="footer-desc">منصة تربط الطلاب بأفضل المدرسين الخصوصيين في مختلف المواد والمراحل الدراسية</div>
+      </div>
+      <div>
+        <div class="footer-title">روابط سريعة</div>
+        <ul class="footer-links">
+          <li><a href="index.html">الرئيسية</a></li>
+          <li><a href="faq.html">الأسئلة الشائعة</a></li>
+          <li><a href="join.html">انضم كمدرس</a></li>
+          <li><a href="login.html">تسجيل الدخول</a></li>
+          <li data-admin-only style="display:none"><a href="admin.html">🔧 لوحة الإدارة</a></li>
+        </ul>
+      </div>
+      <div>
+        <div class="footer-title">معلومات قانونية</div>
+        <ul class="footer-links">
+          <li><a href="privacy.html">سياسة الخصوصية</a></li>
+          <li><a href="terms.html">شروط الاستخدام</a></li>
+          <li><a href="refund-policy.html">سياسة الاسترجاع</a></li>
+          <li><a href="#" data-admin-contact data-message="مرحبًا، أريد الاستفسار عن منصة مدرسك">💬 واتساب الإدارة</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">© 2026 مدرسك — جميع الحقوق محفوظة</div>
+  </div>
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="config.js?v=11.0.0"></script>
+
+<!-- ── تحميل صفحة الأسئلة الشائعة ── -->
+<script>
+(function () {
+  var entries = [];       // [{el, faq}] بترتيب الظهور الأصلي
+  var listEl, noResEl;
+
+  function faqEsc(s) {
+    try { return escapeHtml(s == null ? '' : String(s)); }
+    catch (_) {
+      return (s == null ? '' : String(s)).replace(/[&<>"']/g, function (c) {
+        return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
+      });
+    }
+  }
+
+  /* ============ محرك البحث الذكي (عربي) ============ */
+  // تطبيع النص: إزالة التشكيل والتطويل وتوحيد الألف/الياء/التاء المربوطة وإزالة الرموز
+  function normalizeAr(str) {
+    return (str == null ? '' : String(str))
+      .toLowerCase()
+      .replace(/[\u064B-\u0652\u0670\u0640]/g, '')
+      .replace(/[\u0622\u0623\u0625\u0671]/g, '\u0627')
+      .replace(/\u0649/g, '\u064A')
+      .replace(/\u0629/g, '\u0647')
+      .replace(/\u0624/g, '\u0648')
+      .replace(/\u0626/g, '\u064A')
+      .replace(/\u0621/g, '')
+      .replace(/[^\u0600-\u06FF\u0750-\u077Fa-z0-9\s]/g, ' ')
+      .replace(/\s+/g, ' ')
+      .trim();
+  }
+
+  // إزالة أدوات التعريف/الجر الملتصقة في بداية الكلمة
+  function stripClitics(t) {
+    var m = /^(وال|فال|بال|كال|لل|ال)(.{2,})$/.exec(t);
+    if (m) return m[2];
+    return t;
+  }
+
+  var STOPWORDS = {};
+  ['في','من','علي','الي','عن','مع','هو','هي','انا','انت','و','او','ثم','يا','هل','ان',
+   'ما','هذا','هذه','ذلك','التي','الذي','اللي','ده','دي','هوه','هيه','عايز','عاوز','بتاع',
+   'كل','اي','عند','لو',' f','the','a','to','of','is','it'
+  ].forEach(function (w) { STOPWORDS[normalizeAr(w)] = 1; });
+
+  function norm1(x) { return stripClitics(normalizeAr(x)); }
+
+  function tokenize(str) {
+    var n = normalizeAr(str);
+    if (!n) return [];
+    var out = [];
+    n.split(' ').forEach(function (w) {
+      var t = stripClitics(w);
+      if (t && t.length > 1 && !STOPWORDS[t]) out.push(t);
+    });
+    return out;
+  }
+
+  // خريطة المرادفات: صيغة عامية/مختلفة → الجذر القياسي
+  var SYN = (function () {
+    var groups = {
+      'كيف': ['ازاي','ازاى','ازي','كيفيه'],
+      'تواصل': ['اتواصل','اكلم','اتكلم','كلم','تكلم','كلام','اتصل','اتصال','مكالمه','اراسل','راسل','رساله','مراسله','ابعت','ارسل','واتساب','واتس','ماسنجر','ماسينجر','رقم','تليفون','موبايل','اكلمه','اكلمهم'],
+      'فيسبوك': ['فيسبوك','فيس','facebook'],
+      'مدرس': ['مدرسين','استاذ','معلم','معلمه','مس','مستر','دكتور','ابله','تيتشر','teacher'],
+      'بحث': ['ادور','دور','لاقي','الاقي','اوصل','ابحث','اشوف','اجد','دوره','لقاء','هدور','بلاقي','دورت'],
+      'سعر': ['تمن','ثمن','فلوس','مصاري','تكلفه','كام','بكام','يكلف','مصاريف','اسعار','سعره','بيكلف'],
+      'دفع': ['ادفع','فيزا','ماستر','ماستركارد','باي','بايمنت','بطاقه','كارت','تحويل','محفظه','فودافون','انستاباي','فوري','ادفعله','مدفوعات','دفعه'],
+      'مجاني': ['ببلاش','بلاش','فري','مجانا','هديه','free'],
+      'اشتراك': ['اشترك','باقه','باقات','خطه','عضويه','اجدد','تجديد','باقتي','سبسكرايب','اشتراكي'],
+      'طالب': ['طلاب','تلميذ','ولي','امر','طالبه','ابني','بنتي','ولادي'],
+      'خصم': ['كوبون','كود','بروموكود','عرض','تخفيض','كوبونات','برومو'],
+      'انضم': ['انضمام','اسجل','تسجيل','احط','اعرض','اعلان','انشر','اضيف','ادرج','اعلن'],
+      'استرجاع': ['الغي','ارجع','استرداد','ريفاند','فلوسي','الغاء','ارجاع','استرد','refund','رجعلي'],
+      'موثوق': ['نصب','ثقه','اطمن','اطمئن','مضمون','ضمان','امان','امن','نصاب','محتال','مضمونه'],
+      'مجموعه': ['مجموعات','جروب','سنتر','جروبات'],
+      'خصوصي': ['خصوصي','برايفت','فردي','private'],
+      'اونلاين': ['اونلاين','نت','زوم','online'],
+      'حضوري': ['حضوري','بيت','منزل','وجاهي','offline']
+    };
+    var map = {};
+    Object.keys(groups).forEach(function (canonRaw) {
+      var canon = norm1(canonRaw);
+      if (!(canon in map)) map[canon] = canon;
+      groups[canonRaw].forEach(function (v) {
+        var k = norm1(v);
+        if (k && !(k in map)) map[k] = canon;
+      });
+    });
+    return map;
+  })();
+
+  function expand(tokens) {
+    return tokens.map(function (t) { return SYN[t] || t; });
+  }
+
+  function uniq(arr) {
+    var seen = {}, out = [];
+    arr.forEach(function (x) { if (!seen[x]) { seen[x] = 1; out.push(x); } });
+    return out;
+  }
+
+  function levenshtein(a, b) {
+    if (a === b) return 0;
+    var al = a.length, bl = b.length;
+    if (!al) return bl; if (!bl) return al;
+    if (Math.abs(al - bl) > 1) return 2; // نحتاج فقط ≤1
+    var prev = [], i, j;
+    for (j = 0; j <= bl; j++) prev[j] = j;
+    for (i = 1; i <= al; i++) {
+      var cur = [i];
+      for (j = 1; j <= bl; j++) {
+        var cost = a.charAt(i - 1) === b.charAt(j - 1) ? 0 : 1;
+        cur[j] = Math.min(prev[j] + 1, cur[j - 1] + 1, prev[j - 1] + cost);
+      }
+      prev = cur;
+    }
+    return prev[bl];
+  }
+
+  function fuzzyNear(t, set) {
+    if (t.length < 4) return false;
+    var arr = Array.from(set), i;
+    for (i = 0; i < arr.length; i++) {
+      var s = arr[i];
+      if (s.length >= 4 && Math.abs(s.length - t.length) <= 1 && levenshtein(t, s) <= 1) return true;
+    }
+    return false;
+  }
+
+  // تجهيز بيانات السؤال للبحث (مجموعات كلمات + نصوص مطبّعة)
+  function prepFaq(f) {
+    f._qs = normalizeAr(f.question);
+    f._as = normalizeAr(f.answer);
+    f._ks = normalizeAr(f.keywords);
+    f._q = new Set(expand(tokenize(f.question)));
+    f._a = new Set(expand(tokenize(f.answer)));
+    f._k = new Set(expand(tokenize(f.keywords)));
+  }
+
+  function scoreFaq(rawTokens, canonTokens, qNorm, f) {
+    var score = 0;
+    for (var i = 0; i < rawTokens.length; i++) {
+      var tr = rawTokens[i], tc = canonTokens[i];
+      if (f._q.has(tc)) score += 6;
+      else if (f._k.has(tc)) score += 5;
+      else if (f._a.has(tc)) score += 2;
+      else if (f._qs.indexOf(tr) !== -1 || f._ks.indexOf(tr) !== -1) score += 2;
+      else if (f._as.indexOf(tr) !== -1) score += 1;
+      else if (fuzzyNear(tc, f._q) || fuzzyNear(tc, f._k)) score += 1;
+    }
+    if (qNorm.length >= 4 && (f._qs.indexOf(qNorm) !== -1 || f._ks.indexOf(qNorm) !== -1)) score += 4;
+    return score;
+  }
+
+  function restoreOrder() {
+    entries.forEach(function (e) { e.el.style.display = ''; listEl.appendChild(e.el); });
+    if (noResEl) noResEl.style.display = 'none';
+  }
+
+  function smartSearch(query) {
+    if (!listEl) return;
+    var qNorm = normalizeAr(query);
+    var rawTokens = uniq(tokenize(query));
+    if (!qNorm || !rawTokens.length) { restoreOrder(); return; }
+    var canonTokens = rawTokens.map(function (t) { return SYN[t] || t; });
+
+    var scored = entries.map(function (e, i) {
+      return { e: e, i: i, score: scoreFaq(rawTokens, canonTokens, qNorm, e.faq) };
+    });
+    var matched = scored.filter(function (x) { return x.score > 0; });
+    matched.sort(function (a, b) { return b.score - a.score || a.i - b.i; });
+
+    matched.forEach(function (x) { x.e.el.style.display = ''; listEl.appendChild(x.e.el); });
+    scored.forEach(function (x) { if (x.score <= 0) x.e.el.style.display = 'none'; });
+    if (noResEl) noResEl.style.display = matched.length ? 'none' : '';
+  }
+
+  /* ============ بناء العناصر والتحميل ============ */
+  function buildFaqItem(f) {
+    var item = document.createElement('div');
+    item.className = 'faq-item';
+    item.innerHTML =
+      '<button type="button" class="faq-q" aria-expanded="false">' +
+        '<span class="faq-q-text">' + faqEsc(f.question) + '</span>' +
+        '<span class="faq-icon" aria-hidden="true">+</span>' +
+      '</button>' +
+      '<div class="faq-a"><div class="faq-a-inner">' + faqEsc(f.answer) + '</div></div>';
+    var btn = item.querySelector('.faq-q');
+    var panel = item.querySelector('.faq-a');
+    btn.addEventListener('click', function () {
+      var isOpen = item.classList.contains('open');
+      if (isOpen) {
+        item.classList.remove('open');
+        btn.setAttribute('aria-expanded', 'false');
+        panel.style.maxHeight = '';
+      } else {
+        item.classList.add('open');
+        btn.setAttribute('aria-expanded', 'true');
+        panel.style.maxHeight = panel.scrollHeight + 'px';
+      }
+    });
+    return item;
+  }
+
+  function injectFaqSchema(faqs) {
+    try {
+      if (!faqs.length) return;
+      var schema = {
+        '@context': 'https://schema.org',
+        '@type': 'FAQPage',
+        mainEntity: faqs.map(function (f) {
+          return { '@type': 'Question', name: f.question, acceptedAnswer: { '@type': 'Answer', text: f.answer } };
+        })
+      };
+      var el = document.createElement('script');
+      el.type = 'application/ld+json';
+      el.textContent = JSON.stringify(schema);
+      document.head.appendChild(el);
+    } catch (_) {}
+  }
+
+  async function loadPageFaqs() {
+    listEl = document.getElementById('faq-page-list');
+    noResEl = document.getElementById('faq-no-results');
+    if (!listEl) return;
+    try {
+      if (!window.supabase) throw new Error('supabase not ready');
+      var res = await window.supabase
+        .from('faqs')
+        .select('id, question, answer, keywords')
+        .eq('is_active', true)
+        .order('sort_order', { ascending: true })
+        .order('created_at', { ascending: true });
+      if (res.error) throw res.error;
+      var faqs = res.data || [];
+      listEl.innerHTML = '';
+      entries = [];
+      if (!faqs.length) {
+        listEl.innerHTML = '<div class="faq-empty">لا توجد أسئلة متاحة حاليًا. تواصل مع الإدارة لأي استفسار.</div>';
+        var box0 = document.querySelector('.faq-search-box');
+        if (box0) box0.style.display = 'none';
+        return;
+      }
+      faqs.forEach(function (f) {
+        prepFaq(f);
+        var el = buildFaqItem(f);
+        listEl.appendChild(el);
+        entries.push({ el: el, faq: f });
+      });
+      injectFaqSchema(faqs);
+    } catch (e) {
+      console.error('FAQ page load error:', e);
+      listEl.innerHTML = '<div class="faq-empty">تعذّر تحميل الأسئلة حاليًا. يُرجى تحديث الصفحة.</div>';
+      var box1 = document.querySelector('.faq-search-box');
+      if (box1) box1.style.display = 'none';
+    }
+  }
+
+  function init() {
+    var search = document.getElementById('faq-search');
+    if (search) {
+      search.addEventListener('input', function () { smartSearch(search.value); });
+    }
+    loadPageFaqs();
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', init);
+  } else {
+    init();
+  }
+})();
+</script>
+</body>
+</html>
